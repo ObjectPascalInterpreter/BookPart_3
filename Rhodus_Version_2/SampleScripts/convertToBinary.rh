@@ -1,0 +1,17 @@
+
+function convert (n) 
+    i = 1; istep = 1; bin = 0    
+    while n != 0 do
+        rem = n mod 2;
+        //print ("Step %d: %d/2, Remainder = %d, Quotient = %d\n", step++, n, rem, n / 2);
+        n = n div 2;
+        bin = bin + rem * i;
+        i = i * 10;
+    end
+    return bin;
+end
+
+
+print ("Enter a decimal number: ");
+n = int (readNumber())
+println (n, " in decimal = ", convert (n), " in binary");

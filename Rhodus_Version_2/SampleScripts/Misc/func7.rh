@@ -1,0 +1,8 @@
+// Recursive version for computing the Fibonacci Sequence
+// Fn = Fn-1 + Fn-2, where Fo = 0 and F1 = 0
+function fib (x)
+    return x
+end;
+
+f = fib (10000);
+println (f);

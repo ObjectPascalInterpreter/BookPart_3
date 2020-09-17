@@ -1,0 +1,58 @@
+
+// Boolean tests
+
+//println ("Boolean Tests");
+x = 1; y1 = 6; w = 3; v = 4;
+assertTrue  (True == True);
+assertTrue  (True != False);
+assertFalse (True != True);
+assertFalse (False != False);
+assertTrue  (not False);
+assertFalse (not True);
+assertTrue  (not not True);
+assertTrue  (True or True);
+assertTrue  (True or False);
+assertTrue  (False or True);
+assertTrue  (not not True);
+assertFalse (False and True);
+
+assertTrue  (True and True);
+assertFalse (False and False);
+assertFalse (not (False or True));
+assertTrue  (not (False or False));
+assertTrue  (not (False and True));
+assertTrue  (not (True and False));
+assertTrue  (not (False and False));
+
+assertFalse (True xor True);
+assertTrue  (True xor False);
+assertTrue  (False xor True);
+assertFalse (False xor False);
+assertTrue  (False xor True and True);
+
+assertFalse (x < x and x > x);
+assertFalse ((x >= y1) and not (w <= v));
+assertFalse (y1 != 6);
+assertTrue  (y1 == 6);
+
+assertTrue (1 < 2);
+assertTrue (1 <= 2);
+assertTrue (not (1 > 2));
+assertTrue (not (1 >= 2));
+assertTrue (not (1 == 2));
+assertTrue (1 != 2);
+
+x = 1; y1 = 6; w = 3; v = 4;
+assertTrue (False xor True and True == True);
+assertTrue ((x < x and x > x) == False);
+assertTrue (((x >= y1) and not (w <= v)) == False);
+assertTrue ((y1 == 6) == True);
+
+x = 1.2;
+assertFalse (x == 3.4);
+x = 3.4;
+assertTrue  (x == 3.4);
+
+
+
+

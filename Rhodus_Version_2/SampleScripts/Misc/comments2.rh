@@ -1,0 +1,7 @@
+println ("Test comment line increment");
+x = 1; 
+// Comment
+x = 2
+x = 3;  // <--- Line 5
+x = 5; 
+// An error should be reported at line 5, column 1

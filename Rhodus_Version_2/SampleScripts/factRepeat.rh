@@ -1,0 +1,10 @@
+
+counter = 5;
+factorial = 1;
+
+repeat 
+    factorial = factorial * counter;
+    counter = counter - 1;
+until counter == 0;
+
+println (factorial);

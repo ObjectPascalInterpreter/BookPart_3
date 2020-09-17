@@ -1,0 +1,10 @@
+
+function getList()
+   a = {1,2,3};
+   b = {4,5,6};
+   c = a + b;
+   return c
+end;
+
+x = getList();
+println (x);

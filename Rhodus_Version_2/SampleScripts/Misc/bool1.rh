@@ -1,0 +1,13 @@
+
+x = 1; y1 = 6; w = 3; v = 4;
+b = not False;
+b = False and True;
+b = False or True;
+b = not (False or True);
+b = False xor True and True;
+b = x < x and x > x;
+b = (x >= y1) and not (w <= v);
+b = (y1 != 6);
+b = y1 == 6;
+
+

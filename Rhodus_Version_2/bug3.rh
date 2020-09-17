@@ -1,0 +1,10 @@
+
+
+//function test (x)
+//   math.sin (x)
+//end
+
+
+function test2 (x)
+   x*x
+end

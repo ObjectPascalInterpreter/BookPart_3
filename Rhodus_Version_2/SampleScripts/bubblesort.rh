@@ -1,0 +1,11 @@
+a = {17, 0, 5, 3, 1, 2, 55};
+length = 7;
+for i = 0 to 7 - 1 do
+   for j = i+1 to length - 1 do
+      if (a[i] > a[j]) then
+        temp = a[i]; 
+        a[i] = a[j];
+        a[j] = temp;
+      end
+   end
+end

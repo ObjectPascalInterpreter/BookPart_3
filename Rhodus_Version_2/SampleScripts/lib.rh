@@ -1,0 +1,16 @@
+
+pi = 3.1415926;
+e  = 2.71828183;
+
+
+function sqrt (x)
+   return x^0.5
+end;
+
+
+function input (prompt)
+   print (prompt + " ");
+   return readString()
+end;
+
+

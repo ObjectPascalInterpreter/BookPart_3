@@ -1,0 +1,14 @@
+// Check if n is a prime
+function IsPrime (n)
+  if n == 1 then
+     return False;
+  end;
+  for m = 2 to (n div 2) do
+    if n mod m == 0 then
+      return False;
+    end
+  end;
+  return True;
+end;
+
+println (IsPrime (10))

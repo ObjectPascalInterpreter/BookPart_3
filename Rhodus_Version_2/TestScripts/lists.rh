@@ -1,0 +1,77 @@
+
+// List Tests
+
+a = {1,2,3,4};
+a = 1;
+assertTrue (a == 1);
+
+assertTrue ({} == {});
+assertTrue ({1} == {1});
+assertTrue ({1,2,3} == {1,2,3});
+assertTrue ({1,2,3} + 4 == {1,2,3,4});
+assertTrue ({1,2,3} + 3.14 == {1,2,3,3.14});
+
+assertTrue ({1,2,3} + True == {1,2,3,True});
+assertTrue ({1,2,3} + "string" == {1,2,3,"string"}); 
+
+assertTrue ({1,2,3} + {4} == {1,2,3,4});
+assertTrue ({1,2,3} + {{4}} == {1,2,3,{4}});
+
+assertTrue ({1,2,3} + 3.14 == {1,2,3,3.14});
+assertTrue ({1,2,3} + True == {1,2,3,True});
+
+assertTrue ({1,2,3} + {"string"} == {1,2,3,"string"});
+
+assertTrue ({1,2,3} + {4,True,2.81,"string"} == {1,2,3,4,True,2.81,"string"});
+
+assertTrue ({1,2,3} + {{4,True,2.81,"string"}} == {1,2,3,{4,True,2.81,"string"}});
+
+assertTrue ({1,2,3} + {{4,5,{6,{7}}}} == {1,2,3,{4,5,{6,{7}}}});
+
+a = {1};
+assertTrue (3*a == {1,1,1});
+
+a = {1,2};
+assertTrue (3*a == {1,2,1,2,1,2});
+
+a = {1,{2}};
+assertTrue (a*3 == {1,{2},1,{2},1,{2}});
+
+a = True;
+alist = {1,2,3};
+alist[1] = a;
+assertTrue (alist == {1, True, 3});
+
+alist = {1,2,3,4};
+assertTrue (alist[1] == 2);
+assertTrue (alist[2] == 3);
+
+alist = {1,2,3,{4,5},6};
+assertTrue (alist[3] == {4,5});
+
+alist = {1,2,3,{4,5},6};
+alist[0] = 99;
+assertTrue (alist[0] == 99);
+
+alist = {1,2,3,{4,5},6};
+alist[0] = {"ab","xy"};
+assertTrue (alist[0] == {"ab","xy"}); 
+
+a = {3,4};
+a = {1,2};
+a = {1,2,3,4,5};
+assertTrue (a[1] + a[3] == 6);
+
+a = {1,2,{3,{4,5}}};
+assertTrue (a[2,1] == {4,5});
+a[2,1,0] = 99;
+assertTrue (a == {1,2,{3,{99,5}}});
+
+// Memmory leak tests for multipying lists
+a = {1,2,3};
+b = 3*a;
+assertTrue (b == {1,2,3,1,2,3,1,2,3}); 
+
+a = {1,2,3,{7,8,9,{56,78}}};
+x = a[3,3];
+assertTrue (x == {56,78});

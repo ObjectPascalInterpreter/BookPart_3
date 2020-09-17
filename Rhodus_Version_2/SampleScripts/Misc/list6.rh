@@ -1,0 +1,5 @@
+
+a = {};
+for i = 0 to 2400 do
+    a = a + i
+end

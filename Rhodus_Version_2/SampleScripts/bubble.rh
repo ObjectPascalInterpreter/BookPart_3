@@ -1,0 +1,19 @@
+function bubbleSort (list, length)
+ sorted = False;
+ while not sorted do
+      sorted = True;
+      length = length - 1;
+      for i = 0 to length - 1 do
+        if list[i+1] < list[i] then
+          temp = list[i];
+          list[i] = list[i + 1];
+          list[i + 1] = temp;
+          sorted = False
+        end
+      end
+ end
+end;
+
+l = {4,2,7,6};
+bubbleSort (l, 4);
+println (l);

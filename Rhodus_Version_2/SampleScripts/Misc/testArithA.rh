@@ -1,0 +1,19 @@
+println ("--Test Arith A--");
+
+println ("Simple Arithmetic");
+println ("----- Add: ", 2 + 3 == 5);
+println ("----- Sub: ", 2 - 3 == -1);
+println ("----- Mult: ", 2 * 3 == 6);
+//println ("----- Div: ", 6 / 3 == 2.0);
+//println ("----- pow: ", 2 ^ 3 == 8);
+
+/*println (1E2 == 100,  "----- Exponent 1: fail");
+println (1.2E2 == 120,  "----- Exponent 2: fail");
+println (0.1E2 == 10,  "----- Exponent 3: fail");
+println (1E-2 == 0.01,  "----- Exponent 4: fail");
+println (1.2E-2 == 0.012,  "----- Exponent 5: fail");
+println (-1E-2 == -0.01,  "----- Exponent 6: fail");
+
+println (3*"abc" == "abcabcabc", "----- String Mult 1: fail");
+println ("abc"*3 == "abcabcabc", "----- String Mult 2: fail");
+println (2*"ab"*3 == "abababababab", "----- String Mult 3: fail");*/

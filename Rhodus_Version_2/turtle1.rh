@@ -1,0 +1,15 @@
+
+
+tu.setPosition (0,0)
+tu.clear()
+tu.penDown ();
+while True do
+  tu.forward (200);
+  tu.left (170);
+  p = tu.getPosition();
+
+   d = math.sqrt(p[0]*p[0] + p[1]*p[1]);
+   if d < 1 then
+        break
+   end
+end

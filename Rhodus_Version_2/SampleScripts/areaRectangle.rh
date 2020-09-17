@@ -1,0 +1,7 @@
+
+print ("Enter the width: ");
+width = getNumber();
+print ("Enter the length: ");
+length = getNumber();
+area = width*length;
+println ("The area of rectangle is ", area);

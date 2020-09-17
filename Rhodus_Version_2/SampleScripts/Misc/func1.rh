@@ -1,0 +1,10 @@
+function printme (x, y)
+   a = x;
+   b = y;   
+   println ("Print me: ");
+   return a+b
+end;
+
+a = printme(2, 4) + 10;
+println ("Answer = ", a)
+

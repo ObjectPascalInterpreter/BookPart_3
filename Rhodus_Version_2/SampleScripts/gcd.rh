@@ -1,0 +1,16 @@
+   
+println ("Enter two positive integers")
+print ("First integer: ")
+n1 = int (readNumber())
+print ("Second integer: ")
+n2 = int (readNumber())
+
+while (n1 != n2) do
+
+   if n1 > n2 then
+      n1 = n1 - n2;
+    else
+      n2 = n2 - n1;
+    end
+end
+println ("GCD = ", n1);

@@ -1,0 +1,19 @@
+function doBinarySearch(list, length, value)
+    low = 0;
+    high = length;
+    while 0 <= high do
+        mid = (low+high) div 2;
+        if list[mid] > value then
+           high = mid - 1
+        else
+           if list[mid] < value then
+              low = mid + 1
+          else
+             return mid
+          end;
+        end;
+    end;
+    return -1;
+end;
+
+print (doBinarySearch ({3,5,2,8}, 4, 8))

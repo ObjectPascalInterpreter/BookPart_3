@@ -1,0 +1,3 @@
+for i = 3 to 10 do
+  println (i*i*i) 
+end

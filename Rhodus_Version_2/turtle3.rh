@@ -1,0 +1,15 @@
+
+
+//tu.penDown()
+//tu.reset()
+//tu.clear()
+
+function square (size)
+   tu.forward (size)
+   //tu.right (90)
+   //tu.forward (size)
+   //tu.right (90)
+   //tu.forward (size)
+   //tu.right (90)
+   //tu.forward (size) 
+end

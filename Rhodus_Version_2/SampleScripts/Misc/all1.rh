@@ -1,0 +1,27 @@
+println ("Testing while loop");
+a = 6;
+while a >= 1 do
+  print ("while: ");
+  println (a);  
+  a = a - 1;
+end;
+
+println ("Testing repeat loop");
+a = 6;
+repeat 
+  print ("repeat: ");
+  println (a);  
+  a = a - 1;
+until a < 1;
+
+println ("If statements");
+a = 6;
+if a > 4 then
+   print ("If statement: ");
+   println (a);
+end;
+
+println ("For loops:");
+for i = 1 to 10 do
+    print (i, " ")
+end

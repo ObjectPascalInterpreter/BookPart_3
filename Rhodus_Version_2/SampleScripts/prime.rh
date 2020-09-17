@@ -1,0 +1,16 @@
+
+print ("Find prime numbers upto : ")
+upto = readNumber()
+
+for num = 2 to upto  do
+    c=0
+    for j = 1 to num do
+        if num mod j == 0 then
+          c = c + 1;
+        end
+     end
+         
+     if c == 2 then
+        print (num, " ")
+      end
+end

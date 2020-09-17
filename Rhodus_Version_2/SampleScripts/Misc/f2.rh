@@ -1,0 +1,13 @@
+
+function add (a)
+   return a
+end
+
+println (add (4))
+
+function add (a,b)
+  return a + b
+end
+
+println (add (6,2))
+

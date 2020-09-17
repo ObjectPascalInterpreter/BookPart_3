@@ -1,0 +1,12 @@
+
+y = 4.5; w = 8.9;
+a = "str"; b = {1,2,3};
+
+function testGlobal_3 ()
+   global y, w;
+   y = 99; w = 88; 
+
+   global a, b;
+   a = -1; b = -4;
+end;
+testGlobal_3();

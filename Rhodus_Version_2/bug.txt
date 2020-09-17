@@ -1,0 +1,192 @@
+
+
+// Loops Tests
+
+// ----------------------------------------------
+// Repeat/Until Loops
+// ----------------------------------------------
+
+
+i = 0;
+alist = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+repeat
+  assertTrue (i == alist[i]);
+  i = i + 1;
+until i == 10;
+assertTrue (i == 10);
+
+i = 0;
+repeat
+  i = i + 1;
+until i > 9;
+assertTrue (i == 10);
+
+i = 0;
+repeat
+  i = i + 1;
+until i >= 9;
+assertTrue (i == 9);
+
+i = 10;
+repeat
+  i = i - 1;
+until i == 2;
+assertTrue (i == 2);
+
+i = 10;
+repeat
+  i = i - 1;
+until i < 3;
+assertTrue (i == 2);
+
+i = 10;
+repeat
+  i = i - 1;
+until i <= 3;
+assertTrue (i == 3);
+
+i = 0;
+repeat
+  i = i + 1;
+  if i == 5 then
+     break;
+  end; 
+until i > 10;
+assertTrue (i == 5);
+
+i = 0;
+repeat
+  i = i + 1;
+  if i == 5 then
+     break;
+  end; 
+  j = 0;
+  repeat
+    j = j + 1;
+    if j == 8 then
+       break;
+    end;
+  until j > 15;
+until i > 10;
+assertTrue (i == 5);
+assertTrue (j == 8);
+
+// This method shouldn't cause a syntax error
+repeat
+until True
+assertTrue (True)
+
+// ----------------------------------------------
+// While Loops
+// ----------------------------------------------
+
+a = True;
+while a do
+  a = False
+end;
+assertTrue (a == False);
+
+i = 0;
+while i < 10 do
+   i = i + 1;
+end;
+assertTrue (i == 10);
+
+i = 0;
+while i <= 8 do
+   i = i + 1;
+end;
+assertTrue (i == 9);
+
+i = 10;
+while i > 1 do
+   i = i - 1;
+end;
+assertTrue (i == 1);
+
+i = -1;
+while i > -5 do
+   i = i - 1;
+end;
+assertTrue (i == -5);
+
+i = 0;
+while i < 10 do
+  i = i + 1;
+  if i == 5 then
+     break;
+  end;
+end; 
+assertTrue (i == 5);
+
+i = 0;
+while i < 10 do
+  i = i + 1;
+  if i == 5 then
+     break;
+  end; 
+  j = 0;
+  while j < 15 do
+    j = j + 1;
+    if j == 8 then
+       break;
+    end;
+  end;
+end;
+assertTrue (i == 5);
+assertTrue (j == 8);
+
+// This script shouldn't cause a syntax error
+while False do
+end
+assertTrue (True)
+
+// ----------------------------------------------
+// For Loops
+// ----------------------------------------------
+
+alist = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+for i = 1 to 10 do
+    assertTrue (i == alist[i]);
+end;
+assertTrue (i == 11); // iteration loop will be one more than upper limit
+
+for i = 8 downto 3 do
+    x = 0;
+end;
+assertTrue (i == 2); // iteration loop will be one less than lower limit
+
+for i = 1 to 10 do
+   if i == 5 then
+      break;
+   end;
+end;
+assertTrue (i == 5);
+
+for i = 1 to 10 do
+   for j = 1 to 5 do
+      if j == 3 then
+         break;
+      end;
+   end;
+   if i == 5 then
+      break;
+   end;
+end;
+assertTrue (i == 5);
+
+// ----------------------------------------------
+
+principal = 500;
+rate = 0.1;
+numYears = 5;
+year = 1;
+while year <= numYears do
+   principal = principal + principal*rate;
+   //println ("Year: ", year, " Bank Balance: ", principal);
+   year = year + 1;
+end;
+assertTrue (principal == 805.255);
+
+
+

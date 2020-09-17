@@ -1,0 +1,6 @@
+a = 10;
+while a >= 1 do
+    print ("a = ");
+    println (a);
+    a = a - 1;
+end

@@ -1,0 +1,13 @@
+
+function addNumbers (n) 
+    if (n != 0) then
+        return n + addNumbers(n - 1);
+    else
+        return n;
+    end
+end
+
+print ("Enter a positive integer: ");
+num = int (readNumber ())
+println ("Sum = ", addNumbers(num));
+

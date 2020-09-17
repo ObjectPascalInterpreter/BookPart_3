@@ -1,0 +1,169 @@
+// Conditional Tests
+
+a = False;
+if True then
+   a = True
+end;
+assertTrue (a == True);
+
+a = True;
+if True then
+   a = False
+end;
+assertTrue (a == False);
+
+a = True;
+if False then
+   assertTrue (False)
+else
+   assertTrue (True)
+end;
+
+x = 5;  
+y = 10; 
+
+if x > y then 
+   a = False
+else   
+   a = True
+end;
+assertTrue (a == True);
+
+if x < y then 
+   a = True
+else   
+   a = False
+end;
+assertTrue (a == True);
+
+x = 10; 
+y = 5;  
+
+if x > y then 
+   a = True
+else   
+   a = False
+end;
+assertTrue (a == True);
+
+if x < y then
+   a = False
+else    
+   a = True
+end;
+assertTrue (a == True);
+
+
+if True then
+  a = 1;
+  if True then
+     a = 2;
+     if False then
+        a = 3;
+     end;
+  end;
+end;
+assertTrue (a == 2);
+
+
+if True then
+  a = 1;
+  if True then
+     a = 2;
+     if True then
+        a = 3;
+     end;
+  end;
+end;
+assertTrue (a == 3);
+
+if False then
+   a = 1;
+else
+  if True then
+     a = 2
+  end;
+end;
+assertTrue (a == 2);
+
+
+// Multiple Else
+if False then
+   a = 1;
+else
+  if False then
+     a = 2
+  else
+     a = 3;
+   end;
+end;
+assertTrue (a == 3);
+
+
+// Multiple Else
+if True then
+   a = 1;
+else
+  if False then
+     a = 2
+  else
+     if False then
+        a = 3;
+     else
+        a = 4;
+     end;
+  end;
+end;
+assertTrue (a == 1);
+
+
+// Multiple Else
+if False then
+   a = 1;
+else
+  if True then
+     a = 2
+  else
+     if False then
+        a = 3;
+     else
+        a = 4;
+     end;
+  end;
+end;
+assertTrue (a == 2);
+
+
+// Multiple Else
+if False then
+   a = 1;
+else
+  if False then
+     a = 2
+  else
+     if True then
+        a = 3;
+     else
+        a = 4;
+     end;
+  end;
+end;
+assertTrue (a == 3);
+
+
+// Multiple Else
+if False then
+   a = 1;
+else
+  if False then
+     a = 2
+  else
+     if False then
+        a = 3;
+     else
+        a = 4;
+     end;
+  end;
+end;
+assertTrue (a == 4);
+

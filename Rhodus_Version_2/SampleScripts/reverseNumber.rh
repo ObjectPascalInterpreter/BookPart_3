@@ -1,0 +1,15 @@
+
+
+print("Enter an integer: ")
+n = int (readNumber())
+
+rev = 0
+while n != 0 do
+      remainder = n mod 10
+      rev = rev * 10 + remainder;
+      n = n div 10;
+end
+
+println ("Reversed number = ", rev)
+
+

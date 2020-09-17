@@ -1,0 +1,28 @@
+
+
+x = 2;
+y = 3;
+w = 4;
+
+function foo
+   global w, x, y;
+   w = 6.7;
+   y = 5.6;
+   x = 2.1;
+   print (y);
+end;
+
+foo();
+
+
+// Testing global functionality
+
+x = 1.2;
+
+function testGlobal_1 ()
+   global x;   
+   x = 4.5;   
+end;
+testGlobal_1();
+println ("x = ", x);
+assertTrue (x == 3.2);

@@ -1,0 +1,9 @@
+
+print ("Enter a positive integer: ");
+num = int (readNumber())
+println ("Factors of ", num, " are: ");
+for i = 1 to num do
+   if (num mod i == 0) then
+      print (i, " ");
+   end
+end

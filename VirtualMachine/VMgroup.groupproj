@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{CBA8E587-704E-453C-B4C7-7DF8278C16FF}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="UnitTestsProject.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="GUIApp\GUIAppProject.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="UnitTestsProject">
+        <MSBuild Projects="UnitTestsProject.dproj"/>
+    </Target>
+    <Target Name="UnitTestsProject:Clean">
+        <MSBuild Projects="UnitTestsProject.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="UnitTestsProject:Make">
+        <MSBuild Projects="UnitTestsProject.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="GUIAppProject">
+        <MSBuild Projects="GUIApp\GUIAppProject.dproj"/>
+    </Target>
+    <Target Name="GUIAppProject:Clean">
+        <MSBuild Projects="GUIApp\GUIAppProject.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="GUIAppProject:Make">
+        <MSBuild Projects="GUIApp\GUIAppProject.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="UnitTestsProject;GUIAppProject"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="UnitTestsProject:Clean;GUIAppProject:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="UnitTestsProject:Make;GUIAppProject:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

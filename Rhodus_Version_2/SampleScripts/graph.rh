@@ -1,0 +1,26 @@
+
+//data = {5, 3, 9, 12, 6, 8, 17, 5, 23, 19, 8};
+//n = 10;
+
+//for i = 0 to n - 1 do
+//   for j = 0 to data[i] - 1 do
+//      print ("*")
+//   end;
+//   println();
+//end;
+
+
+data = {}; deg = 0;
+while deg < 360 do
+    x = 1 + sin (deg*3.1415926/180);
+    data = data + int (x*20);   
+    deg = deg + 10;
+end;
+
+n = int (360/10);
+for i = 0 to n - 1 do
+   for j = 0 to data[i] - 1 do
+      print (" ")
+   end;
+   println("*");
+end;

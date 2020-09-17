@@ -1,0 +1,68 @@
+
+// String tests
+
+assertTrue (3*"abc" == "abcabcabc");
+assertTrue ("abc"*3 == "abcabcabc");
+assertTrue (2*"ab"*3 == "abababababab");
+
+str1 = "12345"; str2 = "Xyz";
+assertTrue (str1 + str2 == "12345Xyz");
+assertTrue (str1*3 == "123451234512345");
+assertTrue (3*str1 == "123451234512345");
+
+assertTrue (str1 + str2 == "12345Xyz");
+assertTrue (not (str1 + str2 != "12345Xyz"));
+assertTrue (not (str1*3 != "123451234512345"));
+assertTrue (not (3*str1 != "123451234512345"));
+
+
+str1 = "1234";
+str2 = "1234";
+
+str2[1] = "9";
+assertTrue (str1 == "1234");
+assertTrue (str2 == "1934");
+assertTrue (str1[2] == "3");
+str1[2] = "9";
+
+assertTrue (str1[2] == "9");
+
+function repeatString(count, text)
+   ret = "";
+ 
+   for i = 1 To count do
+      ret = ret + text
+   end;
+   return ret;
+end;
+ 
+assertTrue (repeatString(5, "ha") == "hahahahaha");
+
+str1 = "1234";
+str2 = str1;
+assertTrue (str2 == "1234");
+str1 = "4321";
+assertTrue (str1 == "4321");
+
+str1 = "abcd";
+assertTrue (str1 == "abcd");
+
+assertTrue ("x" + " " + "y" == "x y");
+assertTrue (3*"x" + " " + "y" == "xxx y");
+
+// Memory leak test for strings
+a = "str";
+b = a;
+b = 1;
+
+// Memory leak test for lists
+a = {1,2,3};
+b = a;
+b = 1;
+
+
+
+
+
+
+

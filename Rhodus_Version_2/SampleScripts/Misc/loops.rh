@@ -1,0 +1,83 @@
+
+// Loops Tests
+
+println ("Loop Tests.....");
+
+println ("Repeat Until");
+
+i = 0;
+list = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+repeat
+  assertTrue (i == list[i]);
+  i = i + 1;
+until i == 10;
+assertTrue (i == 10);
+
+i = 0;
+repeat
+  i = i + 1;
+until i > 9;
+assertTrue (i == 10);
+
+i = 0;
+repeat
+  i = i + 1;
+until i >= 9;
+assertTrue (i == 9);
+
+i = 10;
+repeat
+  i = i - 1;
+until i == 2;
+assertTrue (i == 2);
+
+i = 10;
+repeat
+  i = i - 1;
+until i < 3;
+assertTrue (i == 2);
+
+i = 10;
+repeat
+  i = i - 1;
+until i <= 3;
+assertTrue (i == 3);
+
+println ("\nWhile Do");
+
+i = 0;
+while i < 10 do
+   i = i + 1;
+end;
+assertTrue (i == 10);
+
+i = 0;
+while i <= 8 do
+   i = i + 1;
+end;
+assertTrue (i == 9);
+
+i = 10;
+while i > 1 do
+   i = i - 1;
+end;
+assertTrue (i == 1);
+
+i = -1;
+while i > -5 do
+   i = i - 1;
+end;
+assertTrue (i == -5);
+
+println ("\nFor loops");
+
+list = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+for i = 1 to 10 do
+    assertTrue (i == list[i]);
+end;
+assertTrue (i == 11); // iteration loop will be one more than upper limit
+
+for i = 8 downto 3 do
+    x = 0;
+end;
+assertTrue (i == 2); // iteration loop will be one less than lower limit

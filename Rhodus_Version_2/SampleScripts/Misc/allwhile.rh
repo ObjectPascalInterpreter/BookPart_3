@@ -1,0 +1,25 @@
+// All while loops
+
+println ("Test 1");
+a = 10;
+while a > 2 do
+    print (a); print (" ");
+    a = a - 1
+end;
+println(".");
+
+println ("Test 2");
+a = 10;
+while a >= 2 do
+    print (a); print (" ");
+    a = a - 1
+end;
+println(".");
+
+println ("Test 3");
+a = 2;
+while a < 8 do
+    print (a); print (" ");
+    a = a + 1
+end;
+println (".")

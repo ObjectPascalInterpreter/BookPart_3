@@ -95,7 +95,7 @@ First define a new module:
     
 Importing and using the module:
 
-   import lib
+    import lib
 
-   println (lib.sqrt (25))
-   println (lib.a1)
+    println (lib.sqrt (25))
+    println (lib.a1)

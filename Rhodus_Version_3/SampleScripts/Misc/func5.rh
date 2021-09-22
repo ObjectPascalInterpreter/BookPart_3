@@ -1,0 +1,18 @@
+// Check if the number provided by the user is an Armstrong 
+// number or not.
+sum = 0;
+
+// find the sum of the cube of each digit
+temp = num;
+while temp > 0 do
+   digit = temp div 10;
+   sum = sum + digit^3;
+   temp = temp / 10;
+end;
+
+// display the result
+if num == sum then
+   println(num,"is an Armstrong number")
+else
+   println(num,"is not an Armstrong number");
+end

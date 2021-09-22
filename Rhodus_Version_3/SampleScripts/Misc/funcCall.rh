@@ -1,0 +1,78 @@
+
+
+// Tests to show that functions can return the different types
+
+/*function rint()
+  return 3;
+end;
+assertTrue (rint() == 3);
+
+
+function rbool()
+  return True;
+end;
+assertTrue (rbool() == True);
+
+function rdouble()
+  return 3.1415;
+end;
+assertTrue (rdouble() == 3.1415);
+
+
+function rstr()
+  return "string";
+end;
+assertTrue (rstr() == "string");
+
+
+function rlist()
+  return {1,2,{4,5}};
+end;
+assertTrue (rlist() == {1,2,{4,5}});
+
+
+function mean (x)
+   a = x;
+   return a;
+end;
+
+x = mean(11);
+assertTrue (x == 11);
+
+function repeatString(count, text)
+   ret = "";
+ 
+   for i = 1 To count do
+      ret = ret + text
+   end;
+   return ret;
+end;
+ 
+assertTrue (repeatString(5, "ha") == "hahahahaha");
+
+// Check if n is a prime
+function IsPrime (n)
+  if n == 1 then
+     return False
+  end;
+  for m = 2 to (n div 2) do
+    if n mod m == 0 then
+      return False
+    end
+  end;
+  return True;
+end;
+
+assertTrue (IsPrime (99809) == True);
+assertTrue (not (IsPrime (100) == True));*/
+
+// One funtion calling another
+function add (a, b)
+    return a + b
+end;
+
+function sumOfAdds (a, b)
+    return add (a, b) + add (a, b)
+end;
+
+/*assertTrue (sumOfAdds (2, 4) == 12);*/

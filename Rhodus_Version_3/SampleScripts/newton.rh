@@ -1,0 +1,25 @@
+
+// Find nth root of a number
+
+function NthRoot(a, n, precision)
+
+   x_p = math.sqrt(a)
+   while math.abs(a - x_p^n) > precision do
+      x = (1/n) * (((n-1) * x_p) + (a/(x_p^(n - 1))))
+      x_p = x
+   end;
+   return x_p
+end
+
+println()
+println ("   n    123 ^ 1 / n     nth_root ^ n")
+println (" ------------------------------------")
+for n = 3 to 11 do
+    tmp = NthRoot(123, n, 1E-9)
+    println ("  ", n, " ", tmp, " ", tmp^n)
+end 
+println()
+For n = 25 to 40 do
+    tmp = NthRoot(123.0, n, 0.01)
+    println ("  ", n, " ", tmp, " ", tmp^n)
+end

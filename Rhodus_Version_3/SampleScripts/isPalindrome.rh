@@ -1,0 +1,19 @@
+
+reversedN = 0
+print ("Enter an integer: ");
+n = int (readNumber())
+originalN = n;
+
+// reversed integer is stored in reversedN
+while (n != 0) do
+      remainder = n mod 10;
+      reversedN = reversedN * 10 + remainder;
+      n = n div 10;
+end
+
+// palindrome if orignalN and reversedN are equal
+if originalN == reversedN then
+   println (originalN, " is a palindrome.");
+else
+   println (originalN, " is not a palindrome.");
+end

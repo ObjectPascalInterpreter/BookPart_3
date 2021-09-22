@@ -1,0 +1,37 @@
+
+// String tests
+
+println ("String Tests");
+
+assertTrue (3*"abc" == "abcabcabc");
+assertTrue ("abc"*3 == "abcabcabc");
+assertTrue (2*"ab"*3 == "abababababab");
+
+str1 = "12345"; str2 = "Xyz";
+assertTrue (str1 + str2 == "12345Xyz");
+assertTrue (str1*3 == "123451234512345");
+assertTrue (3*str1 == "123451234512345");
+
+assertTrue (str1 + str2 == "12345Xyz");
+assertTrue (not (str1 + str2 != "12345Xyz"));
+assertTrue (not (str1*3 != "123451234512345"));
+assertTrue (not (3*str1 != "123451234512345"));
+
+assertTrue (str1[2] == "3");
+str1[2] = "9";
+assertTrue (str1[2] == "9");
+println();
+
+function repeatString(count, text)
+   ret = "";
+ 
+   for i = 1 To count do
+      ret = ret + text
+   end;
+   return ret;
+end;
+ 
+assertTrue (repeatString(5, "ha") == "hahahahaha");
+
+
+

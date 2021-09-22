@@ -1,0 +1,7 @@
+nRows = 10;
+nCols = 10;
+for i = 0 to nRows - 1 do
+    for j = 0 to nCols - 1 do
+        matrix[i,j] = 3.1415;
+    end
+end

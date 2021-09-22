@@ -1,0 +1,10 @@
+function repeatString(count)
+   ret = 1;
+   for i = 1 To count do
+      ret = ret + 1;
+   end;
+   return ret;
+end;
+ 
+
+x = repeatString(5)

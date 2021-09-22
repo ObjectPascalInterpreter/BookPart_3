@@ -1,0 +1,73 @@
+
+import testUtils
+
+setColor ("yellow")
+println ("----------------- Simple Function Tests -------------------")
+setColor ("white")
+
+testUtils.beginTests ("")
+
+function test_1
+  return 1
+end
+testUtils.runtestTrue (test_1() == 1)
+
+function test_2
+  return -2
+end
+testUtils.runtestTrue (test_2() == -2)
+
+
+function test_3
+  return 3.14
+end
+testUtils.runtestTrue (test_3() == 3.14)
+
+function test_4
+  return "abc"
+end
+testUtils.runtestTrue (test_4() == "abc")
+
+
+function test_5
+  return True
+end
+testUtils.runtestTrue (test_5() == True)
+
+
+function test_6
+  return False
+end
+testUtils.runtestTrue (test_6() == False)
+
+
+function test_7
+  return {1,2,3}
+end
+testUtils.runtestTrue (test_7() == {1,2,3})
+
+function test_8
+  return {1,2,3,{4,5}}
+end
+testUtils.runtestTrue (test_8() == {1,2,3,{4,5}})
+
+
+function test_9
+  a = 3.4
+  return 3.4 + 1
+end
+testUtils.runtestTrue (test_9() == 4.4)
+
+
+function test_10
+  return "abc" + "123"
+end
+testUtils.runtestTrue (test_10() == "abc123")
+
+
+testUtils.endTests()
+
+
+setColor ("yellow")
+println ("-----------------------------------------------------------")
+setColor ("white")

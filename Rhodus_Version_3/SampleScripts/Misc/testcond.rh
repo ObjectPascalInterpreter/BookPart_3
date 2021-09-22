@@ -1,0 +1,36 @@
+println ("Conditonal Tests");
+
+x = 5;  println ("x = ", x);
+y = 10; println ("y = ", y);
+
+if x > y then 
+   a = False
+else   
+   a = True
+end;
+println (a == True, ": if/else");
+
+if x < y then 
+   a = True
+else   
+   a = False
+end;
+println (a == True, ": if/else");
+
+x = 10; println ("x = ", x);
+y = 5;  println ("y = ", y);
+
+if x > y then 
+   a = True
+else   
+   a = False
+end;
+println (a == True, ": if/else");
+
+if x < y then
+   a = False
+else    
+   a = True
+end;
+println (a == True, ": if/else");
+

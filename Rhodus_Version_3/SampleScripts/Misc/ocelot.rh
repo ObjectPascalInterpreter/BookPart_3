@@ -1,0 +1,6 @@
+qwerty = 4563;
+werty = 785;
+println("birds are nerds ",qwerty + werty);
+print("shinka - rinka. I love lollypops ");
+print("what is your favorite movie?");
+m = readString()

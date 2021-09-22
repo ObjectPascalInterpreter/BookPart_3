@@ -1,0 +1,232 @@
+import testUtils
+
+setColor ("yellow")
+println ("------------------- Conditional Tests --------------------")
+setColor ("white")
+testUtils.beginTests ("if/then Tests")
+
+a = False;
+if True then
+   a = True
+end;
+testUtils.runtestTrue(a == True)
+
+a = True;
+if True then
+   a = False
+end;
+testUtils.runtestTrue(a == False);
+
+a = True;
+if False then
+   testUtils.runtestTrue(False)
+else
+   testUtils.runtestTrue(True)
+end;
+
+x = 5;  
+y = 10; 
+
+if x > y then 
+   a = False
+else   
+   a = True
+end;
+testUtils.runtestTrue(a == True);
+
+if x < y then 
+   a = True
+else   
+   a = False
+end;
+testUtils.runtestTrue(a == True);
+
+x = 10; 
+y = 5;  
+
+if x > y then 
+   a = True
+else   
+   a = False
+end;
+testUtils.runtestTrue(a == True);
+
+if x < y then
+   a = False
+else    
+   a = True
+end;
+testUtils.runtestTrue(a == True);
+
+
+if True then
+  a = 1;
+  if True then
+     a = 2;
+     if False then
+        a = 3;
+     end;
+  end;
+end;
+testUtils.runtestTrue(a == 2);
+
+
+if True then
+  a = 1;
+  if True then
+     a = 2;
+     if True then
+        a = 3;
+     end;
+  end;
+end;
+testUtils.runtestTrue(a == 3);
+
+if False then
+   a = 1;
+else
+  if True then
+     a = 2
+  end;
+end;
+testUtils.runtestTrue(a == 2);
+
+testUtils.endTests()
+
+
+
+testUtils.beginTests ("Nested if/then")
+// Multiple Else
+if False then
+   a = 1;
+else
+  if False then
+     a = 2
+  else
+     a = 3;
+   end;
+end;
+testUtils.runtestTrue(a == 3);
+
+
+// Multiple Else
+if True then
+   a = 1;
+else
+  if False then
+     a = 2
+  else
+     if False then
+        a = 3;
+     else
+        a = 4;
+     end;
+  end;
+end;
+testUtils.runtestTrue(a == 1);
+
+
+// Multiple Else
+if False then
+   a = 1;
+else
+  if True then
+     a = 2
+  else
+     if False then
+        a = 3;
+     else
+        a = 4;
+     end;
+  end;
+end;
+testUtils.runtestTrue(a == 2);
+
+
+// Multiple Else
+if False then
+   a = 1;
+else
+  if False then
+     a = 2
+  else
+     if True then
+        a = 3;
+     else
+        a = 4;
+     end;
+  end;
+end;
+testUtils.runtestTrue(a == 3);
+
+
+// Multiple Else
+if False then
+   a = 1;
+else
+  if False then
+     a = 2
+  else
+     if False then
+        a = 3;
+     else
+        a = 4;
+     end;
+  end;
+end;
+testUtils.runtestTrue(a == 4);
+testUtils.endTests()
+
+testUtils.beginTests ("Switch Tests")
+// Switch statement
+a = -1; index = 2
+switch index
+  case 1 : a = 1
+  case 2 : a = 2
+  case 3 : a = 3
+else
+  a = 99
+end
+testUtils.runtestTrue(a == 2)
+
+
+// Switch statement, test else
+a = -1; index = 67
+switch index
+  case 1 : a = 1
+  case 2 : a = 2
+  case 3 : a = 3
+else
+  a = 99
+end
+testUtils.runtestTrue(a == 99)
+
+
+// Switch statement
+a = -1; index = 3; b= 23
+switch index
+  case 1 : a = 1
+  case 2 : a = 2
+  case 3 : a = b + 12
+else
+  a = 99
+end
+testUtils.runtestTrue(a == 35)
+
+
+// Switch statement, test multiple statements
+a = -1; index = 3; b= 23
+switch index
+  case 1 : a = 1
+  case 2 : a = 2
+  case 3 : b = 12; a = 10 + b
+else
+  a = 99
+end
+testUtils.runtestTrue(a == 22)
+
+testUtils.endTests()
+
+setColor ("yellow")
+println ("----------------------------------------------------------")
+setColor ("white")

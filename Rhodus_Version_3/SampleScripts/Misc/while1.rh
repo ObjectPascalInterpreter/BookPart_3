@@ -1,0 +1,5 @@
+a = 1; b = 2;
+while a < b do
+    a = 6;
+    b = 10;
+end

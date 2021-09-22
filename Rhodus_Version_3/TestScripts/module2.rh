@@ -1,0 +1,7 @@
+
+
+value2 = 9876
+
+function callModule2
+   return "Module2"
+end

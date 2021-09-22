@@ -1,0 +1,18 @@
+
+pi = 3.1415926
+
+// Nilakantha series to compute Pi
+ans = 3
+j = 2
+
+for i = 1 to 20 do
+    if i mod 2 == 1 then
+        ans = ans + 4.0 / (j * (j + 1) * (j + 2))
+    else
+        ans = ans - 4.0 / (j * (j + 1) * (j + 2))
+    end
+    j = j + 2
+    println (i, " ", ans)
+end
+
+println ("Error = ", pi-ans)

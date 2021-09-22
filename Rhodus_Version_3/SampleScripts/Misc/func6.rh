@@ -1,0 +1,10 @@
+function mean (x, y)
+   a = 4;
+   b = 5;
+   c = a + b + x*y;
+   return c;
+end;
+
+x = mean (2,3);
+println (x);
+println (y)

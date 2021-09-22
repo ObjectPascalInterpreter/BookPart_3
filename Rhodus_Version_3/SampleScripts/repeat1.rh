@@ -1,0 +1,5 @@
+a = 6;
+repeat
+  println (a);
+  a = a - 1
+until a < 1

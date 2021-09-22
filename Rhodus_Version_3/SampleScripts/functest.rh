@@ -1,0 +1,9 @@
+
+function foo1
+  println ("1.5")
+end
+
+function foo2
+  println ("5.6")
+end
+

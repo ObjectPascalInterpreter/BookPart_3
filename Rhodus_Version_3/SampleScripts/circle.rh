@@ -1,0 +1,16 @@
+
+function space (x)
+   for i = 1 to x do
+      print (" ")
+   end
+end
+
+radius = 10
+for i=1 to radius-1 do
+  W = int(radius*math.sin (180/radius*i*3.1415/180))
+  print (space(radius - W))
+  for j=1 to 2*W do
+     print ("*")
+  end
+  println ()
+end

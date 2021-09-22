@@ -1,0 +1,10 @@
+
+i = 1;
+repeat
+  i = i + 1;
+  if i == 5 then
+     break;
+  end;
+until i == 10;
+
+println ("i = ", i);

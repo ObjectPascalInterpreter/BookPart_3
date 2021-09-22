@@ -1,0 +1,11 @@
+
+function repeatString(count, text)
+   ret = "";
+ 
+   for i = 1 To count do
+      ret = ret + text
+   end;
+   return ret;
+end;
+ 
+println (repeatString(5, "ha"))

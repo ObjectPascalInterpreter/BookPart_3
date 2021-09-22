@@ -1,0 +1,25 @@
+function quicksort(t, start, endi)
+  //start, endi = start or 1, endi or #t
+  // partition w.r.t. first element
+  if (endi - start < 1) then return t end
+  pivot = start
+  for i = start + 1 to endi do
+    if t[i] <= t[pivot] then
+      if i == pivot + 1 then
+        t[pivot] = t[pivot+1]
+        t[pivot+1] = t[pivot]
+      else
+        t[pivot] = t[i]
+        t[pivot+1] = t[pivot]
+        t[i] = t[pivot+1]
+      end
+      pivot = pivot + 1
+    end
+  end
+  t = quicksort(t, start, pivot - 1)
+  return quicksort(t, pivot + 1, endi)
+end
+        
+alist = {54,26,93,17,77,31,44,55,20}
+quicksort(alist)
+println(alist)

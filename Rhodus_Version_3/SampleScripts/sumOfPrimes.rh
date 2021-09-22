@@ -1,0 +1,32 @@
+
+// function to check prime number
+function checkPrime (n) 
+    isPrime = 1;
+    for i = 2 to n div 2 do
+        if n mod i == 0 then
+            isPrime = 0;
+            break;
+        end
+    end
+    return isPrime;
+end
+
+flag = 0;
+print ("Enter a positive integer: ");
+n = int (readNumber())
+
+for i = 2 to n div 2 do
+    // condition for i to be a prime number
+    if (checkPrime(i) == 1) then
+            // condition for n-i to be a prime number
+            if (checkPrime(n - i) == 1) then
+                println(n, " = ", i, " + ", n-i)
+                flag = 1;
+            end
+    end
+end
+
+if flag == 0 then
+   print (n, " cannot be expressed as the sum of two prime numbers.");
+end
+

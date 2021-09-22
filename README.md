@@ -63,7 +63,7 @@ This is source code for part III of the book series on building an interpreter u
 
 Passing functions as arguments:
 
-    // And user defined funtions
+    // Add some user defined funtions
     function sqr (x) return x*x; end
     function cube (x) return x*x*x; end
 

@@ -1,9 +1,0 @@
-
-
-print ("Do you want a drink? ");
-x = getString();
-if x == "y" then
-   println ("You said yes")
-else
-   println ("You said no");
-end;

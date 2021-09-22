@@ -1,6 +1,0 @@
-// Limit of recursion
-function callme (n)
-    println (n)
-    callme (1 + n)
-end
-callme(0)

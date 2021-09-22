@@ -1,7 +1,0 @@
-repeat
-   a = 10
-until a < 5;
-
-repeat
-   a = 10
-until a < 5

@@ -1,8 +1,0 @@
-
-msg1 = "dsfsfsfsfdf"
-msg2 = "sfsfsfsfsfsdf"
-msg3 = "et34wgssf"
-
-println (msg1)
-println (msg2)
-println (msg3)

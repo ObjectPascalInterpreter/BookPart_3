@@ -1,8 +1,0 @@
-
-function abc
-   return 5
-end
-
-x = {abc}
-
-y = x[0]()

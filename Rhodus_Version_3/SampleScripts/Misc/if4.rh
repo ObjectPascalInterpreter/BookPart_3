@@ -1,5 +1,0 @@
-a = 6;
-if a > 5 then
-   println ("a > 5");
-end;
-println ("Done")

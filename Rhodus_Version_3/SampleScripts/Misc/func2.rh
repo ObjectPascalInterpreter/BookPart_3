@@ -1,5 +1,0 @@
-function mean (x)
-   a = 4;
-end;
-
-x = mean();

@@ -1,4 +1,0 @@
-
-print ("Enter the name of your favorite color: ");
-str = readString();
-println ("My favorite color is ", str);

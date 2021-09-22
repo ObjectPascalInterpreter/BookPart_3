@@ -1,8 +1,0 @@
-
-import module1
-
-assertTrue (module1.value == 1.2345)
-
-assertTrue (module1.newValue == 9876)
-
-asserttrue (module1.name == "Module2")

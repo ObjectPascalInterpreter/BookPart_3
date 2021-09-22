@@ -1,0 +1,34 @@
+
+
+import testUtils
+
+setColor ("yellow")
+println ("---------------------- Global Builtins --------------------------")
+setColor ("white")
+
+testUtils.beginTests ("int")
+
+testUtils.runtestTrue (int (3.14) == 3);
+testUtils.runtestTrue (int (-3.14) == -3);
+testUtils.runtestTrue (int (0.4) == 0);
+testUtils.runtestTrue (int (-2.7) == -2);
+testUtils.runtestTrue (int (2.7) == 2);
+testUtils.endTests()
+
+
+testUtils.beginTests ("type")
+testUtils.runtestTrue (type (2) == "int");
+testUtils.runtestTrue (type ("abc") == "string");
+testUtils.runtestTrue (type (2.34) == "float");
+testUtils.runtestTrue (type (True) == "bool");
+testUtils.runtestTrue (type (False) == "bool");
+testUtils.runtestTrue (type ({1,2,3}) == "list");
+
+
+testUtils.endTests()
+
+
+setColor ("yellow")
+println ("----------------------------------------------------------")
+setColor ("white")
+testUtils.endTests()

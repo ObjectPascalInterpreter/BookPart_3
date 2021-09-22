@@ -1,0 +1,6 @@
+
+function astr()
+    str = "1234";
+    str[2] = "9";
+    println (str);
+end;

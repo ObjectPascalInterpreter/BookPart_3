@@ -1,0 +1,8 @@
+
+a = {}    
+lists.append (a, math.sin)
+
+
+
+
+

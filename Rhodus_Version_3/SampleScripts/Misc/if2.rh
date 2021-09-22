@@ -1,0 +1,5 @@
+if a > 6 then
+   b = 9
+else
+   x = 7
+end

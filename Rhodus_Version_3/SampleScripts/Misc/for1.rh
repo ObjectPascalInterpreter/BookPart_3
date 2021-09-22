@@ -1,0 +1,8 @@
+
+for i = 1 to 10 do
+    println ("i = ", i)
+end;
+
+for i = 10 downto 1 do
+    println ("i = ", i)
+end

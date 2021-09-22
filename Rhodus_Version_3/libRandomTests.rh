@@ -1,0 +1,30 @@
+
+
+length = 100000
+a = random.randlist (length, 10)
+
+// Find frequency of numbers in random list
+
+freq = {0} * 10
+
+for i = 0 to length - 1 do
+    freq[a[i]] = freq[a[i]] + 1
+end
+
+for i = 0 to 10 - 1 do
+   freq[i] = freq[i] / length
+end
+
+println (freq)
+
+
+a = random.randlist (20, 10)
+
+new = {}
+for i = 0 to lists.len (a) - 1 do
+   if a[i] mod 2 == 0 then
+      new = new + a[i]
+   end 
+end
+
+println ("List of even numbers = ", new)

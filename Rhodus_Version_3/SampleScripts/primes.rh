@@ -1,0 +1,17 @@
+
+upper = 50
+
+for num = 0 to upper do
+   // all prime numbers are greater than 1
+   if num > 1 then
+       for i = 2 to num do
+           println ("i = ", i)
+           if num mod i == 0 then
+               break
+           end
+       end
+       println (num)
+    else
+       println (num)
+    end
+end

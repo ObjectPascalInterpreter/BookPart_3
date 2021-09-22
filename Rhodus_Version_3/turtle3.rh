@@ -1,0 +1,15 @@
+
+
+tt.pendown()
+tt.reset()
+tt.clear()
+
+function square (size)
+   tt.fd (size)
+   tt.rt (90)
+   tt.fd (size)
+   tt.rt (90)
+   tt.fd (size)
+   tt.rt (90)
+   tt.fd (size) 
+end

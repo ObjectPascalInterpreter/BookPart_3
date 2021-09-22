@@ -1,0 +1,14 @@
+
+// And user defined funtions
+function sqr (x) return x*x; end
+function cube (x) return x*x*x; end
+
+function runtest (fcn, x)
+   return fcn (x)
+end
+
+s = runtest (sqr, 5)
+println (s)
+
+s = runtest (cube, 5)
+println (s)

@@ -1,0 +1,9 @@
+// Nested for loop
+for  t = 1 to 20 do
+    ans = 0
+
+    for g = 1 to t do
+        ans = ans + g
+    end
+    println (ans)
+end

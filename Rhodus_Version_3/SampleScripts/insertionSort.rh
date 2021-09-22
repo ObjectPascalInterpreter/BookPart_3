@@ -1,0 +1,36 @@
+
+
+function insertionSort(arr)
+  
+    // Traverse through 1 to len(arr) 
+    for i = 1 to lists.len(arr) - 1 do 
+   
+        key = arr[i] 
+
+        j = i-1
+        while (j >= 0) and (arr[j] > key) do
+            arr[j+1] = arr[j]
+            j = j-1
+            if j < 0 then
+               break
+            end
+        end
+        arr[j+1] = key
+    end
+end
+
+// Driver code to test above   
+arr = {12, 7, 13, 5, 6}
+insertionSort(arr) 
+res = assertTrueEx (arr == {5, 6, 7, 12, 13}
+if res == "." then
+   println("----PASS----")
+else
+   println("----FAIL----")
+end
+  
+// Bigger example
+arr = random.randlist (50, 20)   
+insertionSort(arr) 
+println ("Sorted array is:") 
+println (arr)

@@ -1,0 +1,11 @@
+
+str = "ABCDEFGHIJKLMONPQRTTUVWXZ"
+substr = "JKL"
+
+timeStart = time.getTickCount()
+for i = 1 to 100000 do
+  x = strings.find (str, substr)
+end
+
+ t = time.getTickCount() - timeStart
+ println (t)

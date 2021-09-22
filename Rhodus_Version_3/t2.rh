@@ -1,0 +1,6 @@
+
+import t1
+
+t1.test()
+//t1.test()
+

@@ -1,0 +1,7 @@
+haz = "hello";
+println(az);
+qw = 123;
+println("hello tyty ",12 + qw);
+println("what is your favorite lego set?");
+set = readString();
+println("your favorite lego set is ",set);

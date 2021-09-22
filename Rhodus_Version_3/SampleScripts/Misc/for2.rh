@@ -1,0 +1,11 @@
+
+for i = 0 to 10 do
+    a = 5;
+    for j = 0 to 20 do
+        b = 7;
+        for k = 0 to 30 do
+            c = 9
+        end    
+    end; 
+    println ("Hello");
+end

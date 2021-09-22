@@ -1,0 +1,8 @@
+
+a1 = 1; a2 = 2; a3 = 3
+
+function test()
+   global a1, a2, a3
+   print (a1, a2, a3) 
+   a1 = 99  
+end

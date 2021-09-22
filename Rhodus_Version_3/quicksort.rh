@@ -1,0 +1,26 @@
+function quickSort(arr)
+    less = {}
+    pivotList = {}
+    more = {}
+    if len(arr) <= 1 then
+        return arr
+    else
+        pivot = arr[0]
+        length = lists.len (arr)
+        for i = 0 to length - 1 do
+            if i < pivot then
+                less.append(arr[i])
+            elif i > pivot then
+                more.append(arr[i])
+            else
+                pivotList.append(arr[i])
+            end  
+        end 
+        less = quickSort(less)
+        more = quickSort(more)
+        return less + pivotList + more
+    end
+end
+ 
+a = {4, 65, 2, -31, 0, 99, 83, 782, 1}
+a = quickSort(a)

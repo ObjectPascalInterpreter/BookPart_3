@@ -1,0 +1,18 @@
+
+a = {math.sin,math.sin,math.sin,math.sin,math.sin}
+  
+a = {}
+lists.append (a, math.sin)
+lists.append (a, math.sin)
+lists.append (a, math.sin)
+lists.append (a, math.sin)
+
+println (a[0](2))
+println (a[1](2))
+println (a[2](2))
+println (a[3](2))
+
+
+
+
+

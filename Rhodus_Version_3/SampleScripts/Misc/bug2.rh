@@ -1,0 +1,16 @@
+
+
+function test_1(a)
+   str = "1234";
+   str[2] = "9";
+   return str
+end;
+assertTrue (test_1(1) == "1294");
+
+
+function test_1(a, b)
+   str1 = "1234";
+   str2 = "4321";
+   return str1 + str2
+end;
+assertTrue (test_1(1,2) == "12344321");

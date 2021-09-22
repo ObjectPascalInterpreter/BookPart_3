@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<test-results name="U:\Delphi\BookPart_2\VirtualMachine\Win32\Debug\UnitTestsProject.exe" total="42" errors="0" failures="0" ignored="0" inconclusive="0" not-run="0" skipped="0" invalid="0" date="2020-03-14" time="0.197">
+  <culture-info current-culture="en" current-uiculture="en" />
+  <test-suite type="Assembly" name="UnitTestsProject.exe" executed="true" result="Success" success="True" time="0.197" asserts="0">
+    <results>
+        <test-suite type="Namespace" name="uVMUnitTests" executed="true" result="Success" success="True" time="0.196" asserts="0" >
+          <results>
+              <test-suite type="Fixture" name="TVM_UnitTests" executed="True" result="Success" success="True" time="0.196" >
+                <results>
+                  <test-case name="loadTestFileString.Case pushs" executed="True" result="Success" success="True" time="0.012" asserts="0" />
+                  <test-case name="loadTestFileArithmetic_ii.Case 1" executed="True" result="Success" success="True" time="0.007" asserts="0" />
+                  <test-case name="loadTestFileArithmetic_ii.Case 2" executed="True" result="Success" success="True" time="0.006" asserts="0" />
+                  <test-case name="loadTestFileArithmetic_ii.Case 3" executed="True" result="Success" success="True" time="0.007" asserts="0" />
+                  <test-case name="loadTestFileArithmetic_ii.Case 4" executed="True" result="Success" success="True" time="0.006" asserts="0" />
+                  <test-case name="loadTestFileArithmetic_ii.Case 5" executed="True" result="Success" success="True" time="0.007" asserts="0" />
+                  <test-case name="loadTestFileArithmetic_ii.Case 6" executed="True" result="Success" success="True" time="0.006" asserts="0" />
+                  <test-case name="loadTestFileArithmetic_ii.Case 7" executed="True" result="Success" success="True" time="0.007" asserts="0" />
+                  <test-case name="loadTestFileArithmetic_dd.Case 1" executed="True" result="Success" success="True" time="0.006" asserts="0" />
+                  <test-case name="loadTestFileArithmetic_dd.Case 2" executed="True" result="Success" success="True" time="0.009" asserts="0" />
+                  <test-case name="loadTestFileArithmetic_dd.Case 3" executed="True" result="Success" success="True" time="0.008" asserts="0" />
+                  <test-case name="loadTestFileArithmetic_dd.Case 4" executed="True" result="Success" success="True" time="0.008" asserts="0" />
+                  <test-case name="loadTestFileConditionals.Case 1" executed="True" result="Success" success="True" time="0.007" asserts="0" />
+                  <test-case name="loadTestFileConditionals.Case 2" executed="True" result="Success" success="True" time="0.005" asserts="0" />
+                  <test-case name="loadTestFileConditionals.Case 3" executed="True" result="Success" success="True" time="0.005" asserts="0" />
+                  <test-case name="loadTestFileConditionals.Case 3" executed="True" result="Success" success="True" time="0.004" asserts="0" />
+                  <test-case name="loadTestFileConditionals.Case 4" executed="True" result="Success" success="True" time="0.003" asserts="0" />
+                  <test-case name="loadTestFileConditionals.Case 5" executed="True" result="Success" success="True" time="0.002" asserts="0" />
+                  <test-case name="loadTestFileConditionals.Case 6" executed="True" result="Success" success="True" time="0.002" asserts="0" />
+                  <test-case name="loadTestFileConditionals.Case 7" executed="True" result="Success" success="True" time="0.003" asserts="0" />
+                  <test-case name="loadTestFileConditionals.Case 8" executed="True" result="Success" success="True" time="0.003" asserts="0" />
+                  <test-case name="loadTestFileConditionals.Case 9" executed="True" result="Success" success="True" time="0.003" asserts="0" />
+                  <test-case name="loadTestFileConditionals.Case 10" executed="True" result="Success" success="True" time="0.002" asserts="0" />
+                  <test-case name="loadTestFileConditionals.Case 11" executed="True" result="Success" success="True" time="0.003" asserts="0" />
+                  <test-case name="loadTestFileConditionals.Case 12" executed="True" result="Success" success="True" time="0.002" asserts="0" />
+                  <test-case name="loadTestFileConditionals.Case 13" executed="True" result="Success" success="True" time="0.003" asserts="0" />
+                  <test-case name="loadTestFileConditionals.Case 14" executed="True" result="Success" success="True" time="0.003" asserts="0" />
+                  <test-case name="loadTestFileConditionals.Case 15" executed="True" result="Success" success="True" time="0.002" asserts="0" />
+                  <test-case name="loadTestFileConditionals.Case 16" executed="True" result="Success" success="True" time="0.002" asserts="0" />
+                  <test-case name="loadTestFileConditionals.Case 17" executed="True" result="Success" success="True" time="0.002" asserts="0" />
+                  <test-case name="loadTestFileConditionals.Case 18" executed="True" result="Success" success="True" time="0.002" asserts="0" />
+                  <test-case name="loadTestFileConditionals.Case 19" executed="True" result="Success" success="True" time="0.003" asserts="0" />
+                  <test-case name="loadTestFileConditionals.Case 20" executed="True" result="Success" success="True" time="0.002" asserts="0" />
+                  <test-case name="loadTestFileConditionals.Case 21" executed="True" result="Success" success="True" time="0.003" asserts="0" />
+                  <test-case name="loadTestFileConditionals.Case 22" executed="True" result="Success" success="True" time="0.002" asserts="0" />
+                  <test-case name="loadTestFileConditionals.Case 23" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                  <test-case name="loadTestFileConditionals.Case 24" executed="True" result="Success" success="True" time="0.002" asserts="0" />
+                  <test-case name="loadTestFileConditionals.Case 25" executed="True" result="Success" success="True" time="0.003" asserts="0" />
+                  <test-case name="loadTestFileConditionals.Case 26" executed="True" result="Success" success="True" time="0.004" asserts="0" />
+                  <test-case name="loadTestFileConditionals.Case 27" executed="True" result="Success" success="True" time="0.002" asserts="0" />
+                  <test-case name="loadTestFileConditionals.Case 28" executed="True" result="Success" success="True" time="0.002" asserts="0" />
+                  <test-case name="loadTestFileConditionals.Case 29" executed="True" result="Success" success="True" time="0.004" asserts="0" />
+                </results>
+              </test-suite>
+          </results>
+        </test-suite>
+    </results>
+  </test-suite>
+</test-results>

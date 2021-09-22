@@ -1,0 +1,68 @@
+
+
+println ("Print out aA 10 times");
+x = "a";
+y = "A";
+
+ans = "";
+for i = 1 to 10 do
+    aA = x + y;
+    ans = ans + aA;
+end;
+ 
+println (ans);
+
+println ("Print alphabet backwards");
+x = "abcedfghijklmonpqrstuvwxyz";
+
+for i = 25 downto 0 do
+    print (x[i]);
+end;
+println();
+
+
+println ("Print alphabet in a diaglonal line");
+for i = 0 to 25 do
+    for j = 0 to i do
+        print (" ");
+    end;
+    println (x[i])
+end;
+
+println ("Write a word backwards");
+x = "Hello"; length = 5;
+
+for i = length - 1 downto 0 do
+    print (x[i]);
+end;
+println();
+
+println ("Code and Decode a secret");
+x    = "abcedfghijklmonpqrstuvwxyz";
+code = "yzabcedfghijklmonpqrstuvwx";
+
+// encode
+secret = "";
+word = "hello";
+for k = 0 to 4 do
+  for i = 0 to 25 do
+      if word[k] == x[i] then
+        secret = secret + code[i];
+      end;
+  end;
+end;
+println ("secret = ", secret);
+
+
+// decode
+decode = "";
+for k = 0 to 4 do
+  for i = 0 to 25 do
+      if secret[k] == code[i] then
+        decode = decode + x[i];
+      end;
+  end;
+end;
+println ("decoded word = ", decode);
+
+

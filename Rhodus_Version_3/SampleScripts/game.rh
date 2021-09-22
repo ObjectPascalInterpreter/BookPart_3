@@ -1,0 +1,21 @@
+
+// Guess a number
+
+number = 9;
+
+println ("Guess the number:");
+for i = 1 to 10 do
+g = readNumber();
+if g < number then
+   println ("Your number is smaller")
+else
+   if g > number then
+      println ("Your number is bigger")
+   else
+      println ("You found the number!");
+   end;
+end;
+end;
+
+
+

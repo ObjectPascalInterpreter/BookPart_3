@@ -1,0 +1,22 @@
+
+
+println ("Enter two positive integers");
+print ("First Integer: ");
+n1 = int (readNumber())
+print ("Second Integer: ");
+n2 = int (readNumber ());
+
+// maximum number between n1 and n2 is stored in min
+if n1 > n2 then
+   min = n1
+else
+   min = n2
+end
+
+while True do
+     if (min mod n1 == 0 and min mod n2 == 0) then
+         println ("The LCM of ", n1, " and ", n2, " is ", min);
+         break;
+     end
+  min = min + 1;
+end

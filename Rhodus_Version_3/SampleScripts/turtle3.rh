@@ -1,0 +1,20 @@
+
+
+tt.penDown()
+tt.reset()
+tt.clear()
+
+function square (size)
+   tt.forward (size)
+   tt.right (90)
+   tt.forward (size)
+   tt.right (90)
+   tt.forward (size)
+   tt.right (90)
+   tt.forward (size) 
+end
+
+for i = 1 to 18 do
+    square (60)
+    tt.left (5)
+end

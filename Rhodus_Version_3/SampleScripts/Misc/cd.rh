@@ -1,0 +1,20 @@
+// Compute the greatest common divisor
+
+function gcd (x,y)
+    //print ("For ", x, " and ", y,",");  
+    r = x mod y;
+    while r > 0 do
+        r = x mod y;
+        if r == 0 then 
+           return y;  
+           //print (" the greatest common divisor is ", y);
+        else
+            q = y; x = q; y = r;
+        end;
+    end;
+  //return y;
+end;
+
+r = gcd (1071,1029); assertTrue (r == 21); 
+r = gcd (5538,1105); assertTrue (r == 13); 
+r = gcd (8764,7732); assertTrue (r == 4); println()

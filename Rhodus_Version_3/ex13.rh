@@ -1,0 +1,13 @@
+
+function test (x) 
+  return {1,2,3+x}
+end
+
+//function runme (fcn)
+//   return fcn (6)[0]
+//end
+
+//s = runme (test)
+//println (s)
+
+println (test (4))

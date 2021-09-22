@@ -1,0 +1,12 @@
+
+str = "ABCDEFG"
+
+reverse = ""
+length = strings.len (str)
+for i = length - 1 downto 0 do
+   reverse = reverse + str[i]
+end
+
+println ("Before: ", str);
+str = reverse
+println ("After : ", str);

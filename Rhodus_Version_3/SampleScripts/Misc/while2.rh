@@ -1,0 +1,5 @@
+c = 1
+while a < b and c >= 6 do
+    a = 6;
+    b = 10;
+end

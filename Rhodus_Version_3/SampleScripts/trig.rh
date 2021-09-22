@@ -1,0 +1,20 @@
+
+// Math functions
+
+pi = 3.1415926;
+e  = 2.71828183;
+
+function sqrt (x)
+   return x^0.5
+end;
+
+// Get sine of angle in degrees
+function sin (x) 
+  x = x*3.1415926/180;
+  return x - x^3/6 + x^5/120 - x^7/5040 + x^9/362880;
+end;
+
+function cos (x)
+   x = x*3.1415926/180;
+   return 1 - x^2/2 + x^4/24 + x^6/720;
+end;

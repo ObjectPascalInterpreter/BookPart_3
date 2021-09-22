@@ -1,0 +1,35 @@
+
+tt.pendown()
+tt.clear()
+tt.reset()
+
+tt.fd(250)
+tt.bk(500)
+tt.fd(250)
+tt.lt(90)
+tt.fd(250)
+tt.fd(-500)
+tt.reset()
+
+for i = 1 to 8 do
+  tt.color ("green")
+  tt.fd(20)
+  tt.rt(90)
+  tt.fd(250)
+  tt.fd(-500)
+  tt.fd(250)
+  tt.lt(90)
+end
+
+tt.reset()
+for i = 1 to 8 do
+  tt.color ("green")
+  tt.fd(-20)
+  tt.rt(90)
+  tt.fd(250)
+  tt.fd(-500)
+  tt.fd(250)
+  tt.lt(90)
+end
+
+

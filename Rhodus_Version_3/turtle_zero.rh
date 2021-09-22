@@ -1,0 +1,17 @@
+
+
+tt.reset()
+tt.clear()
+
+tt.rt(90)
+tt.penup()
+tt.fd(5)
+tt.rt(90)
+tt.fd(5)
+tt.rt(90)
+tt.pendown()
+
+  for i = 1 to 4 do
+    tt.fd(10)
+    tt.rt(90)
+  end

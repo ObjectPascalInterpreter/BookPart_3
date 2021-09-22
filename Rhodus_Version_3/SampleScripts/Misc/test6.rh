@@ -1,0 +1,7 @@
+// Is the number odd or even?
+value = 7;
+if value mod 2 == 0 then
+   println ("The number is even");
+else
+   println ("The number is odd");
+end

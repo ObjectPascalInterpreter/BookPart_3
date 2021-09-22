@@ -1,0 +1,10 @@
+
+i = 1;
+while i < 10 do
+    i = i + 1;
+    println ("In loop: ", i);
+    if i == 5 then
+       break;
+    end;
+end;
+println ("i = ", i);

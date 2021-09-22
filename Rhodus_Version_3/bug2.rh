@@ -1,0 +1,7 @@
+
+function callme()
+setColor ("blue")
+println ("Hello")
+end
+
+callme()

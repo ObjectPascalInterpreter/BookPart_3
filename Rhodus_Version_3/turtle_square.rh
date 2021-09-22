@@ -1,0 +1,12 @@
+si = 20
+
+tt.pendown()
+tt.clear()
+tt.reset()
+    
+function square (w)
+  for i = 1 to 4 do
+    tt.fd(w)
+    tt.lt(90)
+  end
+end

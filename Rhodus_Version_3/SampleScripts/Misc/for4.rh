@@ -1,0 +1,29 @@
+
+function loop()
+
+   for i = 1 to 5 do
+       for j = 1 to 5 do
+           println (i, j);
+       end;
+   end;
+
+end;
+
+loop();
+
+/*
+  0  pushi 1
+  1  storeLocal 0
+  2  loadLocal 0
+  3  pushi 5
+  4  isGt
+  5  jmpIfTrue 8
+  6  pushi 1
+  7  pushi 0
+  8  loadLocal 0
+  9  pushi 1
+ 10  println
+ 11  localInc
+ 12  jmp -10
+ 13  ret
+*/

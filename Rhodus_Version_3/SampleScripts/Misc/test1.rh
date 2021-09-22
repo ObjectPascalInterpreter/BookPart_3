@@ -1,0 +1,35 @@
+
+// This is a comment.
+
+i = 5
+if i > 3 then
+   println ("Its true")
+else
+   println ("Its false")
+end
+
+for i = 1 to 10 do
+    println (i)
+    if i == 5 then
+       break
+    end
+end
+
+println ("i = ", i)
+
+
+
+i = 1
+while i < 10 do
+   println (i)
+   i = i + 1
+end
+
+i = 1 
+repeat
+  println (i)
+  i = i + 1
+until i > 10
+
+
+

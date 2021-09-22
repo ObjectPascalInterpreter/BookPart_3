@@ -1,0 +1,8 @@
+
+import module2
+
+value= 1.2345
+
+newValue = module2.value2
+
+name = module2.callModule2()

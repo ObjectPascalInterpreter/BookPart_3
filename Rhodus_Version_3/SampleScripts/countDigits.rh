@@ -1,0 +1,11 @@
+
+print ("Enter an integer: ");
+n = int (readNumber())
+
+count = 0
+while (n != 0) do
+    n = n div 10;     // n = n/10
+    count = count + 1
+end
+
+println ("Number of digits: ", count);

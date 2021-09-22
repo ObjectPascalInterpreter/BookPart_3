@@ -1,0 +1,46 @@
+
+
+function hil (n)
+   row = n*{0};
+   m = n*{row};
+
+   for i = 0 to n - 1 do
+       for j = 0 to n - 1 do
+           m[i,j] = 1/((i+1)+(j+1)-1);
+       end;
+   end;
+   return m;
+end;
+
+//hil (3);
+//hil (3);
+//hil (3);
+
+/*
+>> hf
+  0  loadLocal 0
+  1  pushi 0
+  2  createList 1
+  3  mult
+  4  storeLocal 1
+  5  loadLocal 0
+  6  loadLocal 1
+  7  createList 1
+  8  mult
+  9  storeLocal 2
+ 10  pushi 3
+ 11  pushi 1
+ 12  pushi 1
+ 13  pushi 2
+ 14  pushi 2
+ 15  localsvecIdx 0
+ 16  pushi 4
+ 17  pushi 1
+ 18  pushi 2
+ 19  pushi 2
+ 20  pushi 2
+ 21  localsvecIdx 0
+ 22  loadLocal 2
+ 23  retvalue
+ 24  ret
+ */

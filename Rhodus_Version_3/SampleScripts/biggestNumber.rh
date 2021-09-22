@@ -1,0 +1,19 @@
+
+print ("\n\nEnter the number of elements you wish to find the greatest element of: ");
+n = int (readNumber());
+print("\n\nEnter ", n, " numbers :\n");
+
+print("\n\n\tElement 1 : ");
+
+big = int (readNumber())
+
+for i = 2 to n do 
+    print ("\n\tElement ", i, " : ");
+    c = int (readNumber())
+    if big < c then  
+       big = c;    // update big to the larger value
+    end
+end
+
+println ("\nThe largest of the ", n, " numbers is  ", big);
+

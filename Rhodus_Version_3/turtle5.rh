@@ -1,0 +1,17 @@
+ff = 80
+
+tt.pendown()
+tt.clear()
+tt.reset()
+for i = 1 to 3 do
+  tt.fd(ff)
+  tt.lt(120)
+end
+
+for i = 1 to 36 do
+  tt.lt(10)
+  for k = 1 to 3 do
+    tt.fd(ff)
+    tt.lt(120)
+  end
+end

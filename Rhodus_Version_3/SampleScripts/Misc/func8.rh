@@ -1,0 +1,32 @@
+
+// Tests to show that functions can return the different types
+
+function rint()
+  return 3;
+end;
+println (rint());
+
+
+function rbool()
+  return True;
+end;
+println (rbool());
+
+
+function rdouble()
+  return 3.1415;
+end;
+println (rdouble());
+
+
+function rstr()
+  return "string";
+end;
+println (rstr());
+
+
+function rlist()
+  return {1,2,{4,5}};
+end;
+
+println (rlist());

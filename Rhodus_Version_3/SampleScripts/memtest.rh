@@ -1,0 +1,40 @@
+
+println ("First Loop")
+j = 0
+while j < 4000 do
+   str = ""
+   for i = 1 to 1000 do
+     str = str + "1"
+   end
+   j = j + 1
+end
+
+println ("Second Loop")
+j = 0
+while j < 4000 do
+   str = ""
+   for i = 1 to 1000 do
+     str = str + "1"
+   end
+   j = j + 1
+end
+
+println ("Third Loop")
+j = 0
+while j < 4000 do
+   str = ""
+   for i = 1 to 1000 do
+     str = str + "1"
+   end
+   j = j + 1
+end
+
+println ("Forth Loop")
+j = 0
+while j < 4000 do
+   str = ""
+   for i = 1 to 1000 do
+     str = str + "1"
+   end
+   j = j + 1
+end

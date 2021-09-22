@@ -1,0 +1,8 @@
+
+x = math.dir()
+fx = {}
+for i = 0 to lists.len (x) - 1 do  
+    if x[i] == "asin" then
+       fx = fx + getAttr (math, x[i])
+    end
+end

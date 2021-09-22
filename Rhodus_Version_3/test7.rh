@@ -1,0 +1,7 @@
+
+t = time.getTickCount() 
+
+str= ""
+str = str + "abcd"
+
+println ("time = ", time.getTickCount() - t)

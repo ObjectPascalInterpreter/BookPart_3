@@ -1,0 +1,16 @@
+
+
+// {"dir","trim","find","val","toLower","mid","toUpper","len","left","str","right"}
+
+s = "ABCDEFGHIKL"
+
+println ("Remove the 4th character")
+
+nth = 4
+
+sl = strings.left (s, nth)
+sr = strings.right (s, strings.len (s)-(nth + 1))
+
+println ("Original string = ", s)
+println ("New string = ", sl + sr)
+

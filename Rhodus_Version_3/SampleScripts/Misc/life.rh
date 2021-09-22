@@ -1,0 +1,89 @@
+
+// Game of life: A really old 'life-simulator'
+// This version (w) by René 'Neotec' Jeschke
+
+width   = 60;
+height  = 40;
+
+width2  = width - 1;
+height2 = height - 1;
+fsize   = width * height;
+fsize2  = fsize - 1;
+
+field = {}; tfield = {};
+for i = 1 to fsize do
+    field = field + {0};
+end;
+
+function getcell(x, y)
+    if x < 0 then
+        x = width + x
+    else
+        if x > width2 then
+           x = x - width
+        end;
+    end;
+
+    if y < 0 then
+        y = height + y
+    else
+       if y > height2 then 
+          y = y - height
+       end
+    end;
+
+    return field[x + y * width];
+end;
+
+
+//for x = 0 to fsize2 
+//    field[x] = stat.rndi(2);
+//end
+
+count = 0;
+sum = 0.0;
+
+while true do
+    o = 0;
+    for y = 0 to height2 do
+        for x = 0 to width2 do 
+            c = 0;
+            for x1 = -1 to 1 do 
+                for y1 = -1 to 1 do 
+                    if ( not ((x1 == 0) and (y1 == 0))) then
+                       if getcell(x + x1, y + y1) > 0 then
+                          c = c + 1;
+                       end;
+                    end;
+                end;
+            end;
+            
+            tfield[o] = 0;
+            if c == 2 then
+               tfield[o] = field[o];
+            else
+               if c == 3 then
+                  tfield[o] = 1;
+               end;
+            end;
+            o = o + 1;
+        end;
+    end;
+
+    //console.top();
+
+    o = 0;
+    for y = 0 to height2 do
+        for x = 0 to width2 do
+            if tfield[o] > 0 then
+                print("+");
+            else
+                print(" ");
+            end;
+            field[o] = tfield[o];
+            o = o + 1;
+        end;
+        println(1);
+    end;
+    count = count + 1;
+end;

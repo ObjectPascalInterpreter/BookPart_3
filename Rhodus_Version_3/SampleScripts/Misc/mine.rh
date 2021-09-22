@@ -1,0 +1,10 @@
+
+print ("What is your name?");
+name = readString();
+
+println ("Your name is ", name);
+
+print ("How old are you?");
+age = readNumber();
+
+println ("Your age is ", age);

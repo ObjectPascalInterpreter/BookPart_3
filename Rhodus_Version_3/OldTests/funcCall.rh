@@ -1,0 +1,295 @@
+
+assertTrue (True);
+
+// Tests to show that functions can return the different types
+
+function test
+end
+
+
+function rint()
+  return 3;
+end;
+assertTrue (rint() == 3);
+
+
+function rbool()
+  return True;
+end;
+assertTrue (rbool() == True);
+
+
+function rdouble()
+  return 3.1415;
+end;
+assertTrue (rdouble() == 3.1415);
+
+
+function rstr()
+  return "string";
+end;
+assertTrue (rstr() == "string");
+
+
+function rlist()
+  return {1,2,{4,5}};
+end;
+assertTrue (rlist() == {1,2,{4,5}});
+
+
+function test_1()
+   astr = "1234";
+   astr[2] = "9";
+   return astr
+end;
+assertTrue (test_1() == "1294");
+
+
+function test_2()
+   astr = "1234";
+   return astr + astr
+end;
+assertTrue (test_2() == "12341234");
+
+
+function test_3()
+   str1 = "1234";
+   str2 = "4321";
+   return str1 + str2
+end;
+assertTrue (test_3() == "12344321");
+
+
+function test_4()
+   c = 1.1;
+   while True do
+     x = c + 0.1;
+     return x
+   end;
+end;
+assertTrue (test_4() == 1.2);
+
+
+function test_5()
+   for i = 1 to 10 do
+     if i == 5 then
+       return 12345;
+     end;
+   end;
+end;
+assertTrue (test_5() == 12345);
+
+
+function test_6()
+   x = 6; 
+   if x == 5 then
+      x = 0
+   else
+      return 123456;
+   end;
+end;
+assertTrue (test_6() == 123456);
+
+
+function test_7()
+  a = {1,2,3,4};
+  a[2] = 1;
+  return a
+end;
+assertTrue (test_7() == {1,2,1,4});
+
+
+function test_8()
+  a = {1,2,3,4,5,{6,7,8}};
+  a[5,0] = 99;
+  return a
+end;
+assertTrue (test_8() == {1,2,3,4,5,{99,7,8}});
+
+
+// Memory leak test for strings
+function test_9()
+   a = "str";
+   b = a;
+   b = 1;
+end;
+
+test_9();
+
+assertTrue (True);  // just record we did the test
+
+
+// Memory leak test for lists
+function test_10()
+   a = {1,2,3};
+   b = a;
+   b = 1;
+end;
+
+test_10();
+assertTrue (True);  // just record we did the test
+
+
+// Testing global functionality
+
+x = 1.2;
+
+function testGlobal_1 ()
+   x = 4.5;   
+end;
+testGlobal_1();
+assertTrue (x == 1.2);
+
+
+function testGlobal_2 ()
+   global x;
+   x = 4.5;   
+end;
+testGlobal_2();
+assertTrue (x == 4.5);
+
+
+y = 4.5; w = 8.9;
+a = "str"; b= {1,2,3};
+
+
+function testGlobal_3 ()
+   x = 4.5;  
+   global y, w;
+   y = 99; w = 88; 
+   global a, b;
+   a = -1; b = -4;
+end;
+testGlobal_3();
+assertTrue (x == 4.5);
+assertTrue (y == 99);
+assertTrue (w == 88);
+assertTrue (a == -1);
+assertTrue (b == -4);
+
+// -----------------------------------------------
+// Other Examples
+
+
+function mean (x)
+   a = x;
+   return a;
+end;
+
+x = mean(11);
+assertTrue (x == 11);
+
+
+function repeatString(count, text)
+   ret = "";
+ 
+   for i = 1 To count do
+      ret = ret + text
+   end;
+   return ret;
+end;
+ 
+assertTrue (repeatString(5, "ha") == "hahahahaha");
+
+// Check if n is a prime
+function IsPrime (n)
+  if n == 1 then
+     return False
+  end;
+  for m = 2 to (n div 2) do
+    if n mod m == 0 then
+      return False
+    end
+  end;
+  return True;
+end;
+
+assertTrue (IsPrime (99809) == True);
+assertTrue (not (IsPrime (100) == True));
+
+
+// Compute factorial
+function fac(x)
+  if x <= 0 then
+     return (1);
+  end;
+  return (x*fac(x-1));
+end;
+
+
+assertTrue (fac(7) == 5040);
+assertTrue (fac(10) == 3628800);
+
+
+
+// A highly recursive function
+function ack (x, y)
+  if x == 0 then
+     return (y+1);
+  end;
+  if y == 0 then
+     return (ack(x-1, 1));
+  end;
+  return (ack(x-1, ack(x, y-1)));
+end;
+
+
+assertTrue (ack (3, 6) == 509);
+
+
+// Compute the greatest common divisor
+function gcd (x,y)
+    r = x mod y;
+    while r > 0 do
+        r = x mod y;
+        if r == 0 then 
+           return y;
+        else
+            q = y; x = q; y = r;
+        end;
+    end;
+end;
+
+
+r = gcd (1071,1029); assertTrue (r == 21); 
+r = gcd (5538,1105); assertTrue (r == 13); 
+r = gcd (8764,7732); assertTrue (r == 4); 
+
+
+function combin(n, k)
+    return fac (n)/(fac (k)*fac (n-k))
+end;
+
+function permut(n, k)
+    return combin(n,k)*fac(k)
+end;
+
+assertTrue (combin (7,2) == 21);
+assertTrue (permut (7,2) == 42);
+
+
+
+// One function calling another
+function add (a, b)
+    return a + b
+end;
+
+function sumOfAdds (a, b)
+    return add (a, b) + add (a, b)
+end;
+
+assertTrue (sumOfAdds (2, 4) == 12);
+
+
+function repeatString(count, text)
+   ret = "";
+ 
+   for i = 1 To count do
+      ret = ret + text
+   end;
+   return ret;
+end;
+ 
+assertTrue (repeatString(5, "ha") == "hahahahaha");
+
+println ()

@@ -1,0 +1,9 @@
+principal = 500;
+rate = 0.04;
+numYears = 10;
+year = 1;
+while year <= numYears do
+   principal = principal + principal*rate;
+   println ("Year: ", year, " Bank Balance: ", principal);
+   year = year + 1;
+end

@@ -1,0 +1,25 @@
+
+msg = "Testing user defined function"
+println (msg)
+
+nitems = 4
+
+function callme
+  global nitems
+  a = {}    
+  for i = 0 to nitems do
+     lists.append (a, math.sin)
+  end
+  return a      
+end
+
+m = callme()
+
+for i = 0 to nitems do
+    println (m[i](i+2))
+end
+
+
+
+
+

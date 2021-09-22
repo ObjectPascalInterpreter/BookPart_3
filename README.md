@@ -79,7 +79,7 @@ Passing functions as arguments:
 
 Use of modules:
 
-First define a new module:
+First define a new module called lib.rh:
 
     a1 = 1.234
     b1 = 5.678

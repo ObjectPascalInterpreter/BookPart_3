@@ -59,3 +59,20 @@ This is source code for part III of the book series on building an interpreter u
     size = lists.len (numbers)
     QSort(numbers, 0, size-1)
     println ("Larger example: ", numbers)
+
+
+Passing functions as arguments:
+
+    // And user defined funtions
+    function sqr (x) return x*x; end
+    function cube (x) return x*x*x; end
+
+    function runtest (fcn, x)
+       return fcn (x)
+    end
+
+    s = runtest (sqr, 5)
+    println (s)
+
+    s = runtest (cube, 5)
+    println (s)

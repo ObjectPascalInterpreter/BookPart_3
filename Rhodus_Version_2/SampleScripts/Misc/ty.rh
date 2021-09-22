@@ -1,3 +1,0 @@
-println("what is your age?");
-set = readString();
-println("your age is ",set);

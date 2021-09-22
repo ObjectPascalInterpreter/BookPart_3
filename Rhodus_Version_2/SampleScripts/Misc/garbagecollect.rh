@@ -1,4 +1,0 @@
-
-for i = 1 to 200 do
-   a = "str";
-end;

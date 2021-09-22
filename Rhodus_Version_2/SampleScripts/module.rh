@@ -1,6 +1,0 @@
-
-module test
-
-//import math
-
-println (math.add (3,4))

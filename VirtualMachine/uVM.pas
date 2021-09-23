@@ -1146,6 +1146,9 @@ begin
   if not m.symbolTable.find (symbolName, symbol) then
      raise ERuntimeException.Create ('Undefined symbol: ' + symbolName);
 
+  if symbol.locked then
+     raise ERuntimeException.Create ('This symbol is locked, you cannot change it: ' + symbolName);
+
   case value.stackType of
     stNone:     begin symbol.symbolType := symUndefined; end;
     stInteger:  begin symbol.symbolType := symInteger; symbol.iValue := value.iValue; end;

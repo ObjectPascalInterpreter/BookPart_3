@@ -195,7 +195,6 @@ implementation
 
 Uses uOpCodes,
      Math,
-     uBuiltinFunctions,
      uMemoryManager,
      uRhodusTypes,
      uVMExceptions,

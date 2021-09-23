@@ -172,7 +172,6 @@
         <DCCReference Include="..\..\Library\FastMM\FastMM4Messages.pas"/>
         <DCCReference Include="uFindWindows.pas"/>
         <DCCReference Include="..\VirtualMachine\uAssembler.pas"/>
-        <DCCReference Include="..\VirtualMachine\uBuiltinFunctions.pas"/>
         <DCCReference Include="..\VirtualMachine\uConstantTable.pas"/>
         <DCCReference Include="..\VirtualMachine\uListObject.pas"/>
         <DCCReference Include="..\VirtualMachine\uMachineStack.pas"/>

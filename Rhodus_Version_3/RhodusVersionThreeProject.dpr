@@ -46,7 +46,6 @@ uses
   FastMM4Messages in '..\..\Library\FastMM\FastMM4Messages.pas',
   uFindWindows in 'uFindWindows.pas',
   uAssembler in '..\VirtualMachine\uAssembler.pas',
-  uBuiltinFunctions in '..\VirtualMachine\uBuiltinFunctions.pas',
   uConstantTable in '..\VirtualMachine\uConstantTable.pas',
   uListObject in '..\VirtualMachine\uListObject.pas',
   uMachineStack in '..\VirtualMachine\uMachineStack.pas',
@@ -90,17 +89,17 @@ begin
   if helpstr = '?' then
      begin
      result := 'Builtin functions:' + sLineBreak;
-     result := builtinList[0].name;
-     for i := 1 to builtinList.Count - 1 do
-         result := result + ', ' + builtinList[i].name;
+     //result := builtinList[0].name;
+     //for i := 1 to builtinList.Count - 1 do
+     //    result := result + ', ' + builtinList[i].name;
      exit;
      end;
 
   // Search places for any help
-  if builtinList.find(helpStr, index) then
-     result := builtinList[index].helpStr
-  else
-     result := 'No help found';
+  //if builtinList.find(helpStr, index) then
+  //   result := builtinList[index].helpStr
+  //else
+  //   result := 'No help found';
 end;
 
 
@@ -156,7 +155,6 @@ begin
       exit (True);
       end;
 
-   //writeln ('Unknown command');
    exit (False);
 
    // not a command, see if is a file name, if so run it

@@ -102,7 +102,7 @@ type
 implementation
 
 uses Math, IOUtils, uGlobal, uUtils, uOpCodes, uMachineStack,
-  uConstantTable, uBuiltinFunctions, uCompile, uBuiltInGlobal;
+  uConstantTable, uCompile, uBuiltInGlobal;
 
 type
   TPrintClass = class(TObject)

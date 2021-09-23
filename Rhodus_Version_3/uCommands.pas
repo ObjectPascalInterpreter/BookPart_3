@@ -199,7 +199,7 @@ var count : integer; fileName : string;
 begin
   dirlist := TDirectory.GetDirectories (GetCurrentDir);
   fileList := TDirectory.GetFiles(GetCurrentDir, '*.rh');
-  // Sort the file names using this awkward code
+  // Sort the file names using this looking awkward code
   TArray.Sort<string>(fileList, TDelegatedComparer<string>.Construct(
         function(const Left, Right: string): Integer
         begin

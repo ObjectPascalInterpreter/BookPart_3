@@ -59,7 +59,6 @@ type
     procedure compilePrintStatement(node: TASTNode);
     procedure compileSetColor (node : TASTNode);
     procedure compileAssert(node: TASTNode);
-    //procedure compileBuiltIn(node: TASTNode);
     procedure compileSwitchStatement(node: TASTSwitch);
     procedure compileImportStmt(node: TASTImport);
 
@@ -79,7 +78,6 @@ implementation
 Uses uGlobal,
      RTTI,
      uConstantTable,
-     uBuiltinFunctions,
      uScanner,
      uConstructAST,
      IOUtils,

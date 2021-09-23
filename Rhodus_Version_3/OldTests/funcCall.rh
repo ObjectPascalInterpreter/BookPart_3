@@ -3,6 +3,7 @@ assertTrue (True);
 
 // Tests to show that functions can return the different types
 
+
 function test
 end
 
@@ -68,6 +69,7 @@ function test_4()
    end;
 end;
 assertTrue (test_4() == 1.2);
+
 
 
 function test_5()
@@ -293,3 +295,4 @@ end;
 assertTrue (repeatString(5, "ha") == "hahahahaha");
 
 println ()
+

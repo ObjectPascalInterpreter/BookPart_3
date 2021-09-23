@@ -64,7 +64,7 @@ type
     function exprStatement: TASTNode;
     function statement: TASTNode;
     function statementList: TASTStatementList;
-    function expressionList: TListOfNodes;
+    function expressionList: TChildNodes;
     function ifStatement: TASTNode;
     function breakStatement: TASTNode;
     function globalStatement: TASTNode;
@@ -75,7 +75,7 @@ type
     function parseRepeatStatement: TASTNode;
     function forStatement: TASTNode;
     function parseUserDefinedFunction: TASTNode;
-    function functionArgumentList: TListOfNodes;
+    function functionArgumentList: TChildNodes;
     function functionArgument: TASTNode;
     function returnStmt: TASTNode;
 
@@ -188,11 +188,20 @@ begin
   inherited;
 end;
 
+// Expect works in the following way. If the function finds the expected
+// token then it return nil indicating success.
+// If it fails to find the token it builds a special Error node and returns that.
+// The error node contains some useful information. If a caller receives a non-nil
+// node it can safely assume that the node is the error node. When that happens it
+// should free up any partially build parts of the ast tree, then return the error node
+// to the next caller. This means that the error node will get inserted into the ast tree
+// At compilation, if an error node is encountered the compiler can report the error at
+// that point in time.
 function TConstructAST.expect(thisToken: TTokenCode) : TASTNode;
 begin
   result := nil;
   if sc.token <> thisToken then
-     result := TASTErrorNode.Create ('expecting' + TScanner.tokenToString (thisToken),  sc.tokenElement.lineNumber, sc.tokenElement.columnNumber)
+     result := TASTErrorNode.Create ('expecting ' + TScanner.tokenToString (thisToken),  sc.tokenElement.lineNumber, sc.tokenElement.columnNumber)
   else
     sc.nextToken;
 end;
@@ -248,6 +257,7 @@ end;
 // Parse something of the form variable '[' expressionList ']'
 // Such indexing applies to lists and strings
 function TConstructAST.parseIndexedVariable: TChildNodes;
+var node : TASTNode;
 begin
   result := TChildNodes.Create;
   sc.nextToken;
@@ -257,19 +267,24 @@ begin
     sc.nextToken;
     result.Add(expression);
   end;
-  expect(tRightBracket);
+  node := expect(tRightBracket);
+  if node <> nil then
+     result.Add (node);   // easist thing to do is add the error node to the expression list
 end;
 
 
 function TConstructAST.parseFunctionCall: TChildNodes;
+var node : TASTNode;
 begin
   result := nil;
   sc.nextToken;
   if sc.token <> tRightParenthesis then
     result := expressionList;
   if result = nil then
-    result := TList<TASTNode>.Create; // Make sure we return an empty list.
-  expect(tRightParenthesis);
+    result := TChildNodes.Create; // Make sure we return an empty list.
+  node := expect(tRightParenthesis);
+  if node <> nil then
+     result.Add(node);
 end;
 
 
@@ -290,7 +305,7 @@ end;
 function TConstructAST.parsePrimary: TASTNode;
 var
   identifier: string;
-  argumentList: TListOfNodes;
+  argumentList: TChildNodes;
   m: TASTSubscript;
   node: TASTPrimary;
 begin
@@ -338,6 +353,7 @@ var
   token: TTokenRecord;
   symbol: TSymbol;
   action : boolean;
+  i : integer;
 begin
   case sc.token of
     tInteger:
@@ -430,7 +446,12 @@ begin
       begin
         sc.nextToken;
         result := expression;
-        expect(tRightParenthesis);
+        node := expect(tRightParenthesis);
+        if node <> nil then
+           begin
+           result.freeAST;
+           result := node;
+           end;
       end;
 
     tLeftCurleyBracket:
@@ -438,8 +459,14 @@ begin
         sc.nextToken;
         alist := nil;
         if sc.token <> tRightCurleyBracket then
-          alist := parseList;
-        expect(tRightCurleyBracket);
+           alist := parseList;
+        node := expect(tRightCurleyBracket);
+        if node <> nil then
+           begin
+           alist.freeChildNodes;
+           alist.Free;
+           exit (node);
+           end;
         result := TASTCreateList.Create(alist);
       end;
 
@@ -668,23 +695,29 @@ end;
 
 // statementList = statement { [ ';' ] statement }
 function TConstructAST.statementList: TASTStatementList;
+var node : TASTNode;
 begin
   result := TASTStatementList.Create;
-  result.statementList.Add(statement);
+  node := statement();
+  if node <> nil then
+     result.statementList.Add(statement);
   while True do
     begin
       if sc.token = tSemicolon then // semicolons optional
         expect(tSemicolon);
       if sc.token in [tUntil, tEnd, tElse, tCase, tEndOfStream, tPeriod] then
         exit(result);
-      result.statementList.Add(statement);
+      node := statement();
+      if node <> nil then
+         result.statementList.Add(node);
     end;
 end;
 
 
 function TConstructAST.printlnStatement: TASTNode;
 var
-  funcArgs: TListOfNodes;
+  funcArgs: TChildNodes;
+  node : TASTNode;
 begin
   sc.nextToken;
   if sc.token = tLeftParenthesis then
@@ -694,8 +727,14 @@ begin
     if sc.token <> tRightParenthesis then
       funcArgs := expressionList
     else
-      funcArgs := TListOfNodes.Create;
-    expect(tRightParenthesis);
+      funcArgs := TChildNodes.Create;
+    node := expect(tRightParenthesis);
+    if node <> nil then
+           begin
+           funcArgs.freeChildNodes;
+           funcArgs.Free;
+           result := node;
+           end;
   end
   else
     begin
@@ -708,7 +747,7 @@ end;
 
 function TConstructAST.printStatement: TASTNode;
 var
-  funcArgs: TListOfNodes;
+  funcArgs: TChildNodes;
 begin
   sc.nextToken;
   if sc.token = tLeftParenthesis then
@@ -718,7 +757,7 @@ begin
      if sc.token <> tRightParenthesis then
         funcArgs := expressionList
      else
-        funcArgs := TListOfNodes.Create;
+        funcArgs := TChildNodes.Create;
      expect(tRightParenthesis);
      end
   else
@@ -837,9 +876,9 @@ end;
 
 // argumentList = expression { ',' expression }
 // Returns the number of expressions that were parsed
-function TConstructAST.expressionList: TListOfNodes;
+function TConstructAST.expressionList: TChildNodes;
 begin
-  result := TList<TASTNode>.Create;
+  result := TChildNodes.Create;
   result.Add(expression);
   while sc.token = tComma do
     begin
@@ -865,25 +904,45 @@ var
   caseStatementList: TASTStatementList;
   switchStatement: TASTSwitch;
   elseStatement: TASTStatementList;
+  node : TASTNode;
 begin
-  expect(tSwitch);
+  node := expect(tSwitch);
+  if node <> nil then
+     exit (node);
 
   switchExpression := simpleExpression;
   listOfCaseStatements := TASTListOfCaseStatements.Create;
 
   while sc.token = tCase do
     begin
-      expect(tCase);
+      node := expect(tCase);
+      if node <> nil then
+         begin
+         switchExpression.freeAST;
+         listOfSwitchStatements.freeAST;
+         exit (node);
+         end;
+
       if sc.token = tInteger then
         caseValue := TASTInteger.Create(sc.tokenInteger)
       else
         begin
+        switchExpression.freeAST;
+        listOfSwitchStatements.freeAST;
+        caseValue.freeAST;
         result := TASTErrorNode.Create ('Expecting integer in case value', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
         exit;
         end;
 
       sc.nextToken;
-      expect(tColon);
+      node := expect(tColon);
+      if node <> nil then
+         begin
+         switchExpression.freeAST;
+         listOfSwitchStatements.freeAST;
+         caseValue.freeAST;
+         exit (node);
+         end;
       caseStatementList := statementList;
       listOfCaseStatements.list.Add(TASTCaseStatement.Create(caseValue, caseStatementList));
     end;
@@ -894,7 +953,13 @@ begin
      end
   else
      elseStatement := nil;
-  expect(tEnd);
+  node := expect(tEnd);
+  if node <> nil then
+     begin
+     caseStatementList.freeAST;
+     listOfCaseStatements.freeAST;
+     elseStatement.freeAST;
+     end;
   switchStatement := TASTSwitch.Create(switchExpression, listOfCaseStatements, elseStatement);
   result := switchStatement;
 end;
@@ -906,13 +971,18 @@ end;
 // (if) -> (condition) and (thenStatementList) and (elseStatementList)
 function TConstructAST.ifStatement: TASTNode;
 var
-  condition, listOfStatements, listOfElseStatements: TASTNode;
+  condition, listOfStatements, listOfElseStatements, node: TASTNode;
 begin
   expect(tIf);
 
   condition := expression;
 
-  expect(tThen);
+  node := expect(tThen);
+  if node <> nil then
+     begin
+     condition.freeAST;
+     exit (node);
+     end;
 
   listOfStatements := statementList;
 
@@ -920,12 +990,20 @@ begin
      begin
      sc.nextToken;
      listOfElseStatements := statementList;
-     expect(tEnd);
+     node := expect(tEnd);
+     if node <> nil then
+        begin
+        listOfStatements.freeAST;
+        exit (node);
+        end;
+
      result := TASTIf.Create(condition, listOfStatements, listOfElseStatements);
      end
   else
      begin
-     expect(tEnd);
+     node := expect(tEnd);
+     if node <> nil then
+        exit (node);
      result := TASTIf.Create(condition, listOfStatements, nil);
      end;
 end;
@@ -986,7 +1064,7 @@ function TConstructAST.parseRepeatStatement: TASTNode;
 var
   breakJump: integer;
   breakStack1: TStack<integer>;
-  condition, listOfStatements: TASTNode;
+  condition, listOfStatements, node: TASTNode;
 begin
   breakStack1 := TStack<integer>.Create;
   stackOfBreakStacks.Push(breakStack1);
@@ -995,7 +1073,13 @@ begin
 
     listOfStatements := statementList;
 
-    expect(tUntil);
+    node := expect(tUntil);
+    if node <> nil then
+       begin
+       listOfStatements.freeAST;
+       exit (node);
+       end;
+
 
     condition := expression;
 
@@ -1099,7 +1183,8 @@ var
   functionName: string;
   newUserFunction: boolean;
   statementlistNode: TASTStatementList;
-  argList: TListOfNodes;
+  argList: TChildNodes;
+  node : TASTNode;
 begin
   newUserFunction := False;
   sc.nextToken;
@@ -1123,18 +1208,29 @@ begin
          begin
          sc.nextToken;
          argList := functionArgumentList;
-         expect(tRightParenthesis);
+         node := expect(tRightParenthesis);
+         if node <> nil then
+            begin
+            argList.freeChildNodes;
+            argList.Free;
+            exit (node);
+            end;
          end
      else
-         argList := TListOfNodes.Create;
+         argList := TChildNodes.Create;
 
       statementlistNode := statementList;
     finally
       exitUserFunctionScope();
       globalVariableList.Free;
     end;
-    expect(tEnd);
-
+    node := expect(tEnd);
+    if node <> nil then
+       begin
+       argList.freeChildNodes; argList.Free;
+       statementlistNode.freeAST; statementlistNode.Free;
+       exit (node);
+       end;
     // currentModuleName is required so that we can add the name of the function to the symbol table
     // early and before we parse the body of the fucntion so that recursive function calls can be handled.
     result := TASTUserFunction.Create(primaryModuleName, functionName, argList, statementlistNode);
@@ -1154,7 +1250,7 @@ end;
 // argumentList = argument { ',' argument }
 // AST:
 // childNodes -> (arg) and (arg) and (arg) and ....
-function TConstructAST.functionArgumentList: TListOfNodes;
+function TConstructAST.functionArgumentList: TChildNodes;
 begin
   result := TChildNodes.Create;
   if sc.token = tIdentifier then
@@ -1180,12 +1276,12 @@ end;
 // global x, y, ....
 function TConstructAST.globalStatement: TASTNode;
 var
-  variableList: TListOfNodes;
+  variableList: TChildNodes;
 begin
   expect(tGlobal);
   if inUserFunctionParsing then
       begin
-      variableList := TListOfNodes.Create;
+      variableList := TChildNodes.Create;
       if sc.token = tIdentifier then
         begin
           // We're keeping a list of declared global variables for a given

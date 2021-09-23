@@ -14,7 +14,7 @@ interface
 Uses SysUtils, Classes, uLibModule, System.Diagnostics;
 
 const
-   RHODUS_VERSION : string = '3.0';
+   RHODUS_VERSION : string = '3.0.0.3';
 
 type
   TBuiltInOS = class (TModuleLib)
@@ -73,7 +73,7 @@ procedure TBuiltInTime.getTimeSeconds (vm : TObject);
 var icount1 : Int64;
 begin
   QueryPerformanceCounter(icount1);
-  TVM (vm).push (trunc (1000*icount1/lFreq));//System.Classes.TThread.GetTickCount());
+  TVM (vm).push (trunc (1000*icount1/lFreq));
 end;
 
 

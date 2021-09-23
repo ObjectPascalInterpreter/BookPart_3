@@ -93,6 +93,7 @@ type
                 tOr,
                 tNot,
                 tXor,
+                tError,   // used when an error is detected
                 tEnd,
                 tEndofStream,
 
@@ -638,6 +639,7 @@ end;
 // Get special tokens
 procedure TScanner.getSpecial;
 begin
+  FTokenRecord.FTokenString := Fch; // This is used in case of an error so that we know what the bad character was.
   case Fch of
      '+'  : FTokenRecord.Ftoken := tPlus;
      '^'  : FTokenRecord.Ftoken := tPower;
@@ -694,7 +696,7 @@ begin
      '/'  : FTokenRecord.Ftoken := tDivide;
      '*'  : FTokenRecord.Ftoken := tMult;
   else
-     raise EScannerError.Create ('unrecongnised character in source code: ' + Fch);
+     FTokenRecord.FToken := tError;
   end;
   Fch := nextChar;
 end;
@@ -853,6 +855,7 @@ begin
             tWhile   : Result := 'while';
             tUntil   : Result := 'until';
            tRepeat   : Result := 'repeat';
+           tError    : Result := 'Unrecognized character';
         tEndofStream : result := 'end of source code';
    else
        result := 'unrecognised token in TokenLiteral';

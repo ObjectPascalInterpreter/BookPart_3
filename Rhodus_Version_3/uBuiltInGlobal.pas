@@ -211,7 +211,7 @@ begin
   case x.stackType of
     stInteger  : TVM (vm).push (TStringObject.create ('Integer Value'));
     stBoolean  : TVM (vm).push (TStringObject.create ('Boolean Value'));
-    stDouble   : TVM (vm).push (TStringObject.create ('Double Value'));
+    stDouble   : TVM (vm).push (TStringObject.create ('Double value: ' + floattostr (x.dValue)));
     stString   : TVM (vm).push (TStringObject.create ('String Value'));
     stList     : TVM (vm).push (TStringObject.create ('List Value'));
     stModule   : TVM (vm).push (TStringObject.create (getModuleHelp (x.module)));

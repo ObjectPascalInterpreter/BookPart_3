@@ -10,8 +10,6 @@ unit uGlobal;
 
 interface
 
-var mainModuleId : string = '_ main_';
-
 implementation
 
 end.

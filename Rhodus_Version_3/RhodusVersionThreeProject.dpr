@@ -84,22 +84,60 @@ var sourceCode : string;
 
 
 function searchHelp (const helpStr : string) : string;
-var i, index : integer;
+var i, j, index : integer;
+    astr : TArray<string>;
+    symbol1, symbol2: TSymbol;
 begin
-  if helpstr = '?' then
+  // Search places for any help  whcih will be of the form X or X.Y
+  astr := SplitString(helpStr, '.');
+  if length (astr) = 1 then
      begin
-     result := 'Builtin functions:' + sLineBreak;
-     //result := builtinList[0].name;
-     //for i := 1 to builtinList.Count - 1 do
-     //    result := result + ', ' + builtinList[i].name;
-     exit;
+     // Its either in the global space or its a module name
+     if mainModule.symbolTable.find(astr[0], symbol1) then
+        begin
+        if symbol1.symbolType = symModule then
+           result := symbol1.mValue.helpStr
+        else
+           result := 'Unable to locate symbol';
+        end
+     else
+        begin
+        // Check the global space
+        if mainModule.symbolTable.find(TSymbol.globalId, symbol1) then
+           begin
+           if symbol1.mValue.symbolTable.find(astr[0], symbol2) then
+              begin
+              result := symbol2.fValue.helpStr;
+              end
+           else
+              result := 'Unable to locate symbol';
+           end
+        else
+           result := 'Internal error: global space could not be located';
+         end;
+     end
+  else
+     begin
+     if length (astr) = 2 then
+        begin
+        if mainModule.symbolTable.find(astr[0], symbol1) then
+           begin
+           if symbol1.symbolType = symModule then
+              begin
+              if symbol1.mValue.symbolTable.find (astr[1], symbol2)  then
+                 case symbol2.symbolType of
+                     symUserFunc : result := symbol2.fValue.helpStr;
+                 else
+                    result := symbol2.helpStr
+                 end;
+              end;
+           end
+        else
+           result := 'Unable to locate the module: ' + astr[0];
+        end
+     else
+        result := 'Don''t know how to search what you indicated: ' + helpstr;
      end;
-
-  // Search places for any help
-  //if builtinList.find(helpStr, index) then
-  //   result := builtinList[index].helpStr
-  //else
-  //   result := 'No help found';
 end;
 
 

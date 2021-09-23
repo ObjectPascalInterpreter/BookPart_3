@@ -1,6 +1,6 @@
-# BookPart_3
+# BookPart 3
 
-This is source code for part III of the book series on building an interpreter using Object Pascal. The major outward change in this version include library support, a range of (currently) small builtin libraries such as math. The biggest internal change is to separate code generation from syntax analysis in the for of an abstract syntax tree. User functions are also now first-class entities which can be passed around like any other variable. Example code:
+This repo holds source code for part III of the book series on building an interpreter using Object Pascal (https://www.objectpascalinterpreter.com). the code is now fairly stable but I will continue to tidy up the code and possibly add one or two additional features. The major outward change in this version includes library support, and a range of small builtin libraries such as math (these will be expanded). The biggest internal change is to separate code generation from syntax analysis in the form of an abstract syntax tree. User functions are also now first-class entities which can be passed around like any other variable. A lot of work has been done on ensure that garbage collection doesn't leak memory. Example code:
 
     
     // Quick sort algorithm, depends on recursion
@@ -76,3 +76,26 @@ Passing functions as arguments:
 
     s = runtest (cube, 5)
     println (s)
+
+Use of modules:
+
+First define a new module called lib.rh:
+
+    a1 = 1.234
+    b1 = 5.678
+
+    function sqrt (x)
+       return x^0.5
+    end;
+
+    function input (prompt)
+       print (prompt + " ");
+       return readString()
+    end
+    
+Importing and using the module:
+
+    import lib
+
+    println (lib.sqrt (25))
+    println (lib.a1)

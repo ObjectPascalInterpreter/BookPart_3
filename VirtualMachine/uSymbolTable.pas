@@ -24,7 +24,7 @@ type
    // use the derived class TLibModule
    TModule = class (TObject)
        name : string;
-       code : TProgram;   // Module level code
+       code : TProgram;      // Module level code
        symbolTable : TSymbolTable;
        helpStr : string;
        compiled : boolean;   // Not currently used
@@ -209,8 +209,8 @@ begin
 end;
 
 
-// ------------------------------------------------------------------------------------
-
+// ------------------------------------------------------------------------------------------
+// User functions like lists and strings are kept in the heap memory pool, see uMemoryManager
 constructor TUserFunction.Create;
 begin
   inherited Create;
@@ -236,6 +236,7 @@ begin
 end;
 
 
+// Use this when creating a builtin function
 constructor TUserFunction.Create (functionName : string; nArgs : integer; funcPtr : TxBuiltInFunction);
 begin
   Create;
@@ -280,10 +281,12 @@ begin
      result.globalVariableList.Assign (self.globalVariableList);
      result.funcCode := self.funcCode.Clone;
    end;
+   // Don't forget to add the clone to the heap memory pool
    memoryList.addNode (result);
 end;
 
 
+// This tries to get some estimate for the size of the user function
 function TUserFunction.getSize : integer;
 begin
    result := self.InstanceSize;
@@ -298,13 +301,14 @@ end;
 
 // ---------------------------------------------------------------------------------
 
+// Symbols are stored in the module level symbol table
 constructor TSymbol.Create;
 begin
   lValue := nil;
   sValue := nil;
   fValue := nil;
   symbolType := symUndefined;
-  locked := False;
+  locked := False;   // used for things that shouldn't be changed, eg math.pi
   helpStr := 'No help on this symbol';
 end;
 

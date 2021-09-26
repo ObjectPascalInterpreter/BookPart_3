@@ -133,10 +133,11 @@ type
 
   TTokenRecord = record
                     lineNumber, columnNumber : integer;
-                    FToken        : TTokenCode;
-                    FTokenString  : string;
-                    FTokenFloat   : double;
-                    FTokenInteger : Integer;
+                    FToken          : TTokenCode;
+                    FTokenCharacter : Char;
+                    FTokenString    : string;
+                    FTokenFloat     : double;
+                    FTokenInteger   : Integer;
                   end;
 
   TScanner = class (TObject)
@@ -639,7 +640,7 @@ end;
 // Get special tokens
 procedure TScanner.getSpecial;
 begin
-  FTokenRecord.FTokenString := Fch; // This is used in case of an error so that we know what the bad character was.
+  FTokenRecord.FTokenCharacter := Fch; // This is used in case of an error so that we know what the bad character was.
   case Fch of
      '+'  : FTokenRecord.Ftoken := tPlus;
      '^'  : FTokenRecord.Ftoken := tPower;
@@ -764,30 +765,30 @@ begin
         tInteger      : result := 'integer <';// + inttostr (tokenElement.FTokenInteger) + '>';
         tFloat        : result := 'float <';// + floattostr (tokenElement.FTokenFloat) + '>';
         tString       : result := 'string "';// + tokenElement.FTokenString + '"';
-        tMinus        : result := 'special: ''-''';
-        tPlus         : result := 'special: ''+''';
-        tMult         : result := 'special: ''*''';
-        tDivide       : result := 'special: ''/''';
-        tPower        : result := 'special: ''^''';
-  tRightParenthesis   : result := 'special: '')''';
-  tLeftParenthesis    : result := 'special: ''(''';
-     tRightBracket    : result := 'special: '']''';
-     tLeftBracket     : result := 'special: ''[''';
-  tLeftCurleyBracket  : result := 'special: ''{''';
-  tRightCurleyBracket : result := 'special: ''}''';
-        tEquals       : result := 'special: ''=''';
-        tEquivalence  : result := 'special: ''==''';
-        tMoreThan     : result := 'special: ''>''';
-        tLessThan     : result := 'special: ''<''';
-     tMoreThanOrEqual : result := 'special: ''>=''';
-     tLessThanOrEqual : result := 'special: ''<=''';
-        tApostrophy   : result := 'Apostrphy';
-        tSemicolon    : result := 'special: '';''';
-        tColon        : result := 'special: '':''';
-        tComma        : result := 'special: '',''';
-        tPeriod       : result := '''.''';
-        tDollar       : result := 'special: ''$''';
-        tArrow        : result := 'special: ''->''';
+        tMinus        : result := 'character: ''-''';
+        tPlus         : result := 'character: ''+''';
+        tMult         : result := 'character: ''*''';
+        tDivide       : result := 'character: ''/''';
+        tPower        : result := 'character: ''^''';
+  tRightParenthesis   : result := 'character: '')''';
+  tLeftParenthesis    : result := 'character: ''(''';
+     tRightBracket    : result := 'character: '']''';
+     tLeftBracket     : result := 'character: ''[''';
+  tLeftCurleyBracket  : result := 'character: ''{''';
+  tRightCurleyBracket : result := 'character: ''}''';
+        tEquals       : result := 'character: ''=''';
+        tEquivalence  : result := 'spcharacterecial: ''==''';
+        tMoreThan     : result := 'character: ''>''';
+        tLessThan     : result := 'character: ''<''';
+     tMoreThanOrEqual : result := 'character: ''>=''';
+     tLessThanOrEqual : result := 'character: ''<=''';
+        tApostrophy   : result := 'character: Apostrphy';
+        tSemicolon    : result := 'character: '';''';
+        tColon        : result := 'character: '':''';
+        tComma        : result := 'character: '',''';
+        tPeriod       : result := 'character: ''.''';
+        tDollar       : result := 'character: ''$''';
+        tArrow        : result := 'character: ''->''';
             tEnd      : result := 'key word: <end>';
              tIf      : result := 'key word: <if>';
              tThen    : result := 'key word: <then> ';

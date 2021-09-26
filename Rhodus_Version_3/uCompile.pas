@@ -40,8 +40,8 @@ type
 
     procedure compilePeriod (node : TASTPeriod);
 
-    procedure compileSubscriptsStore(subscripts: TListOfNodes; isLocal: boolean);
-    procedure compileSubscriptsLoad(subscripts: TListOfNodes; isLocal: boolean);
+    procedure compileSubscriptsStore(subscripts: TChildNodes; isLocal: boolean);
+    procedure compileSubscriptsLoad(subscripts: TChildNodes; isLocal: boolean);
 
     procedure writeOutPrimaryLoadCode (node : TASTPrimary);  // Helper method
     procedure compilePrimaryLoadInFunction (node : TAStPrimary);
@@ -474,8 +474,7 @@ end;
 
 
 // Deal with code like a[2] = 3
-procedure TCompiler.compileSubscriptsStore(subscripts: TListOfNodes;
-  isLocal: boolean);
+procedure TCompiler.compileSubscriptsStore(subscripts: TChildNodes; isLocal: boolean);
 var
   i: integer;
 begin
@@ -509,7 +508,7 @@ end;
 
 
 // Deal with code like x = a[2]
-procedure TCompiler.compileSubscriptsLoad(subscripts: TListOfNodes; isLocal: boolean);
+procedure TCompiler.compileSubscriptsLoad(subscripts: TChildNodes; isLocal: boolean);
 var
   i: integer;
 begin

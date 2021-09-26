@@ -319,13 +319,15 @@ end;
 
 
 function runCommand (fileName : string) : boolean;
+var cwd : string;
 begin
   if ExtractFileExt(fileName) <> '.rh' then
      fileName := fileName + '.rh';
-  if TFile.Exists (getCurrentDir + '\' + fileName) then
+  cwd := getCurrentDir();
+  if TFile.Exists (cwd + '\' + fileName) then
      begin
      if getRuntime() <> nil then
-        getRuntime().runCode (TFile.ReadAllText(getCurrentDir + '\' + fileName), False) // True = interactive
+        getRuntime().runCode (TFile.ReadAllText(cwd + '\' + fileName), False) // True = interactive
      else
         begin
         writeln ('Internal Error: Runtime system not available');

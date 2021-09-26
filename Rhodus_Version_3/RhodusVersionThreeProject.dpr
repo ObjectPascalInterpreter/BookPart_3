@@ -88,17 +88,20 @@ var i, j, index : integer;
     astr : TArray<string>;
     symbol1, symbol2: TSymbol;
 begin
-  // Search places for any help  whcih will be of the form X or X.Y
+  // Search places for any help for things of the form X or X.Y
   astr := SplitString(helpStr, '.');
-  if length (astr) = 1 then
+  if length (astr) = 1 then  // then its just X
      begin
+     // Check first if its in _main_
      // Its either in the global space or its a module name
      if mainModule.symbolTable.find(astr[0], symbol1) then
         begin
         if symbol1.symbolType = symModule then
            result := symbol1.mValue.helpStr
         else
-           result := 'Unable to locate symbol';
+           begin
+           result := symbol1.toString;
+           end;
         end
      else
         begin
@@ -136,7 +139,7 @@ begin
            result := 'Unable to locate the module: ' + astr[0];
         end
      else
-        result := 'Don''t know how to search what you indicated: ' + helpstr;
+        result := 'Don''t know how to search for what you indicated: "' + helpstr + '"';
      end;
 end;
 

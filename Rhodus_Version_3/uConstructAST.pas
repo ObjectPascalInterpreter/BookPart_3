@@ -495,7 +495,7 @@ begin
       end
   else
     begin
-    result := TASTErrorNode.Create ('expecting scalar, identifier or left parentheses', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+    result := TASTErrorNode.Create ('expecting a literal value, an identifier or an opening ''(''. Instead I found "' + sc.tokenElement.FTokenCharacter + '"', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
     sc.nextToken;
     end;
   end;
@@ -700,7 +700,7 @@ begin
   result := TASTStatementList.Create;
   node := statement();
   if node <> nil then
-     result.statementList.Add(statement);
+     result.statementList.Add(node);
   while True do
     begin
       if sc.token = tSemicolon then // semicolons optional
@@ -733,7 +733,7 @@ begin
            begin
            funcArgs.freeChildNodes;
            funcArgs.Free;
-           result := node;
+           exit (node);
            end;
   end
   else
@@ -748,6 +748,7 @@ end;
 function TConstructAST.printStatement: TASTNode;
 var
   funcArgs: TChildNodes;
+  node : TASTNode;
 begin
   sc.nextToken;
   if sc.token = tLeftParenthesis then
@@ -758,7 +759,13 @@ begin
         funcArgs := expressionList
      else
         funcArgs := TChildNodes.Create;
-     expect(tRightParenthesis);
+     node := expect(tRightParenthesis);
+     if node <> nil then
+        begin
+        funcArgs.freeChildNodes;
+        funcArgs.Free;
+        exit (node);
+        end;
      end
   else
     begin
@@ -771,6 +778,7 @@ end;
 
 
 function TConstructAST.setColorStatement : TASTNode;
+var  node : TASTNode;
 begin
   result := nil;
   sc.nextToken;
@@ -778,13 +786,20 @@ begin
      begin
      sc.nextToken;
      result := expression;
-     expect(tRightParenthesis);
+     node := expect(tRightParenthesis);
+     if node <> nil then
+        begin
+        result.freeAST;
+        exit (node);
+        end;
+
      result := TASTSetColor.Create(TASTExpression.Create(result));
      end;
 end;
 
 
 function TConstructAST.AssertTrueStatement: TASTNode;
+var node : TASTNode;
 begin
   result := nil;
   sc.nextToken;
@@ -792,13 +807,19 @@ begin
      begin
      sc.nextToken;
      result := expression;
-     expect(tRightParenthesis);
+     node := expect(tRightParenthesis);
+     if node <> nil then
+        begin
+        result.freeAST;
+        exit (node);
+        end;
      result := TASTAssertTrue.Create(TASTExpression.Create(result));
      end;
 end;
 
 
 function TConstructAST.AssertTrueExStatement: TASTNode;
+var node : TASTNode;
 begin
   result := nil;
   sc.nextToken;
@@ -806,13 +827,19 @@ begin
      begin
      sc.nextToken;
      result := expression;
-     expect(tRightParenthesis);
+     node := expect(tRightParenthesis);
+     if node <> nil then
+        begin
+        result.freeAST;
+        exit (node);
+        end;
      result := TASTAssertTrueEx.Create(TASTExpression.Create(result));
      end;
 end;
 
 
 function TConstructAST.AssertFalseStatement: TASTNode;
+var node : TASTNode;
 begin
   result := nil;
   sc.nextToken;
@@ -820,7 +847,12 @@ begin
      begin
      sc.nextToken;
      result := expression;
-     expect(tRightParenthesis);
+     node := expect(tRightParenthesis);
+     if node <> nil then
+        begin
+        result.freeAST;
+        exit (node);
+        end;
      result := TASTAssertFalse.Create(TASTExpression.Create(result));
      end;
 end;
@@ -1032,6 +1064,7 @@ var
   breakStack: TStack<integer>;
   listOfStatements: TASTStatementList;
   condition: TASTExpression;
+  node : TASTNode;
 begin
   breakStack := TStack<integer>.Create;
   stackOfBreakStacks.Push(breakStack);
@@ -1039,12 +1072,27 @@ begin
     expect(tWhile);
 
     condition := TASTExpression.Create(expression);
+    if condition.nodeType = ntError then
+       begin
+       exit (condition);
+       end;
 
-    expect(tDo);
+    node := expect(tDo);
+    if node <> nil then
+       begin
+       condition.freeAST;
+       exit (node);
+       end;
 
     listOfStatements := statementList;
 
-    expect(tEnd);
+    node := expect(tEnd);
+    if node <> nil then
+       begin
+       condition.freeAST;
+       listOfStatements.freeAST;
+       exit (node);
+       end;
 
     result := TASTWhile.Create(condition, listOfStatements);
 
@@ -1080,7 +1128,6 @@ begin
        exit (node);
        end;
 
-
     condition := expression;
 
     result := TASTRepeat.Create(listOfStatements, condition);
@@ -1106,36 +1153,55 @@ var
   breakStack: TStack<integer>;
   assignment: TASTAssignment;
   iterationBlock: TASTIterationBlock;
-  rightSide, upper, body, symbolNode: TASTNode;
+  rightSide, upper, body, symbolNode, node: TASTNode;
 begin
   breakStack := TStack<integer>.Create;
   stackOfBreakStacks.Push(breakStack);
   try
     expect(tFor);
 
-    expect(tIdentifier);
-    if inUserFunctionParsing then
-      symbolNode := TASTPrimary.Create(sc.tokenString)
-    else
-      symbolNode := TASTPrimary.Create(sc.tokenString);
+    node := expect(tIdentifier);
+    if node <> nil then
+       exit (node);
 
-    expect(tEquals);
+    symbolNode := TASTPrimary.Create(sc.tokenString);
+
+    node := expect(tEquals);
+    if node <> nil  then
+       begin
+       symbolNode.freeAST;
+       exit (node);
+       end;
+
     rightSide := expression;
+    if rightSide.nodeType = ntError then
+       begin
+       symbolNode.freeAST;
+       exit (rightSide);
+       end;
+
     assignment := TASTAssignment.Create(symbolNode as TASTPrimary, rightSide);
 
     if sc.token in [tTo, tDownTo] then
-    begin
-      toToken := sc.token;
-      sc.nextToken;
-    end
+       begin
+       toToken := sc.token;
+       sc.nextToken;
+       end
     else
       begin
+      assignment.freeAST;
       result := TASTErrorNode.Create ('expecting "to" or "downto" in for loop', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
       exit;
       end;
 
     // Parse the upper limit expression
     upper := expression;
+    if upper.nodeType = ntError then
+       begin
+       assignment.freeAST;
+       exit (upper);
+       end;
+
     iterationBlock := TASTIterationBlock.Create(assignment, TASTExpression.Create(upper));
     if toToken = tTo then
       iterationBlock.direction := TASTNode.Create(TASTNodeType.ntTo)
@@ -1159,7 +1225,12 @@ begin
          end;
     end;
 
-    expect(tDo);
+    node := expect(tDo);
+    if node <> nil then
+       begin
+       iterationBlock.freeAST;
+       exit (node);
+       end;
 
     // .... do <body>
     body := statementList;
@@ -1169,7 +1240,12 @@ begin
     while breakStack.Count > 0 do
       breakJump := breakStack.Pop;
 
-    expect(tEnd);
+    node := expect(tEnd);
+    if node <> nil then
+       begin
+       result.freeAST;
+       exit (node);
+       end;
   finally
     breakStack := stackOfBreakStacks.Pop;
     breakStack.Free;
@@ -1228,7 +1304,7 @@ begin
     if node <> nil then
        begin
        argList.freeChildNodes; argList.Free;
-       statementlistNode.freeAST; statementlistNode.Free;
+       statementlistNode.freeAST; //statementlistNode.Free;
        exit (node);
        end;
     // currentModuleName is required so that we can add the name of the function to the symbol table
@@ -1238,9 +1314,6 @@ begin
    except
     on Exception do
     begin
-      // HMS
-      // if newUserFunction then
-      // moduleList[currentModuleIndex].symbolTable.Delete(symbolIndex);
       raise;
     end;
   end;

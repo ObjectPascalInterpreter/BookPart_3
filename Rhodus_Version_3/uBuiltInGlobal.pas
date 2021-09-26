@@ -85,21 +85,21 @@ constructor TBuiltInGlobal.Create;
 begin
   inherited Create (TSymbol.globalId, 'Global Module');
 
-  addMethod (myInt,          1, 'int',         'convert float to integer: int (3.4)');
-  addMethod (readNumber,     0, 'readNumber',  'read an integer from the console');
-  addMethod (readString,     0, 'readString',  'read a string from the console');
-  addMethod (listSymbols,    1, 'symbols',     'Returns list of symbols in the specified module: symbols(math). Use ' + TSymbol.mainModuleId + ' to get the symbols for the main module');
-  addMethod (getType,        1, 'type',        'Returns the type of a given variable: type (x)');
-  addMethod (getAttr,        2, 'getAttr',     'Returns the value attached to the symbol attribute: getAttr (mylib, "x")');
-  addMethod (myHelp,         1, 'help',        'Get help on an object');
-  addMethod (listModules,    0, 'modules',     'Get a list of all currently loaded mdules');
-  addMethod (getMemoryUsed,  0, 'mem',         'Get the amount of memory currently in use.');
-  addMethod (myAssertTrueEx, 1, 'assertTrueEx', 'Assert argument is true, return . of F');
+  addMethod (myInt,          1, 'int',           'Convert float to integer: int (3.4)');
+  addMethod (readNumber,     0, 'readNumber',    'Read an integer from the console');
+  addMethod (readString,     0, 'readString',    'Rread a string from the console');
+  addMethod (listSymbols,    1, 'symbols',       'Returns list of symbols in the specified module: symbols(math). Use ' + TSymbol.mainModuleId + ' to get the symbols for the main module');
+  addMethod (getType,        1, 'type',          'Returns the type of a given variable: type (x)');
+  addMethod (getAttr,        2, 'getAttr',       'Returns the value attached to the symbol attribute: getAttr (mylib, "x")');
+  addMethod (myHelp,         1, 'help',          'Get help on an object');
+  addMethod (listModules,    0, 'modules',       'Get a list of all currently loaded mdules');
+  addMethod (getMemoryUsed,  0, 'mem',           'Get the amount of memory currently in use.');
+  addMethod (myAssertTrueEx, 1, 'assertTrueEx',  'Assert argument is true, return . of F');
   addMethod (myAssertFalseEx,1, 'assertFalseEx', 'Assert argument is false, return . of F');
-  addMethod (myMain,         0, 'main', 'returns main');
-  addMethod (dis,            1, 'dis', 'dissassemble module or function');
-  addMethod (getChar,        1, 'chr', 'Get the character equivalent of an integer value');
-  addMethod (getAsc,         1, 'asc', 'Get the ascii equivalent of a single character');
+  addMethod (myMain,         0, 'main',          'Returns a reference to the main module');
+  addMethod (dis,            1, 'dis',           'dissassemble module or function');
+  addMethod (getChar,        1, 'chr',           'Get the character equivalent of an integer value');
+  addMethod (getAsc,         1, 'asc',           'Get the ascii equivalent of a single character');
 end;
 
 

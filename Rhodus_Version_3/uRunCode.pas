@@ -238,7 +238,7 @@ begin
                 stString  : writeln (st.sValue.value);
                 stList    : writeln (st.lValue.listToString());
                 stModule  : writeln ('Module: ' + st.module.name + ' ' + st.module.helpStr);
-                stFunction: writeln ('Function: ' + st.fValue.name);
+                stFunction: writeln ('Function: ' + st.fValue.moduleRef.name + '.' + st.fValue.name);
                else
                  writeln ('Unrecognized type of value returned from virtual machine');
                end;

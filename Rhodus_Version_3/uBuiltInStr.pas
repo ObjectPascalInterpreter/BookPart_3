@@ -27,6 +27,7 @@ type
      procedure   split (vm :TObject);
      procedure   val (vm : TObject);
      procedure   str (vm : TObject);
+     procedure   formatStr (vm : TObject);
      constructor Create;
   end;
 
@@ -52,6 +53,7 @@ begin
   addMethod(split,       2, 'split', 'Splits at a given character into a list of strings: strings.split ("AB CD DE", " ")');
   addMethod(str,         1, 'str', 'Converts a string into a number: strings.str ("1.23"');
   addMethod(val,         1, 'val', 'Converts a number into a string: strings.val (1.23)');
+  addMethod(formatStr,   2, 'format', 'Formats a number and returns a string, eg strings.format (2.3456, "%3,4")');
 end;
 
 
@@ -63,6 +65,25 @@ begin
    s := TVM (vm).popString;
    index := pos (substr.value, s.value);
    TVM (vm).push(index-1);
+end;
+
+
+procedure TBuiltInStr.formatStr (vm : TObject);
+var m : PMachineStackRecord;
+    fstr: string;
+begin
+   fstr := TVM (vm).popString.value;
+   m := TVM (vm).pop;
+   case m.stackType of
+      stInteger :
+           TVM (vm).push(TStringObject.create(format (fstr, [m.iValue])));
+      stDouble :
+           TVM (vm).push(TStringObject.create(format (fstr, [m.dValue])));
+      stString :
+           TVM (vm).push(TStringObject.create(format (fstr, [m.sValue.value])));
+   else
+      raise ERuntimeException.Create('You can only use integers, floats amd strings in the format method.');
+   end;
 end;
 
 

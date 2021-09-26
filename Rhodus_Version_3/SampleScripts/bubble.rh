@@ -19,7 +19,7 @@ end;
 // Driver code to test above   
 numbers = {12, 7, 13, 5, 6}
 bubbleSort (numbers) 
-res = assertTrueEx (numbers == {5, 6, 7, 12, 13}
+res = assertTrueEx (numbers == {5, 6, 7, 12, 13})
 if res == "." then
    println("----PASS----")
 else
@@ -27,6 +27,6 @@ else
 end
 
 // Bigger example
-numbers = random.randlist (100, 100)
+numbers = lists.rndi (1, 100, 100)
 bubbleSort(numbers)
 println ("Larger example: ", numbers)

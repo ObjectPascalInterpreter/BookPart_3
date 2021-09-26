@@ -39,5 +39,5 @@ b1 = numer/denom
 b0 = mean_y - (b1 * mean_x)
 
 // Print coefficients
-println ("Best slope = ", b1
+println ("Best slope = ", b1)
 println ("Best y intercept = ", b0)

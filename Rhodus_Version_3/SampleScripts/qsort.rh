@@ -51,7 +51,7 @@ else
 end
 
 // Bigger example
-numbers = random.randlist (100, 100)
+numbers = lists.rndi (1, 100, 100)
 size = lists.len (numbers)
 QSort(numbers, 0, size-1)
 println ("Larger example: ", numbers)

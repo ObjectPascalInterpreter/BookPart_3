@@ -345,14 +345,16 @@ begin
 end;
 
 
+
 function TSymbol.toString : string;
 begin
   case symbolType of
-    symBoolean : result := BoolToStr (bValue, True);
-    symInteger : result := inttostr (iValue);
-    symDouble  : result := floattostr (dValue);
-    symString  : result := sValue.value;
-    symList    : result := lValue.ToString();
+    symBoolean   : result := 'boolean';
+    symInteger   : result := 'integer';
+    symDouble    : result := 'float';
+    symString    : result := 'string';
+    symList      : result := 'list';
+    symUserFunc  : result := 'function';
     symUndefined : result := 'Undefined variable';
   else
     raise Exception.Create('toString type in TSymbol not implemented: ' + inttostr (integer (symbolType)));

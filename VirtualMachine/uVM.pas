@@ -49,6 +49,11 @@ type
      symbolTable : TSymbolTable;
   end;
 
+  // Only used for debugging
+  TStackInfo = record
+     stacktop : integer;
+  end;
+
   TVM = class(TObject)
   private
     stack: TMachineStack;
@@ -149,6 +154,7 @@ type
     procedure  collectGarbage;
     function   getGarbageSize : integer;
   public
+    interactive : boolean;
     constructor Create;
     destructor  Destroy; override;
     procedure   registerPrintCallBack(fcn: TVMPrintCallBack);
@@ -183,6 +189,7 @@ type
     procedure   run(code: TProgram; symbolTable : TSymbolTable);
     procedure   runModule(module: TModule);
 
+    function    getStackInfo : TStackInfo;  // for debuggin purposes)
     procedure   setcallBack(proc: TVMCallBack);
     procedure   unsetcallBack;
   end;
@@ -217,6 +224,7 @@ begin
   printCallbackPtr := nil;
   printlnCallbackPtr := nil;
   assertCounter := 1;
+  interactive := False;
 end;
 
 
@@ -226,6 +234,12 @@ begin
   freeFrameStack;
   VMStateStack.Free;
   inherited;
+end;
+
+
+function TVM.getStackInfo : TStackInfo;  // for debuggin purposes)
+begin
+  result.stacktop := stackTop;
 end;
 
 
@@ -2084,7 +2098,14 @@ begin
             oPushNone:   push (@noneStackType);
             oPushFunction: pushFunction (c[ip].index1);
             oPushLocalSymbol : pushLocalSymbol (c[ip].index1);
-            oPop:        value := pop();  // this pop just throws the data away
+            oPop:        begin
+                         // If the next instrction is halt, we will leave the item
+                         // on the stack and let the caller deal with it. This is
+                         // mainly useful when used in interactive mode so that the
+                         // console can print the stack item to the console
+                         if c[ip+1].opCode <> oHalt then
+                            pop();
+                         end;
             oDup:        dupStack;
             oIsLt:       isLt;
             oIsLte:      isLte;
@@ -2132,17 +2153,7 @@ begin
 
           oImportModule : importModule (c[ip].moduleName);
             // Method call opcodes
-            oCall:     begin
-                       //vmstate.module := self.module;
-                       //vmstate.symbolTable := self.symbolTable;
-                       //VMStateStack.push (vmstate);
-
-                       callUserFunction (c[ip].index1);
-
-                       //vmstate := VMStateStack.Pop;
-                       //self.module := vmstate.module;
-                       //self.symbolTable := vmstate.symbolTable;
-                       end;
+            oCall:     callUserFunction (c[ip].index1);
             oRet:
               begin
               // Note that anything that is returned isn't bound to any symbol.

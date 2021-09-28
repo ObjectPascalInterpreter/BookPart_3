@@ -82,6 +82,7 @@ Uses uGlobal,
      uConstructAST,
      IOUtils,
      uBuiltInMath,
+     uListObject,
      uMemoryManager,
      uRhodusTypes;
 
@@ -120,9 +121,9 @@ begin
 
   if globalStmt <> nil then
     begin
-      for i := 0 to globalStmt.variableList.Count - 1 do
+      for i := 0 to globalStmt.variableList.list.Count - 1 do
         begin
-          globalSymbol := globalStmt.variableList[i] as TASTPrimary;
+          globalSymbol := globalStmt.variableList.list[i] as TASTPrimary;
           if globalSymbol.primaryName = primary.primaryName then
             exit(False);
         end;
@@ -171,6 +172,9 @@ begin
   stackOfBreakStacks.Push(breakStack);
 
   try
+    // There won't be an error condition to check here
+    // because assignment is made of symbol and righthand
+    // side, both of which were checked during parse time.
     assignment := node.iterationBlock.assignment;
 
     // i = 0
@@ -180,22 +184,21 @@ begin
 
     // i > n
     again := code.getCurrentInstructionPointer;
-    loopSymbol := assignment.leftSide;
-    local := isLocal(loopSymbol as TASTPrimary);
+    loopSymbol := assignment.leftSide;  // No need to check this for ntError, see comment above
     // Check if the symbol is local or not
+    local := isLocal(loopSymbol as TASTPrimary);
 
     // Get the symbol table index for the loop symbol
     if local then
-      begin
-        if not currentUserFunction.localSymbolTable.find(loopSymbol.primaryName,
-          localSymbolIndex) then
+       begin
+       if not currentUserFunction.localSymbolTable.find(loopSymbol.primaryName, localSymbolIndex) then
           raise ECompilerException.Create('Variable: ' + loopSymbol.primaryName + ' not defined');
-      end
+       end
     else
-      begin
-        // get the symbol table entry index
-        currentModule.symbolTable.find(loopSymbol.primaryName, symbol);
-      end;
+       begin
+       // get the symbol table entry index
+       currentModule.symbolTable.find(loopSymbol.primaryName, symbol);
+       end;
 
     // load i onto the stack
     compilePrimaryLoad(loopSymbol);
@@ -207,7 +210,7 @@ begin
     if node.iterationBlock.direction.nodeType = ntTo then
       code.addByteCode(oIsGt)
     else
-      code.addByteCode(oIsLt);
+       code.addByteCode(oIsLt);
     jumpLocation_1 := code.addByteCode(oJmpIfTrue);
 
     // Compile the body
@@ -218,21 +221,20 @@ begin
     if node.iterationBlock.direction.nodeType = ntTo then
       begin
         if local then
-          code.addByteCode(oLocalInc, localSymbolIndex)
+           code.addByteCode(oLocalInc, localSymbolIndex)
         else
-          code.addByteCode(oInc, symbol.symbolName, node.iterationBlock.stepValue)
-      end
+           code.addByteCode(oInc, symbol.symbolName, node.iterationBlock.stepValue)
+       end
     else
-      begin
+       begin
         if local then
-          code.addLocalForByteCode(oLocalDec, localSymbolIndex, node.iterationBlock.stepValue)
+           code.addLocalForByteCode(oLocalDec, localSymbolIndex, node.iterationBlock.stepValue)
         else
-          code.addByteCode(oDec, symbol.symbolName, node.iterationBlock.stepValue);
-      end;
+           code.addByteCode(oDec, symbol.symbolName, node.iterationBlock.stepValue);
+       end;
 
     jumpLocation_2 := code.addByteCode(oJmp);
-    code.setGotoLabel(jumpLocation_2,
-      again - code.getCurrentInstructionPointer + 1);
+    code.setGotoLabel(jumpLocation_2, again - code.getCurrentInstructionPointer + 1);
     code.setGotoLabel(jumpLocation_1, code.getCurrentInstructionPointer -  jumpLocation_1);
 
     while breakStack.Count > 0 do
@@ -386,25 +388,25 @@ begin
        case node.nodes[i].nodeType of
             ntPeriod :
                begin
-               code.addStoreByteCode(oLoadPeriod, (node.nodes[i] as TASTPeriod).name);
+               code.addStoreByteCode(oLoadSecondary, (node.nodes.list[i] as TASTPeriod).name);
                end;
         ntFunctionCall:
               begin
-              userFunc := node.nodes[i] as TASTFunctionCall;
+              userFunc := node.nodes.list[i] as TASTFunctionCall;
               // Compile any arguments to the function call
-              for j := 0 to userFunc.argumentList.Count - 1 do
-                 compileCode(userFunc.argumentList[j]);
+              for j := 0 to userFunc.argumentList.list.Count - 1 do
+                 compileCode(userFunc.argumentList.list[j]);
 
-              code.addByteCode(oCall, userFunc.argumentList.Count);
+              code.addByteCode(oCall, userFunc.argumentList.list.Count);
               // <- userFunc.argumentList.Count used to test for arity at run time
              end;
         ntSubscript:
             begin
-            compileSubscriptsLoad((node.nodes[i] as TASTSubscript).subscripts, True);
+            compileSubscriptsLoad((node.nodes.list[i] as TASTSubscript).subscripts.list, True);
             // True means local
             end;
         ntError:
-            handleError (node.nodes[i] as TASTErrorNode);
+            handleError (node.nodes.list[i] as TASTErrorNode);
        end;
 end;
 
@@ -413,30 +415,30 @@ procedure TCompiler.writeOutPrimaryLoadCode (node : TASTPrimary);
 var i, j : integer;
     userFunc: TASTFunctionCall;
 begin
-   code.addSymbolByteCode (oLoadPrimary, node.primaryName);
+   code.addSymbolByteCode (oLoadSymbol, node.primaryName);
    for i := 0 to node.nodes.Count - 1 do
-       case node.nodes[i].nodeType of
+       case node.nodes.list[i].nodeType of
           ntPeriod :
              begin
-             code.addStoreByteCode(oLoadPeriod, (node.nodes[i] as TASTPeriod).name);
+             code.addStoreByteCode(oLoadSecondary, (node.nodes.list[i] as TASTPeriod).name);
              end;
       ntFunctionCall:
             begin
-            userFunc := node.nodes[i] as TASTFunctionCall;
+            userFunc := node.nodes.list[i] as TASTFunctionCall;
             // Compile any arguments to the function call
-            for j := 0 to userFunc.argumentList.Count - 1 do
-               compileCode(userFunc.argumentList[j]);
+            for j := 0 to userFunc.argumentList.list.Count - 1 do
+               compileCode(userFunc.argumentList.list[j]);
 
-            code.addByteCode(oCall, userFunc.argumentList.Count);
+            code.addByteCode(oCall, userFunc.argumentList.list.Count);
            // <- arg count used to test for arity at run time
            end;
       ntSubscript:
           begin
-           compileSubscriptsLoad((node.nodes[i] as TASTSubscript).subscripts, False);
+           compileSubscriptsLoad((node.nodes.list[i] as TASTSubscript).subscripts.list, False);
            // false = means not local
           end;
       ntError :
-          handleError (node.nodes[i] as TASTErrorNode);
+          handleError (node.nodes.list[i] as TASTErrorNode);
        end;
 end;
 
@@ -467,7 +469,7 @@ procedure TCompiler.compilePeriod (node : TASTPeriod);
 var symbol: TSymbol;
 begin
   if currentModule.symbolTable.find(node.name, symbol) then
-     code.addSymbolByteCode (oLoadPeriod, node.name)
+     code.addSymbolByteCode (oLoadSecondary, node.name)
   else
     raise ECompilerException.Create('Undeclared variable: ' + node.name);
 end;
@@ -557,15 +559,15 @@ begin
        code.addByteCode(oLoadLocal, localSymbolIndex);
        for i := 0 to primary.nodes.Count - 1 do
            begin
-           case primary.nodes[i].nodeType of
+           case primary.nodes.list[i].nodeType of
               ntSubscript :
                  begin
-                 compileSubscriptsStore((primary.nodes[i] as TASTSubscript).subscripts, isLocal(primary as TASTPrimary));
+                 compileSubscriptsStore((primary.nodes[i] as TASTSubscript).subscripts.list, isLocal(primary as TASTPrimary));
                  end;
               ntPeriod :
                  begin
                  // Doesn't work
-                 code.addStoreByteCode(oLoadPeriod, ((primary.nodes[i] as TASTPeriod).name));
+                 code.addStoreByteCode(oLoadSecondary, ((primary.nodes.list[i] as TASTPeriod).name));
                  end
            else
               raise ECompilerException.Create ('Unsupported left-hand side assignment');
@@ -579,28 +581,28 @@ begin
     begin
        if primary.nodes.Count > 0 then
           begin
-          code.addSymbolByteCode(oLoadPrimary, primary.primaryName);
+          code.addSymbolByteCode(oLoadSymbol, primary.primaryName);
           // Output code that does loads except for the last one which we store.
           for i := 0 to primary.nodes.Count - 2 do
               begin
               case primary.nodes[i].nodeType of
                   ntSubscript :
                      begin
-                     compileSubscriptsLoad((primary.nodes[i] as TASTSubscript).subscripts, False);
+                     compileSubscriptsLoad((primary.nodes[i] as TASTSubscript).subscripts.list, False);
                      end;
             ntFunctionCall:
                      begin
                      userFunc := primary.nodes[i] as TASTFunctionCall;
                      // Compile any arguments to the function call
-                     for j := 0 to userFunc.argumentList.Count - 1 do
-                         compileCode(userFunc.argumentList[j]);
+                     for j := 0 to userFunc.argumentList.list.Count - 1 do
+                         compileCode(userFunc.argumentList.list[j]);
 
-                     code.addByteCode(oCall, userFunc.argumentList.Count);
+                     code.addByteCode(oCall, userFunc.argumentList.list.Count);
                      // <- arg count used to test for arity at run time
                      end;
             ntPeriod :
                      begin
-                     code.addStoreByteCode(oLoadPrimary, (primary.nodes[i] as TASTPeriod).name);
+                     code.addStoreByteCode(oLoadSymbol, (primary.nodes.list[i] as TASTPeriod).name);
                      end;
                 else
                      raise ECompilerException.Create('Unrecongnized variable in assignment.');
@@ -610,9 +612,9 @@ begin
               lastOne := primary.nodes.Count - 1;
               case primary.nodes[lastOne].nodeType of
                   ntSubscript :
-                     compileSubscriptsStore((primary.nodes[lastOne] as TASTSubscript).subscripts, False); // false = not local
+                     compileSubscriptsStore((primary.nodes[lastOne] as TASTSubscript).subscripts.list, False); // false = not local
                   ntPeriod :
-                     code.addStoreByteCode(oStorePeriod, (primary.nodes[lastOne] as TASTPeriod).name);
+                     code.addStoreByteCode(oStoreSecondary, (primary.nodes[lastOne] as TASTPeriod).name);
                   ntFunctionCall:
                    raise ECompilerException.Create('You cannot assign to a function call.');
               else
@@ -621,7 +623,7 @@ begin
           end
        else
           begin
-          code.addSymbolByteCode(oStorePrimary, primary.primaryName);
+          code.addSymbolByteCode(oStoreSymbol, primary.primaryName);
           end;
     end;
 end;
@@ -642,9 +644,9 @@ begin
   try
     currentUserFunction := TUserFunction.Create(functionNode.functionName);
 
-    currentUserFunction.nArgs := functionNode.argumentList.Count;
+    currentUserFunction.nArgs := functionNode.argumentList.list.Count;
     for i := 0 to currentUserFunction.nArgs - 1 do
-        currentUserFunction.localSymbolTable.addSymbol ((functionNode.argumentList[i] as TASTPrimary).primaryName);
+        currentUserFunction.localSymbolTable.addSymbol ((functionNode.argumentList.list[i] as TASTPrimary).primaryName);
 
     // This is a special situation to take care of for recursive functions. The name of the function
     // needs to be in the symbol table before we start building the body of the function.
@@ -677,11 +679,11 @@ procedure TCompiler.compileList(node: TASTCreatelist);
 var
   i: integer;
 begin
-  if node.nodeList <> nil then
+  if node <> nil then
     begin
-      for i := 0 to node.nodeList.Count - 1 do
-        compileCode(node.nodeList[i]);
-      code.addByteCode(oCreateList, node.nodeList.Count);
+      for i := 0 to node.list.Count - 1 do
+        compileCode(node.list[i]);
+      code.addByteCode(oCreateList, node.list.Count);
     end
   else
     code.addByteCode(oCreateList, 0); // empty list
@@ -697,9 +699,9 @@ var
 begin
   globalStmt := node as TASTGlobal;
 
-  for i := 0 to globalStmt.variableList.Count - 1 do
+  for i := 0 to globalStmt.variableList.list.Count - 1 do
     begin
-      astSymbol := globalStmt.variableList[i] as TASTPrimary;
+      astSymbol := globalStmt.variableList.list[i] as TASTPrimary;
       // Check if proposed global variable isn't already a local variable
       // If it is a local variable then we can't declare it as global.
       if currentUserFunction.localSymbolTable.find(astSymbol.primaryName,
@@ -757,18 +759,18 @@ var
 begin
   if node is TASTPrint then
     begin
-      for i := 0 to (node as TASTPrint).argumentList.Count - 1 do
-        compileCode((node as TASTPrint).argumentList[i]);
+      for i := 0 to (node as TASTPrint).argumentList.list.Count - 1 do
+        compileCode((node as TASTPrint).argumentList.list[i]);
 
-      code.addByteCode(oPushi, (node as TASTPrint).argumentList.Count);
+      code.addByteCode(oPushi, (node as TASTPrint).argumentList.list.Count);
       code.addByteCode(oPrint);
     end
   else
     begin
-      for i := 0 to (node as TASTPrintLn).argumentList.Count - 1 do
-        compileCode((node as TASTPrintLn).argumentList[i]);
+      for i := 0 to (node as TASTPrintLn).argumentList.list.Count - 1 do
+        compileCode((node as TASTPrintLn).argumentList.list[i]);
 
-      code.addByteCode(oPushi, (node as TASTPrintLn).argumentList.Count);
+      code.addByteCode(oPushi, (node as TASTPrintLn).argumentList.list.Count);
       code.addByteCode(oPrintln);
     end;
 end;
@@ -840,7 +842,7 @@ begin
   code.addByteCode(oNop);
   code.setGotoLabel(elseJump, elseDestination - elseJump);
 
-  lastInstruction := code.addByteCode(oPop); // pop the dup
+  lastInstruction := code.addByteCode(oPopDup); // pop the dup
   for i := 0 to listOfCaseStatements.list.Count - 1 do
     begin
       code.setGotoLabel(jumpToLocation[i], entryLocation[i] - jumpToLocation[i]);
@@ -858,47 +860,61 @@ var
   root: TASTNode;
   module: TModule;
   symbol: TSymbol;
+  paths : TListObject;
+  path : string;
+  found : integer;
 begin
-  if FileExists(node.importName + '.rh.') then
-     begin
-      // If a module of that name has already been loaded we just get out.
-      if currentModule.symbolTable.find(node.importName, symbol) then
-        if symbol.symbolType = symModule then
-          exit;
-
-      // Otherwise lets rad it in
-      scm := TScanner.Create;
-      sym := TConstructAST.Create(scm);
-      try
-        src := TFile.ReadAllText(node.importName + '.rh');
-        scm.scanString(src);
-        scm.nextToken;
-        // root is the resulting AST
-        module := sym.parseModule(node.importName, root);
-
-        addAllBuiltInLibraries(module);
-
-        compiler := TCompiler.Create(module);
-        try
-          compiler.startCompilation(module, root);
-          module.code.addByteCode(oHalt);
-        finally
-          root.Free;
-          compiler.Free;
-        end;
-
-        // Add the name of the module to the current module's
-        // symbol table, because user functions might need it for globals
-        currentModule.symbolTable.addModule(module);
-        // import the module
-        currentModule.code.addModuleByteCode(oImportModule, node.importName);
-      finally
-        scm.Free;
-        sym.Free;
+  found := -1;
+  paths := OSLibraryRef.find ('path').lValue;
+  for var i := 0 to paths.list.Count - 1 do
+      begin
+      if fileExists (paths.list[i].sValue.value + '\\' + node.importName + '.rh') then
+         begin
+         found := i;
+         break;
+         end;
       end;
-     end
+  if found = -1 then
+     raise ECompilerException.Create('Unable to locate imported module: ' + node.importName)
   else
-    raise ECompilerException.Create('Unable to locate imported module: ' + node.importName);
+     path := paths.list[found].sValue.value + '\\' + node.importName + '.rh';
+
+
+   // If a module of that name has already been loaded we just get out.
+   if currentModule.symbolTable.find(node.importName, symbol) then
+      if symbol.symbolType = symModule then
+         exit;
+
+   // Otherwise lets read it in
+   scm := TScanner.Create;
+   sym := TConstructAST.Create(scm);
+   try
+       src := TFile.ReadAllText(path);
+      scm.scanString(src);
+      scm.nextToken;
+      // root is the resulting AST
+      module := sym.parseModule(node.importName, root);
+
+      addAllBuiltInLibraries(module);
+
+      compiler := TCompiler.Create(module);
+      try
+        compiler.startCompilation(module, root);
+        module.code.addByteCode(oHalt);
+      finally
+        root.Free;
+        compiler.Free;
+      end;
+
+      // Add the name of the module to the current module's
+      // symbol table, because user functions might need it for globals
+      currentModule.symbolTable.addModule(module);
+      // import the module
+      currentModule.code.addModuleByteCode(oImportModule, node.importName);
+   finally
+      scm.Free;
+      sym.Free;
+   end;
 end;
 
 
@@ -942,7 +958,7 @@ begin
     ntExpressionStatement:
       begin
         compileCode((node as TASTExpressionStatement).expression);
-        if not interactive then
+        //if not interactive then
           code.addByteCode(oPop);
       end;
     ntFunction:
@@ -1013,7 +1029,8 @@ begin
       begin
       index := currentModule.code.constantValueTable.Add (TConstantValueElement.Create((node as TASTFloat).dValue));
       code.addByteCode(oPushd, index);
-      end
+      end;
+    ntNodeList: begin end;
   else
     visitNode(node);
   end;

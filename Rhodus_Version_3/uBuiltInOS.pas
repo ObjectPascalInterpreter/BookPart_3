@@ -14,7 +14,7 @@ interface
 Uses SysUtils, Classes, uLibModule, System.Diagnostics;
 
 const
-   RHODUS_VERSION : string = '3.0.0.3';
+   RHODUS_VERSION : string = '3.0.0.5';
 
 type
   TBuiltInOS = class (TModuleLib)
@@ -38,11 +38,19 @@ Uses Windows, uSymboLTable, uVM, uStringObject, uListObject, uMemoryManager;
 // --------------------------------------------------------------------------------------------
 
 constructor TBuiltInOS.Create;
+var path : TListObject;
 begin
   inherited Create ('os', 'Operating system module');
 
-  addMethod (getpwd, 0, 'pwd', 'Return the path to the current working directory');
+  //addMethod (getpwd, 0, 'pwd', 'Return the path to the current working directory');
   addMethod (getversion, 0, 'version', 'Get the current version number for Rhodus');
+
+  path := TListObject.Create(0);
+  path.append(TStringObject.create (GetCurrentDir));
+  path.append(TStringObject.create('.'));
+  path.blockType := btBound;   // To make sure the garbage collector doesn't get it.
+
+  addListValue ('path', path, 'Search path for Rhodus import libraries', True);
 end;
 
 

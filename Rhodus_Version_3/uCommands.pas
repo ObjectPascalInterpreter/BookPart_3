@@ -96,6 +96,7 @@ begin
   writeln ('free'#9#9'Run the memory garbage collector');
   writeln ('symbols'#9#9'Display symbols in main module');
   writeln ('tests'#9#9'Run the tests');
+  writeln ('#p'#9#9'Start a multi-line program (q or return to finish)');
   writeln ('');
   writeln ('?X or ?M.X'#9'Get help about a symbol, X, or a symbol in a module, M');
   writeln ('Type dir() to get a list of global functions. Note, no space beteen dir and ()');

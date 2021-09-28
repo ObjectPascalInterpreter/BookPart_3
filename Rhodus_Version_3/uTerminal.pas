@@ -26,10 +26,13 @@ procedure shutDownConsole;
 procedure clearConsoleScreen;
 procedure registerRuntimeWithConsole (runtime : TRunFramework);
 function  getRunTime : TRunFramework;
+procedure SetExtendedConsoleMode;
+procedure writeText (str :string);
+procedure setCurrentColors;
 
 implementation
 
-Uses Windows, Classes, SysUtils, StrUtils, uVM, uCommands;
+Uses Windows, Classes, SysUtils, StrUtils, Vcl.GraphUtil, uCommands;
 
 type
   COORD = record
@@ -62,70 +65,165 @@ var
    conOut : THandle;
    refRuntime : TRunFramework;
 
+   // RGB
+   currentColor : array[0..2] of byte;
+
+
+procedure ColorToRGB(const Color: Integer; out R, G, B: Byte);
+begin
+  R := Color and $FF;
+  G := (Color shr 8) and $FF;
+  B := (Color shr 16) and $FF;
+end;
+
 
 procedure registerRuntimeWithConsole (runtime : TRunFramework);
 begin
   refRuntime := runtime;
 end;
 
+function getRGB (r, g, b : byte) : string;
+begin
+  result := inttostr(r) + ';' + inttostr(g) + ';' + inttostr (b);
+end;
+
+
+procedure setForeGround (r, g, b : byte);
+begin
+  write (#27'[38;2;' + getRGB (r, g, b) + 'm');
+end;
+
+
+procedure setBackGround (r, g, b : byte);
+begin
+  write (#27'[48;2;' + getRGB (r, g, b) + 'm');
+end;
+
+
 function getRunTime : TRunFramework;
 begin
   result := refRuntime;
 end;
 
+
 procedure setBlue;
 begin
-  setConsoleTextAttribute(TTextRec(Output).Handle, FOREGROUND_INTENSITY or FOREGROUND_BLUE);
+  currentColor[0] := 0;  currentColor[1] := 0;  currentColor[2] := 255;
+  setCurrentColors;
+
+  //setConsoleTextAttribute(TTextRec(Output).Handle, FOREGROUND_INTENSITY or FOREGROUND_BLUE);
 end;
+
 
 procedure setYellow;
 begin
-  setConsoleTextAttribute(TTextRec(Output).Handle, FOREGROUND_INTENSITY or FOREGROUND_GREEN or FOREGROUND_RED);
+  currentColor[0] := 255;  currentColor[1] := 255;  currentColor[2] := 0;
+  setCurrentColors;
+
+  //setConsoleTextAttribute(TTextRec(Output).Handle, FOREGROUND_INTENSITY or FOREGROUND_GREEN or FOREGROUND_RED);
 end;
+
 
 procedure setAqua;
 begin
-  setConsoleTextAttribute(TTextRec(Output).Handle, FOREGROUND_INTENSITY or FOREGROUND_GREEN or FOREGROUND_BLUE);
+  currentColor[0] := 0;  currentColor[1] := 255;  currentColor[2] := 255;
+  setCurrentColors;
+
+  //setConsoleTextAttribute(TTextRec(Output).Handle, FOREGROUND_INTENSITY or FOREGROUND_GREEN or FOREGROUND_BLUE);
 end;
+
 
 procedure setPurple;
 begin
-  setConsoleTextAttribute(TTextRec(Output).Handle, FOREGROUND_INTENSITY or FOREGROUND_RED or FOREGROUND_BLUE);
+  currentColor[0] := 158;  currentColor[1] := 0;  currentColor[2] := 211;
+  setCurrentColors;
+
+  //setConsoleTextAttribute(TTextRec(Output).Handle, FOREGROUND_INTENSITY or FOREGROUND_RED or FOREGROUND_BLUE);
 end;
+
+
+procedure setCurrentColors;
+begin
+  setForeGround (currentColor[0], currentColor[1], currentColor[2]);
+  write (#27'[48;2;' + '1' + ';' + '43' + ';' + '54' + 'm');
+end;
+
+
+procedure writeText (str :string);
+begin
+  setCurrentColors;
+  write (str);
+end;
+
 
 procedure setRed;
 begin
-  setConsoleTextAttribute(TTextRec(Output).Handle, FOREGROUND_INTENSITY or FOREGROUND_RED);
+  currentColor[0] := 255;
+  currentColor[1] := 0;
+  currentColor[2] := 0;
+
+  setCurrentColors;
+  //setConsoleTextAttribute(TTextRec(Output).Handle, FOREGROUND_INTENSITY or FOREGROUND_RED);
 end;
+
 
 procedure setWhite;
 begin
-  setConsoleTextAttribute(conOut, FOREGROUND_INTENSITY or FOREGROUND_RED or FOREGROUND_GREEN or FOREGROUND_BLUE);
+  currentColor[0] := 204;
+  currentColor[1] := 204;
+  currentColor[2] := 204;
+
+  setCurrentColors;
+   //setConsoleTextAttribute(conOut, FOREGROUND_INTENSITY or FOREGROUND_RED or FOREGROUND_GREEN or FOREGROUND_BLUE);
 end;
+
 
 procedure setGreen;
 begin
-  setConsoleTextAttribute(conOut, FOREGROUND_INTENSITY or FOREGROUND_GREEN);
+  currentColor[0] := 0;  currentColor[1] := 255;  currentColor[2] := 0;
+  setCurrentColors;
+  //setConsoleTextAttribute(conOut, FOREGROUND_INTENSITY or FOREGROUND_GREEN);
 end;
 
-procedure setColor (color: string);
-begin
-  setWhite (); // default if we don't recongize any color
 
+procedure SetExtendedConsoleMode;
+var mode : DWord;
+    stdout: THandle;
+begin
+  stdout := GetStdHandle(STD_OUTPUT_HANDLE);
+  GetConsoleMode (stdout, mode);
+  mode := mode or 4;
+  SetConsoleMode (stdout, mode);
+end;
+
+
+// Color can be some set colors like red, green, blue, aqua, yellow, white, or purple
+// or it can be one of the named web colors
+procedure setColor (color: string);
+var r, g, b : byte;
+    acolor : -$7FFFFFFF-1..$7FFFFFFF;  // Saves pulling in Vcl.Graphics
+begin
+  if color = '' then
+     begin setWhite; exit; end;
   if color = 'white' then
-     setWhite;
+     begin setWhite; exit; end;
   if color = 'red' then
-     setRed;
+     begin setRed; exit; end;
   if color = 'green' then
-     setGreen;
+     begin setGreen; exit; end;
   if color = 'blue' then
-     setBlue;
+     begin setBlue; exit; end;
   if color = 'aqua' then
-     setAqua;
+     begin setAqua; exit; end;
   if color = 'yellow' then
-     setYellow;
+     begin setYellow; exit; end;
   if color = 'purple' then
-     setpurple;
+     begin setPurple; exit; end;
+
+  acolor := WebColorNameToColor('clWeb' + color);
+  ColorToRGB(acolor, currentColor[0], currentColor[1], currentColor[2]);
+
+  setCurrentColors;
 end;
 
 
@@ -243,6 +341,9 @@ begin
   conOut := getStdHandle(STD_OUTPUT_HANDLE);
   getConsoleScreenBufferInfo(ConOut, BufInfo);
   setConsoleCtrlHandler(@consoleHandler, True);  // Ignore Ctrl-C
+  currentColor[0] := 204;
+  currentColor[1] := 204;
+  currentColor[2] := 204;
 end;
 
 

@@ -30,7 +30,7 @@ program RhodusVersionThreeProject;
 
 uses
   {$IFDEF DEBUG}
-  FastMM4 in '..\..\Library\FastMM\FastMM4.pas',
+  //FastMM4 in '..\..\Library\FastMM\FastMM4.pas',
   {$ENDIF }
   Windows,
   ShellAPI,
@@ -39,6 +39,8 @@ uses
   Math,
   IOUtils,
   Classes,
+  Vcl.GraphUtil,
+  Vcl.Graphics,
   System.Types,
   System.Generics.Defaults,
   System.Generics.Collections,
@@ -80,7 +82,9 @@ uses
   uRhodusTypes in '..\VirtualMachine\uRhodusTypes.pas';
 
 var sourceCode : string;
+    fragment : string;
     runFramework : TRunFramework;
+    color : TColor;
 
 
 function searchHelp (const helpStr : string) : string;
@@ -223,6 +227,7 @@ begin
 
     try
       computeBaseLineMemoryAllocated;
+      SetExtendedConsoleMode; // To get more colors
       displayWelcome;
       while True do
           begin
@@ -235,8 +240,28 @@ begin
             if runCommand (sourceCode) then
                 continue;
 
-             runFramework.showAssembler := bolShowAssembler;
-             runFramework.runCode (sourceCode, True);
+            runFramework.showAssembler := bolShowAssembler;
+
+            if sourceCode = '#p' then
+               begin
+               writeln ('Type q or return to exit and run program');
+               write ('... ');
+               sourceCode := '';
+               readln (fragment);
+               while (fragment <> 'q') and (fragment <> '') do
+                   begin
+                   if sourceCode = '' then
+                      sourceCode := fragment
+                   else
+                      sourceCode := sourceCode + sLineBreak + fragment;
+                   write ('... ');
+                   readln (fragment)
+                   end;
+              // writeln (sourceCode);
+               runFramework.runCode (sourceCode, True);
+               end
+            else
+              runFramework.runCode (sourceCode, True);
 
           except
               on e:exception do

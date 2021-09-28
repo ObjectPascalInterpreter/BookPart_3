@@ -1,0 +1,22 @@
+
+setColor ("yellow")
+println ("yellow")
+
+setColor ("aqua")
+println ("aqua")
+
+setColor ("purple")
+println ("purple")
+
+setColor ("red")
+println ("red")
+
+setColor ("green")
+println ("green")
+
+setColor("RoyalBlue")
+println ("Royal Blue")
+
+setColor("DeepSkyBlue")
+println ("Deep Sky Blue")
+

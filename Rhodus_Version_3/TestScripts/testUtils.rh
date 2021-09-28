@@ -3,7 +3,7 @@ testNumber = 0; nSuccess = 0; nFail = 0
 
 function beginTests(msg)
    global nSuccess, nFail, testNumber
-   setColor ("blue")
+   setColor ("DeepSkyBlue")
    print (testNumber, " ", msg)  
    setColor ("white")
    nSuccess = 0

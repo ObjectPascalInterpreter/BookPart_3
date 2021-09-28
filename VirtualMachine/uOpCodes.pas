@@ -12,57 +12,54 @@ interface
 Uses System.SysUtils;
 
 const
-   oNop          = byte (0);
-   oHalt         = byte (1);
+   oNop            = byte (0);
+   oHalt           = byte (1);
 
    // Arithmetic
-   oAdd          = byte (2);   // Pop two values off stack; add them and push reult on to stack
-   oSub          = byte (3);
-   oMult         = byte (4);
-   oDivi         = byte (5);   // Integer division
-   oMod          = byte (6);   // Modulus of two integer values
-   oDivide       = byte (7);
-   oUmi          = byte (8);
-   oPower        = byte (9);
-   oInc          = byte (10);  // Increment stack entry by arg
-   oLocalInc     = byte (11);
-   oDec          = byte (12);  // Decrement stack entry by arg
-   oLocalDec     = byte (13);
+   oAdd            = byte (2);   // Pop two values off stack; add them and push reult on to stack
+   oSub            = byte (3);
+   oMult           = byte (4);
+   oDivi           = byte (5);   // Integer division
+   oMod            = byte (6);   // Modulus of two integer values
+   oDivide         = byte (7);
+   oUmi            = byte (8);
+   oPower          = byte (9);
+   oInc            = byte (10);  // Increment stack entry by arg
+   oLocalInc       = byte (11);
+   oDec            = byte (12);  // Decrement stack entry by arg
+   oLocalDec       = byte (13);
 
    // Load and store values to symbol table
-   oLoadLocal    = byte (20);  // Load local symbol argument onto stack, operand contains index to the local symbol table
-   oLoadPrimary  = byte (21);
-   oLoadPeriod   = byte (22);
-   oStorePrimary = byte (23);
-   oStorePeriod  = byte (24);
-   oStoreLocal   = byte (25);
+   oLoadLocal      = byte (20);  // Load local symbol argument onto stack, operand contains index to the local symbol table
+   oLoadSymbol     = byte (21);
+   oLoadSecondary  = byte (22);
+   oStoreSymbol    = byte (23);
+   oStoreSecondary = byte (24);
+   oStoreLocal     = byte (25);
 
    // Logical
-   oAnd          = byte (30);
-   oOr           = byte (32);
-   oNot          = byte (33);
-   oXor          = byte (34);
+   oAnd            = byte (30);
+   oOr             = byte (32);
+   oNot            = byte (33);
+   oXor            = byte (34);
 
    // Push and pop to stac
-   oPushi        = byte (50);   // Push integer onto stack, operand contains the integer
-   oPushd        = byte (51);   // Push double onto stack, operand contains index to constant table
-   oPushb        = byte (52);   // Push boolean value onto stack, operand contains index to constant table
-   oPushs        = byte (53);   // Push string value onto stack, operand contains index to constant table
-   oPushNone     = byte (54);   // Push noneStackType onto the stack, used by retVal for returning nothing
-   oPushModule   = byte (55);   // Push a module ptr onto the stack
-   oPushSymbol   = byte (56);   // Push a symbol ptr onto the stack
-   oPushLocalSymbol = byte (57);
-   oPushFunction = byte (58);   // Push the function ptr onto the stack
-   oPop          = byte (59);   // Only pop() stack
-   oDup          = byte (60);   // Duplicate the stack entry
+   oPushi         = byte (50);   // Push integer onto stack, operand contains the integer
+   oPushd         = byte (51);   // Push double onto stack, operand contains index to constant table
+   oPushb         = byte (52);   // Push boolean value onto stack, operand contains index to constant table
+   oPushs         = byte (53);   // Push string value onto stack, operand contains index to constant table
+   oPushNone      = byte (54);   // Push noneStackType onto the stack, used by retVal for returning nothing
+   oPop           = byte (55);   // pop() stack is next isntruction is not a halt
+   oDup           = byte (56);   // Duplicate the stack entry
+   oPopDup        = byte (57);   // Pop the stack
 
    // Boolean Tests
-   oIsEq         = byte (70);   // Push True if TOS1 == TOS
-   oIsGt         = byte (71);   // Push True if TOS1 > TOS
-   oIsGte        = byte (72);   // Push True if TOS1 >= TOS
-   oIsLt         = byte (73);   // Push True if TOS1 < TOS
-   oIsLte        = byte (74);   // Push True if TOS1 <= TOS
-   oIsNotEq      = byte (75);   // Push True if TOS1 != TOS
+   oIsEq          = byte (70);   // Push True if TOS1 == TOS
+   oIsGt          = byte (71);   // Push True if TOS1 > TOS
+   oIsGte         = byte (72);   // Push True if TOS1 >= TOS
+   oIsLt          = byte (73);   // Push True if TOS1 < TOS
+   oIsLte         = byte (74);   // Push True if TOS1 <= TOS
+   oIsNotEq       = byte (75);   // Push True if TOS1 != TOS
 
    // Jump Instructions
    oJmp          = byte (80);  // Relative jump to new pc location
@@ -102,45 +99,42 @@ implementation
 
 
 initialization
-  opCodeNames[oNop]          := 'nop';
-  opCodeNames[oHalt]         := 'halt';
-  opCodeNames[oAdd]          := 'add';
-  opCodeNames[oSub]          := 'sub';
-  opCodeNames[oMult]         := 'mult';
-  opCodeNames[oDivi]         := 'divi';
-  opCodeNames[oDivide]       := 'divide';
-  opCodeNames[oMod]          := 'mod';
-  opCodeNames[oUmi]          := 'umi';
-  opCodeNames[oPower]        := 'power';
-  opCodeNames[oInc]          := 'inc';
-  opCodeNames[oLocalInc]     := 'localInc';
-  opCodeNames[oDec]          := 'dec';
-  opCodeNames[oLocalDec]     := 'localDec';
+  opCodeNames[oNop]            := 'nop';
+  opCodeNames[oHalt]           := 'halt';
+  opCodeNames[oAdd]            := 'add';
+  opCodeNames[oSub]            := 'sub';
+  opCodeNames[oMult]           := 'mult';
+  opCodeNames[oDivi]           := 'divi';
+  opCodeNames[oDivide]         := 'divide';
+  opCodeNames[oMod]            := 'mod';
+  opCodeNames[oUmi]            := 'umi';
+  opCodeNames[oPower]          := 'power';
+  opCodeNames[oInc]            := 'inc';
+  opCodeNames[oLocalInc]       := 'localInc';
+  opCodeNames[oDec]            := 'dec';
+  opCodeNames[oLocalDec]       := 'localDec';
 
-  opCodeNames[oLoadLocal]    := 'loadLocal';
-  opCodeNames[oStoreLocal]   := 'storeLocal';
-  opCodeNames[oLoadPrimary]  := 'loadPrimary';
-  opCodeNames[oLoadPeriod]   := 'loadPeriod';
+  opCodeNames[oLoadLocal]      := 'loadLocal';
+  opCodeNames[oStoreLocal]     := 'storeLocal';
+  opCodeNames[oLoadSymbol]     := 'loadSymbol';
+  opCodeNames[oLoadSecondary]  := 'loadSecondary';
 
-  opCodeNames[oStorePrimary] := 'storePrimary';
-  opCodeNames[oStorePeriod]  := 'storePeriod';
+  opCodeNames[oStoreSymbol ]   := 'storeSymbol';
+  opCodeNames[oStoreSecondary] := 'storeSecondary';
 
-  opCodeNames[oAnd]          := 'and';
-  opCodeNames[oOr]           := 'or';
-  opCodeNames[oNot]          := 'not';
-  opCodeNames[oXor]          := 'xor';
+  opCodeNames[oAnd]            := 'and';
+  opCodeNames[oOr]             := 'or';
+  opCodeNames[oNot]            := 'not';
+  opCodeNames[oXor]            := 'xor';
 
-  opCodeNames[oPushi]        := 'pushi';
-  opCodeNames[oPushb]        := 'pushb';
-  opCodeNames[oPushd]        := 'pushd';
-  opCodeNames[oPushs]        := 'pushs';
-  opCodeNames[oPushNone]     := 'pushNone';
-  opCodeNames[oPushModule]   := 'pushModule';
-  opCodeNames[oPushSymbol]   := 'pushSymbol';
-  opCodeNames[oPushLocalSymbol] := 'pushLocalSymbol';
-  opCodeNames[oPushFunction] := 'pushFunction';
-  opCodeNames[oPop]          := 'pop';
-  opCodeNames[oDup]          := 'dup';
+  opCodeNames[oPushi]          := 'pushi';
+  opCodeNames[oPushb]          := 'pushb';
+  opCodeNames[oPushd]          := 'pushd';
+  opCodeNames[oPushs]          := 'pushs';
+  opCodeNames[oPushNone]       := 'pushNone';
+  opCodeNames[oPop]            := 'pop';
+  opCodeNames[oDup]            := 'dup';
+  opCodeNames[oPopDup]         := 'popDup';
 
   opCodeNames[oIsEq]         := 'isEq';
   opCodeNames[oIsGt]         := 'isGt';

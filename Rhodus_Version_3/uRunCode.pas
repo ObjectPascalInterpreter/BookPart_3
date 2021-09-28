@@ -28,7 +28,7 @@ Uses Generics.Collections,
 
 type
   TPrintClass = class (TObject)
-      currentColor : string ;
+      currentColor : string;
       procedure print (st : PMachineStackRecord);
       procedure println (st : PMachineStackRecord);
       procedure setColor (st : PMachineStackRecord);
@@ -111,6 +111,7 @@ begin
      writeln ('Expecting a string in setColor: white, red, green, blue, yellow, purple, aqua')
   else
      currentColor := st.sValue.value;
+  uTerminal.setColor(currentColor);
 end;
 
 // ------------------------------------------------------------------------------
@@ -118,7 +119,7 @@ end;
 constructor TRunFramework.Create;
 begin
   showAssembler := False;
-  mainModule := TModuleLib.Create (TSymbol.mainModuleId, 'help');  // mainModule is declared from uModule
+  mainModule := TModuleLib.Create (TSymbol.mainModuleId, 'Main Module');  // mainModule is declared in uModule
 
   addAllBuiltInLibraries (mainModule);
 
@@ -180,6 +181,7 @@ begin
              end;
         end;
       finally
+        //freePool;
         root.freeAST();
       end;
    finally
@@ -218,6 +220,7 @@ begin
       begin
       try
         vm := TVM.Create;
+        vm.interactive := interactive;
 
         registerRuntimeWithConsole (self);
         vm.registerPrintCallBack(printObj.print);

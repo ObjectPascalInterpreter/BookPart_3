@@ -32,6 +32,7 @@ type
      procedure getMemoryUsed (vm : TObject);
      procedure myMain (vm : TObject);
      procedure dis (vm : TObject);
+     procedure stackInfo (vm : TObject);
 
      constructor Create;
      destructor  Destroy; override;
@@ -98,6 +99,7 @@ begin
   addMethod (myAssertFalseEx,1, 'assertFalseEx', 'Assert argument is false, return . of F');
   addMethod (myMain,         0, 'main',          'Returns a reference to the main module');
   addMethod (dis,            1, 'dis',           'dissassemble module or function');
+  addMethod (stackInfo,      0, 'stackInfo',     'Get the current state of the VM stack');
   addMethod (getChar,        1, 'chr',           'Get the character equivalent of an integer value');
   addMethod (getAsc,         1, 'asc',           'Get the ascii equivalent of a single character');
 end;
@@ -353,6 +355,8 @@ begin
     stFunction : TVM (vm).push (TStringObject.Create ('function'));
     stModule : TVM (vm).push (TStringObject.Create ('module'));
     stNone :  TVM (vm).push (TStringObject.Create ('none'));
+  else
+    TVM (vm).push (TStringObject.Create ('not sure'));
   end;
 end;
 
@@ -401,6 +405,16 @@ begin
      raise ERuntimeException.Create('Character to asc function should be a single character string');
   TVM (vm).push (Ord (x[1]));
 end;
+
+
+procedure TBuiltInGlobal.stackInfo (vm : TObject);
+var vm1 : TVM;
+begin
+  vm1 := TVM (vm);
+  vm1.push(vm1.getStackInfo().stacktop);
+end;
+
+
 
 
 end.

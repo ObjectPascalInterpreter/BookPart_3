@@ -11,13 +11,14 @@ unit uLibModule;
 
 interface
 
-Uses SysUtils, Classes, uSymbolTable;
+Uses SysUtils, Classes, uSymbolTable, uListObject;
 
 type
   TModuleLib = class (TModule)
 
     procedure   addMethod(methodPtr : TxBuiltInFunction; nArgs : integer; name, helpStr : string);
-    procedure   addValue (name : string; value : double; helpStr : string);
+    procedure   addDoubleValue (name : string; value : double; helpStr : string; locked : boolean);
+    procedure   addListValue  (name : string; value : TListObject; helpStr : string; locked : boolean);
 
     procedure   callDir (vmObj : TObject);
     constructor Create (name : string; helpStr : string);
@@ -26,7 +27,7 @@ type
 
 implementation
 
-Uses uVM, uStringObject, uListObject, uMemoryManager, uVMExceptions, uMachineStack;
+Uses uVM, uStringObject, uMemoryManager, uVMExceptions, uMachineStack;
 
 
 constructor TModuleLib.Create (name : string; helpStr : string);
@@ -67,9 +68,15 @@ begin
 end;
 
 
-procedure TModuleLib.addValue (name : string; value : double; helpStr : string);
+procedure TModuleLib.addDoubleValue (name : string; value : double; helpStr : string; locked : boolean);
 begin
-  self.symbolTable.addSymbol(name, value, True, helpStr);
+  self.symbolTable.addSymbol(name, value, locked, helpStr);
+end;
+
+
+procedure TModuleLib.addListValue  (name : string; value : TListObject; helpStr : string; locked : boolean);
+begin
+  self.symbolTable.addSymbol(name, value, locked, helpStr);
 end;
 
 
@@ -80,6 +87,7 @@ begin
   f.helpStr := helpStr;
   self.symbolTable.addSymbol (f, True);  // locked = True
 end;
+
 
 
 end.

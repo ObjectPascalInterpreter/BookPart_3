@@ -1,4 +1,6 @@
 
+a = 1.2
+
 function callme ()
   println ("calling lib")
 end

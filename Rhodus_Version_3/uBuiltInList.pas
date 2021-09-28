@@ -20,6 +20,10 @@ type
      procedure   removeLastElement (vm : TObject);
      procedure   insert (vm : TObject);
      procedure   append (vm : TObject);
+     procedure   range (vm : TObject);
+     procedure   getRndu (vm : TObject);
+     procedure   getRndi (vm : TObject);
+     procedure   getSum (vm : TObject);
      procedure   getMax (vm : TObject);
      procedure   getMin (vm : TObject);
      constructor Create;
@@ -42,8 +46,12 @@ begin
   addMethod(removeLastElement, 1, 'pop', 'Remove the last element from a list: lists.pop (list)');
   addMethod(insert,            3, 'insert', 'Insert a new element after index: lists.insert (a, 3.14, 1)');
   addMethod(append,            2, 'append', 'Append the element to the list: lists.append (a, 3.14)');
+  addMethod(range,             3, 'range', 'Create a list based on the range arguments: l = lists.range (0, 10, 2)');
+  addMethod(getRndu,           1, 'rndu', 'Create a list if uniformly random numbers: l = lists.rndu (10)');
+  addMethod(getRndi,           3, 'rndi', 'Create a list if uniformly random integer: l = lists.rndi (lower, upper, number)');
   addMethod(getMax,            1, 'max', 'Find the maximum value is a 1D list of values: lists.max ({1,2,3})');
   addMethod(getMin,            1, 'min', 'Find the minimum value is a 1D list of values: lists.min ({1,2,3})');
+  addMethod(getSum,            1, 'sum', 'Find the sum of values in a list. lists.sum ({1,2,3})');
 end;
 
 
@@ -63,11 +71,29 @@ begin
   TVM (vm).pushNone;
 end;
 
+
 procedure TBuiltInList.getLength (vm : TObject);
 var s : TListObject;
 begin
    s := TVM (vm).popList;
    TVM (vm).push(s.list.Count);
+end;
+
+
+procedure TBuiltInList.getSum (vm : TObject);
+var s : TListObject;
+    sum : double;
+begin
+   s := TVM (vm).popList;
+   sum := 0;
+   for var i := 0 to s.list.Count - 1 do
+       case s.list[i].itemType of
+          liInteger :  sum := sum + s.list[i].iValue;
+          liDouble  :  sum := sum + s.list[i].dValue;
+       else
+          raise ERuntimeException.Create('You can not sum non-numerical values in a list');
+       end;
+   TVM (vm).push(sum);
 end;
 
 
@@ -93,8 +119,8 @@ begin
       liModule   : TVM (vm).pushModule (TModule (r.mValue));
    end;
    s.remove (s.list.Count - 1);
-   // We don't push None as with the other methods because the above
-   // pushes a value on to the return stack
+   // We don't push None as with the other methods because
+   // the above pushes a value on to the return stack
 end;
 
 
@@ -106,15 +132,17 @@ begin
    index := TVM (vm).popInteger;
    value := TVM (vm).pop;
    s := TVM (vm).popList;
+   if (index < 0) or (index > s.list.Count) then
+      raise ERuntimeException.Create('List index out of range');
 
    case value.stackType of
       stInteger :    s.insert (index, value.iValue);
       stDouble  :    s.insert (index, value.dValue);
-      stBoolean :    s.insert (index, value.bValue);
-      stString  :    s.insert (index, value.sValue);
-      stList    :    s.insert (index, value.lValue);
-      stFunction:    s.insertUserFunction (index, value.fValue);
-      stModule  :    s.insertModule (index, value.module)
+      stBoolean :    s.insert (index+1, value.bValue);
+      stString  :    s.insert (index+1, value.sValue);
+      stList    :    s.insert (index+1, value.lValue);
+      stFunction:    s.insertUserFunction (index+1, value.fValue);
+      stModule  :    s.insertModule (index+1, value.module)
    else
       raise ERuntimeException.Create('Internal error: unrecognized data type during list insert');
    end;
@@ -156,6 +184,26 @@ begin
       raise ERuntimeException.Create('Internal error: unrecognized data type during list insert');
    end;
    TVM (vm).pushNone;
+end;
+
+
+procedure TBuiltInList.range (vm : TObject);
+var start, finish, step : double;
+    n : integer;
+    alist : TListObject;
+begin
+ step := TVM(vm).popScalar;
+ finish := TVM(vm).popScalar;
+ start := TVM(vm).popScalar;
+ n := trunc ((finish - start)/step);
+ alist := TListObject.Create(n);
+ for var i := 0 to n - 1 do
+     begin
+     alist.list[i].dValue := start;
+     alist.list[i].itemType := liDouble;
+     start := start + step
+     end;
+ TVM (vm).push(alist);
 end;
 
 
@@ -208,6 +256,40 @@ begin
         raise ERuntimeException.Create('Can only find the min value for numeric data');
       end;
    TVM (vm).push (double(value));
+end;
+
+
+procedure TBuiltInList.getRndu (vm : TObject);
+var n, range : integer;
+    l : TListObject;
+    i : integer;
+begin
+  n := TVM (vm).popInteger;
+  l := TListObject.Create (n);
+  for i := 0 to n - 1 do
+      begin
+      l.list[i].dValue := random();
+      l.list[i].itemType := liDouble;
+      end;
+  TVM (vm).push (l);
+end;
+
+
+procedure TBuiltInList.getRndi (vm : TObject);
+var n, start, finish : integer;
+    l : TListObject;
+    i : integer;
+begin
+  n := TVM (vm).popInteger;
+  finish := TVM (vm).popInteger;
+  start := TVM (vm).popInteger;
+  l := TListObject.Create (n);
+  for i := 0 to n - 1 do
+      begin
+      l.list[i].iValue := RandomRange(start, finish+1);// + start; // +1 to include end of range
+      l.list[i].itemType := liInteger;
+      end;
+  TVM (vm).push (l);
 end;
 
 end.

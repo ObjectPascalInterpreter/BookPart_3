@@ -118,14 +118,12 @@ type
                 tWhile,
                 tRepeat,
                 tUntil,
-                tOf,
                 tBreak,
                 tFunction,
                 tRef,
                 tGlobal,
                 tSwitch,
                 tCase,
-                tModuleToken,
                 tImport,
                 tReturn);
 
@@ -289,7 +287,6 @@ begin
   FKeyWordList.AddObject ('do', TObject (tDo));
   FKeyWordList.AddObject ('to', TObject (tTo));
   FKeyWordList.AddObject ('or', TObject (tOr));
-  FKeyWordList.AddObject ('of', TObject (tOf));
 
   FKeyWordList.AddObject ('end', TObject (tEnd));
   FKeyWordList.AddObject ('for', TObject (tFor));
@@ -314,7 +311,6 @@ begin
   FKeyWordList.AddObject ('println', TObject (tPrintln));
   FKeyWordList.AddObject ('setColor', TObject (tSetColor));
 
-
   FKeyWordList.AddObject ('repeat', TObject (tRepeat));
   FKeyWordList.AddObject ('downto', TObject (tDownTo));
 
@@ -323,9 +319,8 @@ begin
   FKeyWordList.AddObject ('function', TObject (tFunction));
   FKeyWordList.AddObject ('return', TObject (tReturn));
   FKeyWordList.AddObject ('global', TObject (tGlobal));
-  FKeyWordList.AddObject ('module', TObject (tModuleToken));
   FKeyWordList.AddObject ('import', TObject (tImport));
-  FKeyWordList.AddObject ('ref', TObject (tRef));
+  FKeyWordList.AddObject ('ref', TObject (tRef));    // Not used
   FKeyWordList.AddObject ('switch', TObject (tSwitch));
   FKeyWordList.AddObject ('case', TObject (tCase));
 
@@ -762,8 +757,8 @@ class function TScanner.tokenToString (token : TTokenCode) : string;
 begin
   case token of
         tIdentifier   : result := 'identifier';// <' + tokenElement.FTokenString + '>';
-        tInteger      : result := 'integer <';// + inttostr (tokenElement.FTokenInteger) + '>';
-        tFloat        : result := 'float <';// + floattostr (tokenElement.FTokenFloat) + '>';
+        tInteger      : result := 'integer';// <' + inttostr (tokenElement.FTokenInteger) + '>';
+        tFloat        : result := 'float';// + floattostr (tokenElement.FTokenFloat) + '>';
         tString       : result := 'string "';// + tokenElement.FTokenString + '"';
         tMinus        : result := 'character: ''-''';
         tPlus         : result := 'character: ''+''';
@@ -772,16 +767,16 @@ begin
         tPower        : result := 'character: ''^''';
   tRightParenthesis   : result := 'character: '')''';
   tLeftParenthesis    : result := 'character: ''(''';
-     tRightBracket    : result := 'character: '']''';
-     tLeftBracket     : result := 'character: ''[''';
+  tRightBracket       : result := 'character: '']''';
+  tLeftBracket        : result := 'character: ''[''';
   tLeftCurleyBracket  : result := 'character: ''{''';
   tRightCurleyBracket : result := 'character: ''}''';
         tEquals       : result := 'character: ''=''';
         tEquivalence  : result := 'spcharacterecial: ''==''';
         tMoreThan     : result := 'character: ''>''';
         tLessThan     : result := 'character: ''<''';
-     tMoreThanOrEqual : result := 'character: ''>=''';
-     tLessThanOrEqual : result := 'character: ''<=''';
+  tMoreThanOrEqual    : result := 'character: ''>=''';
+  tLessThanOrEqual    : result := 'character: ''<=''';
         tApostrophy   : result := 'character: Apostrphy';
         tSemicolon    : result := 'character: '';''';
         tColon        : result := 'character: '':''';
@@ -789,16 +784,29 @@ begin
         tPeriod       : result := 'character: ''.''';
         tDollar       : result := 'character: ''$''';
         tArrow        : result := 'character: ''->''';
-            tEnd      : result := 'key word: <end>';
-             tIf      : result := 'key word: <if>';
-             tThen    : result := 'key word: <then> ';
-             tFor     : Result := 'Key word: <for>';
-             tTo      : result := 'key word: <to>';
-            tWhile    : result := 'key word: <while>';
-             tDo      : result := 'key word: <do>';
-             tElse    : result := 'key word: <else>';
-            tRepeat   : result := 'key word: <repeat>';
-            tUntil    : result := 'key word: <until>';
+        tEnd          : result := 'key word: <end>';
+        tIf           : result := 'key word: <if>';
+        tThen         : result := 'key word: <then> ';
+        tFor          : Result := 'Key word: <for>';
+        tTo           : result := 'key word: <to>';
+        tDownTo       : result := 'key word: <downto>';
+        tWhile        : result := 'key word: <while>';
+        tDo           : result := 'key word: <do>';
+        tElse         : result := 'key word: <else>';
+        tRepeat       : result := 'key word: <repeat>';
+        tUntil        : result := 'key word: <until>';
+        tCase         : result := 'key word: <case>';
+        tSwitch       : result := 'key word: <switch>';
+        tReturn       : result := 'key word: <return>';
+        tImport       : result := 'key word: <import>';
+        tGlobal       : result := 'key word: <global>';
+        tFunction     : result := 'key word: <function>';
+        tBreak        : result := 'key word: <break>';
+        tStep         : result := 'key word: <step>';
+        tFalse        : result := 'False';
+        tTrue         : result := 'True';
+        tPrint        : result := 'print';
+        tPrintln      : result := 'println';
 
         tEndofStream : result := 'End of Stream';
   else
@@ -828,8 +836,8 @@ begin
        tPower        : result := '^';
  tRightParenthesis   : result := ')';
  tLeftParenthesis    : result := '(';
-    tRightBracket    : result := ']';
-     tLeftBracket    : result := '[';
+ tRightBracket       : result := ']';
+ tLeftBracket        : result := '[';
  tLeftCurleyBracket  : result := '{';
  tRightCurleyBracket : result := '}';
        tEquals       : result := '=';
@@ -843,21 +851,21 @@ begin
        tArrow        : result := '->';
        tLessThan     : result := '<';
        tMoreThan     : result := '>';
-            tEnd     : result := 'end';
-            tIf      : result := 'if';
-            tThen    : result := 'then';
-            tDo      : result := 'do';
-            tTo      : result := 'to';
-            tOr      : result := 'or';
-            tFor     : result := 'for';
-            tAnd     : Result := 'and';
-            tNot     : Result := 'not';
-            tElse    : Result := 'else';
-            tWhile   : Result := 'while';
-            tUntil   : Result := 'until';
-           tRepeat   : Result := 'repeat';
-           tError    : Result := 'Unrecognized character';
-        tEndofStream : result := 'end of source code';
+       tEnd          : result := 'end';
+       tIf           : result := 'if';
+       tThen         : result := 'then';
+       tDo           : result := 'do';
+       tTo           : result := 'to';
+       tOr           : result := 'or';
+       tFor          : result := 'for';
+       tAnd          : Result := 'and';
+       tNot          : Result := 'not';
+       tElse         : Result := 'else';
+       tWhile        : Result := 'while';
+       tUntil        : Result := 'until';
+       tRepeat       : Result := 'repeat';
+       tError        : Result := 'Unrecognized character';
+       tEndofStream  : result := 'end of source code';
    else
        result := 'unrecognised token in TokenLiteral';
   end;

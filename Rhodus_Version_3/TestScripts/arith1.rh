@@ -8,19 +8,19 @@ import testUtils
 //setColor ("white")
 testUtils.beginTests ("")
   testUtils.runtestTrue (1E2 == 100);
-  //testUtils.runtestTrue (1.2E2 == 120); 
-  //testUtils.runtestTrue (0.1E2 == 10); 
-  //testUtils.runtestTrue (1E-2 == 0.01); 
-  //testUtils.runtestTrue (1.2E-2 == 0.012); 
-  //testUtils.runtestTrue (-1E-2 == -0.01);
+  testUtils.runtestTrue (1.2E2 == 120); 
+  testUtils.runtestTrue (0.1E2 == 10); 
+  testUtils.runtestTrue (1E-2 == 0.01); 
+  testUtils.runtestTrue (1.2E-2 == 0.012); 
+  testUtils.runtestTrue (-1E-2 == -0.01);
 
-  //testUtils.runtestTrue (2 + 3 == 5);
-  //testUtils.runtestTrue (2 - 3 == -1);
-  //testUtils.runtestTrue (3 - 2 == 1);
-  //testUtils.runtestTrue (2 * 3 == 6);
-  //testUtils.runtestTrue (10 / 2 == 5);
-  //testUtils.runtestTrue (2^4 == 16);
-//testUtils.endTests()
+  testUtils.runtestTrue (2 + 3 == 5);
+  testUtils.runtestTrue (2 - 3 == -1);
+  testUtils.runtestTrue (3 - 2 == 1);
+  testUtils.runtestTrue (2 * 3 == 6);
+  testUtils.runtestTrue (10 / 2 == 5);
+  testUtils.runtestTrue (2^4 == 16);
+testUtils.endTests()
 
 /*
 testUtils.beginTests ("")

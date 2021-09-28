@@ -16,6 +16,7 @@ type
    // There are too many dependencies between these classes to separate them
    // into individual files, so we group them together here.
 
+   TSymbol = class;
    TSymbolTable = class;
    TLocalSymbolTable = class;
 
@@ -30,6 +31,7 @@ type
        compiled : boolean;   // Not currently used
 
        function    getSize : integer;
+       function    find (name : string) : TSymbol;
        procedure   clearCode;
        constructor Create (name : string);
        destructor  Destroy; override;
@@ -96,6 +98,7 @@ type
         function  addModule (mValue : TModule) : TSymbol;
         function  addSymbol (name : string) : TSymbol; overload;
         procedure addSymbol (name : string; dValue : double;  locked : boolean; helpStr : string); overload;
+        procedure addSymbol (name : string; lValue : TListObject; locked : boolean; helpStr : string); overload;
         procedure addSymbol (fValue : TUserFunction; locked : boolean); overload;
 
         function  find (name : string; var symbol : TSymbol) : boolean;
@@ -142,8 +145,10 @@ type
    end;
 
    // Helper functions to add the builtin libraries.
-   procedure addLib (module : TModule; lib : TModule);
+   function  addLib (module : TModule; lib : TModule) : TSymbol;
    procedure addAllBuiltInLibraries (module : TModule);
+
+var OSLibraryRef : TModule;
 
 implementation
 
@@ -151,9 +156,9 @@ Uses uBuiltInGlobal, uBuiltinMath, uBuiltInList, uBuiltInRandom,
      uBuiltInOS, uBuiltInStr, uBuiltInFile, uBuiltInTurtle;
 
 
-procedure addLib (module : TModule; lib : TModule);
+function addLib (module : TModule; lib : TModule) : TSymbol;
 begin
-  module.symbolTable.addModule (lib);
+  result := module.symbolTable.addModule (lib);
 end;
 
 
@@ -164,7 +169,7 @@ begin
   addLib (module, TBuiltInList.Create);
   addLib (module, TBuiltInRandom.Create);
   addLib (module, TBuiltInStr.Create);
-  addLib (module, TBuiltInOS.Create);
+  OSLibraryRef := TBuiltInOS.Create; addLib (module, OSLibraryRef);
   addLib (module, TBuiltInTime.Create);
   addLib (module, TBuiltInFile.Create);
   //addLib (module, TBuiltInTurtle.Create);
@@ -195,6 +200,12 @@ procedure TModule.clearCode;
 begin
   code.Clear;
   compiled := False;
+end;
+
+
+function TModule.find (name : string) : TSymbol;
+begin
+  symbolTable.find(name, result);
 end;
 
 
@@ -410,6 +421,19 @@ begin
   symbol.dValue := dValue;
   symbol.symbolName := name;
   symbol.symbolType := symDouble;
+  symbol.helpStr := helpStr;
+  symbol.locked := locked;;
+  Add (name, symbol);
+end;
+
+
+procedure TSymbolTable.addSymbol (name : string; lValue : TListObject; locked : boolean; helpStr : string);
+var symbol : TSymbol;
+begin
+  symbol := TSymbol.Create;
+  symbol.lValue := lValue;
+  symbol.symbolName := name;
+  symbol.symbolType := symList;
   symbol.helpStr := helpStr;
   symbol.locked := locked;;
   Add (name, symbol);

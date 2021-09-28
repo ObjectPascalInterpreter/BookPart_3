@@ -27,17 +27,37 @@ implementation
 
 procedure setUpEnvironment (appExe : string);
 var Ini: TIniFile;
+    s1, s2 : string;
 begin
-   homeDir := TPath.GetHomePath;
-   rhodusConfigDir := homeDir + '\rhodus';
+   // Look for the ini file in teh launch directory first, if its not here then look for it in AppData
+   s1 := ExtractFilePath (Paramstr(0));
+   if not FileExists(s1 + '\rhodus.ini') then
+      begin
+      RHODUSPATH := s1;
+      writeln ('Setting current directory to ' + RHODUSPATH + sLineBreak);
+      SetCurrentDir(RHODUSPATH);
+      exit;
+      end
+   else
+      begin
+      homeDir := TPath.GetHomePath;
+      rhodusConfigDir := homeDir;
+      if not FileExists(rhodusConfigDir + '\rhodus\rhodus.ini') then
+         rhodusConfigDir := '.';
+      end;
+
    // Read the ini file to get the rhoduspath
-   Ini := TIniFile.Create (rhodusConfigDir + '\rhodus.ini');
+   Ini := TIniFile.Create (rhodusConfigDir + '\rhodus\rhodus.ini');
    try
      RHODUSPATH := Ini.ReadString('Path', 'RHODUSPATH', '');
      if RHODUSPATH = '' then
         begin
         writeln ('Failed to locate Rhodus path, defaulting to Documents');
-        RHODUSPATH := docsDir;
+
+        s2 := TDirectory.GetParent(ExcludeTrailingPathDelimiter(s1));
+        s2 := TDirectory.GetParent(ExcludeTrailingPathDelimiter(s2));
+
+        RHODUSPATH := ExtractFilePath(ExtractFilePath(ParamStr(0)));
         end
      else
         begin

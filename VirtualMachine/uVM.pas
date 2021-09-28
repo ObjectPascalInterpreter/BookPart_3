@@ -66,8 +66,6 @@ type
     frameStackTop: integer;
     frameStack: TFrameStack;
 
-    inSideFunctionCall : boolean;
-
     callbackPtr: TVMCallBack;
     printCallbackPtr: TVMPrintCallBack;
     printlnCallbackPtr: TVMPrintlnCallBack;
@@ -111,9 +109,9 @@ type
 
     procedure storeSymbol(symbolName: string);
     procedure storeLocalSymbol(index: integer);
-    procedure loadPrimary (symbolName : string);
-    procedure loadPeriod (symbolName : string);
-    procedure storePeriod (symbolName : string);
+    procedure loadSymbol (symbolName : string);
+    procedure loadSecondary (symbolName : string);
+    procedure storeSecondary (symbolName : string);
 
     procedure loadLocalSymbol(index: integer);
 
@@ -169,8 +167,6 @@ type
     procedure   push(lValue: TListObject); overload; inline;
     procedure   push (fValue: TUserFunction); overload; inline;
     procedure   pushModule (module : TModule);
-    procedure   pushLocalSymbol (symbolIndex : integer);
-    procedure   pushFunction (functionIndex: integer);
     procedure   pushNone;
     function    peek : PMachineStackRecord;
     function    pop: PMachineStackRecord; inline;
@@ -219,7 +215,6 @@ begin
   createFrameStack(MAX_FRAME_DEPTH);
   VMStateStack := TStack<TVMState>.Create;
 
-  inSideFunctionCall := False;
   callbackPtr := nil;
   printCallbackPtr := nil;
   printlnCallbackPtr := nil;
@@ -648,18 +643,6 @@ begin
 end;
 
 
-procedure TVM.pushFunction (functionIndex: integer);
-begin
-{$IFDEF STACKCHECK}
-  checkStackOverflow;
-{$ENDIF}
-  inc(stackTop);
-  // No need to clone function unless it ends up being assigned to a variable.
-  //stack[stackTop].fValue :=  TUserFunction (constantValueTable[functionIndex].fValue);
-  //stack[stackTop].stackType := TStackType.stFunction;
-end;
-
-
 procedure TVM.pushModule (module : TModule);
 begin
   inc(stackTop);
@@ -676,18 +659,6 @@ procedure TVM.pushNone;
 begin
   push (@noneStackType);
 end;
-
-
-procedure TVM.pushLocalSymbol (symbolIndex : integer);
-begin
-  inc(stackTop);
-{$IFDEF STACKCHECK}
-  checkStackOverflow;
-{$ENDIF}
-  stack[stackTop].symbolIndex := symbolIndex;
-  stack[stackTop].stackType := TStackType.stLocalSymbol;
-end;
-
 
 
 // -------------------------------------------------------------------------
@@ -1098,7 +1069,8 @@ begin
 end;
 
 
-procedure TVM.loadPrimary (symbolName : string);
+// This will load any kind of symbol on to the stack
+procedure TVM.loadSymbol (symbolName : string);
 var symbol : TSymbol;
 begin
   if not module.symbolTable.find (symbolName, symbol) then
@@ -1122,7 +1094,7 @@ begin
 end;
 
 
-procedure TVM.loadPeriod (symbolName : string);
+procedure TVM.loadSecondary (symbolName : string);
 var m : TModule;
     symbol : TSymbol;
 begin
@@ -1148,7 +1120,7 @@ begin
 end;
 
 
-procedure TVM.storePeriod (symbolName : string);
+procedure TVM.storeSecondary (symbolName : string);
 var m : TModule;
     symbol : TSymbol;
     value : PMachineStackRecord;
@@ -1571,7 +1543,6 @@ begin
   // This is to make sure the user function knows what module its in.
   oldModule := module;
   module := functionObject.moduleRef;
-  inSideFunctionCall := True;
   run(functionObject.funcCode, module.symbolTable);
 
   // deal with the special case where a user has passed aliteral list whch
@@ -1582,7 +1553,6 @@ begin
          if stack[tbsp + i].lValue.blockType = btTemporary then
             stack[tbsp + i].lValue.blockType := btGarbage;
 
-    inSideFunctionCall := False;
   module := oldModule;
   // Note the function object will get popped off by the return code in run()
 end;
@@ -2058,7 +2028,6 @@ var
   ip, g : integer;
   value : PMachineStackRecord;
   c : TCode;
-  vmstate : TVMState;
 begin
   ip := 0; {count := 0;} value := @noneStackType; bolStopVm := False;
   self.symboltable := symbolTable;
@@ -2067,8 +2036,8 @@ begin
 
   //Stopwatch := TStopwatch.StartNew;
   try
-     c := code.code;
-     while True do
+    c := code.code;
+    while True do
         begin
         if bolStopVm then
            begin
@@ -2096,17 +2065,17 @@ begin
             oPushd:      push (module.code.constantValueTable[c[ip].index1].dValue);
             oPushs:      push (module.code.constantValueTable[c[ip].index1].sValue);
             oPushNone:   push (@noneStackType);
-            oPushFunction: pushFunction (c[ip].index1);
-            oPushLocalSymbol : pushLocalSymbol (c[ip].index1);
             oPop:        begin
                          // If the next instrction is halt, we will leave the item
                          // on the stack and let the caller deal with it. This is
                          // mainly useful when used in interactive mode so that the
-                         // console can print the stack item to the console
+                         // console can print the stack item to the console, any
+                         // other time we want to the pop executed
                          if c[ip+1].opCode <> oHalt then
                             pop();
                          end;
             oDup:        dupStack;
+            oPopDup:     pop();
             oIsLt:       isLt;
             oIsLte:      isLte;
             oIsGt:       isGt;
@@ -2126,35 +2095,40 @@ begin
             oAssertFalse: assertFalse;
 
             // Branch opcodes
-            oJmp: ip := ip + c[ip].index1 - 1;
-            oJmpIfTrue: if pop().bValue then
-                ip := ip + c[ip].index1 - 1;
+            oJmp:        ip := ip + c[ip].index1 - 1;
+            oJmpIfTrue:  if pop().bValue then
+                            ip := ip + c[ip].index1 - 1;
             oJmpIfFalse: if not pop().bValue then
-                ip := ip + c[ip].index1 - 1;
+                            ip := ip + c[ip].index1 - 1;
 
-      oStorePrimary: begin
-                     storeSymbol (c[ip].symbolName);
-                     g := getGarbageSize;
-                     if (g > 10) then //and (not inSideFunctionCall) then
-                        collectGarbage; // Only collect garbage after a store
-                     end;
 
-        oLoadPrimary : loadPrimary (c[ip].symbolName);
+        // These two are used when we load and store synmbols within the current module
+         oStoreSymbol:  begin
+                         storeSymbol (c[ip].symbolName);
+                         g := getGarbageSize;
+                         if (g > 50) then
+                            collectGarbage; // Only collect garbage after a store
+                         end;
+          oLoadSymbol: loadSymbol (c[ip].symbolName);
 
-         oLoadPeriod : loadPeriod (c[ip].symbolName);
-         oStorePeriod : storePeriod (c[ip].symbolName);
+       // This are used to load and store symbols when we reference modules outside the current one
+       oLoadSecondary: loadSecondary (c[ip].symbolName);
+      oStoreSecondary: storeSecondary (c[ip].symbolName);
 
-          oStoreLocal: begin
-                       storeLocalSymbol(c[ip].index1);
-                       if getGarbageSize > 10 then
-                          collectGarbage;
-                       end;
-          oLoadLocal:  loadLocalSymbol(c[ip].index1);
+       // These are used to load and store symbols in user functions
+          oStoreLocal:  begin
+                        storeLocalSymbol(c[ip].index1);
+                        if getGarbageSize > 10 then
+                           collectGarbage;
+                        end;
+           oLoadLocal:  loadLocalSymbol(c[ip].index1);
 
-          oImportModule : importModule (c[ip].moduleName);
-            // Method call opcodes
-            oCall:     callUserFunction (c[ip].index1);
-            oRet:
+
+        oImportModule: importModule (c[ip].moduleName);
+
+          // Method call opcodes
+            oCall :     callUserFunction (c[ip].index1);
+            oRet :
               begin
               // Note that anything that is returned isn't bound to any symbol.
               // Binding only happens if the callee assigns the

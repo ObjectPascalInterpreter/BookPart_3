@@ -73,8 +73,8 @@ begin
 
   //addMethod (getComb,  2, 'comb',   'Returns the number of ways to choose k items from n items without repetition or order: comb (5, 2)');
 
-  addValue ('pi', Pi,      'The value of pi');
-  addValue ('e',  exp (1), 'The value of e');
+  addDoubleValue ('pi', Pi,      'The value of pi', True);  // True = locked
+  addDoubleValue ('e',  exp (1), 'The value of e', True);
 end;
 
 

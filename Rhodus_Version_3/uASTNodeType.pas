@@ -18,11 +18,12 @@ type
       ntInteger,
       ntString,
       ntBoolean,
-      ntAND,  // 4
+      ntNodeList,
+      ntAND,     // 6
       ntOR,
       ntNOT,
       ntXOR,
-      ntUnaryMinus,
+      ntUnaryMinus, // 10
       ntAdd,
       ntSub,
       ntMult,
@@ -33,7 +34,7 @@ type
       ntLT,
       ntLE,
       ntGT,
-      ntGE,  // 19
+      ntGE,  // 21
       ntNE,
       ntEQ,
       ntLeftSide,
@@ -43,7 +44,7 @@ type
       ntPrimary,
       ntPeriod,
       ntImportStmt,
-      ntGlobalStmt,   // 29
+      ntGlobalStmt,   // 31
       ntModule,
       ntCreateList,
       ntPrint,
@@ -53,7 +54,7 @@ type
       ntAssertTrueEx,
       ntAssertFalse,
       ntAssertFalseEx,
-      ntSwitch,           // 39
+      ntSwitch,           // 41
       ntListOfCaseStatements,
       ntCaseStatement,
       ntIf,
@@ -62,10 +63,9 @@ type
       ntFor,
       ntIter,
       ntTo,
-      ntDownTo,        // 48
-      ntFunction,       // 49
+      ntDownTo,         // 50
+      ntFunction,       // 51
       ntFunctionArguments,
-      //ntBuiltin,
       ntReturn,
       ntAssignment,
       ntAssignmentModule,
@@ -102,9 +102,8 @@ begin
      ntGE           : result := '>=';
      ntNE           : result := '!=';
      ntEQ           : result := '==';
-     //ntSymbol       : result := 'symbol';
      ntExpression   : result := 'expression';
-     //ntExpressionStatement : result := 'expressionStatement';
+     ntExpressionStatement : result := 'expressionStatement';
      ntLeftSide     : result := 'leftSide';
      ntImportStmt   : result := 'import';
      ntPrimary      : result := 'primary';
@@ -139,7 +138,6 @@ begin
      ntFunction     : result := 'function';
      ntFunctionCall : result := 'functionCall';
      ntFunctionArguments : result := 'functionArguments';
-     ntExpressionStatement : result := 'expressionStmt';
   else
       result := 'unknown';
   end;

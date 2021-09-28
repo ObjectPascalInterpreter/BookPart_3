@@ -4,9 +4,6 @@ This repo holds source code for part III of the book series on building an inter
 
 <img src="/Images/demo1.gif" width="609" height="345"/>
 
-![Demo Vasic Capabilities](Images/demo1.gif)
-
-
 Example code:
 
     

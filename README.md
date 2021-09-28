@@ -1,6 +1,10 @@
 # BookPart 3
 
-This repo holds source code for part III of the book series on building an interpreter using Object Pascal (https://www.objectpascalinterpreter.com). the code is now fairly stable but I will continue to tidy up the code and possibly add one or two additional features. The major outward change in this version includes library support, and a range of small builtin libraries such as math (these will be expanded). The biggest internal change is to separate code generation from syntax analysis in the form of an abstract syntax tree. User functions are also now first-class entities which can be passed around like any other variable. A lot of work has been done on ensure that garbage collection doesn't leak memory. Example code:
+This repo holds source code for part III of the book series on building an interpreter using Object Pascal (https://www.objectpascalinterpreter.com). the code is now fairly stable but I will continue to tidy up the code and possibly add one or two additional features. The major outward change in this version includes library support, and a range of small builtin libraries such as math (these will be expanded). The biggest internal change is to separate code generation from syntax analysis in the form of an abstract syntax tree. User functions are also now first-class entities which can be passed around like any other variable. A lot of work has been done on ensure that garbage collection doesn't leak memory. 
+
+<img src="/Images/demo1.gif" width="609" height="345"/>
+
+Example code:
 
     
     // Quick sort algorithm, depends on recursion

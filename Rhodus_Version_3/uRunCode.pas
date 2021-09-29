@@ -10,6 +10,7 @@ unit uRunCode;
 interface
 
 Uses Generics.Collections,
+     IOUtils,
      uVM,
      uSymbolTable,
      uMachineStack,
@@ -47,8 +48,9 @@ type
 
       function  getVersion : string;
       function  compileCode (const src : string;  var module : TModuleLib; interactive : boolean) : boolean;
-      procedure runCode (const src : string; interactive : boolean);
+      procedure compileAndRun (const src : string; interactive : boolean);
       procedure getAllocatedSymbols (argument : string);
+      procedure runCode (module : TModule; interactive : boolean);
 
       constructor Create;
       destructor Destroy; override;
@@ -64,7 +66,8 @@ uses uCommands,
      uOpCodes,
      uBuiltInOS,
      uTerminal,
-     uRhodusTypes;
+     uRhodusTypes,
+     uEnvironment;
 
 
 // Print methods to support output from the VM
@@ -117,6 +120,7 @@ end;
 // ------------------------------------------------------------------------------
 
 constructor TRunFramework.Create;
+var astr : string;
 begin
   showAssembler := False;
   mainModule := TModuleLib.Create (TSymbol.mainModuleId, 'Main Module');  // mainModule is declared in uModule
@@ -128,6 +132,15 @@ begin
   ast := TConstructAst.Create (sc);   // Create the parser that will generate the AST
 
   vmMemory := memAllocatedByVm;
+
+  if FileExists (launchEnvironment.executionPath + '\\startup.rh') then
+     begin
+     astr := TFile.ReadAllText('startup.rh');
+     if not compileCode(astr, mainModule, False) then
+        writeln ('Errors in startup script')
+     else
+        compileAndRun(astr, False);
+     end;
 end;
 
 
@@ -210,7 +223,68 @@ begin
 end;
 
 
-procedure TRunFramework.runCode (const src : string; interactive : boolean);
+procedure TRunFramework.runCode (module : TModule; interactive : boolean);
+var st :PMachineStackRecord;
+    key : string;
+begin
+      try
+        vm := TVM.Create;
+        vm.interactive := interactive;
+
+        registerRuntimeWithConsole (self);
+        vm.registerPrintCallBack(printObj.print);
+        vm.registerPrintlnCallBack(printObj.println);
+        vm.registerSetColorcallBack (printObj.setColor);
+
+        try
+          vm.runModule (module);
+
+          while vm.stackHasEntry do
+               begin
+               st := vm.pop;
+               case st.stackType of
+                stNone    : begin end;
+                stInteger : writeln (st.iValue);
+                stBoolean : writeln (BoolToStr(st.bValue, True));
+                stDouble  : writeln (Format('%g', [st.dValue]));
+                stString  : writeln (st.sValue.value);
+                stList    : writeln (st.lValue.listToString());
+                stModule  : writeln ('Module: ' + st.module.name + ' ' + st.module.helpStr);
+                stFunction: writeln ('Function: ' + st.fValue.moduleRef.name + '.' + st.fValue.name);
+               else
+                 writeln ('Unrecognized type of value returned from virtual machine');
+               end;
+               end;
+          if bolShowAssembler then
+              begin
+              for key in mainModule.symbolTable.keys do
+                  if mainModule.symbolTable.items[key] <> nil then
+                     if mainModule.symbolTable.Items[key].symbolType = symUserFunc then
+                        begin
+                        if mainModule.symbolTable.items[key].fValue.isbuiltInFunction then
+                           writeln ('No code for builtin function')
+                        else
+                           writeln (dissassemble(mainModule, mainModule.symbolTable.items[key].fValue.funcCode));
+                        end;
+              writeln (dissassemble(mainModule, mainModule.code));
+             end;
+
+        except
+          on e:exception do
+             begin
+              setGreen;
+              writeln ('ERROR: ' + e.Message);
+              setWhite;
+              end;
+        end;
+
+      finally
+        FreeAndNil (vm);
+      end;
+end;
+
+
+procedure TRunFramework.compileAndRun (const src : string; interactive : boolean);
 var st :PMachineStackRecord;
     key : string;
     initialMem : integer;

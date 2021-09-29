@@ -229,6 +229,8 @@ end;
 
 procedure displayWelcome;
 begin
+  uTerminal.setWhite;
+  clearConsoleScreen;
   writeln ('Welcome to Rhodus Language III Console, Version ', getRunTime().getVersion());
   writeln ('Data and Time: ', dateToStr (Date), ', ', timeToStr (Time));
   displayHelp;

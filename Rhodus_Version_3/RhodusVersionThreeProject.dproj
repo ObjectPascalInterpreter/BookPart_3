@@ -204,6 +204,7 @@
         <DCCReference Include="uBuiltInFile.pas"/>
         <DCCReference Include="uProgramCode.pas"/>
         <DCCReference Include="..\VirtualMachine\uRhodusTypes.pas"/>
+        <DCCReference Include="uEnvironment.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

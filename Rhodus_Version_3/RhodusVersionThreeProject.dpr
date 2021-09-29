@@ -30,7 +30,6 @@ program RhodusVersionThreeProject;
 
 uses
   {$IFDEF DEBUG}
-  //FastMM4 in '..\..\Library\FastMM\FastMM4.pas',
   {$ENDIF }
   Windows,
   ShellAPI,
@@ -79,7 +78,8 @@ uses
   uTerminal in 'uTerminal.pas',
   uBuiltInFile in 'uBuiltInFile.pas',
   uProgramCode in 'uProgramCode.pas',
-  uRhodusTypes in '..\VirtualMachine\uRhodusTypes.pas';
+  uRhodusTypes in '..\VirtualMachine\uRhodusTypes.pas',
+  uEnvironment in 'uEnvironment.pas';
 
 var sourceCode : string;
     fragment : string;
@@ -172,7 +172,7 @@ begin
 end;
 
 
-function runCommand (src : string) : boolean;
+function executeCommand (src : string) : boolean;
 var index : integer;
     helpStr : string;
 begin
@@ -210,7 +210,7 @@ begin
       begin
       //
       computeBaseLineMemoryAllocated;
-      runFramework.runCode (TFile.ReadAllText (getCurrentDir + '\' + src), False);  // False = not interactive
+      runFramework.compileAndRun (TFile.ReadAllText (getCurrentDir + '\' + src), False);  // False = not interactive
       exit (True)
       end;
 end;
@@ -220,6 +220,7 @@ begin
   ReportMemoryLeaksOnShutdown := True;
   setUpConsole;
   setUpEnvironment (ParamStr (0));
+
 
   try
     runFramework := TRunFrameWork.Create;
@@ -237,9 +238,10 @@ begin
             if sourceCode = 'quit' then
                break;
 
-            if runCommand (sourceCode) then
+            if executeCommand (sourceCode) then
                 continue;
 
+            // Not a commandm therefore it could be code
             runFramework.showAssembler := bolShowAssembler;
 
             if sourceCode = '#p' then
@@ -257,11 +259,9 @@ begin
                    write ('... ');
                    readln (fragment)
                    end;
-              // writeln (sourceCode);
-               runFramework.runCode (sourceCode, True);
-               end
-            else
-              runFramework.runCode (sourceCode, True);
+               end;
+            if runFramework.compileCode (sourceCode, mainModule, True) then
+               runFrameWork.runCode (mainModule, True);
 
           except
               on e:exception do

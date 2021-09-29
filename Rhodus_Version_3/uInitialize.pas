@@ -10,7 +10,8 @@ unit uInitialize;
 
 interface
 
-Uses SysUtils, IniFiles, IOUtils;
+Uses SysUtils, IniFiles, IOUtils, uEnvironment;
+
 
 procedure setUpEnvironment (appExe : string);
 
@@ -29,7 +30,12 @@ procedure setUpEnvironment (appExe : string);
 var Ini: TIniFile;
     s1, s2 : string;
 begin
-   // Look for the ini file in teh launch directory first, if its not here then look for it in AppData
+   launchEnvironment.executionPath := ExtractFilePath (appExe);
+   exit;
+
+
+
+   // Look for the ini file in the launch directory first, if its not here then look for it in AppData
    s1 := ExtractFilePath (Paramstr(0));
    if not FileExists(s1 + '\rhodus.ini') then
       begin

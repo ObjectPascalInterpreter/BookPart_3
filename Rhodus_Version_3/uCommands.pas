@@ -310,7 +310,7 @@ begin
       setWhite;
 
       getRunTime().showAssembler := False;
-      getRuntime().runCode (TFile.ReadAllText(fileName), False);  // false = not interactive
+      getRuntime().compileAndRun (TFile.ReadAllText(fileName), False);  // false = not interactive
       writeln;
       end;
   writeln;
@@ -328,7 +328,7 @@ begin
   if TFile.Exists (cwd + '\' + fileName) then
      begin
      if getRuntime() <> nil then
-        getRuntime().runCode (TFile.ReadAllText(cwd + '\' + fileName), False) // True = interactive
+        getRuntime().compileAndRun (TFile.ReadAllText(cwd + '\' + fileName), False) // True = interactive
      else
         begin
         writeln ('Internal Error: Runtime system not available');

@@ -130,7 +130,9 @@ Printing out all the colors:
         for i = 1 to l do
             setColor (colors[i-1])
             print ("Color Test  ");
-            if i mod 4 == 0 then
+            if i mod 6 == 0 then
                println() 
             end
         end
+
+<img src="/Images/allColors.png" width="250"/>

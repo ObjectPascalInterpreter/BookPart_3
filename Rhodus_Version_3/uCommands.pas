@@ -48,7 +48,8 @@ Uses System.Types,
      ShellAPI,
      uTerminal,
      uBuiltInGlobal,
-     uConstantTable;
+     uConstantTable,
+     uEnvironment;
 
 var
    winList : TStringList;
@@ -79,7 +80,7 @@ end;
 procedure displayHelp;
 begin
   writeln;
-  writeln ('quit'#9#9'Quit the application');
+  writeln ('quit'#9#9'Quit the application, really really quit');
   writeln ('type fileName'#9'List the contents of a file');
   writeln ('run fileName'#9'Run the code in the specified file');
   writeln ('edit fileName'#9'Start notepad to edit the file');
@@ -88,7 +89,7 @@ begin
   writeln ('pwd'#9#9'Print the current working directory');
   writeln ('cd path'#9#9'Change working directory, eg cd ., cd .\myfiles');
   writeln ('samples'#9#9'Change to samples directory');
-  writeln ('rhoduspath'#9'Print out the Rhodus path');
+  writeln ('basepath'#9'Print out the startup path');
   writeln ('cls'#9#9'Clear the screen');
   writeln ('debug'#9#9'Turn debugging on and off (displays bytecode)');
   writeln ('mem'#9#9'Report on current memory usage');
@@ -128,16 +129,16 @@ begin
   result := True;
 end;
 
-function rhodusPathCommand (argument : string) : boolean;
+function basePathCommand (argument : string) : boolean;
 begin
-  writeln (RHODUSPATH);
+  writeln (launchEnvironment.basePath);
   result := True;
 end;
 
 
 function samplesCommand (argument : string) : boolean;
 begin
-  setCurrentDir (RHODUSPATH + '\' + 'SampleScripts');
+  setCurrentDir (launchEnvironment.basePath + '\\' + 'SampleScripts');
   result := True;
 end;
 
@@ -259,7 +260,7 @@ begin
      if FileExists (fileName) then
         ShellExecute(0, nil, PChar('notepad.exe'), PChar (fileName), nil, SW_SHOWNORMAL)
      else
-        ShellExecute(0, nil, PChar('notepad.exe'), PChar(RHODUSPATH + '\' + fileName), nil, SW_SHOWNORMAL);
+        ShellExecute(0, nil, PChar('notepad.exe'), PChar(launchEnvironment.basePath + '\\' + fileName), nil, SW_SHOWNORMAL);
      end;
   exit (True);
 end;
@@ -288,7 +289,7 @@ end;
 
 function getTestScriptsDir : string;
 begin
-   result := RHODUSPATH + '\TestScripts';
+   result := launchEnvironment.basePath + '\\TestScripts';
 end;
 
 
@@ -364,7 +365,7 @@ initialization
    listOfCommands.Add (TCommand.Create ('pwd',        pwdCommand));
    listOfCommands.Add (TCommand.Create ('help',       helpCommand));
    listOfCommands.Add (TCommand.Create ('cls',        clearCommand));
-   listOfCommands.Add (TCommand.Create ('rhoduspath', rhodusPathCommand));
+   listOfCommands.Add (TCommand.Create ('basepath',   basePathCommand));
    listOfCommands.Add (TCommand.Create ('samples',    samplesCommand));
    listOfCommands.Add (TCommand.Create ('cd',         cdCommand));
    listOfCommands.Add (TCommand.Create ('free',       freeCommand));

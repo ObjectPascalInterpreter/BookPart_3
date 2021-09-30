@@ -15,7 +15,7 @@ interface
 
 Uses System.SysUtils, System.Diagnostics, System.TimeSpan, uUtils,
   uMachineStack, System.generics.Collections, uListObject, uStringObject,
-  uSymbolTable, uConstantTable, uProgramCode;
+  uSymbolTable, uConstantTable, uProgramCode, uMemoryManager, uObjectSupport;
 
 const
   MAX_STACK_SIZE = 40000; // Maximum depth of operand stack
@@ -137,6 +137,7 @@ type
     procedure setColor;
     procedure assertTrue;
     procedure assertFalse;
+    procedure callHelp;
 
     procedure isGt;
     procedure isGte;
@@ -165,12 +166,14 @@ type
     procedure   push(dValue: double); overload; inline;
     procedure   push(sValue: TStringObject); overload; inline;
     procedure   push(lValue: TListObject); overload; inline;
-    procedure   push (fValue: TUserFunction); overload; inline;
+    procedure   push(fValue: TUserFunction); overload; inline;
+    procedure   push(oValue : TMethodDetails); overload;
     procedure   pushModule (module : TModule);
     procedure   pushNone;
     function    peek : PMachineStackRecord;
+    procedure   decStackTop;
     function    pop: PMachineStackRecord; inline;
-    procedure   dupStack;
+    procedure   dupStack; inline;
     procedure   swapStack;
     function    stackHasEntry : boolean;
     procedure   stopvm;
@@ -198,7 +201,6 @@ implementation
 
 Uses uOpCodes,
      Math,
-     uMemoryManager,
      uRhodusTypes,
      uVMExceptions,
      Rtti,
@@ -380,6 +382,32 @@ begin
 end;
 
 
+procedure TVM.callHelp;
+var st: PMachineStackRecord;
+begin
+  st := pop;
+  case st.stackType of
+     stInteger : push(TStringObject.Create('integer'));
+     stDouble  : push(TStringObject.Create('double'));
+     stBoolean : push(TStringObject.Create('boolean'));
+     stString  : push(TStringObject.Create('string'));
+     stList    : push(TStringObject.Create('list'));
+
+     stFunction :
+           begin
+           push(TStringObject.Create (st.fValue.helpStr));
+           end;
+     stObjectMethod :
+           begin
+           pop(); // dup object
+           push(TStringObject.Create (st.oValue.helpStr));
+           end;
+  else
+     raise ERuntimeException.Create('Unkown object type in help');
+  end;
+
+end;
+
 // ---------------------------------------------------------------------------------
 // Virtual Machine instructions
 
@@ -395,6 +423,13 @@ end;
 function TVM.peek : PMachineStackRecord;
 begin
   result := @stack[stackTop].stackType;
+end;
+
+
+// A way to pop the stack when we're not interested in the result
+procedure TVM.decStackTop;
+begin
+  dec (stackTop);
 end;
 
 
@@ -640,6 +675,17 @@ begin
 {$ENDIF}
   stack[stackTop].fValue := fValue;
   stack[stackTop].stackType := TStackType.stFunction;
+end;
+
+
+procedure TVM.push(oValue : TMethodDetails);
+begin
+  inc(stackTop);
+  {$IFDEF STACKCHECK}
+  checkStackOverflow;
+{$ENDIF}
+  stack[stackTop].oValue := oValue;
+  stack[stackTop].stackType := TStackType.stObjectMethod;
 end;
 
 
@@ -1063,6 +1109,8 @@ begin
     stList:     module.symbolTable.storeList   (symbol, value.lValue);
     stFunction: module.symbolTable.storeFunction (symbol, value.fValue);
     stModule:   module.symbolTable.storeModule (symbol, value.module);
+    stObjectMethod:
+       raise ERuntimeException.Create('You cannot store object methods: ' + value.oValue.name);
   else
     raise ERuntimeException.Create('Internal error: Unrecognized stacktype in storeSymbol: ' + TRttiEnumerationType.GetName(value.stackType));
   end;
@@ -1096,10 +1144,46 @@ end;
 
 procedure TVM.loadSecondary (symbolName : string);
 var m : TModule;
+    l : TListObject;
+    s : TStringObject;
     symbol : TSymbol;
+    primary : PMachineStackRecord;
+    f : TMethodDetails;
 begin
- m := popModule();
- if not m.symbolTable.find (symbolName, symbol) then
+  primary := pop();
+  case primary.stackType of
+     stModule : m := primary.module;
+     stList : begin
+              l := primary.lValue;
+              // Is symbol name a function name?
+              f := l.methodList.find (symbolName);
+              if f <> nil then
+                 begin
+                 push (primary);
+                 push (f);
+                 end
+              else
+                 raise ERuntimeException.Create('No method <' + symbolName + '> associated with object');
+              exit;
+              end;
+     stString : begin
+              s := primary.sValue;
+              // Is symbol name a function name?
+              f := s.methodList.find (symbolName);
+              if f <> nil then
+                 begin
+                 push (primary);
+                 push (f);
+                 end
+              else
+                 raise ERuntimeException.Create('No method <' + symbolName + '> associated with object');
+              exit;
+              end;
+  else
+     raise ERuntimeException.Create('Primary objects can only be modules, strings or lists');
+  end;
+
+  if not m.symbolTable.find (symbolName, symbol) then
      raise ERuntimeException.Create ('Undefined symbol: ' + symbolName);
 
  case symbol.symbolType of
@@ -1477,11 +1561,30 @@ var
   p: PMachineStackRecord;
   oldModule : TModule;
 begin
-  // Get the function object
-  p := @stack[stackTop-nArgs];
+  //if (stack[stackTop]).stackType = stObjectMethod then
+  //   begin
+  //   p := @stack[stackTop];
+  //   end
+  //else
+    // Get the function object
+    p := @stack[stackTop-nArgs];
   // Check first that its actually something we can call
-  if p.stackType <> stFunction then
+  if (p.stackType <> stFunction) and (p.stackType <> stObjectMethod) then
      raise ERuntimeException.Create(stToStr (p.stackType) + ' is not something that can be called as a function');
+
+  if p.stackType = stObjectMethod then
+     begin
+     if nArgs <> p.oValue.nArgs then
+        raise ERuntimeException.Create('Expecting ' + inttostr (functionObject.nArgs) + ' arguments in function call but received ' + inttostr (nArgs) + ' arguments');
+     // The order of stack entries from the top will be
+     //   Arguments
+     //   Object method
+     //   Object
+     // Its the responsibility of the object being called to remove the object method from the stack.
+     p.oValue.method(self);
+     exit;
+     end;
+
 
   functionObject := p.fValue;
   tArgs := functionObject.nArgs;
@@ -1495,7 +1598,7 @@ begin
      functionObject.builtInPtr(self);
      // At this point the stack is:
      //   functionObject
-     //   return result from buildin
+     //   return result from builtin
 
      // Bring the functionObject forward and remove it,
      // what's left is therefore the return result.
@@ -2093,6 +2196,7 @@ begin
             oSetColor:    setColor;
             oAssertTrue:  assertTrue;
             oAssertFalse: assertFalse;
+            oHelp:        callHelp;
 
             // Branch opcodes
             oJmp:        ip := ip + c[ip].index1 - 1;

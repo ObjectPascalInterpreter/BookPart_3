@@ -83,6 +83,7 @@ const
    oAssertTrue   = byte (113);  // Pop the stack and check that the operand is a boolean True, then print
    oAssertTrueEx = byte (114);  // Pop the stack and check that the operand is a boolean True
    oAssertFalse  = byte (115);  // Pop the stack and check that the operand is a boolean False
+   oHelp         = byte (116);
 
    oImportModule = byte (120);  //
 

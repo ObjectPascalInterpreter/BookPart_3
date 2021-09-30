@@ -79,7 +79,8 @@ uses
   uBuiltInFile in 'uBuiltInFile.pas',
   uProgramCode in 'uProgramCode.pas',
   uRhodusTypes in '..\VirtualMachine\uRhodusTypes.pas',
-  uEnvironment in 'uEnvironment.pas';
+  uEnvironment in 'uEnvironment.pas',
+  uObjectSupport in 'uObjectSupport.pas';
 
 var sourceCode : string;
     fragment : string;
@@ -219,6 +220,7 @@ end;
 begin
   ReportMemoryLeaksOnShutdown := True;
   setUpConsole;
+  setExtendedConsoleMode; // To get more colors
   setUpEnvironment (ParamStr (0));
 
 
@@ -228,7 +230,6 @@ begin
 
     try
       computeBaseLineMemoryAllocated;
-      SetExtendedConsoleMode; // To get more colors
       displayWelcome;
       while True do
           begin
@@ -269,7 +270,6 @@ begin
           end;
       end;
     finally
-
 
       runFramework.Free;
 

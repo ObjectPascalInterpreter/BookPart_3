@@ -25,7 +25,8 @@ Uses Generics.Collections,
      uBuiltInStr,
      uBuiltinList,
      uBuiltInTurtle,
-     uMemoryManager;
+     uMemoryManager,
+     uObjectSupport;
 
 type
   TPrintClass = class (TObject)
@@ -133,13 +134,13 @@ begin
 
   vmMemory := memAllocatedByVm;
 
-  if FileExists (launchEnvironment.executionPath + '\\startup.rh') then
+  if FileExists (launchEnvironment.moduleDir + '\\startup.rh') then
      begin
-     astr := TFile.ReadAllText('startup.rh');
+     astr := TFile.ReadAllText(launchEnvironment.moduleDir + '\\startup.rh');
      if not compileCode(astr, mainModule, False) then
         writeln ('Errors in startup script')
      else
-        compileAndRun(astr, False);
+        runCode(mainModule, False);
      end;
 end;
 
@@ -251,6 +252,7 @@ begin
                 stList    : writeln (st.lValue.listToString());
                 stModule  : writeln ('Module: ' + st.module.name + ' ' + st.module.helpStr);
                 stFunction: writeln ('Function: ' + st.fValue.moduleRef.name + '.' + st.fValue.name);
+                stObjectMethod : begin writeln ('Object: ' + st.oValue.name); vm.pop(); end;   // pop the operand
                else
                  writeln ('Unrecognized type of value returned from virtual machine');
                end;

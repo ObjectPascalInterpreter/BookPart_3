@@ -21,7 +21,7 @@ var
   rhodusConfigDir : string;
   docsDir : string;
 
-  RHODUSPATH : string;
+  //RHODUSPATH : string;
 
 implementation
 
@@ -31,54 +31,72 @@ var Ini: TIniFile;
     s1, s2 : string;
 begin
    launchEnvironment.executionPath := ExtractFilePath (appExe);
+
+   // Look for the modules directory
+   if TDirectory.Exists(launchEnvironment.executionPath + '\\Modules') then
+      launchEnvironment.moduleDir := launchEnvironment.executionPath + '\\Modules'
+   else
+      // I'm guaess this is a dev enviornment and the directory is two levels up
+      begin
+      if TDirectory.Exists('..\\..\\Modules') then
+         begin
+         s1 := TDirectory.GetParent(ExcludeTrailingPathDelimiter(launchEnvironment.executionPath));
+         s1 := TDirectory.GetParent(ExcludeTrailingPathDelimiter(s1));
+         launchEnvironment.moduleDir := s1 + '\\Modules';
+         launchEnvironment.basePath := s1;
+         end
+      else
+         launchEnvironment.moduleDir := launchEnvironment.executionPath;
+     end;
    exit;
 
 
 
-   // Look for the ini file in the launch directory first, if its not here then look for it in AppData
-   s1 := ExtractFilePath (Paramstr(0));
-   if not FileExists(s1 + '\rhodus.ini') then
-      begin
-      RHODUSPATH := s1;
-      writeln ('Setting current directory to ' + RHODUSPATH + sLineBreak);
-      SetCurrentDir(RHODUSPATH);
-      exit;
-      end
-   else
-      begin
-      homeDir := TPath.GetHomePath;
-      rhodusConfigDir := homeDir;
-      if not FileExists(rhodusConfigDir + '\rhodus\rhodus.ini') then
-         rhodusConfigDir := '.';
-      end;
 
-   // Read the ini file to get the rhoduspath
-   Ini := TIniFile.Create (rhodusConfigDir + '\rhodus\rhodus.ini');
-   try
-     RHODUSPATH := Ini.ReadString('Path', 'RHODUSPATH', '');
-     if RHODUSPATH = '' then
-        begin
-        writeln ('Failed to locate Rhodus path, defaulting to Documents');
-
-        s2 := TDirectory.GetParent(ExcludeTrailingPathDelimiter(s1));
-        s2 := TDirectory.GetParent(ExcludeTrailingPathDelimiter(s2));
-
-        RHODUSPATH := ExtractFilePath(ExtractFilePath(ParamStr(0)));
-        end
-     else
-        begin
-        if not TDirectory.Exists(RHODUSPATH) then
-           begin
-           writeln (RHODUSPATH + ' does not exist, using instead ' + docsDir + sLineBreak);
-           SetCurrentDir(docsDir);
-           RHODUSPATH := docsDir
-           end
-        else
-           SetCurrentDir(RHODUSPATH);
-        end;
-   finally
-     Ini.Free;
-   end;
+//   // Look for the ini file in the launch directory first, if its not here then look for it in AppData
+//   s1 := ExtractFilePath (Paramstr(0));
+//   if not FileExists(s1 + '\rhodus.ini') then
+//      begin
+//      RHODUSPATH := s1;
+//      writeln ('Setting current directory to ' + RHODUSPATH + sLineBreak);
+//      SetCurrentDir(RHODUSPATH);
+//      exit;
+//      end
+//   else
+//      begin
+//      homeDir := TPath.GetHomePath;
+//      rhodusConfigDir := homeDir;
+//      if not FileExists(rhodusConfigDir + '\rhodus\rhodus.ini') then
+//         rhodusConfigDir := '.';
+//      end;
+//
+//   // Read the ini file to get the rhoduspath
+//   Ini := TIniFile.Create (rhodusConfigDir + '\rhodus\rhodus.ini');
+//   try
+//     RHODUSPATH := Ini.ReadString('Path', 'RHODUSPATH', '');
+//     if RHODUSPATH = '' then
+//        begin
+//        writeln ('Failed to locate Rhodus path, defaulting to Documents');
+//
+//        s2 := TDirectory.GetParent(ExcludeTrailingPathDelimiter(s1));
+//        s2 := TDirectory.GetParent(ExcludeTrailingPathDelimiter(s2));
+//
+//        RHODUSPATH := ExtractFilePath(ExtractFilePath(ParamStr(0)));
+//        end
+//     else
+//        begin
+//        if not TDirectory.Exists(RHODUSPATH) then
+//           begin
+//           writeln (RHODUSPATH + ' does not exist, using instead ' + docsDir + sLineBreak);
+//           SetCurrentDir(docsDir);
+//           RHODUSPATH := docsDir
+//           end
+//        else
+//           SetCurrentDir(RHODUSPATH);
+//        end;
+//   finally
+//     Ini.Free;
+//   end;
 end;
 
 

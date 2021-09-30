@@ -9,15 +9,17 @@ unit uMemoryManager;
 
 interface
 
-Uses Classes, SysUtils, uRhodusTypes;
+Uses Classes, SysUtils, uRhodusTypes, uObjectSupport;
 
 type
-   // btTemporary is only used if a function is caled with a
-   // literal list, eg callme ({1,2,3})
+   // btTemporary is only used if a function is called
+   // with a literal list, eg callme ({1,2,3})
    TBlockType = (btGarbage, btBound, btOwned, btConstant, btTemporary);
    TRhodusObject = class (TObject)
       blockType : TBlockType;
       objectType : TSymbolElementType;
+      methodList : TMethodList; // Contains the methods that can be applied to the data`
+
       function isConstant : boolean;
       function isBound : boolean;
       function isOwned : boolean;
@@ -70,6 +72,8 @@ implementation
 
 Uses uStringObject, uListObject, uSymbolTable;
 
+
+// -------------------------------------------------------------------------------
 
 constructor TRhodusObject.Create;
 begin

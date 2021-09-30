@@ -11,7 +11,7 @@ unit uListObject;
 
 interface
 
-Uses System.SysUtils, uUtils, System.generics.Collections, uMemoryManager, uStringObject;
+Uses System.SysUtils, uUtils, System.generics.Collections, uObjectSupport, uMemoryManager, uStringObject;
 
 type
   TListItemType = (liInteger, liBoolean, liDouble, liString, liList, liFunction, liModule);
@@ -24,7 +24,7 @@ type
   TListObject = class(TRhodusObject)
   private
   public
-    list: TListContainer;
+    list: TListContainer;          // Contains the data
 
     class function addLists(list1, list2: TListObject): TListObject;
     class function multiply(value: integer; aList: TListObject): TListObject;
@@ -79,16 +79,231 @@ type
     destructor  Destroy; override;
   end;
 
+
 implementation
 
-Uses uVMExceptions,
+Uses Math,
+     uVMExceptions,
      uSymbolTable,
-     uRhodusTypes;
+     uRhodusTypes,
+     uMachineStack,
+     uVM;
+
+type
+  TListMethods = class (TMethodsBase)
+      procedure getLength (vm : TObject);
+      procedure append (vm : TObject);
+      procedure remove (vm : TObject);
+      procedure getSum (vm : TObject);
+      procedure insert (vm : TObject);
+      procedure removeLastElement (vm : TObject);
+      procedure getMax (vm : TObject);
+      procedure getMin (vm : TObject);
+  end;
+
+var methodListObject : TMethodList;
+    listMethods : TListMethods;
+
+// Object method for the list object type
+
+// In all these methods the order of the stack from the top is:
+//  Arguments
+//  Object Method
+//  Object
+
+procedure TListMethods.getLength (vm : TObject);
+var alist : TListObject;
+begin
+  // No arguments for this method
+  TVM (vm).decStackTop; // Dump the object method
+  alist := TVM (vm).popList;
+  TVM (vm).push (alist.list.Count);
+end;
+
+
+procedure TListMethods.append (vm : TObject);
+var s : TListObject;
+    f : TMethodDetails;
+    value : PMachineStackRecord;
+    ts : TStringObject;
+    ls : TListObject;
+    fs : TUserFunction;
+begin
+  value := TVM (vm).pop;
+  TVM (vm).decStackTop; // Dump the object method
+  s := TVM (vm).popList;
+
+   case value.stackType of
+      stInteger :    s.append (value.iValue);
+      stDouble  :    s.append (value.dValue);
+      stBoolean :    s.append (value.bValue);
+      stString  :    begin
+                     ts := value.sValue.clone;
+                     ts.blockType := btOwned;
+                     s.append (ts);
+                     end;
+      stList    :    begin
+                     ls := value.lValue.clone;
+                     ls.blockType := btOwned;
+                     s.append (ls);
+                     end;
+      stFunction:    begin
+                     fs := value.fValue.clone;
+                     fs.blockType := btOwned;
+                     s.appendUserFunction (fs);
+                     end;
+      stModule  :    raise ERuntimeException.Create('Adding modules to a list is not permitted');
+   else
+      raise ERuntimeException.Create('Internal error: unrecognized data type during list insert');
+   end;
+   TVM (vm).pushNone;
+end;
+
+
+// Remove an element from a list with a given index
+procedure TListMethods.remove (vm : TObject);
+var s : TListObject;
+    index : integer;
+begin
+  index := TVM (vm).popInteger;
+  TVM (vm).decStackTop; // Dump the object method
+  s := TVM (vm).popList;
+  s.remove (index);
+  TVM (vm).pushNone;
+end;
+
+
+procedure TListMethods.getSum (vm : TObject);
+var s : TListObject;
+    sum : double;
+begin
+   s := TVM (vm).popList;
+   sum := 0;
+   for var i := 0 to s.list.Count - 1 do
+       case s.list[i].itemType of
+          liInteger :  sum := sum + s.list[i].iValue;
+          liDouble  :  sum := sum + s.list[i].dValue;
+       else
+          raise ERuntimeException.Create('You can not sum non-numerical values in a list');
+       end;
+   TVM (vm).push(sum);
+end;
+
+
+procedure TListMethods.removeLastElement (vm : TObject);
+var s : TListObject;
+     r : TListItem;
+begin
+   s := TVM (vm).popList;
+   if s.list.count = 0 then
+      begin
+      TVM (vm).push  (s);
+      exit;
+      end;
+
+   r := s.list [s.list.Count - 1];
+   case r.itemType of
+      liInteger  : TVM (vm).push (r.iValue);
+      liDouble   : TVM (vm).push (r.dValue);
+      liBoolean  : TVM (vm).push (r.bValue);
+      liString   : TVM (vm).push (r.sValue.clone);
+      liList     : TVM (vm).push (r.lValue.clone);
+      liFunction : TVM (vm).push (TUserFunction (r.fValue));
+      liModule   : TVM (vm).pushModule (TModule (r.mValue));
+   end;
+   s.remove (s.list.Count - 1);
+   // We don't push None as with the other methods because
+   // the above pushes a value on to the return stack
+end;
+
+
+procedure TListMethods.insert (vm : TObject);
+var s : TListObject;
+    index : integer;
+    value : PMachineStackRecord;
+begin
+   index := TVM (vm).popInteger;
+   value := TVM (vm).pop;
+   s := TVM (vm).popList;
+   if (index < 0) or (index > s.list.Count) then
+      raise ERuntimeException.Create('List index out of range');
+
+   case value.stackType of
+      stInteger :    s.insert (index, value.iValue);
+      stDouble  :    s.insert (index, value.dValue);
+      stBoolean :    s.insert (index+1, value.bValue);
+      stString  :    s.insert (index+1, value.sValue);
+      stList    :    s.insert (index+1, value.lValue);
+      stFunction:    s.insertUserFunction (index+1, value.fValue);
+      stModule  :    s.insertModule (index+1, value.module)
+   else
+      raise ERuntimeException.Create('Internal error: unrecognized data type during list insert');
+   end;
+   TVM (vm).pushNone;
+end;
+
+
+procedure TListMethods.getMax (vm : TObject);
+var s : TListObject;
+    i : integer;
+    value : double;
+begin
+  value := -1E10;
+  s := TVM (vm).popList;
+  for i := 0 to s.list.Count - 1 do
+      case s.list[i].itemType of
+         liInteger:
+              begin
+              if s.list[i].iValue > value then
+                 value := s.list[i].iValue;
+              end;
+         liDouble :
+              begin
+              if s.list[i].dValue > value then
+                 value := s.list[i].dValue;
+
+              end
+      else
+        raise ERuntimeException.Create('Internal error: unrecognized data type during list insert');
+      end;
+   TVM (vm).push (double (value));
+end;
+
+
+procedure TListMethods.getMin (vm : TObject);
+var s : TListObject;
+    i : integer;
+    value : double;
+begin
+  value := 1E10;
+  s := TVM (vm).popList;
+  for i := 0 to s.list.Count - 1 do
+      case s.list[i].itemType of
+         liInteger:
+              begin
+              if s.list[i].iValue < value then
+                 value := s.list[i].iValue;
+              end;
+         liDouble :
+              begin
+              if s.list[i].dValue < value then
+                 value := s.list[i].dValue;
+              end
+      else
+        raise ERuntimeException.Create('Can only find the min value for numeric data');
+      end;
+   TVM (vm).push (double(value));
+end;
+
+
+
+// ---------------------------------------------------------------------------------------------------
 
 destructor TListContainer.Destroy;
 begin
   inherited;
 end;
+
 
 constructor TListObject.Create(count: integer);
 var
@@ -98,6 +313,8 @@ begin
 
   objectType := symList;
   list := TListContainer.Create;
+  self.methodList := methodListObject;
+  listMethods.methodList := methodList;
   for i := 0 to count - 1 do
     list.add(TListItem.Create(0));
   memoryList.addNode(self); // Add a reference to the memory manager
@@ -521,4 +738,24 @@ end;
 
 // -----------------------------------------------------------------------
 
+initialization
+  methodListObject := TMethodList.Create;
+  listMethods := TListMethods.Create;
+
+  methodListObject.Add(TMethodDetails.Create ('len',    'Return the length of a list: var.len (mylist)', 0, listMethods.getLength));
+  methodListObject.Add(TMethodDetails.Create ('append', 'Append the element to the list: var.append (a, 3.14)', 1, listMethods.append));
+  methodListObject.Add(TMethodDetails.Create ('remove', 'Remove an element from a list with given index: var.remove (mylist, 4)', 1, listMethods.remove));
+  methodListObject.Add(TMethodDetails.Create ('sum',    'Find the sum of values in a list. var.sum ({1,2,3})', 1, listMethods.getSum));
+  methodListObject.Add(TMethodDetails.Create ('pop',    'Remove the last element from a list: var.pop (list)', 1, listMethods.removeLastElement));
+  methodListObject.Add(TMethodDetails.Create ('max',    'Find the maximum value is a 1D list of values: var.max ({1,2,3})', 1, listMethods.getMin));
+  methodListObject.Add(TMethodDetails.Create ('min',    'Find the minimum value is a 1D list of values: var.min ({1,2,3})', 1, listMethods.getMin));
+
+  methodListObject.Add(TMethodDetails.Create ('dir',     'dir of string object methods', 0, listMethods.dir));
+
+finalization
+  for var i := 0 to methodListObject.Count - 1 do
+      methodListObject[i].Free;
+  methodListObject.Free;
+  listMethods.Free;
 end.
+

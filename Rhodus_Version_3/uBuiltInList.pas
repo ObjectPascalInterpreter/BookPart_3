@@ -41,17 +41,17 @@ constructor TBuiltInList.Create;
 begin
   inherited Create ('lists', 'List Module');
 
-  addMethod(getLength,         1, 'len', 'Return the length of a list: lists.len (mylist)');
-  addMethod(remove,            2, 'remove', 'Remove an element from a list with given index: lists.remove (mylist, 4)');
-  addMethod(removeLastElement, 1, 'pop', 'Remove the last element from a list: lists.pop (list)');
-  addMethod(insert,            3, 'insert', 'Insert a new element after index: lists.insert (a, 3.14, 1)');
-  addMethod(append,            2, 'append', 'Append the element to the list: lists.append (a, 3.14)');
+  //addMethod(getLength,         1, 'len', 'Return the length of a list: lists.len (mylist)');
+  //addMethod(remove,            2, 'remove', 'Remove an element from a list with given index: lists.remove (mylist, 4)');
+  //addMethod(removeLastElement, 1, 'pop', 'Remove the last element from a list: lists.pop (list)');
+  //addMethod(insert,            3, 'insert', 'Insert a new element after index: lists.insert (a, 3.14, 1)');
+  //addMethod(append,            2, 'append', 'Append the element to the list: lists.append (a, 3.14)');
   addMethod(range,             3, 'range', 'Create a list based on the range arguments: l = lists.range (0, 10, 2)');
   addMethod(getRndu,           1, 'rndu', 'Create a list if uniformly random numbers: l = lists.rndu (10)');
   addMethod(getRndi,           3, 'rndi', 'Create a list if uniformly random integer: l = lists.rndi (lower, upper, number)');
-  addMethod(getMax,            1, 'max', 'Find the maximum value is a 1D list of values: lists.max ({1,2,3})');
-  addMethod(getMin,            1, 'min', 'Find the minimum value is a 1D list of values: lists.min ({1,2,3})');
-  addMethod(getSum,            1, 'sum', 'Find the sum of values in a list. lists.sum ({1,2,3})');
+  //addMethod(getMax,            1, 'max', 'Find the maximum value is a 1D list of values: lists.max ({1,2,3})');
+  //addMethod(getMin,            1, 'min', 'Find the minimum value is a 1D list of values: lists.min ({1,2,3})');
+  //addMethod(getSum,            1, 'sum', 'Find the sum of values in a list. lists.sum ({1,2,3})');
 end;
 
 

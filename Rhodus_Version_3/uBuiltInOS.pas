@@ -21,6 +21,7 @@ type
 
      procedure   getVersion (vm : TObject);
      procedure   getPwd (vm : TObject);
+     procedure   setPwd (vm : TObject);
      constructor Create;
   end;
 
@@ -42,11 +43,11 @@ var path : TListObject;
 begin
   inherited Create ('os', 'Operating system module');
 
-  //addMethod (getpwd, 0, 'pwd', 'Return the path to the current working directory');
+  addMethod (getpwd, 0, 'getcwd', 'Return the path to the current working directory');
+  addMethod (setpwd, 1, 'setcwd', 'Sets the current wroking dirctory');
   addMethod (getversion, 0, 'version', 'Get the current version number for Rhodus');
 
   path := TListObject.Create(0);
-  path.append(TStringObject.create (GetCurrentDir));
   path.append(TStringObject.create('.'));
   path.blockType := btBound;   // To make sure the garbage collector doesn't get it.
 
@@ -59,6 +60,14 @@ begin
    TVM (vm).push(TStringObject.create (GetCurrentDir));
 end;
 
+
+procedure TBuiltInOS.setPwd (vm : TObject);
+var astr : string;
+begin
+  astr := TVM (vm).popString.value;
+  SetCurrentDir(astr);
+  TVM (vm).pushNone;
+end;
 
 procedure TBuiltInOs.getVersion (vm : TObject);
 begin

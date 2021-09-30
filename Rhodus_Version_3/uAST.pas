@@ -248,11 +248,17 @@ type
 
    TASTAssertFalse = class (TASTNode)
       expression : TASTExpression;
-      constructor create (expression : TASTExpression);
-      destructor destroy; override;
+      constructor Create (expression : TASTExpression);
+      destructor  Destroy; override;
    end;
 
    TASTAssertFalseEx = class (TASTNode)
+      expression : TASTExpression;
+      constructor Create (expression : TASTExpression);
+      destructor  Destroy; override;
+   end;
+
+   TASTHelp = class (TASTNode)
       expression : TASTExpression;
       constructor Create (expression : TASTExpression);
       destructor  Destroy; override;
@@ -853,6 +859,21 @@ begin
 end;
 
 
+constructor TASTHelp.Create (expression : TASTExpression);
+begin
+  inherited Create (ntHelp);
+  self.expression := expression;
+end;
+
+
+destructor TASTHelp.Destroy;
+begin
+  if freeChildren then
+     expression.freeAST;
+  inherited;
+end;
+
+
 constructor TASTUserFunction.Create (moduleName, functionName : string; argumentList : TASTNodeList; body : TASTStatementList);
 begin
   inherited Create (ntFunction);
@@ -1030,6 +1051,8 @@ begin
         (node as TASTAssertFalse).free;
     ntAssertFalseEx:
         (node as TASTAssertFalseEx).free;
+    ntHelp:
+        (node as TASTHelp).free;
     ntSwitch:
         (node as TASTSwitch).free;
     ntListOfCaseStatements:
@@ -1237,6 +1260,7 @@ begin
          begin
          result := result + print ((node as TASTAssertFalse).expression, prefix + '|  ');
          end
+
       else
           begin  end;
   end;

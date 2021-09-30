@@ -9,22 +9,24 @@ unit uMachineStack;
 
 interface
 
-Uses Classes, SysUtils, uListObject, uStringObject, uSymbolTable;
+Uses Classes, SysUtils, uListObject, uStringObject, uSymbolTable, uMemoryManager, uObjectSupport;
 
 type
-  TStackType = (stNone, stInteger, stDouble, stBoolean, stString, stSymbol, stLocalSymbol, stList, stModule, stFunction, stObject);
+  TStackType = (stNone, stInteger, stDouble, stBoolean, stString, stSymbol,
+                stLocalSymbol, stList, stModule, stFunction, stObjectMethod);
   TMachineStackRecord = record
      stackType : TStackType;  // 1 byte
      module : TModule;
      symbol : TSymbol;
      symbolIndex : integer;
      case TStackType of       // Max 8 bytes
-       stInteger  : (iValue : integer);
-       stBoolean  : (bValue : boolean);
-       stDouble   : (dValue : double);
-       stString   : (sValue : TStringObject);
-       stList     : (lValue : TListObject);
-       stFunction : (fValue : TUserFunction);
+       stInteger     : (iValue : integer);
+       stBoolean     : (bValue : boolean);
+       stDouble      : (dValue : double);
+       stString      : (sValue : TStringObject);
+       stList        : (lValue : TListObject);
+       stFunction    : (fValue : TUserFunction);
+       stObjectMethod: (oValue : TMethodDetails);
      end;
 
   PMachineStackRecord = ^TMachineStackRecord;
@@ -49,6 +51,7 @@ begin
      stFunction : result := 'function';
      stSymbol   : result := 'symbol';
      stLocalSymbol : result := 'localSymbol';
+     stObjectMethod : result := 'objectMethod';
   end;
 
 end;

@@ -5,6 +5,8 @@ interface
 type
   TLaunchEnviornment = record
      executionPath : string;
+     moduleDir : string;
+     basePath : string;
   end;
 
 var

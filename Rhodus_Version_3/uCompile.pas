@@ -59,6 +59,7 @@ type
     procedure compilePrintStatement(node: TASTNode);
     procedure compileSetColor (node : TASTNode);
     procedure compileAssert(node: TASTNode);
+    procedure compileHelp (node: TASTNode);
     procedure compileSwitchStatement(node: TASTSwitch);
     procedure compileImportStmt(node: TASTImport);
 
@@ -798,6 +799,13 @@ begin
 end;
 
 
+procedure TCompiler.compileHelp (node: TASTNode);
+begin
+  compileCode((node as TASTHelp).expression);
+  code.addByteCode(oHelp);
+end;
+
+
 procedure TCompiler.compileSwitchStatement(node: TASTSwitch);
 var
   listOfCaseStatements: TASTListOfCaseStatements;
@@ -982,6 +990,8 @@ begin
       compileSetColor (node);
     ntAssertTrue, ntAssertFalse:
       compileAssert(node);
+    ntHelp :
+       compileHelp (node);
 
     ntAdd:
       compileBinOperator(node as TASTBinOp, oAdd);

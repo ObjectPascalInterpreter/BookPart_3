@@ -92,7 +92,7 @@ begin
   addMethod (listSymbols,    1, 'symbols',       'Returns list of symbols in the specified module: symbols(math). Use ' + TSymbol.mainModuleId + ' to get the symbols for the main module');
   addMethod (getType,        1, 'type',          'Returns the type of a given variable: type (x)');
   addMethod (getAttr,        2, 'getAttr',       'Returns the value attached to the symbol attribute: getAttr (mylib, "x")');
-  addMethod (myHelp,         1, 'help',          'Get help on an object');
+  //addMethod (myHelp,         1, 'help',          'Get help on an object');
   addMethod (listModules,    0, 'modules',       'Get a list of all currently loaded mdules');
   addMethod (getMemoryUsed,  0, 'mem',           'Get the amount of memory currently in use.');
   addMethod (myAssertTrueEx, 1, 'assertTrueEx',  'Assert argument is true, return . of F');

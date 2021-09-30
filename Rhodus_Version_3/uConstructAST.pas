@@ -53,7 +53,7 @@ type
     function parseFunctionCall: TASTNodeList;
 
     function parseAtom (moduleName, identifier: string): TASTNode;
-    function parsePrimary: TASTNode;
+    function parseSecondary: TASTNode;
 
     function factor: TASTNode;
     function power: TASTNode;
@@ -85,6 +85,7 @@ type
     function AssertTrueStatement: TASTNode;
     function AssertTrueExStatement: TASTNode;
     function AssertFalseStatement: TASTNode;
+    function helpStatement: TASTNode;
   public
     function parseModule(moduleName: string; var astRoot: TASTNode): TModule;
     function parseProgram: TASTNode;
@@ -306,7 +307,7 @@ begin
 end;
 
 
-function TConstructAST.parsePrimary: TASTNode;
+function TConstructAST.parseSecondary: TASTNode;
 var
   identifier: string;
   argumentList: TASTNodeList;
@@ -423,7 +424,6 @@ begin
            sc.pushBackToken(token);
 
            // Now we're ready to parse the fragment .int
-           //primary := parsePrimary() as TASTPeriod;
            // Finally make sure the primary name is globalSpace
            identifier := TSymbol.globalId;
            end
@@ -450,7 +450,7 @@ begin
            end;
         primary := TASTPrimary.Create (identifier);
         while sc.token in [tLeftBracket, tLeftParenthesis, tPeriod] do
-              (primary as TASTPrimary).nodes.add (parsePrimary());
+              (primary as TASTPrimary).nodes.add (parseSecondary());
 
         result := primary;
       end;
@@ -756,6 +756,8 @@ begin
       result := AssertTrueStatement;
     tAssertFalse:
       result := AssertFalseStatement;
+    thelp:
+      result := helpStatement;
     tEnd:
       exit;
     tUntil:
@@ -949,6 +951,27 @@ begin
 end;
 
 
+function TConstructAST.helpStatement: TASTNode;
+var node : TASTNode;
+begin
+  result := nil;
+  sc.nextToken;
+  if sc.token = tLeftParenthesis then
+     begin
+     sc.nextToken;
+     result := expression;
+     if result.nodeType = ntError then
+        exit (result);
+
+     node := expect(tRightParenthesis);
+     if node <> nil then
+        begin
+        result.freeAST;
+        exit (node);
+        end;
+     result := TASTHelp.Create(TASTExpression.Create(result));
+     end;
+end;
 // exprStatement = expression '=' expression
 // There are however some restrictions on the left-hand expression
 

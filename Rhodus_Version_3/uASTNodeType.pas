@@ -54,7 +54,8 @@ type
       ntAssertTrueEx,
       ntAssertFalse,
       ntAssertFalseEx,
-      ntSwitch,           // 41
+      ntHelp,
+      ntSwitch,           // 42
       ntListOfCaseStatements,
       ntCaseStatement,
       ntIf,
@@ -63,8 +64,8 @@ type
       ntFor,
       ntIter,
       ntTo,
-      ntDownTo,         // 50
-      ntFunction,       // 51
+      ntDownTo,         // 51
+      ntFunction,       // 52
       ntFunctionArguments,
       ntReturn,
       ntAssignment,

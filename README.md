@@ -1,6 +1,10 @@
 # BookPart 3
 
-This repo holds source code for part III of the book series on building an interpreter using Object Pascal (https://www.objectpascalinterpreter.com). the code is now fairly stable but I will continue to tidy up the code and possibly add one or two additional features. The major outward change in this version includes library support, and a range of small builtin libraries such as math (these will be expanded). The biggest internal change is to separate code generation from syntax analysis in the form of an abstract syntax tree. User functions are also now first-class entities which can be passed around like any other variable. A lot of work has been done on ensure that garbage collection doesn't leak memory. 
+Update (10/2/2021): The 3.0.1.0 update represents a major rewrite of the AST/compiler and parts of the parser. It now supports a simple object model on strings and lists as well as revising the grammar to take care of the new module syntax. I will also split the parsing into two parts to make it easer to handle memory managements during compile errors. All samples and tests have been updated to the new object syntax.  
+
+This repo holds source code for part III of the book series on building an interpreter using Object Pascal (https://www.objectpascalinterpreter.com). the code is now fairly stable but I will continue to tidy up the code and possibly add one or two additional features.
+
+The major outward change in this version includes library support, and a range of small builtin libraries such as math (these will be expanded). The biggest internal change is to separate code generation from syntax analysis in the form of an abstract syntax tree. User functions are also now first-class entities which can be passed around like any other variable. A lot of work has been done on ensure that garbage collection doesn't leak memory. 
 
 <img src="/Images/demo1.gif" width="609" height="345"/>
 
@@ -50,7 +54,7 @@ Example code:
 
     // Driver code to test above   
     numbers = {12, 7, 13, 5, 6}
-    QSort(numbers, 0, lists.len (numbers) - 1) 
+    QSort(numbers, 0, numbers.len () - 1) 
     res = assertTrueEx (numbers == {5, 6, 7, 12, 13}
     if res == "." then
        println("----PASS----")
@@ -60,7 +64,7 @@ Example code:
 
     // Bigger example
     numbers = random.randlist (100, 100)
-    size = lists.len (numbers)
+    size = numbers.len ()
     QSort(numbers, 0, size-1)
     println ("Larger example: ", numbers)
 
@@ -126,7 +130,7 @@ Printing out all the colors:
           "SlateGray",      "WhiteSmoke",      "Silver",        "DimGray",         "MistyRose",            "DarkSlateBlue",   "DarkSlategray", "Gainsboro",
           "DarkGray",       "Black"}   
 
-        l = lists.len (colors)
+        l = colors.len ()
         for i = 1 to l do
             setColor (colors[i-1])
             print ("Color Test  ");

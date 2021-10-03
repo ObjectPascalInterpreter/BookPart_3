@@ -265,8 +265,11 @@ begin
                    end;
                end;
             if runFramework.compileCode (sourceCode, mainModule, True) then
-            //runFramework.showByteCode(mainModule);
-            runFrameWork.runCode (mainModule, True);
+               begin
+               if TRunFramework.showByteCode then
+                  runFramework.showByteCodeMethod (mainModule);
+               runFrameWork.runCode (mainModule, True);
+               end;
 
             //if runFramework.compileCode (sourceCode, mainModule, True) then
             //   runFrameWork.runCode (mainModule, True);

@@ -180,6 +180,7 @@ type
     procedure   importModule (moduleName : string);
 
     function    popInteger: integer; inline;
+    function    popBoolean: boolean;
     function    popScalar: double;
     function    popString : TStringObject;
     function    popList : TListObject;
@@ -497,6 +498,23 @@ begin
   end
   else
     raise ERuntimeException.Create ('Stack underflow error in popInteger');
+end;
+
+
+function TVM.popBoolean: boolean;
+var
+  p: PMachineStackRecord;
+begin
+  if stackTop > -1 then
+  begin
+    p := @stack[stackTop];
+    dec(stackTop);
+    if p.stackType <> stBoolean then
+      raise ERuntimeException.Create ('Expecting boolean type');
+    result := p.bValue;
+  end
+  else
+    raise ERuntimeException.Create ('Stack underflow error in popBoolean');
 end;
 
 

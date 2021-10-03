@@ -46,12 +46,13 @@ type
       vm : TVM;
       showAssembler : boolean;
       printObj : TPrintClass;
+      class var showByteCode : boolean;
 
       function  getVersion : string;
       function  compileCode (const src : string;  var module : TModuleLib; interactive : boolean) : boolean;
       procedure compileAndRun (const src : string; interactive : boolean);
       procedure getAllocatedSymbols (argument : string);
-      procedure showByteCode (module : TModule);
+      procedure showByteCodeMethod (module : TModule);
       procedure runCode (module : TModule; interactive : boolean);
 
       constructor Create;
@@ -228,7 +229,7 @@ begin
 end;
 
 
-procedure TRunFramework.showByteCode (module : TModule);
+procedure TRunFramework.showByteCodeMethod (module : TModule);
 var key : string;
 begin
   for key in mainModule.symbolTable.keys do
@@ -325,7 +326,9 @@ begin
         vm.registerSetColorcallBack (printObj.setColor);
 
         try
-          //showByteCode(mainModule);
+          if TRunFramework.showByteCode then
+             showByteCodeMethod(mainModule);
+
           vm.runModule (mainModule);
 
           while vm.stackHasEntry do

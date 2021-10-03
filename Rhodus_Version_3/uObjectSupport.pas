@@ -21,17 +21,24 @@ type
 
    // TMethodBase is the parent of the object that will hold the
    // methods that are applicable to the object its attached to.
-   // methodlist is a reference to the list oif method so that
+   // methodlist is a reference to the list of methods so that
    // we can implement dir(). Note, don't free this reference here
-   // as it doesn't belong to TMethodBase.
+   // as TMethodBase doesn't own it.
    TMethodsBase = class (TObject)
      methodList : TMethodList;
      procedure   dir (vm : TObject);
+     constructor Create;
    end;
 
 implementation
 
 Uses uListObject, uStringObject, uVM;
+
+constructor TMethodsBase.Create;
+begin
+  inherited Create;
+end;
+
 
 procedure TMethodsBase.dir(vm: TObject);
 var ls : TListObject;
@@ -46,6 +53,7 @@ begin
   TVM (vm).pop(); // Dump the object
   TVM (vm).push (ls);
 end;
+
 
 // This could be replaced at some point with a dictionary
 function TMethodList.find (const name : string) : TMethodDetails;

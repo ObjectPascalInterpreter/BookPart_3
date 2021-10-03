@@ -17,6 +17,19 @@ type
   TListItemType = (liInteger, liBoolean, liDouble, liString, liList, liFunction, liModule);
   TListItem = class;
 
+  TListMethods = class (TMethodsBase)
+      procedure getLength (vm : TObject);
+      procedure append (vm : TObject);
+      procedure remove (vm : TObject);
+      procedure getSum (vm : TObject);
+      procedure insert (vm : TObject);
+      procedure removeLastElement (vm : TObject);
+      procedure getMax (vm : TObject);
+      procedure getMin (vm : TObject);
+      constructor Create;
+      destructor  Destroy; override;
+  end;
+
   TListContainer = class(TList<TListItem>)
     destructor destroy; override;
   end;
@@ -25,6 +38,7 @@ type
   private
   public
     list: TListContainer;          // Contains the data
+    listMethods : TListMethods;
 
     class function addLists(list1, list2: TListObject): TListObject;
     class function multiply(value: integer; aList: TListObject): TListObject;
@@ -89,20 +103,34 @@ Uses Math,
      uMachineStack,
      uVM;
 
-type
-  TListMethods = class (TMethodsBase)
-      procedure getLength (vm : TObject);
-      procedure append (vm : TObject);
-      procedure remove (vm : TObject);
-      procedure getSum (vm : TObject);
-      procedure insert (vm : TObject);
-      procedure removeLastElement (vm : TObject);
-      procedure getMax (vm : TObject);
-      procedure getMin (vm : TObject);
-  end;
 
-var methodListObject : TMethodList;
-    listMethods : TListMethods;
+var globalListMethods : TListMethods;
+
+
+constructor TListMethods.Create;
+begin
+  methodList := TMethodList.Create;
+
+  methodList.Add(TMethodDetails.Create ('len',    'Return the length of a list: var.len (mylist)', 0, getLength));
+  methodList.Add(TMethodDetails.Create ('append', 'Append the element to the list: var.append (a, 3.14)', 1, append));
+  methodList.Add(TMethodDetails.Create ('remove', 'Remove an element from a list with given index: var.remove (mylist, 4)', 1, remove));
+  methodList.Add(TMethodDetails.Create ('sum',    'Find the sum of values in a list. var.sum ()', 0, getSum));
+  methodList.Add(TMethodDetails.Create ('pop',    'Remove the last element from a list: var.pop (list)', 1, removeLastElement));
+  methodList.Add(TMethodDetails.Create ('max',    'Find the maximum value is a 1D list of values: var.max ({1,2,3})', 1, getMin));
+  methodList.Add(TMethodDetails.Create ('min',    'Find the minimum value is a 1D list of values: var.min ({1,2,3})', 1, getMin));
+
+  methodList.Add(TMethodDetails.Create ('dir',     'dir of string object methods', 0, dir));
+end;
+
+
+destructor TListMethods.Destroy;
+begin
+  for var i := 0 to methodList.Count - 1 do
+      methodList[i].Free;
+  methodlist.Free;
+  inherited;
+end;
+
 
 // Object method for the list object type
 
@@ -315,8 +343,7 @@ begin
 
   objectType := symList;
   list := TListContainer.Create;
-  self.methodList := methodListObject;
-  listMethods.methodList := methodList;
+  listMethods := globalListMethods;
   for i := 0 to count - 1 do
     list.add(TListItem.Create(0));
   memoryList.addNode(self); // Add a reference to the memory manager
@@ -741,23 +768,8 @@ end;
 // -----------------------------------------------------------------------
 
 initialization
-  methodListObject := TMethodList.Create;
-  listMethods := TListMethods.Create;
-
-  methodListObject.Add(TMethodDetails.Create ('len',    'Return the length of a list: var.len (mylist)', 0, listMethods.getLength));
-  methodListObject.Add(TMethodDetails.Create ('append', 'Append the element to the list: var.append (a, 3.14)', 1, listMethods.append));
-  methodListObject.Add(TMethodDetails.Create ('remove', 'Remove an element from a list with given index: var.remove (mylist, 4)', 1, listMethods.remove));
-  methodListObject.Add(TMethodDetails.Create ('sum',    'Find the sum of values in a list. var.sum ()', 0, listMethods.getSum));
-  methodListObject.Add(TMethodDetails.Create ('pop',    'Remove the last element from a list: var.pop (list)', 1, listMethods.removeLastElement));
-  methodListObject.Add(TMethodDetails.Create ('max',    'Find the maximum value is a 1D list of values: var.max ({1,2,3})', 1, listMethods.getMin));
-  methodListObject.Add(TMethodDetails.Create ('min',    'Find the minimum value is a 1D list of values: var.min ({1,2,3})', 1, listMethods.getMin));
-
-  methodListObject.Add(TMethodDetails.Create ('dir',     'dir of string object methods', 0, listMethods.dir));
-
+   globalListMethods := TListMethods.Create;
 finalization
-  for var i := 0 to methodListObject.Count - 1 do
-      methodListObject[i].Free;
-  methodListObject.Free;
-  listMethods.Free;
+  globalListMethods.Free;
 end.
 

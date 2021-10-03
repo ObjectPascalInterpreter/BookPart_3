@@ -87,21 +87,6 @@ type
       destructor  Destroy; override;
    end;
 
-
-    // A primary is the first identifier in a symbol, eg a, a.b, a[1], a(), a[1](), a.b()[6], etc.,
-   TASTPrimaryOld = class (TASTNode)
-     private
-       function getNode (index : integer) : TASTNode;
-       function getCount: integer;
-     public
-      primaryName :string;
-      nodes : TChildNodes;
-      property Item[index : integer] : TASTNode read getNode; default;
-      property Count : integer read getCount;
-      constructor Create (primaryName : string);
-      destructor  Destroy; override;
-   end;
-
    TASTPeriod = class (TASTNode)
       name : string;
       constructor Create (name :string);
@@ -185,13 +170,6 @@ type
    end;
 
    TASTAssignment = class (TASTNode)
-      leftSide : TASTPrimaryOld;
-      rightSide : TASTNode;
-      constructor Create (leftSide : TASTPrimaryOld; rightSide : TASTNode);
-      destructor  Destroy; override;
-   end;
-
-   TASTAssignment2 = class (TASTNode)
       leftSide : TASTPrimary;
       rightSide : TASTNode;
       constructor Create (leftSide : TASTPrimary; rightSide : TASTNode);
@@ -409,37 +387,6 @@ begin
   self.errorMsg := errMsg;
   self.lineNumber := lineNumber;
   self.columnNumber := columnNumber;
-end;
-
-
-constructor TASTPrimaryOld.Create (primaryName :string);
-begin
-  inherited Create (ntPrimaryOld);
-  self.primaryName := primaryName;
-  self.nodes := TChildNodes.Create;
-end;
-
-
-destructor TASTPrimaryOld.Destroy;
-var i : integer;
-begin
-  if freeChildren then
-     begin
-     for i := 0 to nodes.Count - 1 do
-         nodes[i].freeAST;
-     end;
-  nodes.Free;
-  inherited;
-end;
-
-
-function TASTPrimaryOld.getNode (index : integer) : TASTNode;
-begin
-end;
-
-
-function TASTPrimaryOld.getCount: integer;
-begin
 end;
 
 
@@ -724,7 +671,8 @@ begin
 end;
 
 
-constructor TASTAssignment.Create (leftSide : TASTPrimaryOld; rightSide : TASTNode);
+
+constructor TASTAssignment.Create (leftSide : TASTPrimary; rightSide : TASTNode);
 begin
   inherited Create (ntAssignment);
   self.leftSide := leftSide;
@@ -733,26 +681,6 @@ end;
 
 
 destructor TASTAssignment.destroy;
-begin
-  if freeChildren then
-     begin
-     leftSide.freeAST;
-     rightSide.freeAST;
-     end;
-  inherited;
-end;
-
-
-
-constructor TASTAssignment2.Create (leftSide : TASTPrimary; rightSide : TASTNode);
-begin
-  inherited Create (ntAssignment);
-  self.leftSide := leftSide;
-  self.rightSide := rightSide;
-end;
-
-
-destructor TASTAssignment2.destroy;
 begin
   if freeChildren then
      begin
@@ -1223,8 +1151,6 @@ begin
         (node as TASTExpression).free;
     ntExpressionStatement:
         (node as TASTExpressionStatement).free;
-    ntPrimaryOld:
-        (node as TASTPrimaryOld).free;
     ntPrimary:
         (node as TASTPrimary).free;
     ntPrimaryPeriod:
@@ -1282,7 +1208,7 @@ begin
     ntReturn:
       (node as TASTReturn).free;
     ntAssignment:
-      (node as TASTAssignment2).free;
+      (node as TASTAssignment).free;
     ntBreak:
       node.free;
     ntFunctionCall:
@@ -1318,7 +1244,6 @@ begin
      ntFloat   : result := floattostr ((node as TASTFloat).dValue);
      ntString  : result := '"' + (node as TASTString).sValue + '"';
      ntFunctionCall : result := 'function Call';// + (node as TASTFunctionCall).symbolName;
-     ntPrimaryOld : result := 'symbol: ' + (node as TASTPrimaryOld).primaryName;
      ntIdentifier : result := 'symbol: ' + (node as TASTIdentifier).symbolName;
      ntImportStmt : result := 'import: ' + (node as TASTImport).importName;
      ntNull : result := 'null';
@@ -1349,13 +1274,8 @@ begin
            end;
        ntAssignment :
            begin
-           result := result + print ((node as TASTAssignment2).leftSide, prefix + '|  ');
-           result := result + print ((node as TASTAssignment2).rightSide, prefix + '|  ');
-           end;
-       ntPrimaryOld :
-           begin
-           for i := 0 to (node as TASTPrimaryOld).nodes.Count - 1 do
-               result := result + print ((node as TASTPrimaryOld).nodes[i], prefix + '  ');
+           result := result + print ((node as TASTAssignment).leftSide, prefix + '|  ');
+           result := result + print ((node as TASTAssignment).rightSide, prefix + '|  ');
            end;
        ntPrimary :
            begin

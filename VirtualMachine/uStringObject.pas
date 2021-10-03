@@ -12,9 +12,24 @@ interface
 uses Classes, uMemoryManager, uObjectSupport;
 
 type
+  TStringMethods = class (TMethodsBase)
+     procedure   getLength (vm : TObject);
+     procedure   find (vm : TObject);
+     procedure   toUpper (vm : TObject);
+     procedure   toLower (vm : TObject);
+     procedure   left (vm : TObject);
+     procedure   right (vm : TObject);
+     procedure   trim (vm : TObject);
+     procedure   mid (vm : TObject);
+     procedure   split (vm :TObject);
+     constructor Create;
+     destructor  Destroy; override;
+  end;
+
   TStringObject = class (TRhodusObject)
 
      value : string;
+     stringMethods : TStringMethods;
 
      function        isEqualTo (str1 : TStringObject) : boolean;
      class function  add (str1, str2 : TStringObject) : TStringObject;
@@ -29,25 +44,43 @@ implementation
 
 Uses SysUtils,
      StrUtils,
+     Generics.Collections,
      System.Character,
-     uRhodusTypes, uVM, uMachineStack, uListObject, uVMExceptions;
+     uRhodusTypes,
+     uVM,
+     uMachineStack,
+     uListObject,
+     uVMExceptions;
 
-type
-  TStringMethods = class (TMethodsBase)
-     procedure   getLength (vm : TObject);
-     procedure   find (vm : TObject);
-     procedure   toUpper (vm : TObject);
-     procedure   toLower (vm : TObject);
-     procedure   left (vm : TObject);
-     procedure   right (vm : TObject);
-     procedure   trim (vm : TObject);
-     procedure   mid (vm : TObject);
-     procedure   split (vm :TObject);
-  end;
+var globalStringMethods : TStringMethods;
+
+constructor TStringMethods.Create;
+begin
+  methodList := TMethodList.Create;
+
+  methodList.Add(TMethodDetails.Create ('len',     'Return the length of a string', 0, getLength));
+  methodList.Add(TMethodDetails.Create ('find',    'Finds a substring in string. Returns -1 if it fails: var.find ("CD")', 1, find));
+  methodList.Add(TMethodDetails.Create ('toUpper', 'Converts all letters in the string to uppoer case: var.toUpper ()', 0, toUpper));
+  methodList.Add(TMethodDetails.Create ('toLower', 'Converts all letters in the string to lower case: var.toUpper ()', 0, toLower));
+  methodList.Add(TMethodDetails.Create ('left',    'Returns the left n chars of a string. var.left (5)', 1, left));
+  methodList.Add(TMethodDetails.Create ('right',   'Returns the right n chars of a string. var.right (5)', 1, right));
+  methodList.Add(TMethodDetails.Create ('mid',     'Returns a substring of string from start to count characters: var.mid (2, 4)', 2, mid));
+  methodList.Add(TMethodDetails.Create ('trim',    'Removes any spaces from the start and endof the string: var.trim ()', 0, trim));
+  methodList.Add(TMethodDetails.Create ('split',   'Splits at a given character into a list of strings: var.split (",")', 1, split));
+
+  methodList.Add(TMethodDetails.Create ('dir',     'dir of string object methods', 0, dir));
+end;
 
 
-var methodListObject : TMethodList;
-    stringMethods : TStringMethods;
+destructor TStringMethods.Destroy;
+begin
+  for var i := 0 to methodList.Count - 1 do
+      methodList[i].Free;
+  methodlist.Free;
+  inherited;
+end;
+
+
 
 procedure TStringMethods.getLength (vm : TObject);
 var s : TStringObject;
@@ -215,8 +248,7 @@ constructor TStringObject.createConstantObj (value : string);
 begin
   blockType := btConstant;
   self.value := value;
-  methodList := methodListObject;
-  stringMethods.methodList := methodList;
+  stringMethods := globalStringMethods;
 end;
 
 
@@ -225,8 +257,7 @@ begin
   blockType := btGarbage;
   objectType := symString;
   self.value := value;
-  methodList := methodListObject;
-  stringMethods.methodList := methodList;
+  stringMethods := globalStringMethods;
   memoryList.addNode (self);
 end;
 
@@ -266,26 +297,9 @@ end;
 // -----------------------------------------------------------------------
 
 initialization
-  methodListObject := TMethodList.Create;
-  stringMethods := TStringMethods.Create;
-
-  methodListObject.Add(TMethodDetails.Create ('len',     'Return the length of a string', 0, stringMethods.getLength));
-  methodListObject.Add(TMethodDetails.Create ('find',    'Finds a substring in string. Returns -1 if it fails: var.find ("CD")', 1, stringMethods.find));
-  methodListObject.Add(TMethodDetails.Create ('toUpper', 'Converts all letters in the string to uppoer case: var.toUpper ()', 0, stringMethods.toUpper));
-  methodListObject.Add(TMethodDetails.Create ('toLower', 'Converts all letters in the string to lower case: var.toUpper ()', 0, stringMethods.toLower));
-  methodListObject.Add(TMethodDetails.Create ('left',    'Returns the left n chars of a string. var.left (5)', 1, stringMethods.left));
-  methodListObject.Add(TMethodDetails.Create ('right',   'Returns the right n chars of a string. var.right (5)', 1, stringMethods.right));
-  methodListObject.Add(TMethodDetails.Create ('mid',     'Returns a substring of string from start to count characters: var.mid (2, 4)', 2, stringMethods.mid));
-  methodListObject.Add(TMethodDetails.Create ('trim',    'Removes any spaces from the start and endof the string: var.trim ()', 0, stringMethods.trim));
-  methodListObject.Add(TMethodDetails.Create ('split',   'Splits at a given character into a list of strings: var.split (",")', 1, stringMethods.split));
-
-  methodListObject.Add(TMethodDetails.Create ('dir',     'dir of string object methods', 0, stringMethods.dir));
-
+   globalStringMethods := TStringMethods.Create;
 finalization
-  for var i := 0 to methodListObject.Count - 1 do
-      methodListObject[i].Free;
-  methodListObject.Free;
-  stringMethods.Free;
+  globalStringMethods.Free;
 end.
 
 

@@ -53,14 +53,14 @@ type
     function parseIndexedVariable2 : TASTNode;
     function parseFunctionCall: TASTNode;
 
-    function parseAtom (moduleName, identifier: string): TASTNode;
-    function parseSecondary: TASTNode;
+   // function parseAtom (moduleName, identifier: string): TASTNode;
+    //function parseSecondary: TASTNode;
 
     function primary : TASTNode;
     function factor2 : TASTNode;
     function primaryPlus : TASTNode;
 
-    function factor: TASTNode;
+    //function factor: TASTNode;
     function power: TASTNode;
     function term: TASTNode;
     function simpleExpression: TASTNode;
@@ -338,67 +338,54 @@ begin
 end;
 
 
-function TConstructAST.parseAtom(moduleName, identifier: string): TASTNode;
-begin
-  if inUserFunctionParsing then
-     begin
-     if globalVariableList.IndexOf(identifier) <> -1 then
-       result := TASTPrimaryOld.Create(identifier)
-     else
-       result := TASTPrimaryOld.Create(identifier);
-     end
-  else
-    result := TASTPrimaryOld.Create(identifier)
-end;
 
-
-function TConstructAST.parseSecondary: TASTNode;
-var
-  identifier: string;
-  argumentList: TASTNodeList;
-  m: TASTSubscript;
-  node: TASTPrimaryOld;
-  nodeList : TASTNode;
-begin
-  case sc.token of
-    tIdentifier:
-        begin
-        node := TASTPrimaryOld.Create(sc.tokenString);
-        sc.nextToken;
-        result := node;
-        end;
-    tPeriod:
-        begin
-        sc.nextToken;
-        if sc.token <> tIdentifier then
-          begin
-          result := TASTErrorNode.Create ('Expecting identifier after period', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
-          exit;
-          end;
-        result := TASTPeriod.Create (sc.tokenString);
-        sc.nextToken;
-        end;
-    tLeftBracket: // '[' expression list ']'
-        begin
-        nodeList := parseIndexedVariable();
-        if nodeList.nodeType = ntError then
-           exit (nodeList);
-
-        m := TASTSubscript.Create(nodeList as TASTNodeList);
-        result := m;
-        end;
-    tLeftParenthesis: // '(' argument list ')'
-        begin
-        argumentList := parseFunctionCall as TASTNodeList;
-        if argumentList.nodeType = ntError then
-           exit (argumentList);
-
-        result := TASTFunctionCall.Create(argumentList);
-        end
-  else
-    result := TASTErrorNode.Create ('Expecting identifer, period, left bracket or left parentheses', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
-  end;
-end;
+//function TConstructAST.parseSecondary: TASTNode;
+//var
+//  identifier: string;
+//  argumentList: TASTNodeList;
+//  m: TASTSubscript;
+//  node: TASTPrimaryOld;
+//  nodeList : TASTNode;
+//begin
+//  case sc.token of
+//    tIdentifier:
+//        begin
+//        node := TASTPrimaryOld.Create(sc.tokenString);
+//        sc.nextToken;
+//        result := node;
+//        end;
+//    tPeriod:
+//        begin
+//        sc.nextToken;
+//        if sc.token <> tIdentifier then
+//          begin
+//          result := TASTErrorNode.Create ('Expecting identifier after period', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+//          exit;
+//          end;
+//        result := TASTPeriod.Create (sc.tokenString);
+//        sc.nextToken;
+//        end;
+//    tLeftBracket: // '[' expression list ']'
+//        begin
+//        nodeList := parseIndexedVariable();
+//        if nodeList.nodeType = ntError then
+//           exit (nodeList);
+//
+//        m := TASTSubscript.Create(nodeList as TASTNodeList);
+//        result := m;
+//        end;
+//    tLeftParenthesis: // '(' argument list ')'
+//        begin
+//        argumentList := parseFunctionCall as TASTNodeList;
+//        if argumentList.nodeType = ntError then
+//           exit (argumentList);
+//
+//        result := TASTFunctionCall.Create(argumentList);
+//        end
+//  else
+//    result := TASTErrorNode.Create ('Expecting identifer, period, left bracket or left parentheses', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+//  end;
+//end;
 
 // primary => factor primaryPlus
 function TConstructAST.primary : TASTNode;
@@ -545,182 +532,182 @@ begin
 end;
 
 
-// factor = integer | float | '(' expression ')' | etc
-function TConstructAST.factor: TASTNode;
-var
-  alist: TASTNodeList;
-  identifier: string;
-  root, node : TASTNode;
-  primary: TASTNode;
-  token: TTokenRecord;
-  symbol: TSymbol;
-  action : boolean;
-  i : integer;
-  errMsg, astr : string;
-begin
-  case sc.token of
-    tInteger:
-      begin
-        result := TASTInteger.Create(sc.tokenInteger);
-        sc.nextToken;
-      end;
-
-    tFloat:
-      begin
-        result := TASTFloat.Create(sc.tokenFloat);
-        sc.nextToken;
-      end;
-
-    // variable = simpleVariable | indexVariable
-    // simpleVariable = identifer | module '.' identifier
-    // :=   identifier
-    // | '[' expressionlist ']'
-    // | '(' argumentList ')'
-    // | '.' identifier
-
-    // This code can deal with things: abc.x()[1], or abc(func())[1]()[4,3], etc
-    // This is the start of the primary symbol
-    tIdentifier:
-      begin
-        identifier := sc.tokenString;
-        // Accepts:
-        //  a
-        // main().a
-        // int()
-        // globalSpace.int()
-        // anything that could start with an identifier
-
-        // This is a hack to allow users to type int (4.5) rather than the full qualifier globalSpace.int (4.5)
-        // We do it by faking globalSpace.int in the scanner stream.
-        // Note globalSpace.int is also acceptable but so is the short version int
-
-        //if globalSpace <> nil then
-        //   action := globalSpace.symbolTable.find(identifier, symbol)
-        //else
-        //   action := False;
-
-        if action then
-           begin
-           // This takes care of things like globalSpace.int()
-           // Push the period back into the scanner stream.
-           token.FToken := tPeriod;
-           sc.pushBackToken(token);
-           sc.nextToken; // Then make it official by pulling it back out
-
-           // Push the attribute to globalSpace, eg int back into the scanner stream
-           token.FToken := tIdentifier;
-           token.FTokenString := identifier;
-           sc.pushBackToken(token);
-
-           // Now we're ready to parse the fragment .int
-           // Finally make sure the primary name is globalSpace
-           identifier := TSymbol.globalId;
-           end
-        else
-           begin
-           // This is to ensure an identifier expression terminates at a line feed
-           // It avoids the situation in the folllowing two lines:
-           // x = y
-           // w = v
-
-           // This could cause a compile error as the compiler doesn't realize that the first
-           // expression stops at y and a new one starts at w. An alternative solution is
-           // to enforce ';' at the end of statements but I don't want to do that.
-
-           if sc.tokenWasLF then
-              begin
-              sc.nextToken;
-              root := nil;
-              result := TASTPrimaryOld.Create(identifier);
-              exit;
-              end;
-
-           sc.nextToken;
-           end;
-        primary := TASTPrimaryOld.Create (identifier);
-        while sc.token in [tLeftBracket, tLeftParenthesis, tPeriod] do
-              (primary as TASTPrimaryOld).nodes.add (parseSecondary());
-
-        result := primary;
-      end;
-
-    tLeftParenthesis:
-      begin
-        sc.nextToken;
-        result := expression();
-        if result.nodeType = ntError then
-           exit (result);
-
-        node := expect(tRightParenthesis);
-        if node <> nil then
-           begin
-           result.freeAST;
-           result := node;
-           end;
-      end;
-
-    tLeftCurleyBracket:
-      begin
-        sc.nextToken;
-        alist := nil;
-        result := TASTCreateList.Create;
-        if sc.token <> tRightCurleyBracket then
-           begin
-           (result as TASTCreateList).list.Add(expression);
-           while sc.token = tComma do
-              begin
-              sc.nextToken;
-              (result as TASTCreateList).list.Add(expression);
-              end;
-           end;
-        node := expect(tRightCurleyBracket);
-        if node <> nil then
-           begin
-           alist.freeAST;
-           exit (node);
-           end;
-
-      end;
-
-    tString:
-      begin
-        astr := sc.tokenString;
-        sc.nextToken;
-        result := TASTString.Create(astr);
-      end;
-
-    tNOT:
-      begin
-        sc.nextToken;
-        node := expression();
-        if node.nodeType = ntError then
-           exit (node);
-        result := TASTNotOp.Create(node);
-      end;
-
-    tFalse:
-      begin
-        result := TASTBoolean.Create(False);
-        sc.nextToken;
-      end;
-
-    tTrue:
-      begin
-        result := TASTBoolean.Create(True);
-        sc.nextToken;
-      end
-  else
-    begin
-    errMsg := 'expecting a literal value, an identifier or an opening ''(''. Instead I found "';
-    if sc.token = tString then
-       errMsg := errMsg + sc.tokenElement.FTokenCharacter + '"'
-    else
-       errMsg := errMsg + sc.tokenToString (sc.token) + '"';
-    result := TASTErrorNode.Create (errMsg , sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
-    sc.nextToken;
-    end;
-  end;
-end;
+//// factor = integer | float | '(' expression ')' | etc
+//function TConstructAST.factor: TASTNode;
+//var
+//  alist: TASTNodeList;
+//  identifier: string;
+//  root, node : TASTNode;
+//  primary: TASTNode;
+//  token: TTokenRecord;
+//  symbol: TSymbol;
+//  action : boolean;
+//  i : integer;
+//  errMsg, astr : string;
+//begin
+//  case sc.token of
+//    tInteger:
+//      begin
+//        result := TASTInteger.Create(sc.tokenInteger);
+//        sc.nextToken;
+//      end;
+//
+//    tFloat:
+//      begin
+//        result := TASTFloat.Create(sc.tokenFloat);
+//        sc.nextToken;
+//      end;
+//
+//    // variable = simpleVariable | indexVariable
+//    // simpleVariable = identifer | module '.' identifier
+//    // :=   identifier
+//    // | '[' expressionlist ']'
+//    // | '(' argumentList ')'
+//    // | '.' identifier
+//
+//    // This code can deal with things: abc.x()[1], or abc(func())[1]()[4,3], etc
+//    // This is the start of the primary symbol
+//    tIdentifier:
+//      begin
+//        identifier := sc.tokenString;
+//        // Accepts:
+//        //  a
+//        // main().a
+//        // int()
+//        // globalSpace.int()
+//        // anything that could start with an identifier
+//
+//        // This is a hack to allow users to type int (4.5) rather than the full qualifier globalSpace.int (4.5)
+//        // We do it by faking globalSpace.int in the scanner stream.
+//        // Note globalSpace.int is also acceptable but so is the short version int
+//
+//        //if globalSpace <> nil then
+//        //   action := globalSpace.symbolTable.find(identifier, symbol)
+//        //else
+//        //   action := False;
+//
+//        if action then
+//           begin
+//           // This takes care of things like globalSpace.int()
+//           // Push the period back into the scanner stream.
+//           token.FToken := tPeriod;
+//           sc.pushBackToken(token);
+//           sc.nextToken; // Then make it official by pulling it back out
+//
+//           // Push the attribute to globalSpace, eg int back into the scanner stream
+//           token.FToken := tIdentifier;
+//           token.FTokenString := identifier;
+//           sc.pushBackToken(token);
+//
+//           // Now we're ready to parse the fragment .int
+//           // Finally make sure the primary name is globalSpace
+//           identifier := TSymbol.globalId;
+//           end
+//        else
+//           begin
+//           // This is to ensure an identifier expression terminates at a line feed
+//           // It avoids the situation in the folllowing two lines:
+//           // x = y
+//           // w = v
+//
+//           // This could cause a compile error as the compiler doesn't realize that the first
+//           // expression stops at y and a new one starts at w. An alternative solution is
+//           // to enforce ';' at the end of statements but I don't want to do that.
+//
+//           if sc.tokenWasLF then
+//              begin
+//              sc.nextToken;
+//              root := nil;
+//              result := TASTPrimaryOld.Create(identifier);
+//              exit;
+//              end;
+//
+//           sc.nextToken;
+//           end;
+//        primary := TASTPrimaryOld.Create (identifier);
+//        while sc.token in [tLeftBracket, tLeftParenthesis, tPeriod] do
+//              (primary as TASTPrimaryOld).nodes.add (parseSecondary());
+//
+//        result := primary;
+//      end;
+//
+//    tLeftParenthesis:
+//      begin
+//        sc.nextToken;
+//        result := expression();
+//        if result.nodeType = ntError then
+//           exit (result);
+//
+//        node := expect(tRightParenthesis);
+//        if node <> nil then
+//           begin
+//           result.freeAST;
+//           result := node;
+//           end;
+//      end;
+//
+//    tLeftCurleyBracket:
+//      begin
+//        sc.nextToken;
+//        alist := nil;
+//        result := TASTCreateList.Create;
+//        if sc.token <> tRightCurleyBracket then
+//           begin
+//           (result as TASTCreateList).list.Add(expression);
+//           while sc.token = tComma do
+//              begin
+//              sc.nextToken;
+//              (result as TASTCreateList).list.Add(expression);
+//              end;
+//           end;
+//        node := expect(tRightCurleyBracket);
+//        if node <> nil then
+//           begin
+//           alist.freeAST;
+//           exit (node);
+//           end;
+//
+//      end;
+//
+//    tString:
+//      begin
+//        astr := sc.tokenString;
+//        sc.nextToken;
+//        result := TASTString.Create(astr);
+//      end;
+//
+//    tNOT:
+//      begin
+//        sc.nextToken;
+//        node := expression();
+//        if node.nodeType = ntError then
+//           exit (node);
+//        result := TASTNotOp.Create(node);
+//      end;
+//
+//    tFalse:
+//      begin
+//        result := TASTBoolean.Create(False);
+//        sc.nextToken;
+//      end;
+//
+//    tTrue:
+//      begin
+//        result := TASTBoolean.Create(True);
+//        sc.nextToken;
+//      end
+//  else
+//    begin
+//    errMsg := 'expecting a literal value, an identifier or an opening ''(''. Instead I found "';
+//    if sc.token = tString then
+//       errMsg := errMsg + sc.tokenElement.FTokenCharacter + '"'
+//    else
+//       errMsg := errMsg + sc.tokenToString (sc.token) + '"';
+//    result := TASTErrorNode.Create (errMsg , sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+//    sc.nextToken;
+//    end;
+//  end;
+//end;
 
 
 // power = {'+' | '-'} factor [ '^' power ]
@@ -1229,8 +1216,7 @@ begin
          exit;
          end;
 
-      //result := TASTAssignment.Create(node as TASTPrimary, expressionNode);
-      result := TASTAssignment2.Create(node as TASTPrimary, expressionNode);
+      result := TASTAssignment.Create(node as TASTPrimary, expressionNode);
       end
    else
       begin
@@ -1526,7 +1512,7 @@ var
   toToken: TTokenCode;
   breakJump: integer;
   breakStack: TStack<integer>;
-  assignment: TASTAssignment2;
+  assignment: TASTAssignment;
   iterationBlock: TASTIterationBlock;
   rightSide, body, node: TASTNode;
   lower, upper : TASTExpression;

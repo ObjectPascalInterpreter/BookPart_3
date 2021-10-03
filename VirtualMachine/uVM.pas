@@ -1160,7 +1160,7 @@ begin
      stList : begin
               l := primary.lValue;
               // Is symbol name a function name?
-              f := l.methodList.find (symbolName);
+              f := l.listMethods.methodList.find (symbolName);
               if f <> nil then
                  begin
                  push (primary);
@@ -1173,7 +1173,7 @@ begin
      stString : begin
               s := primary.sValue;
               // Is symbol name a function name?
-              f := s.methodList.find (symbolName);
+              f := s.stringMethods.methodList.find (symbolName);
               if f <> nil then
                  begin
                  push (primary);

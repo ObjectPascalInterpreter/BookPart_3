@@ -1,0 +1,5 @@
+
+a = "12345"
+assertTrue (a=="12345")
+
+println()

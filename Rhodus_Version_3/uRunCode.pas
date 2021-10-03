@@ -51,6 +51,7 @@ type
       function  compileCode (const src : string;  var module : TModuleLib; interactive : boolean) : boolean;
       procedure compileAndRun (const src : string; interactive : boolean);
       procedure getAllocatedSymbols (argument : string);
+      procedure showByteCode (module : TModule);
       procedure runCode (module : TModule; interactive : boolean);
 
       constructor Create;
@@ -125,6 +126,8 @@ var astr : string;
 begin
   showAssembler := False;
   mainModule := TModuleLib.Create (TSymbol.mainModuleId, 'Main Module');  // mainModule is declared in uModule
+
+  addMethodsToModule (mainModule);
 
   addAllBuiltInLibraries (mainModule);
 
@@ -221,6 +224,23 @@ begin
   vm := TVM.Create;
   result := getMemoryAllocated() - start;
   vm.Free;
+end;
+
+
+procedure TRunFramework.showByteCode (module : TModule);
+var key : string;
+begin
+  for key in mainModule.symbolTable.keys do
+      if mainModule.symbolTable.items[key] <> nil then
+         if mainModule.symbolTable.Items[key].symbolType = symUserFunc then
+            begin
+            if mainModule.symbolTable.items[key].fValue.isbuiltInFunction then
+               continue
+               //writeln ('No code for builtin function')
+            else
+               writeln (dissassemble(mainModule, mainModule.symbolTable.items[key].fValue.funcCode));
+            end;
+  writeln (dissassemble(mainModule, mainModule.code));
 end;
 
 

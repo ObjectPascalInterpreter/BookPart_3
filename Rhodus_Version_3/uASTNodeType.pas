@@ -41,10 +41,10 @@ type
       ntExpression,
       ntSubscript,
       ntNode,
-      ntPrimary,
+      ntPrimaryOld,
       ntPeriod,
       ntImportStmt,
-      ntGlobalStmt,   // 31
+      ntGlobalStmt,   // 32
       ntModule,
       ntCreateList,
       ntPrint,
@@ -55,7 +55,7 @@ type
       ntAssertFalse,
       ntAssertFalseEx,
       ntHelp,
-      ntSwitch,           // 42
+      ntSwitch,           // 43
       ntListOfCaseStatements,
       ntCaseStatement,
       ntIf,
@@ -64,8 +64,8 @@ type
       ntFor,
       ntIter,
       ntTo,
-      ntDownTo,         // 51
-      ntFunction,       // 52
+      ntDownTo,         // 52
+      ntFunction,       // 53
       ntFunctionArguments,
       ntReturn,
       ntAssignment,
@@ -73,75 +73,24 @@ type
       ntBreak,
       ntFunctionCall,
       ntStatementList,
-      ntExpressionStatement
+      ntExpressionStatement,
+      ntIdentifier,
+      ntPrimary,
+      ntPrimaryPeriod,
+      ntPrimaryIndex,
+      ntPrimaryFunction,
+      ntNull
    );
 
-function nodeTypeToName (op : TASTNodeType) : string;
+function nodeTypeToString (op : TASTNodeType) : string;
 
 implementation
 
 Uses RTTI;
 
-function nodeTypeToName (op : TASTNodeType) : string;
+function nodeTypeToString (op : TASTNodeType) : string;
 begin
-  case op of
-     ntAdd          : result := '+';
-     ntSub          : result := '-';
-     ntMult         : result := '*';
-     ntDiv          : result := '/';
-     ntPower        : result := '^';
-     ntMod          : result := 'mod';
-     ntDivI         : result := 'iDiv';
-     ntUnaryMinus   : result := 'unaryMinus';
-     ntNot          : result := 'not';
-     ntAND          : result := 'and';
-     ntOR           : result := 'or';
-     ntXOR          : result := 'xor';
-     ntLT           : result := '<';
-     ntLE           : result := '<=';
-     ntGT           : result := '>';
-     ntGE           : result := '>=';
-     ntNE           : result := '!=';
-     ntEQ           : result := '==';
-     ntExpression   : result := 'expression';
-     ntExpressionStatement : result := 'expressionStatement';
-     ntLeftSide     : result := 'leftSide';
-     ntImportStmt   : result := 'import';
-     ntPrimary      : result := 'primary';
-     ntPeriod       : result := 'period';
-     ntGlobalStmt   : result := 'globalStatement';
-     ntModule       : result := 'module';
-     ntSubscript    : result := 'subscript';
-     ntNode         : result := 'node';
-     ntCreateList   : result := 'list';
-     ntPrint        : result := 'print';
-     ntPrintln      : result := 'println';
-     ntSetColor     : result := 'setColor';
-     ntAssertTrue   : result := 'assertTrue';
-     ntAssertTrueEx : result := 'assertTrueEx';
-     ntAssertFalse  : result := 'assertFalse';
-     ntAssertFalseEx: result := 'assertFalseEx';
-     ntSwitch       : result := 'switch';
-     ntListOfCaseStatements : result := 'listOfCaseStatements';
-     ntCaseStatement : result := 'caseStatement';
-     ntIf           : result := 'if';
-     ntWhile        : result := 'while';
-     ntRepeat       : result := 'repeat';
-     ntFor          : result := 'for';
-     ntIter         : result := 'iteration';
-     ntTo           : result := 'to';
-     ntDownTo       : result := 'downto';
-     ntStatementList: result := 'statementList';
-     ntBreak        : result := 'break';
-     ntAssignment   : result := 'assignment';
-     ntAssignmentModule : result := 'assignmentModule';
-     ntReturn       : result := 'return';
-     ntFunction     : result := 'function';
-     ntFunctionCall : result := 'functionCall';
-     ntFunctionArguments : result := 'functionArguments';
-  else
-      result := 'unknown';
-  end;
+  result := TRttiEnumerationType.GetName(op);
 end;
 
 

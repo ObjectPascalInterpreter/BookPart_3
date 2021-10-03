@@ -286,7 +286,7 @@ begin
         oMod        : result := result + '  ' + opCodeNames[oMod]    + sLineBreak;
         oPower      : result := result + '  ' + opCodeNames[oPower]  + sLineBreak;
         oUmi        : result := result + '  ' + opCodeNames[oUmi]    + sLineBreak;
-        oInc        : result := result + '  ' + opCodeNames[oInc]    + ' ' + inttostr (aProgram.code[i].index1) + ', ' + inttostr (aProgram.code[i].index2) + sLineBreak;
+        oInc        : result := result + '  ' + opCodeNames[oInc]    + ' ' + floattostr (aProgram.code[i].float) + sLineBreak;
         oDec        : result := result + '  ' + opCodeNames[oDec]    + ' ' + inttostr (aProgram.code[i].index1) + ', ' + inttostr (aProgram.code[i].index2) + sLineBreak;
         oLocalInc   : result := result + '  ' + opCodeNames[oLocalInc] + sLineBreak;
         oLocalDec   : result := result + '  ' + opCodeNames[oLocalDec] + sLineBreak;
@@ -312,7 +312,7 @@ begin
         oJmpIfTrue  : result := result + '  ' + opCodeNames[ojmpIfTrue] + ' ' + inttostr (aProgram.code[i].index1) + sLineBreak;
         oJmpIfFalse : result := result + '  ' + opCodeNames[oJmpIfFalse] + ' ' + inttostr (aProgram.code[i].index1) + sLineBreak;
 
-        oStoreSymbol  : result := result + '  ' + opCodeNAmes[oStoreSymbol] + ' ' + inttostr (aProgram.code[i].index1) + sLineBreak;
+        oStoreSymbol  : result := result + '  ' + opCodeNAmes[oStoreSymbol] + ' ' + aProgram.code[i].symbolName + sLineBreak;
          oLoadSymbol  : result := result + '  ' + opCodeNames[oLoadSymbol]  + ' ' + aProgram.code[i].symbolName + sLineBreak;
      oLoadSecondary   : result := result + '  ' + opCodeNames[oLoadSecondary] + ' ' + aProgram.code[i].symbolName + sLineBreak;
     oStoreSecondary   : result := result + '  ' + opCodeNames[oStoreSecondary] + ' ' + aProgram.code[i].symbolName + sLineBreak;

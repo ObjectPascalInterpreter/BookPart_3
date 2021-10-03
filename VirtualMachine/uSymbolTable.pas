@@ -164,7 +164,6 @@ end;
 
 procedure addAllBuiltInLibraries (module : TModule);
 begin
-  addLib (module, TBuiltInGlobal.Create);
   addLib (module, TBuiltInMath.Create);
   addLib (module, TBuiltInList.Create);
   addLib (module, TBuiltInRandom.Create);
@@ -198,7 +197,7 @@ end;
 
 procedure TModule.clearCode;
 begin
-  code.Clear;
+  code.clearCode;
   compiled := False;
 end;
 

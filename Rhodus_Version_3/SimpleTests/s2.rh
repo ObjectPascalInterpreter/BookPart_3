@@ -1,0 +1,6 @@
+
+a = 3
+b = a
+assertTrue(b==3)
+
+println()

@@ -71,7 +71,6 @@ end;
 assertTrue (test_4() == 1.2);
 
 
-
 function test_5()
    for i = 1 to 10 do
      if i == 5 then
@@ -80,7 +79,6 @@ function test_5()
    end;
 end;
 assertTrue (test_5() == 12345);
-
 
 function test_6()
    x = 6; 
@@ -169,6 +167,7 @@ assertTrue (w == 88);
 assertTrue (a == -1);
 assertTrue (b == -4);
 
+
 // -----------------------------------------------
 // Other Examples
 
@@ -192,6 +191,7 @@ function repeatString(count, text)
 end;
  
 assertTrue (repeatString(5, "ha") == "hahahahaha");
+
 
 // Check if n is a prime
 function IsPrime (n)
@@ -221,7 +221,6 @@ end;
 
 assertTrue (fac(7) == 5040);
 assertTrue (fac(10) == 3628800);
-
 
 
 // A highly recursive function
@@ -270,7 +269,6 @@ assertTrue (combin (7,2) == 21);
 assertTrue (permut (7,2) == 42);
 
 
-
 // One function calling another
 function add (a, b)
     return a + b
@@ -295,4 +293,3 @@ end;
 assertTrue (repeatString(5, "ha") == "hahahahaha");
 
 println ()
-

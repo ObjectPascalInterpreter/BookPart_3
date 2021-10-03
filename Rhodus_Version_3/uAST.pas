@@ -47,6 +47,13 @@ type
       constructor Create (ivalue : integer);
    end;
 
+   TASTPrimary = class (TASTNode)
+      factor : TASTNode;
+      primaryPlus : TASTNode;
+      constructor Create (factor, primaryPlus : TASTNode);
+      destructor  Destroy; override;
+   end;
+
    // Any lists such as a, b, c are stored in this node
    TASTNodeList = class (TASTNode)
        list : TChildNodes;
@@ -74,8 +81,15 @@ type
       destructor  Destroy; override;
    end;
 
+   TASTIdentifier = class (TASTNode)
+      symbolName : string;
+      constructor Create (symbolName : string);
+      destructor  Destroy; override;
+   end;
+
+
     // A primary is the first identifier in a symbol, eg a, a.b, a[1], a(), a[1](), a.b()[6], etc.,
-   TASTPrimary = class (TASTNode)
+   TASTPrimaryOld = class (TASTNode)
      private
        function getNode (index : integer) : TASTNode;
        function getCount: integer;
@@ -94,12 +108,41 @@ type
       destructor  Destroy; override;
    end;
 
+   // '.' identifier primary+
+   TASTPrimaryPeriod = class (TASTNode)
+      identifier : TASTIdentifier;
+      primaryPlus : TASTNode;
+      constructor Create (identifier : TASTIdentifier; primaryPlus : TASTNode);
+      destructor  Destroy; override;
+   end;
+
+   // '[' expression list ']' primary+
+   TASTPrimaryIndex = class (TASTNode)
+      subscriptList : TASTNodeList;
+      primaryPlus : TASTNode;
+      constructor Create (subscriptList : TASTNodeList; primaryPlus : TASTNode);
+      destructor  Destroy; override;
+   end;
+
+   // '(' expression list ')' primary+
+   TASTPrimaryFunction = class (TASTNode)
+      argumentList : TASTNodeList;
+      primaryPlus : TASTNode;
+      constructor Create (argumentList : TASTNodeList; primaryPlus : TASTNode);
+      destructor  Destroy; override;
+   end;
+
+
+   TASTNull = class (TASTNode)
+       constructor Create;
+       destructor  Destroy; override;
+   end;
+
    TASTFunctionCall = class (TASTNode)
-       moduleName : string;
-       symbolIndex: integer;
-       symbolName : string;
+       //symbolIndex: integer;
+       //symbolName : string;
        argumentList : TASTNodeList;
-       constructor Create (moduleName, symbolName : string; argumentList : TASTNodeList);
+       constructor Create (argumentList : TASTNodeList);
        destructor  Destroy; override;
    end;
 
@@ -142,6 +185,13 @@ type
    end;
 
    TASTAssignment = class (TASTNode)
+      leftSide : TASTPrimaryOld;
+      rightSide : TASTNode;
+      constructor Create (leftSide : TASTPrimaryOld; rightSide : TASTNode);
+      destructor  Destroy; override;
+   end;
+
+   TASTAssignment2 = class (TASTNode)
       leftSide : TASTPrimary;
       rightSide : TASTNode;
       constructor Create (leftSide : TASTPrimary; rightSide : TASTNode);
@@ -175,11 +225,12 @@ type
    end;
 
    TASTIterationBlock = class (TASTNode)
-     assignment : TASTAssignment;
+     iterationSymbol : TASTIdentifier;
+     lower : TASTExpression;
      upper : TASTExpression;
      direction : TASTNode;
      stepValue : double;
-     constructor Create (assignment : TASTAssignment; upper : TASTExpression);
+     constructor Create (iterationSymbol : TASTIdentifier; lower, upper : TASTExpression);
      destructor  Destroy; override;
    end;
 
@@ -201,7 +252,7 @@ type
    TASTWhile = class (TASTNode)
       condition : TASTExpression;
       statementList : TASTStatementList;
-      constructor create (condition : TASTExpression; statementListNode : TASTStatementList);
+      constructor create (condition : TASTExpression; listOfStatements : TASTStatementList);
       destructor destroy; override;
    end;
 
@@ -288,6 +339,7 @@ type
    TASTGlobal = class (TASTNode)
       moduleName : string;
       variableList : TASTNodeList;
+      function    find (name : string; var index  : integer) : boolean;
       constructor Create (moduleName : string; variableList : TASTNodeList);
       destructor  Destroy; override;
    end;
@@ -360,15 +412,15 @@ begin
 end;
 
 
-constructor TASTPrimary.Create (primaryName :string);
+constructor TASTPrimaryOld.Create (primaryName :string);
 begin
-  inherited Create (ntPrimary);
+  inherited Create (ntPrimaryOld);
   self.primaryName := primaryName;
   self.nodes := TChildNodes.Create;
 end;
 
 
-destructor TASTPrimary.Destroy;
+destructor TASTPrimaryOld.Destroy;
 var i : integer;
 begin
   if freeChildren then
@@ -381,16 +433,15 @@ begin
 end;
 
 
-function TASTPrimary.getNode (index : integer) : TASTNode;
+function TASTPrimaryOld.getNode (index : integer) : TASTNode;
 begin
-
 end;
 
 
-function TASTPrimary.getCount: integer;
+function TASTPrimaryOld.getCount: integer;
 begin
-
 end;
+
 
 constructor TASTPeriod.Create (name :string);
 begin
@@ -400,6 +451,82 @@ end;
 
 
 destructor TASTPeriod.Destroy;
+begin
+  inherited;
+end;
+
+
+constructor TASTPrimaryPeriod.Create (identifier : TASTIdentifier; primaryPlus : TASTNode);
+begin
+  inherited Create (ntPrimaryPeriod);
+  self.identifier := identifier;
+  self.primaryPlus := primaryPlus;
+end;
+
+destructor TASTPrimaryPeriod.Destroy;
+begin
+  if freeChildren then
+     begin
+     identifier.freeAST;
+     primaryPlus.freeAST;
+     end;
+  inherited;
+end;
+
+constructor TASTPrimaryIndex.Create(subscriptList: TASTNodeList; primaryPlus: TASTNode);
+begin
+  inherited Create (ntPrimaryIndex);
+  self.subscriptList := subscriptList;
+  self.primaryPlus := primaryPlus;
+end;
+
+
+// primaryIndex => subscriptList; primaryPlus
+destructor TASTPrimaryIndex.Destroy;
+var node : TASTNode;
+begin
+  if freeChildren then
+     begin
+     for node in subscriptList.list do
+         node.freeAST;
+     subscriptList.list.clear;
+     primaryPlus.freeAST;
+     end;
+  subscriptList.free;
+  inherited;
+end;
+
+
+constructor TASTPrimaryFunction.Create (argumentList: TASTNodeList; primaryPlus: TASTNode);
+begin
+  inherited Create (ntPrimaryFunction);
+  self.argumentList :=  argumentList;
+  self.primaryPlus := primaryPlus;
+end;
+
+
+// primaryIndex => subscriptList; primaryPlus
+destructor TASTPrimaryFunction.Destroy;
+var node : TASTNode;
+begin
+  if freeChildren then
+     begin
+     for node in argumentList.list do
+         node.freeAST;
+     argumentList.list.clear;
+     primaryPlus.freeAST;
+     end;
+  argumentList.free;
+  inherited;
+end;
+
+
+constructor TASTNull.Create;
+begin
+  inherited Create (ntNull);
+end;
+
+destructor  TASTNull.Destroy;
 begin
   inherited;
 end;
@@ -432,6 +559,26 @@ begin
 end;
 
 
+constructor TASTPrimary.Create (factor, primaryPlus : TASTNode);
+begin
+  inherited Create (ntPrimary);
+  self.factor := factor;
+  self.primaryPlus := primaryPlus;
+end;
+
+
+destructor TASTPrimary.Destroy;
+begin
+  if freeChildren then
+     begin
+     factor.freeAST;
+     primaryPlus.freeAST;
+     end;
+  inherited;
+end;
+
+
+
 constructor TASTFloat.Create (dValue : double);
 begin
   inherited Create (ntFloat);
@@ -460,6 +607,18 @@ end;
 
 
 destructor TASTCreateList.Destroy;
+begin
+  inherited;
+end;
+
+
+constructor TASTIdentifier.Create (symbolName : string);
+begin
+  inherited Create (ntIdentifier);
+  self.symbolName := symbolName;
+end;
+
+destructor TASTIdentifier.Destroy;
 begin
   inherited;
 end;
@@ -565,7 +724,7 @@ begin
 end;
 
 
-constructor TASTAssignment.Create (leftSide : TASTPrimary; rightSide : TASTNode);
+constructor TASTAssignment.Create (leftSide : TASTPrimaryOld; rightSide : TASTNode);
 begin
   inherited Create (ntAssignment);
   self.leftSide := leftSide;
@@ -582,6 +741,27 @@ begin
      end;
   inherited;
 end;
+
+
+
+constructor TASTAssignment2.Create (leftSide : TASTPrimary; rightSide : TASTNode);
+begin
+  inherited Create (ntAssignment);
+  self.leftSide := leftSide;
+  self.rightSide := rightSide;
+end;
+
+
+destructor TASTAssignment2.destroy;
+begin
+  if freeChildren then
+     begin
+     leftSide.freeAST;
+     rightSide.freeAST;
+     end;
+  inherited;
+end;
+
 
 
 constructor TASTExpressionStatement.Create (expression : TASTNode);
@@ -656,10 +836,11 @@ begin
 end;
 
 
-constructor TASTIterationBlock.Create (assignment : TASTAssignment; upper : TASTExpression);
+constructor TASTIterationBlock.Create (iterationSymbol : TASTIdentifier; lower, upper : TASTExpression);
 begin
   inherited Create (ntIter);
-  self.assignment := assignment;
+  self.iterationSymbol := iterationSymbol;
+  self.lower := lower;
   self.upper := upper;
 end;
 
@@ -668,7 +849,8 @@ destructor TASTIterationBlock.destroy;
 begin
   if freeChildren then
      begin
-     assignment.freeAST;
+     iterationSymbol.freeAST;
+     lower.freeAST;
      upper.freeAST;
      direction.freeAST;
      end;
@@ -708,11 +890,11 @@ begin
   inherited;
 end;
 
-constructor TASTWhile.Create (condition : TASTExpression; statementListNode : TASTStatementList);
+constructor TASTWhile.Create (condition : TASTExpression; listOfStatements : TASTStatementList);
 begin
   inherited Create (ntWhile);
   self.condition := condition;
-  self.statementList := statementListNode;
+  self.statementList := listOfStatements;
 end;
 
 
@@ -899,11 +1081,10 @@ begin
 end;
 
 
-constructor TASTFunctionCall.Create (moduleName, symbolName : string; argumentList : TASTNodeList);
+constructor TASTFunctionCall.Create (argumentList : TASTNodeList);
 begin
   inherited Create (ntFunctionCall);
-  self.symbolName := symbolName;
-  self.moduleName := moduleName;
+  //self.symbolName := symbolName;
   self.argumentList := argumentList;
 end;
 
@@ -979,6 +1160,21 @@ begin
   inherited;
 end;
 
+
+function TASTGlobal.find (name : string; var index  : integer) : boolean;
+var i: integer;
+begin
+  for i := 0 to variableList.list .Count - 1 do
+      if (variableList.list[i] as TASTIdentifier).symbolName = name then
+         begin
+         index := i;
+         exit (True);
+         end;
+
+  exit (False);
+end;
+
+
 constructor TASTImport.Create (importName : string);
 begin
   inherited Create (ntImportStmt);
@@ -1003,6 +1199,8 @@ begin
   case node.nodeType of
     ntError:
        (node as TASTErrorNode).free;
+    ntNull:
+       (node as TASTNull).free;
     ntFloat:
        (node as TASTFloat).free;
     ntInteger:
@@ -1013,7 +1211,8 @@ begin
        (node as TASTBoolean).free;
     ntNodeList :
        (node as TASTNodeList).free;
-    ntAdd, ntSub, ntMult, ntDiv, ntDivI, ntMod, ntLT, ntEQ, ntLE, ntGT, ntGE, ntNE, ntAnd, ntXor, ntOR:
+    ntAdd, ntSub, ntMult, ntDiv, ntDivI, ntMod, ntLT,
+            ntEQ, ntLE, ntGT, ntGE, ntNE, ntAnd, ntXor, ntOR:
       (node as TASTBinOp).free;
     ntPower :
        (node as TASTPowerOp).free;
@@ -1025,8 +1224,18 @@ begin
         (node as TASTExpression).free;
     ntExpressionStatement:
         (node as TASTExpressionStatement).free;
+    ntPrimaryOld:
+        (node as TASTPrimaryOld).free;
     ntPrimary:
         (node as TASTPrimary).free;
+    ntPrimaryPeriod:
+        (node as TASTPrimaryPeriod).free;
+    ntPrimaryIndex:
+        (node as TASTPrimaryIndex).free;
+    ntPrimaryFunction:
+        (node as TASTPrimaryFunction).free;
+    ntIdentifier:
+        (node as TASTIdentifier).free;
     ntSubscript :
         (node as TASTSubscript).free;
     ntPeriod:
@@ -1074,7 +1283,7 @@ begin
     ntReturn:
       (node as TASTReturn).free;
     ntAssignment:
-      (node as TASTAssignment).free;
+      (node as TASTAssignment2).free;
     ntBreak:
       node.free;
     ntFunctionCall:
@@ -1096,7 +1305,7 @@ begin
   result := '';
   pfx := DupeString(indent, level);
   result := result + pfx;
-  result := result + nodeTypeToName (node.nodeType);
+  result := result + nodeTypeToString (node.nodeType);
   result := result + '(';
   result := result + ')'
  end;
@@ -1109,11 +1318,15 @@ begin
      ntInteger : result := inttostr ((node as TASTInteger).iValue);
      ntFloat   : result := floattostr ((node as TASTFloat).dValue);
      ntString  : result := '"' + (node as TASTString).sValue + '"';
-     ntFunctionCall : result := 'function Call: ' + (node as TASTFunctionCall).symbolName;
-     ntPrimary : result := 'symbol: ' + (node as TASTPrimary).primaryName;
+     ntFunctionCall : result := 'function Call';// + (node as TASTFunctionCall).symbolName;
+     ntPrimaryOld : result := 'symbol: ' + (node as TASTPrimaryOld).primaryName;
+     ntIdentifier : result := 'symbol: ' + (node as TASTIdentifier).symbolName;
      ntImportStmt : result := 'import: ' + (node as TASTImport).importName;
+     ntNull : result := 'null';
+     ntPrimary : result := 'primary';
+     ntPrimaryPeriod : result := 'primaryPeriod';
   else
-     result := nodeTypeToName  (node.nodeType);
+     result := nodeTypeToString  (node.nodeType);
   end;
 end;
 
@@ -1137,13 +1350,37 @@ begin
            end;
        ntAssignment :
            begin
-           result := result + print ((node as TASTAssignment).leftSide, prefix + '|  ');
-           result := result + print ((node as TASTAssignment).rightSide, prefix + '|  ');
+           result := result + print ((node as TASTAssignment2).leftSide, prefix + '|  ');
+           result := result + print ((node as TASTAssignment2).rightSide, prefix + '|  ');
+           end;
+       ntPrimaryOld :
+           begin
+           for i := 0 to (node as TASTPrimaryOld).nodes.Count - 1 do
+               result := result + print ((node as TASTPrimaryOld).nodes[i], prefix + '  ');
            end;
        ntPrimary :
            begin
-           for i := 0 to (node as TASTPrimary).nodes.Count - 1 do
-               result := result + print ((node as TASTPrimary).nodes[i], prefix + '  ');
+           result := result + print ((node as TASTPrimary).factor, prefix + '|  ');
+           result := result + print ((node as TASTPrimary).primaryPlus, prefix + '|  ');
+           end;
+       ntPrimaryPeriod :
+           begin
+           result := result + print ((node as TASTPrimaryPeriod).identifier, prefix + '|  ');
+           result := result + print ((node as TASTPrimaryPeriod).primaryPlus, prefix + '|  ');
+           end;
+       ntPrimaryIndex :
+           begin
+          for i := 0 to (node as TASTPrimaryIndex).subscriptList.list.Count - 1 do
+               result := result + print ((node as TASTPrimaryIndex).subscriptList.list[i], prefix + '|  ');
+
+           result := result + print ((node as TASTPrimaryIndex).primaryPlus, prefix + '|  ');
+           end;
+       ntPrimaryFunction :
+           begin
+          for i := 0 to (node as TASTPrimaryFunction).argumentList.list.Count - 1 do
+               result := result + print ((node as TASTPrimaryFunction).argumentList.list[i], prefix + '|  ');
+
+           result := result + print ((node as TASTPrimaryFunction).primaryPlus, prefix + '|  ');
            end;
        ntPeriod :
           begin
@@ -1165,7 +1402,7 @@ begin
        ntGlobalStmt :
           begin
           for i := 0 to (node as TASTGlobal).variableList.list.Count - 1 do
-              result := result + prefix + '+- ' + 'global: ' + sLineBreak + print (((node as TASTGlobal).variableList.list[i] as TASTPrimary), prefix + '|  ');
+              result := result + prefix + '+- ' + 'global: ' + sLineBreak + print (((node as TASTGlobal).variableList.list[i] as TASTIdentifier), prefix + '|  ');
           end;
        ntCreateList :
            begin
@@ -1206,7 +1443,8 @@ begin
           end;
        ntIter :
           begin
-          result := result + print ((node as TASTIterationBlock).assignment, prefix + '|  ');
+          result := result + prefix + '|  loop variable: ' + (node as TASTIterationBlock).iterationSymbol.symbolName + sLineBreak;
+          result := result + print ((node as TASTIterationBlock).lower, prefix + '|  ');
           result := result + print ((node as TASTIterationBlock).upper, prefix + '|  ');
           end;
        ntIf :

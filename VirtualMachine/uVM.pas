@@ -392,6 +392,7 @@ begin
      stBoolean : push(TStringObject.Create('boolean'));
      stString  : push(TStringObject.Create('string'));
      stList    : push(TStringObject.Create('list'));
+     stModule  : push(TStringObject.Create (st.module.helpStr));
 
      stFunction :
            begin
@@ -1108,7 +1109,10 @@ begin
     stString:   module.symbolTable.storeString (symbol, value.sValue);
     stList:     module.symbolTable.storeList   (symbol, value.lValue);
     stFunction: module.symbolTable.storeFunction (symbol, value.fValue);
-    stModule:   module.symbolTable.storeModule (symbol, value.module);
+    stModule:   begin
+                raise ERuntimeException.Create('You cannot store modules: ' + value.module.name);
+                //module.symbolTable.storeModule (symbol, value.module);
+                end;
     stObjectMethod:
        raise ERuntimeException.Create('You cannot store object methods: ' + value.oValue.name);
   else
@@ -1561,13 +1565,8 @@ var
   p: PMachineStackRecord;
   oldModule : TModule;
 begin
-  //if (stack[stackTop]).stackType = stObjectMethod then
-  //   begin
-  //   p := @stack[stackTop];
-  //   end
-  //else
-    // Get the function object
-    p := @stack[stackTop-nArgs];
+  // Get the function object
+  p := @stack[stackTop-nArgs];
   // Check first that its actually something we can call
   if (p.stackType <> stFunction) and (p.stackType <> stObjectMethod) then
      raise ERuntimeException.Create(stToStr (p.stackType) + ' is not something that can be called as a function');
@@ -1575,7 +1574,7 @@ begin
   if p.stackType = stObjectMethod then
      begin
      if nArgs <> p.oValue.nArgs then
-        raise ERuntimeException.Create('Expecting ' + inttostr (functionObject.nArgs) + ' arguments in function call but received ' + inttostr (nArgs) + ' arguments');
+        raise ERuntimeException.Create('Expecting ' + inttostr (p.oValue.nArgs) + ' arguments in function call but received ' + inttostr (nArgs) + ' arguments');
      // The order of stack entries from the top will be
      //   Arguments
      //   Object method

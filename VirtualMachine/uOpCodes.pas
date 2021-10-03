@@ -117,10 +117,10 @@ initialization
 
   opCodeNames[oLoadLocal]      := 'loadLocal';
   opCodeNames[oStoreLocal]     := 'storeLocal';
-  opCodeNames[oLoadSymbol]     := 'loadSymbol';
+  opCodeNames[oLoadSymbol]     := 'load';
   opCodeNames[oLoadSecondary]  := 'loadSecondary';
 
-  opCodeNames[oStoreSymbol ]   := 'storeSymbol';
+  opCodeNames[oStoreSymbol ]   := 'store';
   opCodeNames[oStoreSecondary] := 'storeSecondary';
 
   opCodeNames[oAnd]            := 'and';

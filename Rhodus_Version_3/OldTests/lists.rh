@@ -1,6 +1,7 @@
 
 // List Tests
 
+
 a = {1,2,3,4};
 a = 1;
 assertTrue (a == 1);
@@ -19,6 +20,7 @@ assertTrue ({1,2,3} + {{4}} == {1,2,3,{4}});
 
 assertTrue ({1,2,3} + 3.14 == {1,2,3,3.14});
 assertTrue ({1,2,3} + True == {1,2,3,True});
+
 
 assertTrue ({1,2,3} + {"string"} == {1,2,3,"string"});
 
@@ -44,7 +46,6 @@ alist = {1,2,3};
 alist[1] = a;
 assertTrue (alist == {1, True, 3});
 
-/*
 
 alist = {1,2,3,4};
 assertTrue (alist[1] == 2);
@@ -79,5 +80,3 @@ assertTrue (b == {1,2,3,1,2,3,1,2,3});
 a = {1,2,3,{7,8,9,{56,78}}};
 x = a[3,3];
 assertTrue (x == {56,78});
-
-*/

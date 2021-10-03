@@ -32,7 +32,7 @@ type
            code : TCode;
            constantValueTable : TConstantValueTable;
            function  count : integer;
-           procedure clear;
+           procedure clearCode;
            procedure append (byteCode : TByteCode);
            procedure compactCode;
            function  addByteCode (opCode : TOpCode) : integer; overload;
@@ -133,11 +133,11 @@ begin
 end;
 
 
-procedure TProgram.Clear;
+// Doesn't clear the constantValueTable
+procedure TProgram.ClearCode;
 begin
   actualLength := 0;
   setLength (code, 0);
-  constantValueTable.Clear;
 end;
 
 

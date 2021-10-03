@@ -40,9 +40,12 @@ type
 
 function  getMainModule : TModule;
 procedure computeBaseLineMemoryAllocated;
+procedure addMethodsToModule (module : TModuleLib);
 
 var mainModule : TModuleLib;
     baseLineMemoryAllocated : integer;
+
+    builtInGlobal : TBuiltInGlobal;
 
 implementation
 
@@ -56,6 +59,33 @@ Uses Math, StrUtils,
      uCompile,
      uAssembler,
      uRhodusTypes;
+
+
+procedure addMethodsToModule (module : TModuleLib);
+begin
+  module.addMethod (builtInGlobal.myInt,          1, 'int', 'Convert float to integer: int (3.4)');
+  module.addMethod (builtInGlobal.readNumber,     0, 'readNumber',    'Read an integer from the console');
+  module.addMethod (builtInGlobal.readString,     0, 'readString',    'Rread a string from the console');
+  module.addMethod (builtInGlobal.listSymbols,    1, 'symbols',       'Returns list of symbols in the specified module: symbols(math). Use ' + TSymbol.mainModuleId + ' to get the symbols for the main module');
+  module.addMethod (builtInGlobal.getType,        1, 'type',          'Returns the type of a given variable: type (x)');
+  module.addMethod (builtInGlobal.getAttr,        2, 'getAttr',       'Returns the value attached to the symbol attribute: getAttr (mylib, "x")');
+  module.addMethod (builtInGlobal.listModules,    0, 'modules',       'Get a list of all currently loaded mdules');
+  module.addMethod (builtInGlobal.getMemoryUsed,  0, 'mem',           'Get the amount of memory currently in use.');
+  module.addMethod (builtInGlobal.myAssertTrueEx, 1, 'assertTrueEx',  'Assert argument is true, return . of F');
+  module.addMethod (builtInGlobal.myAssertFalseEx,1, 'assertFalseEx', 'Assert argument is false, return . of F');
+  module.addMethod (builtInGlobal.myMain,         0, 'main',          'Returns a reference to the main module');
+  module.addMethod (builtInGlobal.dis,            1, 'dis',           'dissassemble module or function');
+  module.addMethod (builtInGlobal.stackInfo,      0, 'stackInfo',     'Get the current state of the VM stack');
+  module.addMethod (builtInGlobal.getChar,        1, 'chr',           'Get the character equivalent of an integer value');
+  module.addMethod (builtInGlobal.getAsc,         1, 'asc',           'Get the ascii equivalent of a single character');
+
+end;
+
+
+procedure argMustBeNumber;
+begin
+  raise ERuntimeException.Create('argument must be a number');
+end;
 
 
 function getMemoryAllocated : integer;
@@ -108,12 +138,6 @@ end;
 destructor TBuiltInGlobal.Destroy;
 begin
   inherited;
-end;
-
-
-procedure argMustBeNumber;
-begin
-  raise ERuntimeException.Create('argument must be a number');
 end;
 
 
@@ -396,6 +420,7 @@ begin
   TVM (vm).push (TStringObject.create(Chr (x)));
 end;
 
+
  // Convert char in to ascii
 procedure TBuiltInGlobal.getAsc (vm : TObject);
 var x: string;
@@ -416,5 +441,8 @@ end;
 
 
 
-
+initialization
+  builtInGlobal := TBuiltInGlobal.Create;
+finalization
+  builtInGlobal.Free;
 end.

@@ -1,0 +1,6 @@
+
+a = "123456"
+assertTrue (a[2] == "3")
+
+println()
+

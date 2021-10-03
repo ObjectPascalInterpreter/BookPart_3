@@ -32,7 +32,7 @@ type
     stackOfBreakStacks: TStack<TBreakStack>;
     moduleNameStack: TModuleNameStack;
     primaryModuleName: string;
-    globalSpace: TModule; // Contains global symbols such as int(), readNumber() etc
+    //globalSpace: TModule; // Contains global symbols such as int(), readNumber() etc
 
     sc: TScanner;
 
@@ -50,10 +50,15 @@ type
     function variable: TASTNode;
     function parseList: TASTNode;
     function parseIndexedVariable: TASTNode;
-    function parseFunctionCall: TASTNodeList;
+    function parseIndexedVariable2 : TASTNode;
+    function parseFunctionCall: TASTNode;
 
     function parseAtom (moduleName, identifier: string): TASTNode;
     function parseSecondary: TASTNode;
+
+    function primary : TASTNode;
+    function factor2 : TASTNode;
+    function primaryPlus : TASTNode;
 
     function factor: TASTNode;
     function power: TASTNode;
@@ -63,8 +68,8 @@ type
     function expression: TASTNode;
     function exprStatement: TASTNode;
     function statement: TASTNode;
-    function statementList: TASTStatementList;
-    function expressionList: TASTNodeList;
+    function statementList: TASTNode;
+    function expressionList: TASTNode;
     function ifStatement: TASTNode;
     function breakStatement: TASTNode;
     function globalStatement: TASTNode;
@@ -87,7 +92,7 @@ type
     function AssertFalseStatement: TASTNode;
     function helpStatement: TASTNode;
   public
-    function parseModule(moduleName: string; var astRoot: TASTNode): TModule;
+    function parseModule(moduleName: string; var astRoot: TASTNode): TModuleLib;
     function parseProgram: TASTNode;
     function inUserFunctionScope: boolean;
     constructor Create(sc: TScanner);
@@ -102,8 +107,7 @@ type
 
 implementation
 
-uses Math, IOUtils, uGlobal, uUtils, uOpCodes, uMachineStack,
-  uConstantTable, uCompile, uBuiltInGlobal;
+uses Math, IOUtils, uGlobal, uUtils, uOpCodes, uMachineStack, uCompile, uBuiltInGlobal;
 
 type
   TPrintClass = class(TObject)
@@ -174,10 +178,10 @@ begin
      raise ESyntaxException.Create ('Internal error: AST can''t find main module', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
 
   // HMS
-  if not module.symbolTable.find(TSymbol.globalId, globalSymbol) then
-     raise ESyntaxException.Create ('Internal error: AST can''t find the global space', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber)
-  else
-    globalSpace := globalSymbol.mValue;
+  //if not module.symbolTable.find(TSymbol.globalId, globalSymbol) then
+  //   raise ESyntaxException.Create ('Internal error: AST can''t find the global space', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber)
+  //else
+   //globalSpace := globalSymbol.mValue;
 end;
 
 
@@ -236,7 +240,7 @@ begin
      // Add the argument symbol to the user function local symbol table
      // if not currentUserFunction.symbolTable.find(sc.tokenString, symbolIndex) then
      // symbolIndex := currentUserFunction.symbolTable.addSymbol(sc.tokenString, TScope.scUserFunction);
-     result := TASTPrimary.Create(sc.tokenString);
+     result := TASTIdentifier.Create(sc.tokenString);
      sc.nextToken;
      end;
 end;
@@ -257,8 +261,9 @@ begin
 end;
 
 
-// Parse something of the form variable '[' expressionList ']'
+// Parse something of the form  '[' expressionList ']'
 // Such indexing applies to lists and strings
+// The list gets stored in aan ast node list
 function TConstructAST.parseIndexedVariable: TASTNode;
 var node : TASTNode;
     nodeList : TASTNodeList;
@@ -278,18 +283,58 @@ begin
 end;
 
 
-function TConstructAST.parseFunctionCall: TASTNodeList;
+// Parse something of the form variable '[' expressionList ']'
+// Such indexing applies to lists and strings
+function TConstructAST.parseIndexedVariable2 : TASTNode;
+var node : TASTNode;
+    nodeList : TASTNodeList;
+    exp : TASTNode;
+begin
+  nodelist := TASTNodeList.Create (ntNodeList);
+  sc.nextToken;
+  if sc.token = tRightBracket then
+     begin
+     result := TASTErrorNode.Create('indexed operator must have at least one index', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+     sc.nextToken;
+     exit;
+     end;
+
+  exp := expression();
+
+  nodeList.list.Add(exp);
+  while sc.token = tComma do
+    begin
+    sc.nextToken;
+    nodeList.list.Add(expression);
+    end;
+  node := expect(tRightBracket);
+  if node <> nil then
+     nodeList.list.Add (node);   // easist thing to do is add the error node to the expression list
+  exit (nodeList);
+end;
+
+
+function TConstructAST.parseFunctionCall: TASTNode;
 var node : TASTNode;
 begin
   result := nil;
-  sc.nextToken;
   if sc.token <> tRightParenthesis then
-    result := expressionList;
-  if result = nil then
-    result := TASTNodeList.Create (ntNodeList); // Make sure we return an empty list.
+     begin
+     result := expressionList;
+     if result.nodeType = ntError then
+        exit (result);
+     end;
   node := expect(tRightParenthesis);
-  if node <> nil then
-     result.list.Add(node);
+  if node = nil then // no error
+     begin
+     if result = nil then
+        result := TASTNodeList.Create (ntNodeList);
+     exit (result);
+     end;
+
+  // Error
+  result.freeAST;
+  exit (node);
 end;
 
 
@@ -298,12 +343,12 @@ begin
   if inUserFunctionParsing then
      begin
      if globalVariableList.IndexOf(identifier) <> -1 then
-       result := TASTPrimary.Create(identifier)
+       result := TASTPrimaryOld.Create(identifier)
      else
-       result := TASTPrimary.Create(identifier);
+       result := TASTPrimaryOld.Create(identifier);
      end
   else
-    result := TASTPrimary.Create(identifier)
+    result := TASTPrimaryOld.Create(identifier)
 end;
 
 
@@ -312,13 +357,13 @@ var
   identifier: string;
   argumentList: TASTNodeList;
   m: TASTSubscript;
-  node: TASTPrimary;
+  node: TASTPrimaryOld;
   nodeList : TASTNode;
 begin
   case sc.token of
     tIdentifier:
         begin
-        node := TASTPrimary.Create(sc.tokenString);
+        node := TASTPrimaryOld.Create(sc.tokenString);
         sc.nextToken;
         result := node;
         end;
@@ -342,16 +387,157 @@ begin
         m := TASTSubscript.Create(nodeList as TASTNodeList);
         result := m;
         end;
-    tLeftParenthesis: // ( argument list ')'
+    tLeftParenthesis: // '(' argument list ')'
         begin
-        argumentList := parseFunctionCall;
+        argumentList := parseFunctionCall as TASTNodeList;
         if argumentList.nodeType = ntError then
            exit (argumentList);
 
-        result := TASTFunctionCall.Create('', identifier, argumentList);
+        result := TASTFunctionCall.Create(argumentList);
         end
   else
     result := TASTErrorNode.Create ('Expecting identifer, period, left bracket or left parentheses', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+  end;
+end;
+
+// primary => factor primaryPlus
+function TConstructAST.primary : TASTNode;
+var node : TASTNode;
+begin
+  result := factor2;
+  if result.nodeType = ntError then
+     exit (result);
+
+  node := primaryPlus;
+  if node.nodeType = ntError then
+     begin
+     result.freeAST;
+     result := node;
+     end
+  else
+     result := TASTPrimary.Create(result, node);
+end;
+
+
+function TConstructAST.factor2 : TASTNode;
+var node, primary : TASTNode;
+    alist: TASTNodeList;
+begin
+  result := nil;
+  case sc.token of
+   tInteger:
+      begin
+        result := TASTInteger.Create(sc.tokenInteger);
+        sc.nextToken;
+      end;
+   tFloat:
+      begin
+        result := TASTFloat.Create(sc.tokenFloat);
+        sc.nextToken;
+      end;
+   tIdentifier :
+        begin
+        result := TASTIdentifier.Create (sc.tokenString);
+        sc.nextToken;
+        end;
+   tString:
+        begin
+        result := TASTString.Create(sc.tokenString);
+        sc.nextToken;
+        end;
+    tNOT:
+      begin
+        sc.nextToken;
+        node := expression();
+        if node.nodeType = ntError then
+           exit (node);
+        result := TASTNotOp.Create(node);
+      end;
+    tFalse:
+      begin
+        result := TASTBoolean.Create(False);
+        sc.nextToken;
+      end;
+    tTrue:
+      begin
+        result := TASTBoolean.Create(True);
+        sc.nextToken;
+      end;
+    tLeftParenthesis:
+      begin
+        sc.nextToken;
+        result := expression();
+        if result.nodeType = ntError then
+           exit (result);
+
+        node := expect(tRightParenthesis);
+        if node <> nil then
+           begin
+           result.freeAST;
+           result := node;
+           end;
+      end;
+    tLeftCurleyBracket:
+      begin
+        sc.nextToken;
+        alist := nil;
+        result := TASTCreateList.Create;
+        if sc.token <> tRightCurleyBracket then
+           begin
+           (result as TASTCreateList).list.Add(expression);
+           while sc.token = tComma do
+              begin
+              sc.nextToken;
+              (result as TASTCreateList).list.Add(expression);
+              end;
+           end;
+
+        node := expect(tRightCurleyBracket);
+        if node <> nil then
+           begin
+           alist.freeAST;
+           exit (node);
+           end;
+       end;
+   else
+      result := TASTErrorNode.Create ('Expecting a factor [literal, identifier, or ''{'']' , sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+  end;
+end;
+
+
+function TConstructAST.primaryPlus : TASTNode;
+var periodStr : string;
+    nodeList : TASTNode;
+    nIndices : integer;
+begin
+  case sc.token of
+     tPeriod :
+         begin
+         sc.nextToken;
+         periodStr := sc.tokenString;
+         sc.nextToken;
+         result := TASTPrimaryPeriod.Create (TASTIdentifier.Create(periodStr), primaryPlus);
+         end;
+     tLeftParenthesis:  // '(' expression list ')'
+         begin
+         // to be done
+         sc.nextToken;
+         nodeList := parseFunctionCall;
+         if nodeList.nodeType = ntError then
+            exit (nodeList);
+
+         result := TASTPrimaryFunction.Create(nodeList as TASTNodeList, primaryPlus);
+         end;
+    tLeftBracket: // '[' expression list ']'
+         begin
+         nodeList := parseIndexedVariable2;
+         if nodeList.nodeType = ntError then
+            exit (nodeList);
+
+         result := TASTPrimaryIndex.Create(nodeList as TASTNodeList, primaryPlus);
+         end;
+  else
+      begin result := TASTNull.Create; end;
   end;
 end;
 
@@ -367,7 +553,7 @@ var
   symbol: TSymbol;
   action : boolean;
   i : integer;
-  errMsg : string;
+  errMsg, astr : string;
 begin
   case sc.token of
     tInteger:
@@ -405,10 +591,10 @@ begin
         // We do it by faking globalSpace.int in the scanner stream.
         // Note globalSpace.int is also acceptable but so is the short version int
 
-        if globalSpace <> nil then
-           action := globalSpace.symbolTable.find(identifier, symbol)
-        else
-           action := False;
+        //if globalSpace <> nil then
+        //   action := globalSpace.symbolTable.find(identifier, symbol)
+        //else
+        //   action := False;
 
         if action then
            begin
@@ -442,15 +628,15 @@ begin
               begin
               sc.nextToken;
               root := nil;
-              result := TASTPrimary.Create(identifier);
+              result := TASTPrimaryOld.Create(identifier);
               exit;
               end;
 
            sc.nextToken;
            end;
-        primary := TASTPrimary.Create (identifier);
+        primary := TASTPrimaryOld.Create (identifier);
         while sc.token in [tLeftBracket, tLeftParenthesis, tPeriod] do
-              (primary as TASTPrimary).nodes.add (parseSecondary());
+              (primary as TASTPrimaryOld).nodes.add (parseSecondary());
 
         result := primary;
       end;
@@ -495,8 +681,9 @@ begin
 
     tString:
       begin
-        result := TASTString.Create(sc.tokenString);
+        astr := sc.tokenString;
         sc.nextToken;
+        result := TASTString.Create(astr);
       end;
 
     tNOT:
@@ -550,7 +737,7 @@ begin
     sc.nextToken;
   end;
 
-  leftNode := factor;
+  leftNode := primary;
   if leftNode.nodeType = ntError then
      exit (leftNode);
 
@@ -756,10 +943,10 @@ begin
       result := AssertTrueStatement;
     tAssertFalse:
       result := AssertFalseStatement;
-    thelp:
+    tHelp:
       result := helpStatement;
     tEnd:
-      exit;
+      result := nil;
     tUntil:
       exit; // To allow repeat until False
     tEndOfStream:
@@ -771,24 +958,39 @@ end;
 
 
 // statementList = statement { [ ';' ] statement }
-function TConstructAST.statementList: TASTStatementList;
+function TConstructAST.statementList: TASTNode;
 var node : TASTNode;
+    stat : TASTStatementList;
 begin
-  result := TASTStatementList.Create;
   node := statement();
-  if node <> nil then
-     result.statementList.Add(node);
+  if node = nil then
+     begin
+     // Return empty statment list
+     node := TASTStatementList.Create;
+     exit (node)
+     end;
+
+  if node.nodeType = ntError then
+     exit (node);
+
+  stat := TASTStatementList.Create;
+  stat.statementList.Add(node);
   while True do
-    begin
-      if sc.token = tSemicolon then // semicolons optional
+     begin
+     if sc.token = tSemicolon then // semicolons optional
         expect(tSemicolon);
-      // Note these are all thing that can end a statement list.
-      if sc.token in [tUntil, tEnd, tElse, tCase, tEndOfStream] then
-        exit(result);
-      node := statement();
-      if node <> nil then
-         result.statementList.Add(node);
-    end;
+     // Note these are all thing that can end a statement list.
+     if sc.token in [tUntil, tEnd, tElse, tCase, tEndOfStream] then
+         exit(stat);
+     node := statement();
+     if node.nodeType = ntError then
+        begin
+        stat.freeAST;
+        exit (node);
+        end;
+     stat.statementList.Add(node);
+     end;
+  result := stat;
 end;
 
 
@@ -803,7 +1005,7 @@ begin
     sc.nextToken;
     // It could be an empty function call
     if sc.token <> tRightParenthesis then
-      funcArgs := expressionList
+      funcArgs := expressionList as TASTNodeList
     else
       funcArgs := TASTNodeList.Create (ntNodeList);
     node := expect(tRightParenthesis);
@@ -833,7 +1035,7 @@ begin
      sc.nextToken;
      // It could be an empty function call
      if sc.token <> tRightParenthesis then
-        funcArgs := expressionList
+        funcArgs := expressionList as TASTNodeList
      else
         funcArgs := TASTNodeList.Create (ntNodeList);
      node := expect(tRightParenthesis);
@@ -1015,6 +1217,7 @@ begin
          end;
       expressionNode := TASTExpression.Create(exprNode);
 
+      //if node.nodeType <> ntPrimary then
       if node.nodeType <> ntPrimary then
          begin
          expressionNode.freeAST;
@@ -1023,7 +1226,8 @@ begin
          exit;
          end;
 
-      result := TASTAssignment.Create(node as TASTPrimary, expressionNode);
+      //result := TASTAssignment.Create(node as TASTPrimary, expressionNode);
+      result := TASTAssignment2.Create(node as TASTPrimary, expressionNode);
       end
    else
       begin
@@ -1041,15 +1245,22 @@ end;
 
 // argumentList = expression { ',' expression }
 // Returns the number of expressions that were parsed
-function TConstructAST.expressionList: TASTNodeList;
+function TConstructAST.expressionList: TASTNode;
+var exp : TASTNode;
+    nodeList : TASTNodeList;
 begin
-  result := TASTNodeList.Create (ntNodeList);
-  result.list.Add(expression);
+  exp := expression;
+  if exp.nodeType = ntError then
+     exit (exp);
+
+  nodeList := TASTNodeList.Create (ntNodeList);
+  nodeList.list.Add(exp);
   while sc.token = tComma do
     begin
       sc.nextToken;
-      result.list.Add(expression);
+      nodeList.list.Add(expression());
     end;
+  result := nodeList;
 end;
 
 
@@ -1103,7 +1314,7 @@ begin
          caseValue.freeAST;
          exit (node);
          end;
-      caseStatementList := statementList;
+      caseStatementList := statementList as TASTStatementList;
       if caseStatementList.nodeType = ntError then
          begin
          switchExpression.freeAST;
@@ -1116,7 +1327,7 @@ begin
   if sc.token = tElse then
      begin
      sc.nextToken;
-     elseStatement := statementList;
+     elseStatement := statementList as TASTStatementList;
      end
   else
      elseStatement := nil;
@@ -1237,7 +1448,7 @@ begin
        exit (node);
        end;
 
-    listOfStatements := statementList;
+    listOfStatements := statementList() as TASTStatementList;
 
     node := expect(tEnd);
     if node <> nil then
@@ -1272,7 +1483,7 @@ begin
   try
     expect(tRepeat);   // Guaranteed to be true
 
-    listOfStatements := statementList;
+    listOfStatements := statementList as TASTStatementList;
     if listOfStatements.nodeType = ntError then
        exit (listOfStatements);
 
@@ -1312,9 +1523,11 @@ var
   toToken: TTokenCode;
   breakJump: integer;
   breakStack: TStack<integer>;
-  assignment: TASTAssignment;
+  assignment: TASTAssignment2;
   iterationBlock: TASTIterationBlock;
-  rightSide, upper, body, symbolNode, node: TASTNode;
+  rightSide, body, node: TASTNode;
+  lower, upper : TASTExpression;
+  id : TASTIdentifier;
 begin
   breakStack := TStack<integer>.Create;
   stackOfBreakStacks.Push(breakStack);
@@ -1325,25 +1538,24 @@ begin
     if node <> nil then
        exit (node);
 
-    symbolNode := TASTPrimary.Create(sc.tokenString);
-    if symbolNode.nodeType = ntError then
-       exit (symbolNode);
+    id := TASTIdentifier.Create (sc.tokenString);
+    if id.nodeType = ntError then
+       exit (id);
 
     node := expect(tEquals);
     if node <> nil  then
        begin
-       symbolNode.freeAST;
+       id.freeAST;
        exit (node);
        end;
 
-    rightSide := expression;
-    if rightSide.nodeType = ntError then
+    node := expression;
+    if node.nodeType = ntError then
        begin
-       symbolNode.freeAST;
-       exit (rightSide);
+       id.freeAST;
+       exit (node);
        end;
-
-    assignment := TASTAssignment.Create(symbolNode as TASTPrimary, rightSide);
+    lower := TASTExpression.Create(node);
 
     if sc.token in [tTo, tDownTo] then
        begin
@@ -1352,20 +1564,23 @@ begin
        end
     else
       begin
-      assignment.freeAST;
+      id.freeAST;
+      lower.freeAST;
       result := TASTErrorNode.Create ('expecting "to" or "downto" in for loop', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
       exit;
       end;
 
     // Parse the upper limit expression
-    upper := expression;
-    if upper.nodeType = ntError then
+    node := expression;
+    if node.nodeType = ntError then
        begin
-       assignment.freeAST;
-       exit (upper);
+       id.freeAST;
+       lower.freeAST;
+       exit (node);
        end;
+    upper := TASTExpression.Create(node);
 
-    iterationBlock := TASTIterationBlock.Create(assignment, TASTExpression.Create(upper));
+    iterationBlock := TASTIterationBlock.Create(id, lower, upper);
     if toToken = tTo then
       iterationBlock.direction := TASTNode.Create(TASTNodeType.ntTo)
     else
@@ -1462,7 +1677,7 @@ begin
      else
          argList := TASTNodeList.Create (ntNodeList);
 
-      statementlistNode := statementList;
+      statementlistNode := statementList as TASTStatementList;
     finally
       exitUserFunctionScope();
       globalVariableList.Free;
@@ -1533,7 +1748,7 @@ begin
           // global a
           // After the function has been parsed the global list is deleted.
           globalVariableList.Add(sc.tokenString);
-          variableList.list.Add(TASTPrimary.Create(sc.tokenString));
+          variableList.list.Add(TASTIdentifier.Create(sc.tokenString));
 
           sc.nextToken;
           while sc.token = tComma do
@@ -1548,7 +1763,7 @@ begin
                 exit;
                 end;
 
-              variableList.list.Add(TASTPrimary.Create(sc.tokenString));
+              variableList.list.Add(TASTIdentifier.Create(sc.tokenString));
               sc.nextToken;
               end;
 
@@ -1599,8 +1814,7 @@ begin
 end;
 
 
-function TConstructAST.parseModule(moduleName: string;
-var astRoot: TASTNode): TModule;
+function TConstructAST.parseModule(moduleName: string; var astRoot: TASTNode): TModuleLib;
 begin
   result := TModulelib.Create(moduleName, '');
 

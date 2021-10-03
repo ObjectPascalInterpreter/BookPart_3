@@ -261,8 +261,12 @@ begin
                    readln (fragment)
                    end;
                end;
-            if runFramework.compileCode (sourceCode, mainModule, True) then
-               runFrameWork.runCode (mainModule, True);
+            runFramework.compileCode (sourceCode, mainModule, True);
+            //runFramework.showByteCode(mainModule);
+            runFrameWork.runCode (mainModule, True);
+
+            //if runFramework.compileCode (sourceCode, mainModule, True) then
+            //   runFrameWork.runCode (mainModule, True);
 
           except
               on e:exception do

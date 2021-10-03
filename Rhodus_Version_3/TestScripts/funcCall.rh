@@ -144,7 +144,7 @@ testUtils.runtestTrue (x == 11);
 
 function mean (x)
   sum = 0
-  for i = 0 to lists.len (x) - 1 do
+  for i = 0 to x.len () - 1 do
       sum = sum + x[i]
   end
   return sum/5

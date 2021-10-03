@@ -1,0 +1,8 @@
+
+function test (n)
+  n = n - 1
+  println (n)
+  if n > 0 then
+     test (n)
+  end
+end

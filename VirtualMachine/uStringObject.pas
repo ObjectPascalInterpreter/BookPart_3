@@ -269,13 +269,13 @@ initialization
 
   methodListObject.Add(TMethodDetails.Create ('len',     'Return the length of a string', 0, stringMethods.getLength));
   methodListObject.Add(TMethodDetails.Create ('find',    'Finds a substring in string. Returns -1 if it fails: var.find ("ABCDEFG", "CD"', 2, stringMethods.find));
-  methodListObject.Add(TMethodDetails.Create ('toUpper', 'Converts all letters in the string to uppoer case: var.toUpper ("AcdefGH"', 1, stringMethods.toUpper));
-  methodListObject.Add(TMethodDetails.Create ('toLower', 'Converts all letters in the string to lower case: var.toUpper ("AcdefGH"', 1, stringMethods.toLower));
-  methodListObject.Add(TMethodDetails.Create ('left',    'Returns the left n chars of a string. var.left ("AcdefGH", 5', 2, stringMethods.left));
-  methodListObject.Add(TMethodDetails.Create ('right',   'Returns the right n chars of a string. var.right ("AcdefGH", 5', 2, stringMethods.right));
-  methodListObject.Add(TMethodDetails.Create ('mid',     'Returns a substring of string from start to count characters: var.mid ("AcdefGH", 2, 4', 3, stringMethods.mid));
-  methodListObject.Add(TMethodDetails.Create ('trim',    'Removes ny spaces from the start and endof the string: var.trim ("  AcdefGH ")', 1, stringMethods.trim));
-  methodListObject.Add(TMethodDetails.Create ('split',   'Splits at a given character into a list of strings: var.split ("AB CD DE", " ")', 2, stringMethods.split));
+  methodListObject.Add(TMethodDetails.Create ('toUpper', 'Converts all letters in the string to uppoer case: var.toUpper ()', 0, stringMethods.toUpper));
+  methodListObject.Add(TMethodDetails.Create ('toLower', 'Converts all letters in the string to lower case: var.toUpper ()', 0, stringMethods.toLower));
+  methodListObject.Add(TMethodDetails.Create ('left',    'Returns the left n chars of a string. var.left (5)', 1, stringMethods.left));
+  methodListObject.Add(TMethodDetails.Create ('right',   'Returns the right n chars of a string. var.right (5)', 1, stringMethods.right));
+  methodListObject.Add(TMethodDetails.Create ('mid',     'Returns a substring of string from start to count characters: var.mid (2, 4)', 2, stringMethods.mid));
+  methodListObject.Add(TMethodDetails.Create ('trim',    'Removes any spaces from the start and endof the string: var.trim ()', 0, stringMethods.trim));
+  methodListObject.Add(TMethodDetails.Create ('split',   'Splits at a given character into a list of strings: var.split (",")', 1, stringMethods.split));
 
   methodListObject.Add(TMethodDetails.Create ('dir',     'dir of string object methods', 0, stringMethods.dir));
 

@@ -1,0 +1,5 @@
+
+a = 2
+assertTrue (a==2)
+
+println()

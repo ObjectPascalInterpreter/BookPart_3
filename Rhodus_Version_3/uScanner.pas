@@ -695,7 +695,9 @@ begin
      '/'  : FTokenRecord.Ftoken := tDivide;
      '*'  : FTokenRecord.Ftoken := tMult;
   else
+     begin
      FTokenRecord.FToken := tError;
+     end;
   end;
   Fch := nextChar;
 end;

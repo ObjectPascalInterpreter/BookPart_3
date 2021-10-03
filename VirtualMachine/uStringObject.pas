@@ -215,6 +215,8 @@ constructor TStringObject.createConstantObj (value : string);
 begin
   blockType := btConstant;
   self.value := value;
+  methodList := methodListObject;
+  stringMethods.methodList := methodList;
 end;
 
 

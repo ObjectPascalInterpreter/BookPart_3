@@ -145,18 +145,18 @@ type
    end;
 
    // Helper functions to add the builtin libraries.
-   function  addLib (module : TModule; lib : TModule) : TSymbol;
+   function  addModule (module : TModule; lib : TModule) : TSymbol;
    procedure addAllBuiltInLibraries (module : TModule);
 
 var OSLibraryRef : TModule;
 
 implementation
 
-Uses uBuiltInGlobal, uBuiltinMath, uBuiltInList, uBuiltInRandom,
-     uBuiltInOS, uBuiltInStr, uBuiltInFile, uBuiltInTurtle;
+Uses uBuiltInGlobal, uBuiltinMath, uBuiltInList, uBuiltInRandom, uListOfBuiltIns,
+     uBuiltInOS, uBuiltInStr, uBuiltInFile, uBuiltInConfig, uBuiltInSys, uBuiltInTurtle;
 
 
-function addLib (module : TModule; lib : TModule) : TSymbol;
+function addModule (module : TModule; lib : TModule) : TSymbol;
 begin
   result := module.symbolTable.addModule (lib);
 end;
@@ -164,13 +164,13 @@ end;
 
 procedure addAllBuiltInLibraries (module : TModule);
 begin
-  addLib (module, TBuiltInMath.Create);
-  addLib (module, TBuiltInList.Create);
-  addLib (module, TBuiltInRandom.Create);
-  addLib (module, TBuiltInStr.Create);
-  OSLibraryRef := TBuiltInOS.Create; addLib (module, OSLibraryRef);
-  addLib (module, TBuiltInTime.Create);
-  addLib (module, TBuiltInFile.Create);
+  // Import the common modules.
+  addModule (module, TBuiltInList.Create);
+  addModule (module, TBuiltInStr.Create);
+
+  // Needed by the compile to access the path variable
+  OSLibraryRef := TBuiltInOS.Create; addModule (module, OSLibraryRef);
+
   //addLib (module, TBuiltInTurtle.Create);
 end;
 

@@ -13,13 +13,10 @@ interface
 
 Uses SysUtils, Classes, uLibModule, System.Diagnostics;
 
-const
-   RHODUS_VERSION : string = '3.0.1.0';
 
 type
   TBuiltInOS = class (TModuleLib)
 
-     procedure   getVersion (vm : TObject);
      procedure   getPwd (vm : TObject);
      procedure   setPwd (vm : TObject);
      constructor Create;
@@ -45,7 +42,6 @@ begin
 
   addMethod (getpwd, 0, 'getcwd', 'Return the path to the current working directory');
   addMethod (setpwd, 1, 'setcwd', 'Sets the current wroking dirctory');
-  addMethod (getversion, 0, 'version', 'Get the current version number for Rhodus');
 
   path := TListObject.Create(0);
   path.append(TStringObject.create('.'));
@@ -67,11 +63,6 @@ begin
   astr := TVM (vm).popString.value;
   SetCurrentDir(astr);
   TVM (vm).pushNone;
-end;
-
-procedure TBuiltInOs.getVersion (vm : TObject);
-begin
-  TVM (vm).push (TStringObject.create(RHODUS_VERSION));
 end;
 
 // --------------------------------------------------------------------------------------------

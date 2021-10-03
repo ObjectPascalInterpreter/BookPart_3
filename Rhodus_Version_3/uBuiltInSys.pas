@@ -1,0 +1,55 @@
+unit uBuiltInSys;
+
+
+// This source is distributed under Apache 2.0
+
+// Copyright (C) 2019-2021 Herbert M Sauro
+
+// Author Contact Information:
+// email: hsauro@gmail.com
+
+
+interface
+
+Uses SysUtils, Classes, uLibModule, System.Diagnostics;
+
+const
+   RHODUS_VERSION : string = '3.0.1.0';
+
+type
+  TBuiltInSys= class (TModuleLib)
+
+     procedure   getVersion (vm : TObject);
+     constructor Create;
+  end;
+
+implementation
+
+Uses Windows, uSymboLTable, uVM, uStringObject, uListObject, uMemoryManager;
+
+// --------------------------------------------------------------------------------------------
+
+constructor TBuiltInSys.Create;
+var path : TListObject;
+begin
+  inherited Create ('sys', 'System module');
+
+  addMethod (getversion, 0, 'version', 'Get the current version number for Rhodus');
+
+  //path := TListObject.Create(0);
+  //path.append(TStringObject.create('.'));
+  //path.blockType := btBound;   // To make sure the garbage collector doesn't get it.
+
+  //addListValue ('path', path, 'Search path for Rhodus import libraries', True);
+end;
+
+
+
+procedure TBuiltInSys.getVersion (vm : TObject);
+begin
+  TVM (vm).push (TStringObject.create(RHODUS_VERSION));
+end;
+
+
+
+end.

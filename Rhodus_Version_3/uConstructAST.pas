@@ -499,8 +499,12 @@ begin
            exit (node);
            end;
        end;
+    tError:
+       begin
+       result := TASTErrorNode.Create ('Expecting a factor [literal, identifier, or ''{''] but found ' + sc.tokenElement.FTokenCharacter, sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+       end
    else
-      result := TASTErrorNode.Create ('Expecting a factor [literal, identifier, or ''{'']' , sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+      result := TASTErrorNode.Create ('Expecting a factor [literal, identifier, or ''{''] but found ' + sc.tokenToString, sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
   end;
 end;
 
@@ -520,7 +524,6 @@ begin
          end;
      tLeftParenthesis:  // '(' expression list ')'
          begin
-         // to be done
          sc.nextToken;
          nodeList := parseFunctionCall;
          if nodeList.nodeType = ntError then

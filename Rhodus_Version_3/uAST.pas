@@ -1084,7 +1084,6 @@ end;
 constructor TASTFunctionCall.Create (argumentList : TASTNodeList);
 begin
   inherited Create (ntFunctionCall);
-  //self.symbolName := symbolName;
   self.argumentList := argumentList;
 end;
 

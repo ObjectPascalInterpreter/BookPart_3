@@ -67,6 +67,7 @@ uses uCommands,
      uAssembler,
      uOpCodes,
      uBuiltInOS,
+     uBuiltInConfig,
      uTerminal,
      uRhodusTypes,
      uEnvironment;
@@ -127,7 +128,7 @@ begin
   showAssembler := False;
   mainModule := TModuleLib.Create (TSymbol.mainModuleId, 'Main Module');  // mainModule is declared in uModule
 
-  addMethodsToModule (mainModule);
+  addGlobalMethodsToModule (mainModule);
 
   addAllBuiltInLibraries (mainModule);
 
@@ -161,7 +162,7 @@ end;
 
 function  TRunFramework.getVersion : string;
 begin
-  result := uBuiltInOS.RHODUS_VERSION;
+  result := uBuiltInConfig.RHODUS_VERSION;
 end;
 
 

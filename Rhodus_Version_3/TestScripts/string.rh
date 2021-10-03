@@ -63,13 +63,13 @@ testUtils.beginTests ("")
 
 str = "ABCDEFGHIJKLMMNOPQRStUVWXYZ"
 
-testUtils.runtestTrue (strings.find (str, "45") == -1) 
-testUtils.runtestTrue (strings.find (str, "") == -1) 
-testUtils.runtestTrue (strings.find (str, "AB") == 0) 
-testUtils.runtestTrue (strings.find (str, "HIJ") == 7) 
+testUtils.runtestTrue (str.find ("45") == -1) 
+testUtils.runtestTrue (str.find ("") == -1) 
+testUtils.runtestTrue (str.find ("AB") == 0) 
+testUtils.runtestTrue (str.find ("HIJ") == 7) 
 
-testUtils.runtestTrue (strings.len ("123456") == 6)
-testUtils.runtestTrue (strings.len ("") == 0)
+testUtils.runtestTrue ("123456".len () == 6)
+testUtils.runtestTrue ("".len () == 0)
 
 testUtils.runtestTrue (strings.toUpper ("abcd") == "ABCD")
 testUtils.runtestTrue (strings.toLower ("ABCD") == "abcd")

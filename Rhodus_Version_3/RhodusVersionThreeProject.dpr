@@ -80,7 +80,10 @@ uses
   uProgramCode in 'uProgramCode.pas',
   uRhodusTypes in '..\VirtualMachine\uRhodusTypes.pas',
   uEnvironment in 'uEnvironment.pas',
-  uObjectSupport in 'uObjectSupport.pas';
+  uObjectSupport in 'uObjectSupport.pas',
+  uBuiltInConfig in 'uBuiltInConfig.pas',
+  uBuiltInSys in 'uBuiltInSys.pas',
+  uListOfBuiltIns in 'uListOfBuiltIns.pas';
 
 var sourceCode : string;
     fragment : string;
@@ -261,7 +264,7 @@ begin
                    readln (fragment)
                    end;
                end;
-            runFramework.compileCode (sourceCode, mainModule, True);
+            if runFramework.compileCode (sourceCode, mainModule, True) then
             //runFramework.showByteCode(mainModule);
             runFrameWork.runCode (mainModule, True);
 

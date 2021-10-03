@@ -1,4 +1,6 @@
 // Startup script....
 
+import math
+
 // This assumes we're working a development environment.
 os.setcwd ("..\\..")

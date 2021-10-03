@@ -41,6 +41,7 @@ type
      constructor Create;
   end;
 
+
 implementation
 
 Uses Math, uSymbolTable, uVM, uStringObject, uListObject, uMemoryManager;

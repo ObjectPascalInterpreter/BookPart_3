@@ -13,43 +13,17 @@ interface
 
 Uses SysUtils, Classes, uLibModule, uSymbolTable;
 
-type
-  TBuiltInGlobal = class (TModuleLib)
-   private
-   public
-     procedure myInt (vm : TObject);
-     procedure readNumber (vm : TObject);
-     procedure readString (vm : TObject);
-     procedure getChar (vm : TObject);  // Convert int into character
-     procedure getAsc (vm : TObject);   // Convert char in to ascii
-     procedure listSymbols (vm : TObject);
-     procedure myHelp (vm : TObject);
-     procedure getType (vm : TObject);
-     procedure getAttr (vm : TObject);
-     procedure myAssertTrueEx (vm : TObject);
-     procedure myAssertFalseEx (vm : TObject);
-     procedure listModules (vm : TObject);
-     procedure getMemoryUsed (vm : TObject);
-     procedure myMain (vm : TObject);
-     procedure dis (vm : TObject);
-     procedure stackInfo (vm : TObject);
-
-     constructor Create;
-     destructor  Destroy; override;
-  end;
-
 function  getMainModule : TModule;
 procedure computeBaseLineMemoryAllocated;
-procedure addMethodsToModule (module : TModuleLib);
+procedure addGlobalMethodsToModule (module : TModuleLib);
 
 var mainModule : TModuleLib;
     baseLineMemoryAllocated : integer;
 
-    builtInGlobal : TBuiltInGlobal;
-
 implementation
 
-Uses Math, StrUtils,
+Uses Math,
+     StrUtils,
      uVM,
      uVMExceptions,
      uStringObject,
@@ -60,8 +34,36 @@ Uses Math, StrUtils,
      uAssembler,
      uRhodusTypes;
 
+type
+  TBuiltInGlobal = class (TModuleLib)
+     private
+     public
+       procedure myInt (vm : TObject);
+       procedure readNumber (vm : TObject);
+       procedure readString (vm : TObject);
+       procedure getChar (vm : TObject);  // Convert int into character
+       procedure getAsc (vm : TObject);   // Convert char in to ascii
+       procedure listSymbols (vm : TObject);
+       procedure myHelp (vm : TObject);
+       procedure getType (vm : TObject);
+       procedure getAttr (vm : TObject);
+       procedure myAssertTrueEx (vm : TObject);
+       procedure myAssertFalseEx (vm : TObject);
+       procedure listModules (vm : TObject);
+       procedure getMemoryUsed (vm : TObject);
+       procedure myMain (vm : TObject);
+       procedure dis (vm : TObject);
+       procedure stackInfo (vm : TObject);
 
-procedure addMethodsToModule (module : TModuleLib);
+       constructor Create;
+       destructor  Destroy; override;
+  end;
+
+var  builtInGlobal : TBuiltInGlobal;
+
+// -------------------------------------------------------------------------------------
+
+procedure addGlobalMethodsToModule (module : TModuleLib);
 begin
   module.addMethod (builtInGlobal.myInt,          1, 'int', 'Convert float to integer: int (3.4)');
   module.addMethod (builtInGlobal.readNumber,     0, 'readNumber',    'Read an integer from the console');
@@ -78,7 +80,6 @@ begin
   module.addMethod (builtInGlobal.stackInfo,      0, 'stackInfo',     'Get the current state of the VM stack');
   module.addMethod (builtInGlobal.getChar,        1, 'chr',           'Get the character equivalent of an integer value');
   module.addMethod (builtInGlobal.getAsc,         1, 'asc',           'Get the ascii equivalent of a single character');
-
 end;
 
 
@@ -122,7 +123,6 @@ begin
   addMethod (listSymbols,    1, 'symbols',       'Returns list of symbols in the specified module: symbols(math). Use ' + TSymbol.mainModuleId + ' to get the symbols for the main module');
   addMethod (getType,        1, 'type',          'Returns the type of a given variable: type (x)');
   addMethod (getAttr,        2, 'getAttr',       'Returns the value attached to the symbol attribute: getAttr (mylib, "x")');
-  //addMethod (myHelp,         1, 'help',          'Get help on an object');
   addMethod (listModules,    0, 'modules',       'Get a list of all currently loaded mdules');
   addMethod (getMemoryUsed,  0, 'mem',           'Get the amount of memory currently in use.');
   addMethod (myAssertTrueEx, 1, 'assertTrueEx',  'Assert argument is true, return . of F');

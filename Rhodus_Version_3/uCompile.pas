@@ -31,6 +31,7 @@ type
     procedure handleError (node : TASTErrorNode);
     function isLocal(primary: TASTPrimary): boolean;
     function  isLocal2(primary: TASTPrimary): boolean;
+    procedure importBuiltIn (moduleName :string; index: integer);
 
     procedure visitNode(node: TASTNode);
     procedure compileIfStatement(node: TASTIf);
@@ -41,7 +42,6 @@ type
     procedure compilePrimaryLoad (node : TASTPrimaryOld);
     procedure compilePrimaryLoad2 (node : TASTPrimary);
 
-    procedure compilePrimaryStore(primary: TASTPrimaryOld);
     procedure compilePrimaryStore2(primary: TASTPrimary);
 
     procedure compilePeriod (node : TASTPeriod);
@@ -58,8 +58,7 @@ type
     procedure compileRightHandSide (node : TASTIdentifier);
     procedure compileLeftHandSide (node : TASTIdentifier);
 
-    procedure compileAssignment(node: TASTAssignment);
-    procedure compileAssignment2(node: TASTAssignment2);
+    procedure compileAssignment(node: TASTAssignment2);
     procedure compileUserFunction(node: TASTNode);
     procedure compileList(node: TASTCreatelist);
     procedure compileGlobalVariable(node: TASTNode);
@@ -104,7 +103,8 @@ Uses uGlobal,
      uListObject,
      uMemoryManager,
      uRhodusTypes,
-     uStringObject;
+     uStringObject,
+     uListOfBuiltins;
 
 
 constructor TCompiler.Create(module: TModule);
@@ -400,20 +400,7 @@ end;
 
 // AST:
 // (assignment) -> (left-side) and (right-side)
-procedure TCompiler.compileAssignment(node: TASTAssignment);
-begin
-  // right-hand side first
-  compileCode(node.rightSide);
-  if node.leftSide.nodeType = ntPrimaryOld then
-     compilePrimaryStore(node.leftSide as TASTPrimaryOld)
-  else
-     raise ECompilerException.Create('Internal Error in compileAssignment')
-end;
-
-
-// AST:
-// (assignment) -> (left-side) and (right-side)
-procedure TCompiler.compileAssignment2(node: TASTAssignment2);
+procedure TCompiler.compileAssignment(node: TASTAssignment2);
 begin
   // right-hand side first
   compileCode(node.rightSide);
@@ -785,109 +772,6 @@ begin
 end;
 
 
-procedure TCompiler.compilePrimaryStore(primary: TASTPrimaryOld);
-var
-  symbol: TSymbol;
-  localSymbolIndex: integer;
-  i, j : integer;
-  userFunc : TASTFunctionCall;
-  lastOne : integer;
-begin
-//  if compilingFunction then
-//    begin
-//    if isLocal(primary) then
-//       // Don't store global variables in the local symbol table
-//       begin
-//       if not currentUserFunction.localSymbolTable.find(primary.primaryName, localSymbolIndex) then
-//          localSymbolIndex := currentUserFunction.localSymbolTable.addSymbol (primary.primaryName);
-//       end;
-//    end
-//  else
-//    begin
-//      if not currentModule.symbolTable.find(primary.primaryName, symbol) then
-//         begin
-//         currentModule.symbolTable.addSymbol(primary.primaryName);
-//         currentModule.symbolTable.find(primary.primaryName, symbol); // get the symbol we just created
-//         end;
-//    end;
-//
-//  if isLocal(primary) then
-//    begin
-//    if primary.nodes.Count > 0 then
-//       begin
-//       code.addByteCode(oLoadLocal, localSymbolIndex);
-//       for i := 0 to primary.nodes.Count - 1 do
-//           begin
-//           case primary.nodes.list[i].nodeType of
-//              ntSubscript :
-//                 begin
-//                 compileSubscriptsStore((primary.nodes[i] as TASTSubscript).subscripts.list, isLocal(primary as TASTPrimaryOld));
-//                 end;
-//              ntPeriod :
-//                 begin
-//                 // Doesn't work
-//                 code.addStoreByteCode(oLoadSecondary, ((primary.nodes.list[i] as TASTPeriod).name));
-//                 end
-//           else
-//              raise ECompilerException.Create ('Unsupported left-hand side assignment');
-//           end;
-//           end;
-//       end
-//    else
-//       code.addByteCode(oStoreLocal, localSymbolIndex);
-//    end
-//  else
-//    begin
-//       if primary.nodes.Count > 0 then
-//          begin
-//          code.addSymbolByteCode(oLoadSymbol, primary.primaryName);
-//          // Output code that does loads except for the last one which we store.
-//          for i := 0 to primary.nodes.Count - 2 do
-//              begin
-//              case primary.nodes[i].nodeType of
-//                  ntSubscript :
-//                     begin
-//                     compileSubscripts((primary.nodes[i] as TASTSubscript).subscripts.list, False);
-//                     end;
-//            ntFunctionCall:
-//                     begin
-//                     userFunc := primary.nodes[i] as TASTFunctionCall;
-//                     // Compile any arguments to the function call
-//                     for j := 0 to userFunc.argumentList.list.Count - 1 do
-//                         compileCode(userFunc.argumentList.list[j]);
-//
-//                     code.addByteCode(oCall, userFunc.argumentList.list.Count);
-//                     // <- arg count used to test for arity at run time
-//                     end;
-//            ntPeriod :
-//                     begin
-//                     code.addStoreByteCode(oLoadSymbol, (primary.nodes.list[i] as TASTPeriod).name);
-//                     end;
-//                else
-//                     raise ECompilerException.Create('Unrecongnized variable in assignment.');
-//              end;
-//              end;
-//              // Now output the store instruction on the last operator
-//              lastOne := primary.nodes.Count - 1;
-//              case primary.nodes[lastOne].nodeType of
-//                  ntSubscript :
-//                     compileSubscriptsStore((primary.nodes[lastOne] as TASTSubscript).subscripts.list, False); // false = not local
-//                  ntPeriod :
-//                     code.addStoreByteCode(oStoreSecondary, (primary.nodes[lastOne] as TASTPeriod).name);
-//                  ntFunctionCall:
-//                   raise ECompilerException.Create('You cannot assign to a function call.');
-//              else
-//                   raise ECompilerException.Create('Unrecongnized variable in assignment.');
-//              end;
-//          end
-//       else
-//          begin
-//          code.addSymbolByteCode(oStoreSymbol, primary.primaryName);
-//          end;
-//    end;
-end;
-
-
 procedure TCompiler.compileUserFunction(node: TASTNode);
 var
   oldCode: TProgram;
@@ -1116,6 +1000,29 @@ begin
 end;
 
 
+procedure TCompiler.importBuiltIn (moduleName :string; index: integer);
+var ctx : TRttiContext;
+    lType:TRttiType;
+    instance : TRttiInstanceType;
+    value : TValue;
+    m : TModule;
+begin
+   ctx := TRttiContext.Create;
+   lType:= ctx.FindType(listOfBuiltIns[index].className);
+   if lType<>nil then
+      begin
+      instance := lType.AsInstance;
+      value := instance.GetMethod('Create').Invoke(instance.MetaclassType,[]);
+      // Returns a module so cast it
+      m := value.AsObject as TModule;
+      // This statement effectively imports the module
+      uSymbolTable.addModule (currentModule, m);
+      end
+   else
+      raise ECompilerException.Create('Internal Error: Couldn''t find builtin module: ' + moduleName);
+end;
+
+
 procedure TCompiler.compileImportStmt(node: TASTImport);
 var
   scm: TScanner;
@@ -1128,7 +1035,15 @@ var
   paths : TListObject;
   path : string;
   found : integer;
+  index : integer;
 begin
+  // Check if it's a builtin first
+  if listofBuiltIns.find (node.importName, index) then
+     begin
+     importBuiltIn (node.importName, index);
+     exit;
+     end;
+
   found := -1;
   paths := OSLibraryRef.find ('path').lValue;
   for var i := 0 to paths.list.Count - 1 do
@@ -1160,7 +1075,7 @@ begin
       // root is the resulting AST
       module := sym.parseModule(node.importName, root);
 
-      addMethodsToModule (module);
+      addGlobalMethodsToModule (module);
       addAllBuiltInLibraries(module);
 
       compiler := TCompiler.Create(module);
@@ -1350,7 +1265,7 @@ begin
     ntCreateList:
       compileList(node as TASTCreatelist);
     ntAssignment:
-      compileAssignment2(node as TASTAssignment2);
+      compileAssignment(node as TASTAssignment2);
     // An expression on its own, has to be dealt with separately
     // All exprssions including functions return something even
     // if its a none type. This is dealt differently whether

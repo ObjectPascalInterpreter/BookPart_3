@@ -1,0 +1,4 @@
+// Startup script....
+
+// This assumes we're working a deveelopment environment.
+os.setcwd ("..\\..")

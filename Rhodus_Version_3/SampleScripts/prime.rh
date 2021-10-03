@@ -1,6 +1,6 @@
 
 print ("Find prime numbers upto : ")
-upto = globalSpace.readNumber()
+upto = readNumber()
 
 for num = 2 to upto  do
     c = 0

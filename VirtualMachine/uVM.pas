@@ -1574,7 +1574,7 @@ begin
   if p.stackType = stObjectMethod then
      begin
      if nArgs <> p.oValue.nArgs then
-        raise ERuntimeException.Create('Expecting ' + inttostr (p.oValue.nArgs) + ' arguments in function call but received ' + inttostr (nArgs) + ' arguments');
+        raise ERuntimeException.Create('Expecting ' + inttostr (p.oValue.nArgs) + ' arguments in function call [' + p.oValue.name + '] but received ' + inttostr (nArgs) + ' arguments');
      // The order of stack entries from the top will be
      //   Arguments
      //   Object method
@@ -1889,7 +1889,7 @@ begin
       stack[index + bsp].sValue := variable.sValue;
     end;
   else
-    raise ERuntimeException.Create('local variable is not indexable');
+    raise ERuntimeException.Create(stToStr(variable.stackType) + ' local variable is not indexable');
   end;
 end;
 
@@ -1913,7 +1913,7 @@ begin
   if symbol.stackType = stString then
     storeIndexableString(symbol, index)
   else
-    raise Exception.Create('X variable is not indexable');
+    raise Exception.Create(stToStr(symbol.stackType) + ' variable is not indexable');
 end;
 
 
@@ -1965,7 +1965,7 @@ begin
     stList: loadIndexableList(variable, index);
     stString: loadIndexableString(variable, index);
   else
-    raise ERuntimeException.Create('variable is not indexable');
+    raise ERuntimeException.Create(stToStr(variable.stackType) +  'variable is not indexable');
   end;
 end;
 
@@ -2014,7 +2014,7 @@ begin
   if st.stackType = stString then
     loadLocalIndexableString(st.sValue, index)
   else
-    raise ERuntimeException.Create('variable is not indexable');
+    raise ERuntimeException.Create(stToStr(st.stackType) + ' variable is not indexable');
 end;
 
 

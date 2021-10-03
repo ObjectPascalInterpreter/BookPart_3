@@ -268,7 +268,7 @@ initialization
   stringMethods := TStringMethods.Create;
 
   methodListObject.Add(TMethodDetails.Create ('len',     'Return the length of a string', 0, stringMethods.getLength));
-  methodListObject.Add(TMethodDetails.Create ('find',    'Finds a substring in string. Returns -1 if it fails: var.find ("ABCDEFG", "CD"', 2, stringMethods.find));
+  methodListObject.Add(TMethodDetails.Create ('find',    'Finds a substring in string. Returns -1 if it fails: var.find ("CD")', 1, stringMethods.find));
   methodListObject.Add(TMethodDetails.Create ('toUpper', 'Converts all letters in the string to uppoer case: var.toUpper ()', 0, stringMethods.toUpper));
   methodListObject.Add(TMethodDetails.Create ('toLower', 'Converts all letters in the string to lower case: var.toUpper ()', 0, stringMethods.toLower));
   methodListObject.Add(TMethodDetails.Create ('left',    'Returns the left n chars of a string. var.left (5)', 1, stringMethods.left));

@@ -47,7 +47,7 @@ type
     procedure compilePeriod (node : TASTPeriod);
 
     procedure compileSubscriptsStore(subscripts: TChildNodes; isLocal: boolean);
-    procedure compileSubscripts(subscripts: TChildNodes; isLocal: boolean);
+    procedure compileSubscripts(subscripts: TChildNodes);
 
     procedure writeOutPrimaryLoadCode (node : TASTPrimaryOld);  // Helper method
     procedure compilePrimaryLoadInFunction (node : TAStPrimaryOld);
@@ -483,7 +483,7 @@ begin
              end;
         ntSubscript:
             begin
-            compileSubscripts((node.nodes.list[i] as TASTSubscript).subscripts.list, True);
+            compileSubscripts((node.nodes.list[i] as TASTSubscript).subscripts.list);
             // True means local
             end;
         ntError:
@@ -515,7 +515,7 @@ begin
            end;
       ntSubscript:
           begin
-           compileSubscripts((node.nodes.list[i] as TASTSubscript).subscripts.list, False);
+           compileSubscripts((node.nodes.list[i] as TASTSubscript).subscripts.list);
            // false = means not local
           end;
       ntError :
@@ -632,32 +632,30 @@ end;
 
 
 // Deal with code like x = a[2]
-procedure TCompiler.compileSubscripts(subscripts: TChildNodes; isLocal: boolean);
+procedure TCompiler.compileSubscripts(subscripts: TChildNodes);
 var
   i: integer;
+  old_inAssignment : boolean;
 begin
   for i := 0 to subscripts.Count - 1 do
       begin
       // Compile the subscript expression
+      old_inAssignment := inAssignment;
+      inAssignment := False;
+      // Subscript expressions always use load opcodes, hence set inAssignmet = False
       compileCode(subscripts[i]);
-      if isLocal then
+      inAssignment := old_inAssignment;
+
+      if inAssignment then
          begin
-         raise Exception.Create('TO BE DONE: compileSubscriptsLoad');
-         code.addByteCode(oLocalLvecIdx, 0);
-         end
-       else
-         begin
-         if inAssignment then
-            begin
-            // Special case, we only save is its the last index, otherwise we load
-            if i = subscripts.Count - 1 then
-               code.addByteCode(oSvecIdx)
-            else
-               code.addByteCode(oLvecIdx);
-            end
+         // Special case, we only save is its the last index, otherwise we load
+         if i = subscripts.Count - 1 then
+            code.addByteCode(oSvecIdx)
          else
-            code.addByteCode(oLvecIdx)
-         end;
+            code.addByteCode(oLvecIdx);
+         end
+      else
+         code.addByteCode(oLvecIdx)
       end;
 end;
 
@@ -1294,7 +1292,7 @@ end;
 
 procedure TCompiler.compilePrimaryIndex (node : TASTPrimaryIndex);
 begin
-   compileSubscripts(node.subscriptList.list, false);
+   compileSubscripts(node.subscriptList.list);
    compileCode (node.primaryPlus);
 end;
 

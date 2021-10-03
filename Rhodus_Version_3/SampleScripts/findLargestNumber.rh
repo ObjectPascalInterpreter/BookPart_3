@@ -2,7 +2,7 @@
 
 a = {}
 for i = 0 to 30 do
-  lists.append (a, random.randint(31))
+  a.append (random.randint(31))
 end
 
 // Find largest number in a

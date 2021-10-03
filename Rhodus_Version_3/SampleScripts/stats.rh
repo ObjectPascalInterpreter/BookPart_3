@@ -3,6 +3,6 @@ version = 1.0
 
 // Compute the means of a list of numbers
 function mean (values)
-  sum = lists.sum (values)
-  return sum/lists.len (values)
+  sum = values.sum ()
+  return sum/values.len ()
 end

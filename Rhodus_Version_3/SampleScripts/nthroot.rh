@@ -10,4 +10,4 @@ end
 print ("Enter the root power (eg 1, 2,3,4...): ")
 n = int (readNumber())
 x= 25
-println ("Nthroot of ", x, " is: ", NthRoot (x, 1E-6, n)
+println ("Nthroot of ", x, " is: ", NthRoot (x, 1E-6, n))

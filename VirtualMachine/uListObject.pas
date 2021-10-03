@@ -177,6 +177,8 @@ procedure TListMethods.getSum (vm : TObject);
 var s : TListObject;
     sum : double;
 begin
+   // No argument to pop off
+   TVM (vm).decStackTop; // Dump the object method
    s := TVM (vm).popList;
    sum := 0;
    for var i := 0 to s.list.Count - 1 do
@@ -184,7 +186,7 @@ begin
           liInteger :  sum := sum + s.list[i].iValue;
           liDouble  :  sum := sum + s.list[i].dValue;
        else
-          raise ERuntimeException.Create('You can not sum non-numerical values in a list');
+          raise ERuntimeException.Create('You cannot sum non-numerical values in a list');
        end;
    TVM (vm).push(sum);
 end;
@@ -745,7 +747,7 @@ initialization
   methodListObject.Add(TMethodDetails.Create ('len',    'Return the length of a list: var.len (mylist)', 0, listMethods.getLength));
   methodListObject.Add(TMethodDetails.Create ('append', 'Append the element to the list: var.append (a, 3.14)', 1, listMethods.append));
   methodListObject.Add(TMethodDetails.Create ('remove', 'Remove an element from a list with given index: var.remove (mylist, 4)', 1, listMethods.remove));
-  methodListObject.Add(TMethodDetails.Create ('sum',    'Find the sum of values in a list. var.sum ({1,2,3})', 1, listMethods.getSum));
+  methodListObject.Add(TMethodDetails.Create ('sum',    'Find the sum of values in a list. var.sum ()', 0, listMethods.getSum));
   methodListObject.Add(TMethodDetails.Create ('pop',    'Remove the last element from a list: var.pop (list)', 1, listMethods.removeLastElement));
   methodListObject.Add(TMethodDetails.Create ('max',    'Find the maximum value is a 1D list of values: var.max ({1,2,3})', 1, listMethods.getMin));
   methodListObject.Add(TMethodDetails.Create ('min',    'Find the minimum value is a 1D list of values: var.min ({1,2,3})', 1, listMethods.getMin));

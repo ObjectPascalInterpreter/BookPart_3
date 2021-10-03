@@ -34,7 +34,7 @@ colors = {"Snow", "FloralWhite", "LavenderBlush", "OldLace",
 "MistyRose", "DarkSlateBlue", "DarkSlategray", "Gainsboro",
 "DarkGray", "Black"}   
 
-l = lists.len (colors)
+l = colors.len ()
 for i = 1 to l do
     setColor (colors[i-1])
     print ("Color Test  ");

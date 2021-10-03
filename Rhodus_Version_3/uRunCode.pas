@@ -324,6 +324,7 @@ begin
         vm.registerSetColorcallBack (printObj.setColor);
 
         try
+          //showByteCode(mainModule);
           vm.runModule (mainModule);
 
           while vm.stackHasEntry do

@@ -6,3 +6,5 @@ function test (n)
      test (n)
   end
 end
+
+test (10)

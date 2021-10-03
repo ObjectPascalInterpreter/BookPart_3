@@ -3,7 +3,7 @@
 function insertionSort(arr)
   
     // Traverse through 1 to len(arr) 
-    for i = 1 to lists.len(arr) - 1 do 
+    for i = 1 to arr.len() - 1 do 
    
         key = arr[i] 
 

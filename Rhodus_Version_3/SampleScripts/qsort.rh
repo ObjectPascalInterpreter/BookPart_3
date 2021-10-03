@@ -42,7 +42,7 @@ end
 
 // Driver code to test above   
 numbers = {12, 7, 13, 5, 6}
-QSort(numbers, 0, lists.len (numbers) - 1) 
+QSort(numbers, 0, numbers.len () - 1) 
 res = assertTrueEx (numbers == {5, 6, 7, 12, 13})
 if res == "." then
    println("----PASS----")
@@ -52,6 +52,6 @@ end
 
 // Bigger example
 numbers = lists.rndi (1, 100, 100)
-size = lists.len (numbers)
+size = numbers.len ()
 QSort(numbers, 0, size-1)
 println ("Larger example: ", numbers)

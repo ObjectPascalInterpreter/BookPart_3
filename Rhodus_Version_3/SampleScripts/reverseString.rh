@@ -2,7 +2,7 @@
 str = "ABCDEFG"
 
 reverse = ""
-length = strings.len (str)
+length = str.len ()
 for i = length - 1 downto 0 do
    reverse = reverse + str[i]
 end

@@ -20,7 +20,7 @@ end
   
 // printing binary array 
 // in reverse order 
-for i = lists.len (binaryNum) - 1 downto 0 do
+for i = binaryNum.len () - 1 downto 0 do
     print(binaryNum[i])
 end
 println()

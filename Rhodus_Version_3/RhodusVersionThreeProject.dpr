@@ -265,18 +265,18 @@ begin
                    readln (fragment)
                    end;
                end;
-//            try
-//              runFramework.syntaxCheck(sourceCode);
-//            except
-//               on e: ESyntaxException do
-//                  writeln ('ERROR ' + '[line ' + inttostr (e.lineNumber) + ', column: ' + inttostr (e.columnNumber) + '] ' + e.errorMsg);
-//            end;
-            if runFramework.compileCode (sourceCode, mainModule, True) then
-               begin
-               if TRunFramework.showByteCode then
-                  runFramework.showByteCodeMethod (mainModule);
-               runFrameWork.runCode (mainModule, True);
-               end;
+            try
+              runFramework.syntaxCheck(sourceCode);
+            except
+               on e: ESyntaxException do
+                  writeln ('ERROR ' + '[line ' + inttostr (e.lineNumber) + ', column: ' + inttostr (e.columnNumber) + '] ' + e.errorMsg);
+            end;
+//            if runFramework.compileCode (sourceCode, mainModule, True) then
+//               begin
+//               if TRunFramework.showByteCode then
+//                  runFramework.showByteCodeMethod (mainModule);
+//               runFrameWork.runCode (mainModule, True);
+//               end;
 
           except
               on e:exception do

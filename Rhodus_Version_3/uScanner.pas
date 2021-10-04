@@ -728,9 +728,10 @@ begin
           begin
           FTokenRecord.Ftoken := tEndofStream;
           if InMultiLineComment then
+             begin
+             InMultiLineComment := False;
              raise EScannerError.Create ('detected unterminated comment, expecting "*/"');
-          InMultiLineComment := False;
-          exit;
+             end;
           end;
 
      else

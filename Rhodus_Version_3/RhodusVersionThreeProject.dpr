@@ -83,7 +83,8 @@ uses
   uObjectSupport in 'uObjectSupport.pas',
   uBuiltInConfig in 'uBuiltInConfig.pas',
   uBuiltInSys in 'uBuiltInSys.pas',
-  uListOfBuiltIns in 'uListOfBuiltIns.pas';
+  uListOfBuiltIns in 'uListOfBuiltIns.pas',
+  uSyntaxParser in 'uSyntaxParser.pas';
 
 var sourceCode : string;
     fragment : string;
@@ -245,7 +246,7 @@ begin
             if executeCommand (sourceCode) then
                 continue;
 
-            // Not a commandm therefore it could be code
+            // Not a command therefore it could be code
             runFramework.showAssembler := bolShowAssembler;
 
             if sourceCode = '#p' then
@@ -264,15 +265,18 @@ begin
                    readln (fragment)
                    end;
                end;
+//            try
+//              runFramework.syntaxCheck(sourceCode);
+//            except
+//               on e: ESyntaxException do
+//                  writeln ('ERROR ' + '[line ' + inttostr (e.lineNumber) + ', column: ' + inttostr (e.columnNumber) + '] ' + e.errorMsg);
+//            end;
             if runFramework.compileCode (sourceCode, mainModule, True) then
                begin
                if TRunFramework.showByteCode then
                   runFramework.showByteCodeMethod (mainModule);
                runFrameWork.runCode (mainModule, True);
                end;
-
-            //if runFramework.compileCode (sourceCode, mainModule, True) then
-            //   runFrameWork.runCode (mainModule, True);
 
           except
               on e:exception do

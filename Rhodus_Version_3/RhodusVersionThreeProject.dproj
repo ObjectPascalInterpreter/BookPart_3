@@ -209,6 +209,7 @@
         <DCCReference Include="uBuiltInConfig.pas"/>
         <DCCReference Include="uBuiltInSys.pas"/>
         <DCCReference Include="uListOfBuiltIns.pas"/>
+        <DCCReference Include="uSyntaxParser.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

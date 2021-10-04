@@ -221,7 +221,7 @@ begin
 end;
 
 
-// look for notepad if its alrady running
+// look for notepad if its already running
 function EnumWindowsProc(WHandle: HWND; LParM: LParam): LongBool;StdCall;Export;
 var Title,ClassName:array[0..128] of char;
     sTitle,sClass,Linia:STRING ;

@@ -26,7 +26,8 @@ Uses Generics.Collections,
      uBuiltinList,
      uBuiltInTurtle,
      uMemoryManager,
-     uObjectSupport;
+     uObjectSupport,
+     uSyntaxParser;
 
 type
   TPrintClass = class (TObject)
@@ -44,11 +45,13 @@ type
       sc : TScanner;
       ast : TConstructAST;
       vm : TVM;
+      parser : TSyntaxParser;
       showAssembler : boolean;
       printObj : TPrintClass;
       class var showByteCode : boolean;
 
       function  getVersion : string;
+      function  syntaxCheck (const src : string) : boolean;
       function  compileCode (const src : string;  var module : TModuleLib; interactive : boolean) : boolean;
       procedure compileAndRun (const src : string; interactive : boolean);
       procedure getAllocatedSymbols (argument : string);
@@ -56,7 +59,7 @@ type
       procedure runCode (module : TModule; interactive : boolean);
 
       constructor Create;
-      destructor Destroy; override;
+      destructor  Destroy; override;
   end;
 
 
@@ -136,6 +139,7 @@ begin
   printObj := TPrintClass.Create;     // Print services that the VM can use
   sc  := TScanner.Create;             // Create the lexical scanner
   ast := TConstructAst.Create (sc);   // Create the parser that will generate the AST
+  parser := TSyntaxParser.Create (sc);
 
   vmMemory := memAllocatedByVm;
 
@@ -154,6 +158,7 @@ destructor TRunFramework.Destroy;
 begin
   ast.Free;
   sc.Free;
+  parser.Free;
   printObj.Free;
   mainModule.free;
   memoryList.freeGarbage;
@@ -164,6 +169,14 @@ end;
 function  TRunFramework.getVersion : string;
 begin
   result := uBuiltInConfig.RHODUS_VERSION;
+end;
+
+
+function TRunFramework.syntaxCheck (const src : string) : boolean;
+begin
+  sc.scanString(src);
+  sc.nextToken;
+  parser.parseProgram;
 end;
 
 

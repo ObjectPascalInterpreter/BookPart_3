@@ -15,16 +15,6 @@ Uses SysUtils, Classes, StrUtils, uLibModule;
 
 type
   TBuiltInStr = class (TModuleLib)
-
-     //procedure   getLength (vm : TObject);
-     //procedure   find (vm : TObject);
-     //procedure   toUpper (vm : TObject);
-     //procedure   toLower (vm : TObject);
-     //procedure   left (vm : TObject);
-     //procedure   right (vm : TObject);
-     //procedure   trim (vm : TObject);
-     //procedure   mid (vm : TObject);
-     //procedure   split (vm :TObject);
      procedure   val (vm : TObject);
      procedure   str (vm : TObject);
      procedure   formatStr (vm : TObject);
@@ -42,15 +32,6 @@ constructor TBuiltInStr.Create;
 begin
   inherited Create ('strings', 'String Module');
 
-  //addMethod(getLength,   1, 'len', 'Return the length of a string');
-  //addMethod(find,        2, 'find', 'Finds a substring in string. Returns -1 if it fails: strings.find ("ABCDEFG", "CD"');
-  //addMethod(toUpper,     1, 'toUpper', 'Converts all letters in the string to uppoer case: strings.toUpper ("AcdefGH"');
-  //addMethod(toLower,     1, 'toLower', 'Converts all letters in the string to lower case: strings.toUpper ("AcdefGH"');
-  //addMethod(left,        2, 'left', 'Returns the left n chars of a string. strings.left ("AcdefGH", 5');
-  //addMethod(right,       2, 'right', 'Returns the right n chars of a string. strings.right ("AcdefGH", 5');
-  //addMethod(mid,         3, 'mid', 'Returns a substring of string from start to count characters: strings.mid ("AcdefGH", 2, 4');
-  //addMethod(trim,        1, 'trim', 'Removes ny spaces from the start and endof the string: strings.trim ("  AcdefGH ")');
-  //addMethod(split,       2, 'split', 'Splits at a given character into a list of strings: strings.split ("AB CD DE", " ")');
   addMethod(str,         1, 'str', 'Converts a string into a number: strings.str ("1.23"');
   addMethod(val,         1, 'val', 'Converts a number into a string: strings.val (1.23)');
   addMethod(formatStr,   2, 'format', 'Formats a number and returns a string, eg strings.format (2.3456, "%3.2f")');

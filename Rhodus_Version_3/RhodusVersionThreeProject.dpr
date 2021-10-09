@@ -31,6 +31,7 @@ program RhodusVersionThreeProject;
 uses
   {$IFDEF DEBUG}
   {$ENDIF }
+  FastMM4 in '..\..\Library\FastMM\FastMM4.pas',
   Windows,
   ShellAPI,
   System.SysUtils,
@@ -60,7 +61,7 @@ uses
   uVMExceptions in '..\VirtualMachine\uVMExceptions.pas',
   uInitialize in 'uInitialize.pas',
   uCommands in 'uCommands.pas',
-  uRunCode in 'uRunCode.pas',
+  uRhodusEngine in 'uRhodusEngine.pas',
   uBuiltInOS in 'uBuiltInOS.pas',
   uBuiltInMath in 'uBuiltInMath.pas',
   uLibModule in 'uLibModule.pas',
@@ -84,12 +85,17 @@ uses
   uBuiltInConfig in 'uBuiltInConfig.pas',
   uBuiltInSys in 'uBuiltInSys.pas',
   uListOfBuiltIns in 'uListOfBuiltIns.pas',
-  uSyntaxParser in 'uSyntaxParser.pas';
+  uSyntaxParser in 'uSyntaxParser.pas',
+  uTokenVector in 'uTokenVector.pas',
+  uScannerTypes in 'uScannerTypes.pas',
+  uEmbeddAPI in 'uEmbeddAPI.pas',
+  uRepl in 'uRepl.pas';
 
 var sourceCode : string;
     fragment : string;
-    runFramework : TRunFramework;
+    runFramework : TRhodus;
     color : TColor;
+    config : TRhodusConfig;
 
 
 function searchHelp (const helpStr : string) : string;
@@ -227,75 +233,7 @@ begin
   setExtendedConsoleMode; // To get more colors
   setUpEnvironment (ParamStr (0));
 
+  rhodus_initialize(config);
 
-  try
-    runFramework := TRunFrameWork.Create;
-    registerRuntimeWithConsole (runFramework);
-
-    try
-      computeBaseLineMemoryAllocated;
-      displayWelcome;
-      while True do
-          begin
-          try
-            displayPrompt;
-            readln (sourceCode);
-            if sourceCode = 'quit' then
-               break;
-
-            if executeCommand (sourceCode) then
-                continue;
-
-            // Not a command therefore it could be code
-            runFramework.showAssembler := bolShowAssembler;
-
-            if sourceCode = '#p' then
-               begin
-               writeln ('Type q or return to exit and run program');
-               write ('... ');
-               sourceCode := '';
-               readln (fragment);
-               while (fragment <> 'q') and (fragment <> '') do
-                   begin
-                   if sourceCode = '' then
-                      sourceCode := fragment
-                   else
-                      sourceCode := sourceCode + sLineBreak + fragment;
-                   write ('... ');
-                   readln (fragment)
-                   end;
-               end;
-            try
-              runFramework.syntaxCheck(sourceCode);
-            except
-               on e: ESyntaxException do
-                  writeln ('ERROR ' + '[line ' + inttostr (e.lineNumber) + ', column: ' + inttostr (e.columnNumber) + '] ' + e.errorMsg);
-            end;
-//            if runFramework.compileCode (sourceCode, mainModule, True) then
-//               begin
-//               if TRunFramework.showByteCode then
-//                  runFramework.showByteCodeMethod (mainModule);
-//               runFrameWork.runCode (mainModule, True);
-//               end;
-
-          except
-              on e:exception do
-                 writeln (e.Message);
-          end;
-      end;
-    finally
-
-      runFramework.Free;
-
-      writeln ('Current Memory Map:'#13#10, '[', memoryList.mapMemory, ']');
-      memoryList.free;  // <- there is a small leak that needs to be tracked down
-      writeln ('Total number of tests = ', nTotalTests);
-      writeln ('Press any key to exit');
-      readln;
-      shutDownConsole;
-    end;
-  except
-    on e:exception do
-       writeln ('Internal Error: ' + e.message);
-  end;
+  startRepl();
 end.

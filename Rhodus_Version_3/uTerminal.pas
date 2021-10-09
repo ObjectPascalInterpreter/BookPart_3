@@ -11,7 +11,7 @@ unit uTerminal;
 
 interface
 
-Uses uRunCode;
+Uses uRhodusEngine;
 
 procedure displayPrompt;
 procedure displayWelcome;
@@ -24,8 +24,8 @@ procedure setWhite;
 procedure setUpConsole;
 procedure shutDownConsole;
 procedure clearConsoleScreen;
-procedure registerRuntimeWithConsole (runtime : TRunFramework);
-function  getRunTime : TRunFramework;
+procedure registerRuntimeWithConsole (runtime : TRhodus);
+function  getRunTime : TRhodus;
 procedure SetExtendedConsoleMode;
 procedure writeText (str :string);
 procedure setCurrentColors;
@@ -63,7 +63,7 @@ function GetCurrentConsoleFontEx(ConsoleOutput: THandle; MaximumWindow: BOOL;
 var
    BufInfo: TConsoleScreenBufferInfo;
    conOut : THandle;
-   refRuntime : TRunFramework;
+   refRuntime : TRhodus;
 
    // RGB
    currentColor : array[0..2] of byte;
@@ -77,7 +77,7 @@ begin
 end;
 
 
-procedure registerRuntimeWithConsole (runtime : TRunFramework);
+procedure registerRuntimeWithConsole (runtime : TRhodus);
 begin
   refRuntime := runtime;
 end;
@@ -100,7 +100,7 @@ begin
 end;
 
 
-function getRunTime : TRunFramework;
+function getRunTime : TRhodus;
 begin
   result := refRuntime;
 end;
@@ -275,7 +275,7 @@ begin
   if (CTRL_C_EVENT = dwCtrlType) then
     begin
     if refRuntime <> nil then
-       refRuntime.vm.stopVm();
+       refRuntime.getVM().stopVm();
     result := TRUE
     end
   else

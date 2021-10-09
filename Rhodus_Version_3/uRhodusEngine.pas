@@ -1,4 +1,4 @@
-unit uRunCode;
+unit uRhodusEngine;
 
 // This source is distributed under Apache 2.0
 
@@ -15,6 +15,7 @@ Uses Generics.Collections,
      uSymbolTable,
      uMachineStack,
      uScanner,
+     uScannerTypes,
      uConstructAST,
      uAST,
      uCompile,
@@ -30,33 +31,39 @@ Uses Generics.Collections,
      uSyntaxParser;
 
 type
-  TPrintClass = class (TObject)
-      currentColor : string;
-      procedure print (st : PMachineStackRecord);
-      procedure println (st : PMachineStackRecord);
-      procedure setColor (st : PMachineStackRecord);
-  end;
+  TCallBackFunction = procedure (st : PMachineStackRecord);
+  TIntCallBackFunction = procedure (x : integer);
 
-  TRunFramework = class (TObject)
+  TRhodus = class (TObject)
     private
       vmMemory : integer;
+      sc : TScanner;
+      syntaxParser : TSyntaxParser;
+      ast : TConstructAST;
+      root : TASTNode;
+      vm : TVM;
+      printCallBack : TCallBackFunction;
+      printLnCallBack : TCallBackFunction;
+      setColorCallBack : TCallBackFunction;
       function memAllocatedByVm : integer;
     public
-      sc : TScanner;
-      ast : TConstructAST;
-      vm : TVM;
-      parser : TSyntaxParser;
       showAssembler : boolean;
-      printObj : TPrintClass;
       class var showByteCode : boolean;
 
+
+      procedure setPrintCallBack (printcallBack : TCallBackFunction);
+      procedure setPrintLnCallBack (printLnCallBack : TCallBackFunction);
+      procedure setSetColorCallBack (setColorCallBack : TCallBackFunction);
+
+      function  getVM : TVM;
       function  getVersion : string;
-      function  syntaxCheck (const src : string) : boolean;
+      function  compileToAST (sourceCode : string; var syntaxError : TSyntaxError) : boolean;
+      function  generateByteCode (interactive : boolean; var compileError : TCompilerError) : boolean;
       function  compileCode (const src : string;  var module : TModuleLib; interactive : boolean) : boolean;
       procedure compileAndRun (const src : string; interactive : boolean);
       procedure getAllocatedSymbols (argument : string);
       procedure showByteCodeMethod (module : TModule);
-      procedure runCode (module : TModule; interactive : boolean);
+      function  runCode (module : TModule; interactive : boolean; printcallBack : TCallBackFunction) : boolean;
 
       constructor Create;
       destructor  Destroy; override;
@@ -74,59 +81,14 @@ uses uCommands,
      uBuiltInConfig,
      uTerminal,
      uRhodusTypes,
-     uEnvironment;
+     uEnvironment,
+     uVMExceptions;
 
-
-// Print methods to support output from the VM
-// -------------------------------------------------------------------------------
-procedure TPrintClass.print (st : PMachineStackRecord);
-begin
-  uTerminal.setColor (currentColor);
-
-  if st <> nil then
-     case st.stackType of
-          stNone    : begin end; //write ('undefined value'); end;
-          stInteger : write (st.iValue);
-          stDouble  : write (Format('%g', [st.dValue]));
-          stString  : write (st.sValue.value);
-          stBoolean : if st.bValue = True then
-                         write ('True')
-                      else
-                         write ('False');
-          stList    : begin
-                      write (st.lValue.listToString);
-                      end;
-          stModule  : begin
-                      write (st.module.name);
-                      end;
-          stFunction: begin
-                      write (st.fValue.name);
-                      end
-     else
-        writeln ('Unrecognized value from print');
-     end;
-end;
-
-
-procedure TPrintClass.println (st : PMachineStackRecord);
-begin
-  print (st);
-  writeln;
-end;
-
-
-procedure TPrintClass.setColor (st : PMachineStackRecord);
-begin
-  if st.stackType <> stString then
-     writeln ('Expecting a string in setColor: white, red, green, blue, yellow, purple, aqua')
-  else
-     currentColor := st.sValue.value;
-  uTerminal.setColor(currentColor);
-end;
 
 // ------------------------------------------------------------------------------
 
-constructor TRunFramework.Create;
+
+constructor TRhodus.Create;
 var astr : string;
 begin
   showAssembler := False;
@@ -136,84 +98,171 @@ begin
 
   addAllBuiltInLibraries (mainModule);
 
-  printObj := TPrintClass.Create;     // Print services that the VM can use
   sc  := TScanner.Create;             // Create the lexical scanner
-  ast := TConstructAst.Create (sc);   // Create the parser that will generate the AST
-  parser := TSyntaxParser.Create (sc);
+  syntaxParser := TSyntaxParser.Create (sc);
+  ast := TConstructAst.Create (syntaxParser.tokenVector);   // Create the parser that will generate the AST
 
   vmMemory := memAllocatedByVm;
 
   if FileExists (launchEnvironment.moduleDir + '\\startup.rh') then
      begin
      astr := TFile.ReadAllText(launchEnvironment.moduleDir + '\\startup.rh');
-     if not compileCode(astr, mainModule, False) then
-        writeln ('Errors in startup script')
-     else
-        runCode(mainModule, False);
+     try
+       if not compileCode(astr, mainModule, False) then
+          begin
+          writeln ('Errors while compiling startup script, startup.rh (correct the startup script). Type any key to continue.');
+          readln;
+          end
+       else
+          begin
+          if not runCode(mainModule, False, nil) then
+             begin
+             writeln ('Error when executing startup script, startup.rh. Correct the startup script. Type any key to continue.');
+             readln;
+             end;
+          end;
+     except
+
      end;
-end;
+     end;
+     end;
 
 
-destructor TRunFramework.Destroy;
+destructor TRhodus.Destroy;
 begin
   ast.Free;
   sc.Free;
-  parser.Free;
-  printObj.Free;
+  syntaxParser.Free;
   mainModule.free;
   memoryList.freeGarbage;
   inherited;
 end;
 
 
-function  TRunFramework.getVersion : string;
+function  TRhodus.getVersion : string;
 begin
   result := uBuiltInConfig.RHODUS_VERSION;
 end;
 
 
-function TRunFramework.syntaxCheck (const src : string) : boolean;
+function TRhodus.getVM : TVM;
 begin
-  sc.scanString(src);
-  sc.nextToken;
-  parser.parseProgram;
+  result := vm;
 end;
 
 
-function TRunFramework.compileCode (const src : string; var module : TModuleLib; interactive : boolean) : boolean;
+function TRhodus.compileToAST (sourceCode : string; var syntaxError : TSyntaxError) : boolean;
+begin
+  try
+    result := True;
+    sc.scanString(sourceCode);
+    if syntaxParser.syntaxCheck(syntaxError) then
+       begin
+       root := ast.constructAST ();
+       end
+    else
+      result := False;
+  except
+    result := False;
+  end;
+end;
+
+
+function TRhodus.generateByteCode (interactive : boolean; var compileError : TCompilerError) : boolean;
+var compiler : TCompiler;
+    errMsg : string;
+    error : TSyntaxError;
+    compilerError : TCompilerError;
+begin
+  result := True;
+  // Note we don't clear the symboltables because the next script
+  // may need to refer to entries in the symbol table.
+  mainModule.clearCode;
+  try
+    if bolShowAssembler then
+       writeln (displayAST (root));
+
+    try
+     // The compiler will generate vm byte code and store it in module
+     compiler := TCompiler.Create (mainModule);
+     try
+        compiler.interactive := interactive;
+        if compiler.startCompilation (mainModule, root, compileError) then
+           mainModule.code.addByteCode(oHalt)
+        else
+          result := False;
+     finally
+       compiler.Free;
+     end;
+    except
+      on e:exception do
+         begin
+         setGreen;
+         writeln ('ERROR ' + '[line ' + inttostr (sc.tokenElement.lineNumber) + ', column: ' + inttostr (sc.tokenElement.columnNumber) + '] ' + e.Message);
+         setWhite;
+         result := False;
+         end;
+    end;
+  finally
+    root.freeAST();
+  end;
+end;
+
+// Carries out the following:
+//   Does an initial syntax check
+//   If succssful it Creates the AST
+//   Compiles to bytecode
+
+function TRhodus.compileCode (const src : string; var module : TModuleLib; interactive : boolean) : boolean;
 var root : TASTNode;
     compiler : TCompiler;
+    errMsg : string;
+    error : TSyntaxError;
+    compilerError : TCompilerError;
 begin
   result := True;
   // Note we don't clear the symboltables because the next script
   // may need to refer to entries in the symbol table.
   module.clearCode;
   sc.scanString(src);
-  sc.nextToken;
   try
    // The compiler will generate vm byte code and store it in module
    compiler := TCompiler.Create (module);
    try
       compiler.interactive := interactive;
       try
-        root := ast.parseProgram;
+          if not syntaxParser.syntaxCheck (error) then
+             begin
+             writeln ('ERROR ' + '[line ' + inttostr (error.lineNumber) + ', column: ' + inttostr (error.columnNumber) + '] ' + error.errorMsg);
+             result := False;
+             exit;
+             end;
+        root := ast.constructAST;
 
         if bolShowAssembler then
            writeln (displayAST (root));
         try
-          compiler.startCompilation (module, root);
-          mainModule.code.addByteCode(oHalt);
-        except
-          on e: ESyntaxException do
+          if not compiler.startCompilation (module, root, compilerError) then
              begin
              setGreen;
-             writeln ('ERROR ' + '[line ' + inttostr (e.lineNumber) + ', column: ' + inttostr (e.columnNumber) + '] ' + e.errorMsg);
+             writeln ('ERROR ' + '[line ' + inttostr (compilerError.lineNumber) + ', column: ' + inttostr (compilerError.columnNumber) + '] ' + compilerError.errorMsg);
+             setWhite;
+             result := False;
+             exit;
+             end;
+
+          mainModule.code.addByteCode(oHalt);
+        except
+          on e: ERuntimeException do
+             begin
+             setGreen;
+             //writeln ('ERROR ' + '[line ' + inttostr (e.lineNumber) + ', column: ' + inttostr (e.columnNumber) + '] ' + e.errorMsg);
+             writeln ('ERROR: ' + e.Message);
              setWhite;
              result := False;
              end;
         end;
       finally
-        //freePool;
         root.freeAST();
       end;
    finally
@@ -231,7 +280,7 @@ begin
 end;
 
 
-function TRunFramework.memAllocatedByVm : integer;
+function TRhodus.memAllocatedByVm : integer;
 var vm : TVM;
     start : integer;
 begin
@@ -242,7 +291,7 @@ begin
 end;
 
 
-procedure TRunFramework.showByteCodeMethod (module : TModule);
+procedure TRhodus.showByteCodeMethod (module : TModule);
 var key : string;
 begin
   for key in mainModule.symbolTable.keys do
@@ -259,18 +308,35 @@ begin
 end;
 
 
-procedure TRunFramework.runCode (module : TModule; interactive : boolean);
+procedure TRhodus.setPrintCallBack (printCallBack : TCallBackFunction);
+begin
+  self.printCallBack := printCallBack;
+end;
+
+procedure TRhodus.setPrintLnCallBack (printLnCallBack : TCallBackFunction);
+begin
+  self.printLnCallBack := printLnCallBack;
+end;
+
+procedure TRhodus.setSetColorCallBack (setColorCallBack : TCallBackFunction);
+begin
+  self.setColorCallBack := setColorCallBack;
+end;
+
+function TRhodus.runCode (module : TModule; interactive : boolean; printcallBack : TCallBackFunction) : boolean;
 var st :PMachineStackRecord;
     key : string;
 begin
-      try
+  result := True;
+  try
         vm := TVM.Create;
         vm.interactive := interactive;
 
         registerRuntimeWithConsole (self);
-        vm.registerPrintCallBack(printObj.print);
-        vm.registerPrintlnCallBack(printObj.println);
-        vm.registerSetColorcallBack (printObj.setColor);
+
+        vm.registerPrintCallBack(printcallBack);
+        vm.registerPrintlnCallBack(printlnCallBack);
+        vm.registerSetColorcallBack (setColorCallBack);
 
         try
           vm.runModule (module);
@@ -298,9 +364,7 @@ begin
                   if mainModule.symbolTable.items[key] <> nil then
                      if mainModule.symbolTable.Items[key].symbolType = symUserFunc then
                         begin
-                        if mainModule.symbolTable.items[key].fValue.isbuiltInFunction then
-                           writeln ('No code for builtin function')
-                        else
+                        if not mainModule.symbolTable.items[key].fValue.isbuiltInFunction then
                            writeln (dissassemble(mainModule, mainModule.symbolTable.items[key].fValue.funcCode));
                         end;
               writeln (dissassemble(mainModule, mainModule.code));
@@ -312,16 +376,16 @@ begin
               setGreen;
               writeln ('ERROR: ' + e.Message);
               setWhite;
+              result := False;
               end;
         end;
-
-      finally
-        FreeAndNil (vm);
-      end;
+  finally
+    FreeAndNil (vm);
+  end;
 end;
 
 
-procedure TRunFramework.compileAndRun (const src : string; interactive : boolean);
+procedure TRhodus.compileAndRun (const src : string; interactive : boolean);
 var st :PMachineStackRecord;
     key : string;
     initialMem : integer;
@@ -334,12 +398,13 @@ begin
         vm.interactive := interactive;
 
         registerRuntimeWithConsole (self);
-        vm.registerPrintCallBack(printObj.print);
-        vm.registerPrintlnCallBack(printObj.println);
-        vm.registerSetColorcallBack (printObj.setColor);
+ 
+        vm.registerPrintCallBack(printcallBack);
+        vm.registerPrintlnCallBack(printlnCallBack);
+        vm.registerSetColorcallBack (setColorCallBack);
 
         try
-          if TRunFramework.showByteCode then
+          if TRhodus.showByteCode then
              showByteCodeMethod(mainModule);
 
           vm.runModule (mainModule);
@@ -390,7 +455,7 @@ begin
 end;
 
 
-procedure TRunFrameWork.getAllocatedSymbols (argument : string);
+procedure TRhodus.getAllocatedSymbols (argument : string);
 var i, len : integer; f : TUserFunction; astr: string;
     module : TModule;
 begin

@@ -20,8 +20,14 @@ unit uConstructAST;
 
 interface
 
-uses Classes, SysUtils, uScanner, uSymbolTable, uLibModule,
-  Generics.Collections, uAST, uASTNodeType, uVM;
+uses Classes,
+     SysUtils,
+     uScanner,
+     uScannerTypes,
+     uSymbolTable, uLibModule,
+     Generics.Collections,
+     uTokenVector,
+     uAST, uASTNodeType, uVM;
 
 type
   TBreakStack = TStack<integer>;
@@ -33,7 +39,7 @@ type
     moduleNameStack: TModuleNameStack;
     primaryModuleName: string;
 
-    sc: TScanner;
+    sc : TTokenVector;
 
     // Very private. don't use them directly, use the helper routines
     inUserFunctionParsing: boolean;
@@ -41,6 +47,7 @@ type
     // used during AST construction, its discarded afterwards.
     globalVariableList: TStringList;
 
+    procedure nextToken;
     // Helper routines for the above
     procedure enterUserFunctionScope;
     procedure exitUserFunctionScope;
@@ -86,14 +93,14 @@ type
     function AssertFalseStatement: TASTNode;
     function helpStatement: TASTNode;
   public
-    function parseModule(moduleName: string; var astRoot: TASTNode): TModuleLib;
-    function parseProgram: TASTNode;
+    function buildModuleAST(moduleName: string; var astRoot: TASTNode): TModuleLib;
+    function constructAST: TASTNode;
     function inUserFunctionScope: boolean;
-    constructor Create(sc: TScanner);
-    destructor Destroy; override;
+    constructor Create(sc: TTokenVector);
+    destructor  Destroy; override;
   end;
 
-  ESyntaxException = class(Exception)
+  ESemanticException = class(Exception)
       lineNumber, columnNumber : integer;
       errorMsg : string;
       constructor Create (errMsg : string; lineNumber, columnNumber : integer);
@@ -146,7 +153,7 @@ end;
 
 
 // ----------------------------------------------------------------------
-constructor ESyntaxException.Create (errMsg : string; lineNumber, columnNumber : integer);
+constructor ESemanticException.Create (errMsg : string; lineNumber, columnNumber : integer);
 begin
   self.errorMsg := errMsg;
   self.lineNumber := lineNumber;
@@ -155,7 +162,7 @@ end;
 
 // Start of AST Class
 // ----------------------------------------------------------------------
-constructor TConstructAST.Create(sc: TScanner);
+constructor TConstructAST.Create(sc: TTokenVector);
 var
   globalSymbol: TSymbol;
   module: TModule;
@@ -169,7 +176,7 @@ begin
   module := getMainModule();
 
   if module = nil then
-     raise ESyntaxException.Create ('Internal error: AST can''t find main module', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+     raise ESemanticException.Create ('Internal error: AST can''t find main module', sc.tokenRecord.lineNumber, sc.tokenRecord.columnNumber);
 
   // HMS
   //if not module.symbolTable.find(TSymbol.globalId, globalSymbol) then
@@ -179,12 +186,17 @@ begin
 end;
 
 
-
 destructor TConstructAST.Destroy;
 begin
   stackOfBreakStacks.Free;
   moduleNameStack.Free;
   inherited;
+end;
+
+
+procedure TConstructAST.nextToken;
+begin
+  sc.nextToken;
 end;
 
 // Expect works in the following way. If the function finds the expected
@@ -200,7 +212,7 @@ function TConstructAST.expect(thisToken: TTokenCode) : TASTNode;
 begin
   result := nil;
   if sc.token <> thisToken then
-     result := TASTErrorNode.Create ('expecting ' + TScanner.tokenToString (thisToken),  sc.tokenElement.lineNumber, sc.tokenElement.columnNumber)
+     result := TASTErrorNode.Create ('expecting ' + TScanner.tokenToString (thisToken),  sc.tokenRecord.lineNumber, sc.tokenRecord.columnNumber)
   else
     sc.nextToken;
 end;
@@ -228,7 +240,7 @@ end;
 function TConstructAST.variable: TASTNode;
 begin
   if sc.token <> tIdentifier then
-     result := TASTErrorNode.Create ('expecting identifier in function argument definition',  sc.tokenElement.lineNumber, sc.tokenElement.columnNumber)
+     result := TASTErrorNode.Create ('expecting identifier in function argument definition',  sc.tokenRecord.lineNumber, sc.tokenRecord.columnNumber)
   else
      begin
      // Add the argument symbol to the user function local symbol table
@@ -266,7 +278,7 @@ begin
   sc.nextToken;
   if sc.token = tRightBracket then
      begin
-     result := TASTErrorNode.Create('indexed operator must have at least one index', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+     result := TASTErrorNode.Create('indexed operator must have at least one index', sc.tokenRecord.lineNumber, sc.tokenRecord.columnNumber);
      sc.nextToken;
      exit;
      end;
@@ -411,10 +423,10 @@ begin
        end;
     tError:
        begin
-       result := TASTErrorNode.Create ('Expecting a factor [literal, identifier, or ''{''] but found ' + sc.tokenElement.FTokenCharacter, sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+       result := TASTErrorNode.Create ('Expecting a factor [literal, identifier, or ''{''] but found ' + sc.tokenRecord.FTokenCharacter, sc.tokenRecord.lineNumber, sc.tokenRecord.columnNumber);
        end
    else
-      result := TASTErrorNode.Create ('Expecting a factor [literal, identifier, or ''{''] but found ' + sc.tokenToString, sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+      result := TASTErrorNode.Create ('Expecting a factor [literal, identifier, or ''{''] but found ' + TTokenVector.tokenToString ( sc.token), sc.tokenRecord.lineNumber, sc.tokenRecord.columnNumber);
   end;
 end;
 
@@ -752,7 +764,7 @@ begin
   end
   else
     begin
-    result := TASTErrorNode.Create ('Expecting opening bracket to println call', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+    result := TASTErrorNode.Create ('Expecting opening bracket to println call', sc.tokenRecord.lineNumber, sc.tokenRecord.columnNumber);
     exit;
     end;
   result := TASTPrintln.Create(funcArgs);
@@ -782,7 +794,7 @@ begin
      end
   else
     begin
-    result := TASTErrorNode.Create ('Expecting opening bracket to print call', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+    result := TASTErrorNode.Create ('Expecting opening bracket to print call', sc.tokenRecord.lineNumber, sc.tokenRecord.columnNumber);
     exit;
     end;
 
@@ -813,7 +825,7 @@ begin
      end
   else
     begin
-    result := TASTErrorNode.Create ('Expecting opening bracket to setColor call', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+    result := TASTErrorNode.Create ('Expecting opening bracket to setColor call', sc.tokenRecord.lineNumber, sc.tokenRecord.columnNumber);
     exit;
     end;
 end;
@@ -957,7 +969,7 @@ begin
          begin
          expressionNode.freeAST;
          node.freeAST;
-         result := TASTErrorNode.Create ('Expecting an identifier on the left-hand side', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+         result := TASTErrorNode.Create ('Expecting an identifier on the left-hand side', sc.tokenRecord.lineNumber, sc.tokenRecord.columnNumber);
          exit;
          end;
 
@@ -1035,7 +1047,7 @@ begin
          begin
          switchExpression.freeAST;
          listOfCaseStatements.freeAST;
-         result := TASTErrorNode.Create ('Expecting integer in case value', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+         result := TASTErrorNode.Create ('Expecting integer in case value', sc.tokenRecord.lineNumber, sc.tokenRecord.columnNumber);
          exit;
          end;
 
@@ -1077,7 +1089,7 @@ begin
      end;
   if listOfCaseStatements <> nil then
      exit (TASTSwitch.Create(switchExpression, listOfCaseStatements, elseStatement));
-  result := TASTErrorNode.Create('Empty switch construct', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+  result := TASTErrorNode.Create('Empty switch construct', sc.tokenRecord.lineNumber, sc.tokenRecord.columnNumber);
 end;
 
 
@@ -1143,7 +1155,7 @@ function TConstructAST.breakStatement: TASTNode;
 begin
   if stackOfBreakStacks.Count = 0 then
      begin
-     result := TASTErrorNode.Create ('Break statement illegal in this context', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+     result := TASTErrorNode.Create ('Break statement illegal in this context', sc.tokenRecord.lineNumber, sc.tokenRecord.columnNumber);
      sc.nextToken;
      exit;
      end;
@@ -1300,7 +1312,7 @@ begin
       begin
       id.freeAST;
       lower.freeAST;
-      result := TASTErrorNode.Create ('expecting "to" or "downto" in for loop', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+      result := TASTErrorNode.Create ('expecting "to" or "downto" in for loop', sc.tokenRecord.lineNumber, sc.tokenRecord.columnNumber);
       exit;
       end;
 
@@ -1333,7 +1345,7 @@ begin
       else
          begin
          iterationBlock.freeAST;
-         result := TASTErrorNode.Create ('step value must be an integer ro float value', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+         result := TASTErrorNode.Create ('step value must be an integer ro float value', sc.tokenRecord.lineNumber, sc.tokenRecord.columnNumber);
          exit;
          end;
     end;
@@ -1384,7 +1396,7 @@ begin
      end
   else
      begin
-     result := TASTErrorNode.Create ('expecting function name', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+     result := TASTErrorNode.Create ('expecting function name', sc.tokenRecord.lineNumber, sc.tokenRecord.columnNumber);
      exit;
      end;
 
@@ -1493,7 +1505,7 @@ begin
                 globalVariableList.Add(sc.tokenString)
               else
                 begin
-                result := TASTErrorNode.Create ('Duplicate global variable', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+                result := TASTErrorNode.Create ('Duplicate global variable', sc.tokenRecord.lineNumber, sc.tokenRecord.columnNumber);
                 exit;
                 end;
 
@@ -1505,13 +1517,13 @@ begin
         end
       else
         begin
-        result := TASTErrorNode.Create ('Expecting variable name in global declaration', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+        result := TASTErrorNode.Create ('Expecting variable name in global declaration', sc.tokenRecord.lineNumber, sc.tokenRecord.columnNumber);
         exit;
         end;
       end
   else
       begin
-      result := TASTErrorNode.Create ('The global keyword can only be used inside user functions', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+      result := TASTErrorNode.Create ('The global keyword can only be used inside user functions', sc.tokenRecord.lineNumber, sc.tokenRecord.columnNumber);
       exit;
       end;
 end;
@@ -1527,7 +1539,7 @@ begin
       end
   else
       begin
-      result := TASTErrorNode.Create ('Expecting name of import file after import keyword', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+      result := TASTErrorNode.Create ('Expecting name of import file after import keyword', sc.tokenRecord.lineNumber, sc.tokenRecord.columnNumber);
       sc.nextToken;
       exit;
       end;
@@ -1539,7 +1551,7 @@ function TConstructAST.returnStmt: TASTNode;
 begin
   if not inUserFunctionParsing then
      begin
-     result := TASTErrorNode.Create ('You cannot use a return statement outside a user function', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+     result := TASTErrorNode.Create ('You cannot use a return statement outside a user function', sc.tokenRecord.lineNumber, sc.tokenRecord.columnNumber);
      exit;
      end;
 
@@ -1548,9 +1560,13 @@ begin
 end;
 
 
-function TConstructAST.parseModule(moduleName: string; var astRoot: TASTNode): TModuleLib;
+function TConstructAST.buildModuleAST(moduleName: string; var astRoot: TASTNode): TModuleLib;
 begin
   result := TModulelib.Create(moduleName, '');
+
+  sc.reset;
+  sc.mode := vtReading;
+  sc.nextToken;
 
   primaryModuleName := moduleName;
   astRoot := statementList;
@@ -1558,8 +1574,12 @@ end;
 
 
 // program = statementList
-function TConstructAST.parseProgram: TASTNode;
+function TConstructAST.constructAST: TASTNode;
 begin
+  // reset the token vector and switch to reading mode
+  sc.reset;
+  sc.mode := vtReading;
+  sc.nextToken;
   primaryModuleName := TSymbol.mainModuleId; // we're in the main module
   if sc.token = tEndOfStream then
      result := nil

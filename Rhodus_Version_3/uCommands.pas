@@ -11,7 +11,7 @@ unit uCommands;
 
 interface
 
-Uses Windows, Classes, SysUtils, StrUtils, Generics.Collections, uVM, uRunCode;
+Uses Windows, Classes, SysUtils, StrUtils, Generics.Collections, uVM, uRhodusEngine;
 
 type
   TCallCommand = function (argument : string) : boolean;
@@ -100,7 +100,6 @@ begin
   writeln ('#p'#9#9'Start a multi-line program (q or return to finish)');
   writeln ('');
   writeln ('?X or ?M.X'#9'Get help about a symbol, X, or a symbol in a module, M');
-  writeln ('Type dir() to get a list of global functions. Note, no space beteen dir and ()');
   writeln ('Type modules() to get a list of loaded modules');
   writeln ('Type dir() on any module to get the list of methods, eg math.dir()');
   writeln;

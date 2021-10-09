@@ -14,7 +14,7 @@ interface
 Uses SysUtils, Classes, uLibModule, System.Diagnostics;
 
 const
-   RHODUS_VERSION : string = '3.0.1.0';
+   RHODUS_VERSION : string = '3.0.1.1';
 
 type
   TBuiltInConfig= class (TModuleLib)
@@ -26,7 +26,7 @@ type
 
 implementation
 
-Uses Windows, uSymboLTable, uVM, uStringObject, uListObject, uMemoryManager, uRunCode;
+Uses Windows, uSymboLTable, uVM, uStringObject, uListObject, uMemoryManager, uRhodusEngine;
 
 // --------------------------------------------------------------------------------------------
 
@@ -50,7 +50,7 @@ procedure TBuiltInConfig.showByteCode (vm : TObject);
 var b : boolean;
 begin
    b := TVM (vm).popBoolean;
-   TRunFramework.showByteCode := b;
+   TRhodus.showByteCode := b;
    TVM (vm).pushNone;
 end;
 

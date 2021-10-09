@@ -137,8 +137,10 @@
         <DCC_RangeChecking>true</DCC_RangeChecking>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_MajorVer>3</VerInfo_MajorVer>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=3.0.1.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=3.0.1.1;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_Release>1</VerInfo_Release>
+        <VerInfo_Build>1</VerInfo_Build>
+        <Debugger_RunParams>-a -b xyz</Debugger_RunParams>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <DCC_MapFile>3</DCC_MapFile>
@@ -168,6 +170,7 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
+        <DCCReference Include="..\..\Library\FastMM\FastMM4.pas"/>
         <DCCReference Include="uScanner.pas"/>
         <DCCReference Include="..\..\Library\FastMM\FastMM4Messages.pas"/>
         <DCCReference Include="uFindWindows.pas"/>
@@ -185,7 +188,7 @@
         <DCCReference Include="..\VirtualMachine\uVMExceptions.pas"/>
         <DCCReference Include="uInitialize.pas"/>
         <DCCReference Include="uCommands.pas"/>
-        <DCCReference Include="uRunCode.pas"/>
+        <DCCReference Include="uRhodusEngine.pas"/>
         <DCCReference Include="uBuiltInOS.pas"/>
         <DCCReference Include="uBuiltInMath.pas"/>
         <DCCReference Include="uLibModule.pas"/>
@@ -210,6 +213,10 @@
         <DCCReference Include="uBuiltInSys.pas"/>
         <DCCReference Include="uListOfBuiltIns.pas"/>
         <DCCReference Include="uSyntaxParser.pas"/>
+        <DCCReference Include="uTokenVector.pas"/>
+        <DCCReference Include="uScannerTypes.pas"/>
+        <DCCReference Include="uEmbeddAPI.pas"/>
+        <DCCReference Include="uRepl.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

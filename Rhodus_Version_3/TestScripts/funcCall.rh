@@ -1,5 +1,6 @@
 
 import testUtils
+import math
 
 setColor("yellow")
 println ("------------------ Function Call Tests --------------------")

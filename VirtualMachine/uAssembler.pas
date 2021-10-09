@@ -307,6 +307,7 @@ begin
         oPrintln    : result := result + '  ' + opCodeNames[oPrintln]  + sLineBreak;
         oAssertTrue : result := result + '  ' + opCodeNames[oAssertTrue]  + sLineBreak;
         oAssertFalse: result := result + '  ' + opCodeNames[oAssertFalse]  + sLineBreak;
+        oSetColor   : result := result + '  ' + opCodeNames[oSetColor]  + sLineBreak;
 
         oJmp        : result := result + '  ' + opCodeNames[oJmp]   + ' ' + inttostr (aProgram.code[i].index1) + sLineBreak;
         oJmpIfTrue  : result := result + '  ' + opCodeNames[ojmpIfTrue] + ' ' + inttostr (aProgram.code[i].index1) + sLineBreak;
@@ -314,8 +315,8 @@ begin
 
         oStoreSymbol  : result := result + '  ' + opCodeNAmes[oStoreSymbol] + ' ' + aProgram.code[i].symbolName + sLineBreak;
          oLoadSymbol  : result := result + '  ' + opCodeNames[oLoadSymbol]  + ' ' + aProgram.code[i].symbolName + sLineBreak;
-     oLoadSecondary   : result := result + '  ' + opCodeNames[oLoadSecondary] + ' ' + aProgram.code[i].symbolName + sLineBreak;
-    oStoreSecondary   : result := result + '  ' + opCodeNames[oStoreSecondary] + ' ' + aProgram.code[i].symbolName + sLineBreak;
+          oLoadAttr   : result := result + '  ' + opCodeNames[oLoadAttr] + ' ' + aProgram.code[i].symbolName + sLineBreak;
+         oStoreAttr   : result := result + '  ' + opCodeNames[oStoreAttr] + ' ' + aProgram.code[i].symbolName + sLineBreak;
         oStoreLocal   : result := result + '  ' + opCodeNAmes[oStoreLocal] + ' ' + inttostr (aProgram.code[i].index1) + sLineBreak;
         oLoadLocal    : result := result + '  ' + opCodeNames[oLoadLocal]  + ' ' + inttostr (aProgram.code[i].index1) + sLineBreak;
 

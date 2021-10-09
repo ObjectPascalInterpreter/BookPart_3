@@ -32,9 +32,9 @@ const
    // Load and store values to symbol table
    oLoadLocal      = byte (20);  // Load local symbol argument onto stack, operand contains index to the local symbol table
    oLoadSymbol     = byte (21);
-   oLoadSecondary  = byte (22);
+   oLoadAttr       = byte (22);
    oStoreSymbol    = byte (23);
-   oStoreSecondary = byte (24);
+   oStoreAttr      = byte (24);
    oStoreLocal     = byte (25);
 
    // Logical
@@ -118,10 +118,10 @@ initialization
   opCodeNames[oLoadLocal]      := 'loadLocal';
   opCodeNames[oStoreLocal]     := 'storeLocal';
   opCodeNames[oLoadSymbol]     := 'load';
-  opCodeNames[oLoadSecondary]  := 'loadSecondary';
+  opCodeNames[oLoadAttr]       := 'loadAttr';
 
   opCodeNames[oStoreSymbol ]   := 'store';
-  opCodeNames[oStoreSecondary] := 'storeSecondary';
+  opCodeNames[oStoreAttr]      := 'storeAttr';
 
   opCodeNames[oAnd]            := 'and';
   opCodeNames[oOr]             := 'or';

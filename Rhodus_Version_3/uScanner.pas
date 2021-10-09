@@ -49,95 +49,16 @@ unit uScanner;
 
 interface
 
-uses Windows, SysUtils, Classes, System.Character, Generics.Collections;
+uses Windows, SysUtils, Classes, System.Character, Generics.Collections, uScannerTypes, uTokenVector;
 
 type
   { ********************* Lexical scanner types etc *********************** }
-  EScannerError = class (Exception);
+  EScannerError = class (Exception)
+    lineNumber, columnNumber : integer;
+    errorMsg : string;
+    constructor Create (errorMsg : string; lineNumber, columnNumber : integer);
+  end;
 
-  TTokenCode = (tIdentifier,
-                tFloat,
-                tInteger,
-                tString,
-                tPlus,
-                tMinus,
-                tMult,
-                tDivide,
-                tPower,
-                tDivI,
-                tMod,
-                tInc,
-                tDec,
-                tUnaryMinus,
-                tLessThan,
-                tLessThanOrEqual,
-                tMoreThan,
-                tMoreThanOrEqual,
-                tNotEqual,
-                tRightParenthesis,
-                tLeftParenthesis,
-                tLeftBracket,
-                tRightBracket,
-                tLeftCurleyBracket,
-                tRightCurleyBracket,
-                tEquals,
-                tEquivalence,
-                tApostrophy,
-                tDollar,
-                tSemicolon,
-                tColon,
-                tComma,
-                tPeriod,
-                tArrow,
-                tAnd,
-                tOr,
-                tNot,
-                tXor,
-                tError,   // used when an error is detected
-                tEnd,
-                tEndofStream,
-
-                tPrint,
-                tPrintln,
-                tSetColor,
-                tReadString,
-                tReadInteger,
-                tAssertTrue,
-                tAssertFalse,
-                tHelp,
-
-                tIf,
-                tThen,
-                tElse,
-                tFalse,
-                tTrue,
-                tFor,
-                tDo,
-                tTo,
-                tDownTo,
-                tStep,
-                tWhile,
-                tRepeat,
-                tUntil,
-                tBreak,
-                tFunction,
-                tRef,
-                tGlobal,
-                tSwitch,
-                tCase,
-                tImport,
-                tReturn);
-
-  TTokenSet = set of TTokenCode;
-
-  TTokenRecord = record
-                    lineNumber, columnNumber : integer;
-                    FToken          : TTokenCode;
-                    FTokenCharacter : Char;
-                    FTokenString    : string;
-                    FTokenFloat     : double;
-                    FTokenInteger   : Integer;
-                  end;
 
   TScanner = class (TObject)
             private
@@ -178,7 +99,7 @@ type
              public
                tokenWasLF : boolean;
 
-               constructor create;
+               constructor Create;
                destructor  Destroy; override;
 
                procedure nextToken;
@@ -212,6 +133,16 @@ const
   EOF_CHAR = Char ($FF);   // Defines end of string marker, used internally
 
 
+constructor EScannerError.Create (errorMsg : string; lineNumber, columnNumber : integer);
+begin
+  self.errorMsg := errorMsg;
+  self.lineNumber := lineNumber;
+  self.columnNumber := columnNumber;
+end;
+
+  // ----------------------------------------------------------------------
+
+
 constructor TScanner.Create;
 begin
   inherited Create;
@@ -228,6 +159,7 @@ begin
   aQueue.Free;
   inherited Destroy;
 end;
+
 
 
 procedure TScanner.scanString (const str : string);
@@ -262,15 +194,18 @@ begin
   result := FTokenRecord.FToken;
 end;
 
+
 function TScanner.getTokenString: string;
 begin
   result := FTokenRecord.FTokenString;
 end;
 
+
 function TScanner.getTokenInteger : integer;
 begin
   result := FTokenRecord.FTokenInteger;
 end;
+
 
 function TScanner.getTokenDouble: double;
 begin
@@ -374,7 +309,7 @@ begin
         if Fch = LF then
            result := Fch
         else
-           raise EScannerError.Create ('expecting line feed character');
+           raise EScannerError.Create ('expecting line feed character', FLineNumber, FColumnNumber );
         end
      else
         result := FCh;
@@ -490,7 +425,7 @@ begin
           Fch := nextchar;
           end
        else
-         raise EScannerError.Create ('integer overflow, constant value too large to read');
+         raise EScannerError.Create ('integer overflow, constant value too large to read', FLineNumber, FColumnNumber );
      until not isDigit (FCh);
      end;
 
@@ -533,7 +468,7 @@ begin
         end;
      { accumulate exponent, check that first ch is a digit }
      if not isDigit (Fch) then
-        raise EScannerError.Create ('syntax error: number expected in exponent');
+        raise EScannerError.Create ('syntax error: number expected in exponent', FLineNumber, FColumnNumber );
 
      evalue := 0;
      repeat
@@ -544,7 +479,7 @@ begin
           Fch := nextchar;
           end
        else
-         raise EScannerError.Create ('exponent overflow, maximum value for exponent is ' + inttostr (MAX_EXPONENT));
+         raise EScannerError.Create ('exponent overflow, maximum value for exponent is ' + inttostr (MAX_EXPONENT), FLineNumber, FColumnNumber );
      until not isDigit (FCh);
 
      evalue := evalue * exponentSign;
@@ -631,7 +566,7 @@ begin
               end
            end;
         end;
-   raise EScannerError.Create ('string without terminating quotation mark');
+   raise EScannerError.Create ('string without terminating quotation mark', FLineNumber, FColumnNumber);
 end;
 
 
@@ -655,7 +590,7 @@ begin
                FTokenRecord.Ftoken := tNotEqual;
                end
             else
-              raise EScannerError.Create ('unexpecting ''='' character after explanation point: ' + Fch);
+              raise EScannerError.Create ('unexpecting ''='' character after explanation point: ' + Fch, FLineNumber, FColumnNumber );
             end;
      '>'  : begin
             if  Char (FStreamReader.Peek) = '=' then
@@ -727,10 +662,11 @@ begin
      EOF_CHAR :
           begin
           FTokenRecord.Ftoken := tEndofStream;
+
           if InMultiLineComment then
              begin
              InMultiLineComment := False;
-             raise EScannerError.Create ('detected unterminated comment, expecting "*/"');
+             raise EScannerError.Create ('detected unterminated comment, expecting "*/"', FLineNumber, FColumnNumber );
              end;
           end;
 
@@ -876,7 +812,6 @@ begin
    else
        result := 'unrecognised token in TokenLiteral';
   end;
-
 end;
 
 

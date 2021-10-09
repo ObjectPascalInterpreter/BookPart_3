@@ -1,11 +1,11 @@
 import testUtils
-//testUtils.testNumber = 0
+import math
 
 // Simple Arithmetic tests
 
-//setColor ("yellow")
-//println ("------------------- Arithmetic Tests ---------------------")
-//setColor ("white")
+setColor ("yellow")
+println ("------------------- Arithmetic Tests ---------------------")
+setColor ("white")
 testUtils.beginTests ("")
   testUtils.runtestTrue (1E2 == 100);
   testUtils.runtestTrue (1.2E2 == 120); 
@@ -22,7 +22,7 @@ testUtils.beginTests ("")
   testUtils.runtestTrue (2^4 == 16);
 testUtils.endTests()
 
-/*
+
 testUtils.beginTests ("")
  // Integer tests
  a = 2; b = 5;
@@ -166,4 +166,3 @@ setColor ("yellow")
 println ("----------------------------------------------------------")
 setColor ("white")
 
-*/

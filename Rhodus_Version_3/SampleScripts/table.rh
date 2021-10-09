@@ -1,0 +1,27 @@
+
+data = {{"x", "sin", "cos"}}
+for i = 1 to 10 do
+    row = {float (i), math.sin (i), math.cos(i)}
+    data.append (row)
+end
+
+nRows = data[0].len() - 1
+nCols = data.len() - 1
+
+astr = ""
+for i = 0 to nRows do
+   astr = astr + strings.format (data[0,i], "%10s")
+end
+astr = astr + "\n"
+for i = 0 to nRows do
+   astr = astr + strings.format ("----------", "%10s")
+end
+astr = astr + "\n"
+for j = 1 to nCols do
+   for i = 0 to nRows do
+       astr = astr + strings.format (data[j,i], "%10.4f") 
+   end
+   astr = astr + "\n"
+end
+
+print (astr)

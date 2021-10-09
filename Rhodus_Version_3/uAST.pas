@@ -47,13 +47,6 @@ type
       constructor Create (ivalue : integer);
    end;
 
-   TASTPrimary = class (TASTNode)
-      factor : TASTNode;
-      primaryPlus : TASTNode;
-      constructor Create (factor, primaryPlus : TASTNode);
-      destructor  Destroy; override;
-   end;
-
    // Any lists such as a, b, c are stored in this node
    TASTNodeList = class (TASTNode)
        list : TChildNodes;
@@ -87,9 +80,10 @@ type
       destructor  Destroy; override;
    end;
 
-   TASTPeriod = class (TASTNode)
-      name : string;
-      constructor Create (name :string);
+   TASTPrimary = class (TASTNode)
+      factor : TASTNode;
+      primaryPlus : TASTNode;
+      constructor Create (factor, primaryPlus : TASTNode);
       destructor  Destroy; override;
    end;
 
@@ -117,15 +111,12 @@ type
       destructor  Destroy; override;
    end;
 
-
    TASTNull = class (TASTNode)
        constructor Create;
        destructor  Destroy; override;
    end;
 
    TASTFunctionCall = class (TASTNode)
-       //symbolIndex: integer;
-       //symbolName : string;
        argumentList : TASTNodeList;
        constructor Create (argumentList : TASTNodeList);
        destructor  Destroy; override;
@@ -390,17 +381,17 @@ begin
 end;
 
 
-constructor TASTPeriod.Create (name :string);
-begin
-  inherited Create (ntPeriod);
-  self.name := name;
-end;
+//constructor TASTPeriod.Create (name :string);
+//begin
+//  inherited Create (ntPeriod);
+//  self.name := name;
+//end;
 
 
-destructor TASTPeriod.Destroy;
-begin
-  inherited;
-end;
+//destructor TASTPeriod.Destroy;
+//begin
+//  inherited;
+//end;
 
 
 constructor TASTPrimaryPeriod.Create (identifier : TASTIdentifier; primaryPlus : TASTNode);
@@ -1163,8 +1154,6 @@ begin
         (node as TASTIdentifier).free;
     ntSubscript :
         (node as TASTSubscript).free;
-    ntPeriod:
-        (node as TASTPeriod).free;
     ntImportStmt:
         (node as TASTImport).free;
     ntGlobalStmt:
@@ -1244,7 +1233,7 @@ begin
      ntFloat   : result := floattostr ((node as TASTFloat).dValue);
      ntString  : result := '"' + (node as TASTString).sValue + '"';
      ntFunctionCall : result := 'function Call';// + (node as TASTFunctionCall).symbolName;
-     ntIdentifier : result := 'symbol: ' + (node as TASTIdentifier).symbolName;
+     ntIdentifier : result := 'Identifier: ' + (node as TASTIdentifier).symbolName;
      ntImportStmt : result := 'import: ' + (node as TASTImport).importName;
      ntNull : result := 'null';
      ntPrimary : result := 'primary';
@@ -1301,10 +1290,6 @@ begin
 
            result := result + print ((node as TASTPrimaryFunction).primaryPlus, prefix + '|  ');
            end;
-       ntPeriod :
-          begin
-          result := result + prefix + '  +-  ' + (node as TASTPeriod).name + sLineBreak;
-          end;
        ntSubscript :
            begin
            for i := 0 to (node as TASTSubscript).subscripts.list.Count - 1 do

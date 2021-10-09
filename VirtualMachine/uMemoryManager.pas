@@ -362,4 +362,6 @@ end;
 
 initialization
   memoryList := TMemorylist.Create;
+finalization
+  memoryList.Free;
 end.

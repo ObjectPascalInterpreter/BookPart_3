@@ -98,6 +98,7 @@ type
         function  addModule (mValue : TModule) : TSymbol;
         function  addSymbol (name : string) : TSymbol; overload;
         procedure addSymbol (name : string; dValue : double;  locked : boolean; helpStr : string); overload;
+        procedure addSymbol (name : string; sValue : TStringObject; locked : boolean; helpStr : string); overload;
         procedure addSymbol (name : string; lValue : TListObject; locked : boolean; helpStr : string); overload;
         procedure addSymbol (fValue : TUserFunction; locked : boolean); overload;
 
@@ -148,7 +149,7 @@ type
    function  addModule (module : TModule; lib : TModule) : TSymbol;
    procedure addAllBuiltInLibraries (module : TModule);
 
-var OSLibraryRef : TModule;
+var SysLibraryRef : TModule;
 
 implementation
 
@@ -168,8 +169,8 @@ begin
   addModule (module, TBuiltInList.Create);
   addModule (module, TBuiltInStr.Create);
 
-  // Needed by the compile to access the path variable
-  OSLibraryRef := TBuiltInOS.Create; addModule (module, OSLibraryRef);
+  // Needed by the compiler to access the path variable
+  SysLibraryRef := TBuiltInSys.Create; addModule (module, SysLibraryRef);
 
   //addLib (module, TBuiltInTurtle.Create);
 end;
@@ -439,8 +440,23 @@ begin
 end;
 
 
+procedure TSymbolTable.addSymbol (name : string; sValue : TStringObject; locked : boolean; helpStr : string);
+var symbol : TSymbol;
+begin
+  symbol := TSymbol.Create;
+  symbol.sValue := sValue;
+  symbol.symbolName := name;
+  symbol.symbolType := symString;
+  symbol.helpStr := helpStr;
+  symbol.locked := locked;;
+  Add (name, symbol);
+end;
+
+
+
 function TSymbolTable.find (name : string; var symbol : TSymbol) : boolean;
 begin
+  symbol := nil;
   result := False;
   if self.TryGetValue(name, symbol) = True then
      begin

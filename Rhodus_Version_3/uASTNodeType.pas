@@ -42,7 +42,7 @@ type
       ntSubscript,
       ntNode,
       ntPrimaryOld,
-      ntPeriod,
+      //ntPeriod,
       ntImportStmt,
       ntGlobalStmt,   // 32
       ntModule,

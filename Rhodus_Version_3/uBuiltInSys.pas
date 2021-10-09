@@ -13,42 +13,53 @@ interface
 
 Uses SysUtils, Classes, uLibModule, System.Diagnostics;
 
-const
-   RHODUS_VERSION : string = '3.0.1.0';
-
 type
   TBuiltInSys= class (TModuleLib)
 
-     procedure   getVersion (vm : TObject);
+     //procedure   getArgv (vm : TObject);
      constructor Create;
   end;
 
 implementation
 
-Uses Windows, uSymboLTable, uVM, uStringObject, uListObject, uMemoryManager;
+Uses Windows, uSymbolTable, uVM, uStringObject, uListObject, uMemoryManager, uBuiltInConfig;
 
 // --------------------------------------------------------------------------------------------
 
 constructor TBuiltInSys.Create;
-var path : TListObject;
+var argv : TListObject;
+    path : TListObject;
 begin
   inherited Create ('sys', 'System module');
 
-  addMethod (getversion, 0, 'version', 'Get the current version number for Rhodus');
+  addStringValue ('version',  uBuiltInConfig.RHODUS_VERSION, 'returns the current version number for Rhodus', True);
 
-  //path := TListObject.Create(0);
-  //path.append(TStringObject.create('.'));
-  //path.blockType := btBound;   // To make sure the garbage collector doesn't get it.
+  argv := TListObject.Create(0);
+  for var i := 0 to ParamCount do
+      argv.append(TStringObject.Create (ParamStr(i)));
+  argv.blockType := btBound;   // To make sure the garbage collector doesn't get it.
 
-  //addListValue ('path', path, 'Search path for Rhodus import libraries', True);
+  addListValue ('argv', argv, 'The list of command line arguments passed', True);
+
+
+  path := TListObject.Create(0);
+  path.append(TStringObject.create('.'));
+  path.blockType := btBound;   // To make sure the garbage collector doesn't get it.
+
+  addListValue ('path', path, 'Search path for Rhodus import libraries', True);
 end;
 
 
 
-procedure TBuiltInSys.getVersion (vm : TObject);
-begin
-  TVM (vm).push (TStringObject.create(RHODUS_VERSION));
-end;
+//procedure TBuiltInSys.getArgv (vm : TObject);
+//var list : TListObject;
+//begin
+//  list := TListObject.Create(0);
+//  for var i := 0 to ParamCount do
+//      list.append(TStringObject.Create (ParamStr(i)));
+//
+//  TVM (vm).push(list);
+//end;
 
 
 

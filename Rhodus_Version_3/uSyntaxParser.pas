@@ -23,12 +23,28 @@ interface
 
 uses Classes,
      SysUtils,
-     uScanner, uSymbolTable, uLibModule,
-  Generics.Collections, uVM;
+     uScanner,
+     uScannerTypes,
+     uSymbolTable,
+     uLibModule,
+     Generics.Collections,
+     uVM,
+     uTokenVector;
 
 type
   TBreakStack = TStack<integer>;
   TModuleNameStack = TStack<string>;
+
+  ESyntaxException = class(Exception)
+      lineNumber, columnNumber : integer;
+      errorMsg : string;
+      constructor Create (errMsg : string; lineNumber, columnNumber : integer);
+  end;
+
+  TSyntaxError = record
+      lineNumber, columnNumber : integer;
+      errorMsg : string;
+  end;
 
   TSyntaxParser = class(TObject)
   private
@@ -44,6 +60,7 @@ type
     // used during AST construction, its discarded afterwards.
     globalVariableList: TStringList;
 
+    procedure nextToken;
     // Helper routines for the above
     procedure enterUserFunctionScope;
     procedure exitUserFunctionScope;
@@ -89,17 +106,12 @@ type
     procedure AssertFalseStatement;
     procedure helpStatement;
   public
+    tokenVector : TTokenVector;
     procedure   parseModule(moduleName: string);
-    procedure   parseProgram;
+    function    syntaxCheck (var error : TSyntaxError) : boolean;
     function    inUserFunctionScope: boolean;
     constructor Create(sc: TScanner);
     destructor  Destroy; override;
-  end;
-
-  ESyntaxException = class(Exception)
-      lineNumber, columnNumber : integer;
-      errorMsg : string;
-      constructor Create (errMsg : string; lineNumber, columnNumber : integer);
   end;
 
 implementation
@@ -124,13 +136,14 @@ var
 begin
   inherited Create;
   self.sc := sc;
+  tokenVector := TTokenVector.Create;
   inUserFunctionParsing := False;
   stackOfBreakStacks := TStack<TBreakStack>.Create;
   moduleNameStack := TModuleNameStack.Create;
   module := getMainModule();
 
   if module = nil then
-     raise ESyntaxException.Create ('Internal error: AST can''t find main module', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+     raise ESyntaxException.Create ('Internal error: AST can''t find main module', tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
 end;
 
 
@@ -139,8 +152,17 @@ destructor TSyntaxParser.Destroy;
 begin
   stackOfBreakStacks.Free;
   moduleNameStack.Free;
+  tokenVector.Free;
   inherited;
 end;
+
+
+procedure TSyntaxParser.nextToken;
+begin
+  sc.nextToken;
+  tokenVector.append (sc.tokenElement);
+end;
+
 
 // Expect works in the following way. If the function finds the expected
 // token then it return nil indicating success.
@@ -154,10 +176,10 @@ end;
 procedure TSyntaxParser.expect(thisToken: TTokenCode);
 var err : string;
 begin
-  if sc.token <> thisToken then
-     raise ESyntaxException.Create ('expecting ' + TScanner.tokenToString (thisToken),  sc.tokenElement.lineNumber, sc.tokenElement.columnNumber)
+  if tokenVector.token <> thisToken then
+     raise ESyntaxException.Create ('expecting ' + TTokenVector.tokenToString (tokenvector.token),  tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber)
   else
-    sc.nextToken;
+    nextToken;
 end;
 
 
@@ -182,10 +204,10 @@ end;
 // Parse a function argument in a function definition
 procedure TSyntaxParser.variable;
 begin
-  if sc.token <> tIdentifier then
-     raise ESyntaxException.Create ('expecting identifier in function argument definition',  sc.tokenElement.lineNumber, sc.tokenElement.columnNumber)
+  if tokenVector.token <> tIdentifier then
+     raise ESyntaxException.Create ('expecting identifier in function argument definition',  tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber)
   else
-     sc.nextToken;
+     nextToken;
 end;
 
 // Parse a list of the form: expression ',' expression ','' etc.
@@ -193,9 +215,9 @@ end;
 procedure TSyntaxParser.parseList;
 begin
   expression;
-  while sc.token = tComma do
+  while tokenVector.token = tComma do
     begin
-      sc.nextToken;
+      nextToken;
       expression;
     end;
 end;
@@ -205,19 +227,19 @@ end;
 // Such indexing applies to lists and strings
 procedure TSyntaxParser.parseIndexedVariable;
 begin
-  sc.nextToken;
-  if sc.token = tRightBracket then
+  nextToken;
+  if tokenVector.token = tRightBracket then
      begin
-     raise ESyntaxException.Create('indexed operator must have at least one index', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
-     sc.nextToken;
+     raise ESyntaxException.Create('indexed operator must have at least one index', tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
+     nextToken;
      exit;
      end;
 
   expression();
 
-  while sc.token = tComma do
+  while tokenVector.token = tComma do
     begin
-    sc.nextToken;
+    nextToken;
     expression;
     end;
   expect(tRightBracket);
@@ -226,7 +248,7 @@ end;
 
 procedure TSyntaxParser.parseFunctionCall;
 begin
-  if sc.token <> tRightParenthesis then
+  if tokenVector.token <> tRightParenthesis then
      begin
      expressionList;
      end;
@@ -244,51 +266,51 @@ end;
 
 procedure TSyntaxParser.factor2;
 begin
-  case sc.token of
+  case tokenVector.token of
    tInteger:
       begin
-        sc.nextToken;
+        nextToken;
       end;
    tFloat:
       begin
-        sc.nextToken;
+        nextToken;
       end;
    tIdentifier :
         begin
-        sc.nextToken;
+        nextToken;
         end;
    tString:
         begin
-        sc.nextToken;
+        nextToken;
         end;
     tNOT:
       begin
-        sc.nextToken;
+        nextToken;
         expression();
       end;
     tFalse:
       begin
-        sc.nextToken;
+        nextToken;
       end;
     tTrue:
       begin
-        sc.nextToken;
+        nextToken;
       end;
     tLeftParenthesis:
       begin
-        sc.nextToken;
+        nextToken;
         expression();
         expect(tRightParenthesis);
       end;
     tLeftCurleyBracket:
       begin
-        sc.nextToken;
-        if sc.token <> tRightCurleyBracket then
+        nextToken;
+        if tokenVector.token <> tRightCurleyBracket then
            begin
            expression;
-           while sc.token = tComma do
+           while tokenVector.token = tComma do
               begin
-              sc.nextToken;
+              nextToken;
               expression;
               end;
            end;
@@ -297,26 +319,26 @@ begin
        end;
     tError:
        begin
-       raise ESyntaxException.Create ('Expecting a factor [literal, identifier, or ''{''] but found ' + sc.tokenElement.FTokenCharacter, sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+       raise ESyntaxException.Create ('Expecting a factor [literal, identifier, or ''{''] but found ' + tokenVector.tokenRecord.FTokenCharacter, tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
        end
    else
-      raise ESyntaxException.Create ('Expecting a factor [literal, identifier, or ''{''] but found ' + sc.tokenToString, sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+      raise ESyntaxException.Create ('Expecting a factor [literal, identifier, or ''{''] but found ' + tokenVector.tokenToString (tokenVector.token), tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
   end;
 end;
 
 
 procedure TSyntaxParser.primaryPlus;
 begin
-  case sc.token of
+  case tokenVector.token of
      tPeriod :
          begin
-         sc.nextToken;
+         nextToken;
          expect (tIdentifier);
          primaryPlus;
          end;
      tLeftParenthesis:  // '(' expression list ')'
          begin
-         sc.nextToken;
+         nextToken;
          parseFunctionCall;
          primaryPlus
          end;
@@ -336,20 +358,20 @@ var
 begin
   unaryMinus_count := 0;
   // Handle unary operators, but only count '-'. ++2 is the same as +2 but --2 is not the same as -2
-  while (sc.token = tMinus) or (sc.token = tPlus) do
+  while (tokenVector.token = tMinus) or (tokenVector.token = tPlus) do
   begin
-    case sc.token of
+    case tokenVector.token of
       tMinus:
         inc(unaryMinus_count);
     end;
-    sc.nextToken;
+    nextToken;
   end;
 
   primary;
 
-  if sc.token = tPower then
+  if tokenVector.token = tPower then
      begin
-     sc.nextToken;
+     nextToken;
      power;
      end;
 end;
@@ -362,10 +384,10 @@ var
 begin
   power;
 
-  while sc.token in [tMult, tDivide, tDivI, tMod] do
+  while tokenVector.token in [tMult, tDivide, tDivI, tMod] do
     begin
-    op := sc.token; // remember the token
-    sc.nextToken;
+    op := tokenVector.token; // remember the token
+    nextToken;
     power;
     end;
 end;
@@ -378,10 +400,10 @@ var
 begin
   term;
 
-  while sc.token in [tPlus, tMinus] do
+  while tokenVector.token in [tPlus, tMinus] do
      begin
-       op := sc.token; // remember the token
-       sc.nextToken;
+       op := tokenVector.token; // remember the token
+       nextToken;
        term;
      end;
 end;
@@ -394,11 +416,11 @@ var
 begin
   simpleExpression;
 
-  while sc.token in [tLessThan, tLessThanOrEqual, tMoreThan, tMoreThanOrEqual,
+  while tokenVector.token in [tLessThan, tLessThanOrEqual, tMoreThan, tMoreThanOrEqual,
     tNotEqual, tEquivalence] do
   begin
-    op := sc.token;
-    sc.nextToken;
+    op := tokenVector.token;
+    nextToken;
     simpleExpression;
   end;
 end;
@@ -410,10 +432,10 @@ var
 begin
   relationalOperators;
 
-   while sc.token in [tOr, tXor, tAnd] do
+   while tokenVector.token in [tOr, tXor, tAnd] do
   begin
-    op := sc.token; // remember the token
-    sc.nextToken;
+    op := tokenVector.token; // remember the token
+    nextToken;
     relationalOperators;
   end;
 end;
@@ -430,7 +452,7 @@ end;
 // leftHandSide = identifier ( '[' expression ']' )
 procedure TSyntaxParser.statement;
 begin
-  case sc.token of
+  case tokenVector.token of
     tIf:
       ifStatement;
     tFor:
@@ -482,10 +504,10 @@ begin
 
   while True do
      begin
-     if sc.token = tSemicolon then // semicolons optional
+     if tokenVector.token = tSemicolon then // semicolons optional
         expect(tSemicolon);
      // Note these are all thing that can end a statement list.
-     if sc.token in [tUntil, tEnd, tElse, tCase, tEndOfStream] then
+     if tokenVector.token in [tUntil, tEnd, tElse, tCase, tEndOfStream] then
          exit();
      statement();
      end;
@@ -494,12 +516,12 @@ end;
 
 procedure TSyntaxParser.printlnStatement;
 begin
-  sc.nextToken;
-  if sc.token = tLeftParenthesis then
+  nextToken;
+  if tokenVector.token = tLeftParenthesis then
   begin
-    sc.nextToken;
+    nextToken;
     // It could be an empty function call
-    if sc.token <> tRightParenthesis then
+    if tokenVector.token <> tRightParenthesis then
       expressionList;
     expect(tRightParenthesis);
   end
@@ -513,19 +535,19 @@ end;
 
 procedure TSyntaxParser.printStatement;
 begin
-  sc.nextToken;
-  if sc.token = tLeftParenthesis then
+  nextToken;
+  if tokenVector.token = tLeftParenthesis then
      begin
-     sc.nextToken;
+     nextToken;
      // It could be an empty function call
-     if sc.token <> tRightParenthesis then
+     if tokenVector.token <> tRightParenthesis then
         expressionList;
 
      expect(tRightParenthesis);
      end
   else
     begin
-    raise ESyntaxException.Create ('Expecting opening bracket to print call', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+    raise ESyntaxException.Create ('Expecting opening bracket to print call', tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
     exit;
     end;
 
@@ -534,16 +556,16 @@ end;
 
 procedure TSyntaxParser.setColorStatement;
 begin
-  sc.nextToken;
-  if sc.token = tLeftParenthesis then
+  nextToken;
+  if tokenVector.token = tLeftParenthesis then
      begin
-     sc.nextToken;
+     nextToken;
      expression;
      expect(tRightParenthesis);
      end
   else
     begin
-    raise ESyntaxException.Create ('Expecting opening bracket to setColor call', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+    raise ESyntaxException.Create ('Expecting opening bracket to setColor call', tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
     exit;
     end;
 end;
@@ -551,10 +573,10 @@ end;
 
 procedure TSyntaxParser.AssertTrueStatement;
 begin
-  sc.nextToken;
-  if sc.token = tLeftParenthesis then
+  nextToken;
+  if tokenVector.token = tLeftParenthesis then
      begin
-     sc.nextToken;
+     nextToken;
      expression;
 
      expect(tRightParenthesis);
@@ -564,10 +586,10 @@ end;
 
 procedure TSyntaxParser.AssertTrueExStatement;
 begin
-  sc.nextToken;
-  if sc.token = tLeftParenthesis then
+  nextToken;
+  if tokenVector.token = tLeftParenthesis then
      begin
-     sc.nextToken;
+     nextToken;
      expression;
      expect(tRightParenthesis);
      end;
@@ -576,10 +598,10 @@ end;
 
 procedure TSyntaxParser.AssertFalseStatement;
 begin
-  sc.nextToken;
-  if sc.token = tLeftParenthesis then
+  nextToken;
+  if tokenVector.token = tLeftParenthesis then
      begin
-     sc.nextToken;
+     nextToken;
      expression;
      expect(tRightParenthesis);
      end;
@@ -588,10 +610,10 @@ end;
 
 procedure TSyntaxParser.helpStatement;
 begin
-  sc.nextToken;
-  if sc.token = tLeftParenthesis then
+  nextToken;
+  if tokenVector.token = tLeftParenthesis then
      begin
-     sc.nextToken;
+     nextToken;
      expression;
 
      expect(tRightParenthesis);
@@ -622,10 +644,10 @@ procedure TSyntaxParser.exprStatement;
 begin
   expression;
 
-   if sc.token = tEquals then
+   if tokenVector.token = tEquals then
       begin
       // Then its of the form a = ?
-      sc.nextToken;
+      nextToken;
       expression;
       end
 end;
@@ -636,9 +658,9 @@ end;
 procedure TSyntaxParser.expressionList;
 begin
   expression;
-  while sc.token = tComma do
+  while tokenVector.token = tComma do
     begin
-      sc.nextToken;
+      nextToken;
       expression();
     end;
 end;
@@ -655,27 +677,29 @@ procedure TSyntaxParser.switchStatement;
 begin
   expect(tSwitch);
 
-  while sc.token = tCase do
+  simpleExpression;
+
+  while tokenVector.token = tCase do
     begin
       expect(tCase);
 
-      if sc.token <> tInteger then
-         raise ESyntaxException.Create ('Expecting integer in case value', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+      if tokenVector.token <> tInteger then
+         raise ESyntaxException.Create ('Expecting integer in case value', tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
 
-      sc.nextToken;
+      nextToken;
       expect(tColon);
 
       statementList;
     end;
 
-  if sc.token = tElse then
+  if tokenVector.token = tElse then
      begin
-     sc.nextToken;
+     nextToken;
      statementList;;
      end
   else
      expect(tEnd);
-  raise ESyntaxException.Create('Empty switch construct', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+  nextToken;
 end;
 
 
@@ -693,9 +717,9 @@ begin
 
   statementList;
 
-  if sc.token = tElse then
+  if tokenVector.token = tElse then
      begin
-     sc.nextToken;
+     nextToken;
      statementList;
      expect(tEnd);
      end
@@ -711,10 +735,10 @@ begin
   if stackOfBreakStacks.Count = 0 then
      begin
      //result := TASTErrorNode.Create ('Break statement illegal in this context', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
-     sc.nextToken;
+     nextToken;
      exit;
      end;
-  sc.nextToken;
+  nextToken;
 end;
 
 
@@ -799,27 +823,27 @@ begin
 
     expression;
 
-    if sc.token in [tTo, tDownTo] then
+    if tokenVector.token in [tTo, tDownTo] then
        begin
-       toToken := sc.token;
-       sc.nextToken;
+       toToken := tokenVector.token;
+       nextToken;
        end
     else
-      raise ESyntaxException.Create ('expecting "to" or "downto" in for loop', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+      raise ESyntaxException.Create ('expecting "to" or "downto" in for loop', tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
 
     // Parse the upper limit expression
     expression;
 
     // Deal with any step keyword
-    if sc.token = tStep then
+    if tokenVector.token = tStep then
     begin
-      sc.nextToken;
-      if (sc.token = tInteger) or (sc.token = tFloat) then
+      nextToken;
+      if (tokenVector.token = tInteger) or (tokenVector.token = tFloat) then
          begin
-          sc.nextToken;
+          nextToken;
          end
       else
-         raise ESyntaxException.Create ('step value must be an integer ro float value', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+         raise ESyntaxException.Create ('step value must be an integer ro float value', tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
     end;
 
     expect(tDo);
@@ -845,10 +869,10 @@ var
   newUserFunction: boolean;
 begin
   newUserFunction := False;
-  sc.nextToken;
-  if sc.token = tIdentifier then
+  nextToken;
+  if tokenVector.token = tIdentifier then
      begin
-     functionName := sc.tokenString;
+     functionName := tokenVector.tokenString;
      newUserFunction := True;
      end
   else
@@ -861,10 +885,10 @@ begin
   try
     enterUserFunctionScope();
     try
-      sc.nextToken;
-      if sc.token = tLeftParenthesis then
+      nextToken;
+      if tokenVector.token = tLeftParenthesis then
          begin
-         sc.nextToken;
+         nextToken;
          functionArgumentList();
 
          expect(tRightParenthesis);
@@ -891,12 +915,12 @@ end;
 // nodeList -> (arg) and (arg) and (arg) and ....
 procedure TSyntaxParser.functionArgumentList;
 begin
-  if sc.token = tIdentifier then
+  if tokenVector.token = tIdentifier then
      functionArgument;
 
-  while sc.token = tComma do
+  while tokenVector.token = tComma do
     begin
-    sc.nextToken;
+    nextToken;
     functionArgument;
     end;
 end;
@@ -905,8 +929,8 @@ end;
 // argument = identifier | REF identifier
 procedure TSyntaxParser.functionArgument;
 begin
-  if sc.token = tRef then
-     sc.nextToken;
+  if tokenVector.token = tRef then
+     nextToken;
   variable;
 end;
 
@@ -917,7 +941,7 @@ begin
   expect(tGlobal);
   if inUserFunctionParsing then
       begin
-      if sc.token = tIdentifier then
+      if tokenVector.token = tIdentifier then
         begin
           // We're keeping a list of declared global variables for a given
           // user function. This list is simply used to check for duplicates such
@@ -925,38 +949,38 @@ begin
           // or global a
           // global a
           // After the function has been parsed the global list is deleted.
-          globalVariableList.Add(sc.tokenString);
+          globalVariableList.Add(tokenVector.tokenString);
 
-          sc.nextToken;
-          while sc.token = tComma do
+          nextToken;
+          while tokenVector.token = tComma do
               begin
-              sc.nextToken;
+              nextToken;
 
-              if globalVariableList.IndexOf(sc.tokenString) = -1 then
-                globalVariableList.Add(sc.tokenString)
+              if globalVariableList.IndexOf(tokenVector.tokenString) = -1 then
+                globalVariableList.Add(tokenVector.tokenString)
               else
                 begin
-                //result := TASTErrorNode.Create ('Duplicate global variable', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+                //result := TASTErrorNode.Create ('Duplicate global variable', tokenVector.tokenElement.lineNumber, tokenVector.tokenElement.columnNumber);
                 exit;
                 end;
-              sc.nextToken;
+              nextToken;
               end;
         end
       else
-        raise ESyntaxException.Create ('Expecting variable name in global declaration', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+        raise ESyntaxException.Create ('Expecting variable name in global declaration', tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
       end
   else
-      raise ESyntaxException.Create ('The global keyword can only be used inside user functions', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+      raise ESyntaxException.Create ('The global keyword can only be used inside user functions', tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
 end;
 
 
 procedure TSyntaxParser.importStatement;
 begin
-  sc.nextToken();
-  if (sc.token = tIdentifier) then
-      sc.nextToken()
+  nextToken();
+  if (tokenVector.token = tIdentifier) then
+      nextToken()
   else
-      raise ESyntaxException.Create ('Expecting name of import file after import keyword', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+      raise ESyntaxException.Create ('Expecting name of import file after import keyword', tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
 end;
 
 
@@ -964,7 +988,7 @@ end;
 procedure TSyntaxParser.returnStmt;
 begin
   if not inUserFunctionParsing then
-     raise ESyntaxException.Create ('You cannot use a return statement outside a user function', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
+     raise ESyntaxException.Create ('You cannot use a return statement outside a user function', tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
 
   expect(tReturn);
   expression;
@@ -973,16 +997,38 @@ end;
 
 procedure TSyntaxParser.parseModule(moduleName: string);
 begin
+  tokenVector.clearCode;
+  nextToken;
   statementList;
 end;
 
 
 // program = statementList
-procedure TSyntaxParser.parseProgram;
+function TSyntaxParser.syntaxCheck (var error : TSyntaxError) : boolean;
 begin
-  primaryModuleName := TSymbol.mainModuleId; // we're in the main module
-  if sc.token <> tEndOfStream then
-     statementList;
+  result := True;
+  try
+    tokenVector.clearCode;
+    nextToken;
+    primaryModuleName := TSymbol.mainModuleId; // we're in the main module
+    if tokenVector.token <> tEndOfStream then
+       statementList;
+  except
+    on e: ESyntaxException do
+       begin
+       error.lineNumber := e.lineNumber;
+       error.columnNumber := e.columnNumber;
+       error.errorMsg := e.errorMsg;
+       result := False;
+       end;
+    on e: EScannerError do
+       begin
+       error.lineNumber := e.lineNumber;
+       error.columnNumber := e.columnNumber;
+       error.errorMsg := e.errorMsg;
+       result := False;
+       end;
+  end;
 end;
 
 end.

@@ -11,23 +11,25 @@ unit uLibModule;
 
 interface
 
-Uses SysUtils, Classes, uSymbolTable, uListObject;
+Uses SysUtils, Classes, uSymbolTable, uListObject, uStringObject;
 
 type
   TModuleLib = class (TModule)
 
     procedure   addMethod(methodPtr : TxBuiltInFunction; nArgs : integer; name, helpStr : string);
     procedure   addDoubleValue (name : string; value : double; helpStr : string; locked : boolean);
+    procedure   addStringValue (name, value, helpStr : string; locked : boolean);
     procedure   addListValue  (name : string; value : TListObject; helpStr : string; locked : boolean);
 
     procedure   callDir (vmObj : TObject);
     constructor Create (name : string; helpStr : string);
+    destructor  Destroy; override;
   end;
 
 
 implementation
 
-Uses uVM, uStringObject, uMemoryManager, uVMExceptions, uMachineStack;
+Uses uVM, uMemoryManager, uVMExceptions, uMachineStack;
 
 
 constructor TModuleLib.Create (name : string; helpStr : string);
@@ -42,6 +44,11 @@ begin
   self.symbolTable.addSymbol (f, True); // // locked = True
 end;
 
+
+destructor TModuleLib.Destroy;
+begin
+  inherited;
+end;
 
 procedure TModuleLib.callDir (vmObj : TObject);
 var l : TListObject;
@@ -77,6 +84,12 @@ end;
 procedure TModuleLib.addListValue  (name : string; value : TListObject; helpStr : string; locked : boolean);
 begin
   self.symbolTable.addSymbol(name, value, locked, helpStr);
+end;
+
+
+procedure TModuleLib.addStringValue (name, value, helpStr : string; locked : boolean);
+begin
+  self.symbolTable.addSymbol(name, TStringObject.Create (value), locked, helpStr);
 end;
 
 

@@ -16,6 +16,11 @@ Uses Classes, SysUtils, uAST, uASTNodeType, uSymbolTable, uOpCodes,
 type
   TBreakStack = TStack<integer>;
 
+  TCompilerError  = record
+        lineNumber, columnNumber : integer;
+        errorMsg : string;
+  end;
+
   TCompiler = class(TObject)
   private
     stackOfBreakStacks: TStack<TBreakStack>;
@@ -35,10 +40,6 @@ type
     procedure compileForStatement(node: TASTFor);
     procedure compileRepeatStatement(node: TASTRepeat);
     procedure compileWhileStatement(node: TASTNode);
-
-    procedure compilePrimary (node : TASTPrimary);
-    procedure compilePeriod (node : TASTPeriod);
-    procedure compileSubscripts(subscripts: TChildNodes);
 
     function  checkIfGlobalSymbol (node : TASTIdentifier) : boolean;
 
@@ -61,20 +62,28 @@ type
     procedure compileSwitchStatement(node: TASTSwitch);
     procedure compileImportStmt(node: TASTImport);
     procedure compileIdentifier (node : TASTIdentifier);
+
+    procedure compilePrimary (node : TASTPrimary);
     procedure compilePrimaryPeriod (node : TASTPrimaryPeriod);
     procedure compilePrimaryIndex (node : TASTPrimaryIndex);
     procedure compilePrimaryFunction (node : TASTPrimaryFunction);
+    procedure compileSubscripts(subscripts: TChildNodes);
 
     procedure compileCode(node: TASTNode);
 
   public
     interactive: boolean;
-    procedure startCompilation(module: TModule; node: TASTNode);
+    function startCompilation(module: TModule; node: TASTNode; var error : TCompilerError) : boolean;
     constructor Create(module: TModule);
     destructor Destroy; override;
   end;
 
-  ECompilerException = class(Exception);
+  ECompilerException = class(Exception)
+      lineNumber, columnNumber : integer;
+      errorMsg : string;
+      constructor Create (errorMsg : string; lineNumber, columnNumber : integer);
+  end;
+
 
 implementation
 
@@ -82,6 +91,7 @@ Uses uGlobal,
      RTTI,
      uConstantTable,
      uScanner,
+     uSyntaxParser,
      uConstructAST,
      IOUtils,
      uBuiltInMath,
@@ -91,7 +101,16 @@ Uses uGlobal,
      uMemoryManager,
      uRhodusTypes,
      uStringObject,
-     uListOfBuiltins;
+     uListOfBuiltins,
+     uTokenVector;
+
+
+constructor ECompilerException.Create (errorMsg : string; lineNumber, columnNumber : integer);
+begin
+  self.errorMsg := errorMsg;
+  self.lineNumber := lineNumber;
+  self.columnNumber := columnNumber;
+end;
 
 
 constructor TCompiler.Create(module: TModule);
@@ -191,7 +210,7 @@ begin
     if compilingFunction then
        begin
        if not currentUserFunction.localSymbolTable.find(loopSymbol.symbolName, localSymbolIndex) then
-          raise ECompilerException.Create('Variable: ' + loopSymbol.symbolName + ' not defined');
+          raise ECompilerException.Create('Variable: ' + loopSymbol.symbolName + ' not defined', 0, 0);
        end
     else
        begin
@@ -341,13 +360,14 @@ begin
      inAssignment := True;
      try
        compileCode (node.leftSide);
+       // emit the store method here?
      finally
        inAssignment := False
      end;
 
      end
   else
-     raise ECompilerException.Create('Internal Error in compileAssignment')
+     raise ECompilerException.Create('Internal Error in compileAssignment', 0, 0)
 end;
 
 
@@ -362,15 +382,33 @@ end;
 // a value if its on the right-hand side or stores a value if its
 // on the left-hand side. An added problem is that something like:
 // a[1] needs to emit a load first for a then a store for [1]. There
-// could be any number of layers like this, on the item nearest the
+// could be any number of layers like this. The item nearest the
 // '=' sign needs an actual store bytecode.
 procedure TCompiler.compilePrimary (node : TASTPrimary);
 var pm : TASTPrimaryIndex;
     pf : TASTPrimaryFunction;
+    pp : TASTPrimaryPeriod;
     index, j: integer;
 begin
   if inAssignment then
      begin
+     if node.primaryPlus.nodeType = ntPrimaryPeriod then
+        begin
+        compileCode (node.factor);
+        pp := TASTPrimaryPeriod (node.primaryPlus);
+        if pp.primaryPlus.nodeType = ntNull then
+           begin
+           inAssignment_NextToEquals := True;
+           compileCode (pp);
+           end
+        else
+           begin
+           inAssignment_NextToEquals := False;
+           compilePrimaryPeriod(pp);
+           end;
+        exit;
+        end;
+
      if node.primaryPlus.nodeType = ntNull then
         begin
         inAssignment_NextToEquals := True;
@@ -389,18 +427,6 @@ begin
      compileCode (node.factor);
      compileCode (node.primaryPlus);
      end;
-end;
-
-
-
-// Compile something like X.b
-procedure TCompiler.compilePeriod (node : TASTPeriod);
-var symbol: TSymbol;
-begin
-  if currentModule.symbolTable.find(node.name, symbol) then
-     code.addSymbolByteCode (oLoadSecondary, node.name)
-  else
-    raise ECompilerException.Create('Undeclared variable: ' + node.name);
 end;
 
 
@@ -510,11 +536,11 @@ begin
       // Check if proposed global variable isn't already a local variable
       // If it is a local variable then we can't declare it as global.
       if currentUserFunction.localSymbolTable.find(astSymbol.symbolName, symbolIndex) then
-        raise ECompilerException.Create('Global variable name ' + astSymbol.symbolName + ' already declared as a local variable');
+        raise ECompilerException.Create('Global variable name ' + astSymbol.symbolName + ' already declared as a local variable', 0, 0);
 
       // Look for the global variable to make sure it exists
       if not currentModule.symbolTable.find(astSymbol.symbolName, symbol) then
-        raise ECompilerException.Create('No such global variable exists: ' + astSymbol.symbolName);
+        raise ECompilerException.Create('No such global variable exists: ' + astSymbol.symbolName, 0, 0);
     end;
 end;
 
@@ -681,15 +707,16 @@ begin
       uSymbolTable.addModule (currentModule, m);
       end
    else
-      raise ECompilerException.Create('Internal Error: Couldn''t find builtin module: ' + moduleName);
+      raise ECompilerException.Create('Internal Error: Couldn''t find builtin module: ' + moduleName, 0, 0);
 end;
 
 
 procedure TCompiler.compileImportStmt(node: TASTImport);
 var
-  scm: TScanner;
+  scanner : TScanner;
+  syntaxParser : TSyntaxParser;
   sym: TConstructAST;
-  src: string;
+  src, errMsg: string;
   compiler: TCompiler;
   root: TASTNode;
   module: TModuleLib;
@@ -698,16 +725,20 @@ var
   path : string;
   found : integer;
   index : integer;
+  syntaxError : TSyntaxError;
+  compilerError : TCompilerError;
 begin
   // Check if it's a builtin first
   if listofBuiltIns.find (node.importName, index) then
      begin
-     importBuiltIn (node.importName, index);
+     // Then check if its already loaded
+     if currentModule.find(node.importName) = nil then
+        importBuiltIn (node.importName, index);
      exit;
      end;
 
   found := -1;
-  paths := OSLibraryRef.find ('path').lValue;
+  paths := SysLibraryRef.find ('path').lValue;
   for var i := 0 to paths.list.Count - 1 do
       begin
       if fileExists (paths.list[i].sValue.value + '\\' + node.importName + '.rh') then
@@ -717,7 +748,7 @@ begin
          end;
       end;
   if found = -1 then
-     raise ECompilerException.Create('Unable to locate imported module: ' + node.importName)
+     raise ECompilerException.Create('Unable to locate imported module: ' + node.importName, 0, 0)
   else
      path := paths.list[found].sValue.value + '\\' + node.importName + '.rh';
 
@@ -728,34 +759,41 @@ begin
          exit;
 
    // Otherwise lets read it in
-   scm := TScanner.Create;
-   sym := TConstructAST.Create(scm);
+   scanner := TScanner.Create;
+   syntaxParser := TSyntaxParser.Create (scanner);
+   sym := TConstructAST.Create(syntaxParser.tokenVector);
+
    try
       src := TFile.ReadAllText(path);
-      scm.scanString(src);
-      scm.nextToken;
-      // root is the resulting AST
-      module := sym.parseModule(node.importName, root);
+      scanner.scanString(src);
+      if syntaxParser.syntaxCheck(syntaxError) then
+         begin
+         module := sym.buildModuleAST(node.importName, root);
 
-      addGlobalMethodsToModule (module);
-      addAllBuiltInLibraries(module);
+         addGlobalMethodsToModule (module);
+         addAllBuiltInLibraries(module);
 
-      compiler := TCompiler.Create(module);
-      try
-        compiler.startCompilation(module, root);
-        module.code.addByteCode(oHalt);
-      finally
-        root.Free;
-        compiler.Free;
-      end;
+         compiler := TCompiler.Create(module);
+         try
+           compiler.startCompilation(module, root, compilerError);
+           module.code.addByteCode(oHalt);
+         finally
+           root.Free;
+           compiler.Free;
+         end;
 
-      // Add the name of the module to the current module's
-      // symbol table, because user functions might need it for globals
-      currentModule.symbolTable.addModule(module);
-      // import the module
-      currentModule.code.addModuleByteCode(oImportModule, node.importName);
+        // Add the name of the module to the current module's
+        // symbol table, because user functions might need it for globals
+        currentModule.symbolTable.addModule(module);
+        // import the module
+        currentModule.code.addModuleByteCode(oImportModule, node.importName);
+         end
+      else
+         raise ECompilerException.Create('In module: ' + node.importName + ' ' + syntaxError.errorMsg, syntaxError.lineNumber, syntaxError.columnNumber);
+
    finally
-      scm.Free;
+      scanner.Free;
+      syntaxParser.Free;
       sym.Free;
    end;
 end;
@@ -791,17 +829,16 @@ begin
       else
          begin
          // Check if its in the local space, if yes then emit the local load opecode
-         // if not it could bein the module space - TO BE IMPLEMENTED
+         // if not it could be in the module space
          if currentUserFunction.localSymbolTable.find(node.symbolName, localSymbolIndex) then
             code.addByteCode(oLoadLocal, localSymbolIndex, -1)
          else
             begin
-            // HMS Watch out here for long assignment statements, this may not work
             if currentModule.symbolTable.find(node.symbolName, symbol) then
                code.addSymbolByteCode (oLoadSymbol, node.symbolName)
             else
               // This means we couldn't find the symbol at the local or module level
-              raise ECompilerException.Create('Undeclared variable: ' + node.symbolName);
+              raise ECompilerException.Create('Undeclared variable: ' + node.symbolName, 0, 0);
             end;
          end;
       end
@@ -861,9 +898,22 @@ end;
 
 
 procedure TCompiler.compilePrimaryPeriod (node : TASTPrimaryPeriod);
+var symbol : TSymbol;
 begin
-  code.addSymbolByteCode (oLoadSecondary, node.identifier.symbolName);
-  compileCode (node.primaryPlus);
+  if inAssignment then
+     begin
+     // Depending on whether we are next to a '=' or not....
+     if inAssignment_NextToEquals then
+         code.addSymbolByteCode (oStoreAttr, node.identifier.symbolName)
+      else
+         code.addSymbolByteCode (oLoadAttr, node.identifier.symbolName);
+     compileCode (node.primaryPlus);
+     end
+  else
+     begin
+     code.addSymbolByteCode (oLoadAttr, node.identifier.symbolName);
+     compileCode (node.primaryPlus);
+     end;
 end;
 
 
@@ -877,6 +927,12 @@ end;
 procedure TCompiler.compilePrimaryFunction (node : TASTPrimaryFunction);
 var anode : TASTNode;
 begin
+  // Check if we are at the last specifir in the expression
+  // If true and we parsing the left-hand side of an assignment
+  // then this is an illegal operation.
+  if (node.primaryPlus.nodeType = ntNull) and inAssignment then
+     raise ECompilerException.Create('You can''t assign to a user function', 0 , 0);
+
   for anode in node.argumentList.list do
       compileCode (anode);
 
@@ -920,8 +976,6 @@ begin
       compilePrimaryIndex(node as TASTPrimaryIndex);
     ntPrimaryFunction:
       compilePrimaryFunction (node as TASTPrimaryFunction);
-    ntPeriod :
-      compilePeriod (node as TASTPeriod);
     ntCreateList:
       compileList(node as TASTCreatelist);
     ntAssignment:
@@ -1017,17 +1071,28 @@ begin
       stackOfBreakStacks.Peek.Push(code.addByteCode(oJmp));
     ntNull : begin end;
    else
-      raise ECompilerException.Create('Internal error: Unrecognized node type in AST: ' +   TRttiEnumerationType.GetName(node.nodeType));
+      raise ECompilerException.Create('Internal error: Unrecognized node type in AST: ' +   TRttiEnumerationType.GetName(node.nodeType), 0, 0);
 
   end;
 end;
 
 
-procedure TCompiler.startCompilation(module: TModule; node: TASTNode);
+function TCompiler.startCompilation(module: TModule; node: TASTNode; var error : TCompilerError) : boolean;
 begin
-  currentModule := module;
-  compileCode(node);
-  module.compiled := True;
+  result := True;
+  try
+    currentModule := module;
+    compileCode(node);
+    module.compiled := True;
+  except
+    on e: ECompilerException do
+       begin
+       error.errorMsg := e.errorMsg;
+       error.lineNumber := e.lineNumber;
+       error.columnNumber := e.columnNumber;
+       result := False;
+       end;
+  end;
 end;
 
 

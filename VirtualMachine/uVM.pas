@@ -39,9 +39,9 @@ type
 
   // Debugging callbacks
   TVMCallBack = procedure(st: PMachineStackRecord) of object;
-  TVMPrintCallBack = procedure(st: PMachineStackRecord) of object;
-  TVMPrintlnCallBack = procedure(st: PMachineStackRecord) of object;
-  TVMSetColorCallBack = procedure (st: PMachineStackRecord) of object;
+  TVMPrintCallBack = procedure(st: PMachineStackRecord);
+  TVMPrintlnCallBack = procedure(st: PMachineStackRecord);
+  TVMSetColorCallBack = procedure (st: PMachineStackRecord);
 
   // Use to preseve the state of the virtual machine between calls.
   TVMState = record
@@ -67,9 +67,6 @@ type
     frameStack: TFrameStack;
 
     callbackPtr: TVMCallBack;
-    printCallbackPtr: TVMPrintCallBack;
-    printlnCallbackPtr: TVMPrintlnCallBack;
-    setColorCallBackPtr : TVMSetColorCallBack;
 
     module: TModule;
 
@@ -110,8 +107,8 @@ type
     procedure storeSymbol(symbolName: string);
     procedure storeLocalSymbol(index: integer);
     procedure loadSymbol (symbolName : string);
-    procedure loadSecondary (symbolName : string);
-    procedure storeSecondary (symbolName : string);
+    procedure loadAttr (symbolName : string);
+    procedure storeAttr (symbolName : string);
 
     procedure loadLocalSymbol(index: integer);
 
@@ -153,6 +150,10 @@ type
     procedure  collectGarbage;
     function   getGarbageSize : integer;
   public
+    printCallbackPtr: TVMPrintCallBack;
+    printlnCallbackPtr: TVMPrintlnCallBack;
+    setColorCallBackPtr : TVMSetColorCallBack;
+
     interactive : boolean;
     constructor Create;
     destructor  Destroy; override;
@@ -205,7 +206,7 @@ Uses uOpCodes,
      uRhodusTypes,
      uVMExceptions,
      Rtti,
-     uRunCode,
+     uRhodusEngine,
      uBuiltInGlobal;
 
 var
@@ -317,7 +318,7 @@ begin
   for i := nArgs - 1 downto 0 do
       begin
       if Assigned(printCallbackPtr) then
-         printCallbackPtr(printStack[i]);
+         printCallbackPtr (printStack[i]);
       end;
 end;
 
@@ -1164,7 +1165,12 @@ begin
 end;
 
 
-procedure TVM.loadSecondary (symbolName : string);
+// A secondary is the symbol a in X.a
+// The stack will be:
+//   primary (X)
+//   secondary (a)
+// A primary can be a module, a list (eg a.len), or a string (eg a.len)
+procedure TVM.loadAttr (symbolName : string);
 var m : TModule;
     l : TListObject;
     s : TStringObject;
@@ -1221,12 +1227,12 @@ begin
                   end;
     symModule:    pushModule(TModule (symbol.mValue));
   else
-    raise ERuntimeException.Create('Unknown symbol type in loadSymbol: ' +  inttostr(integer(symbol.symbolType)));
+    raise ERuntimeException.Create('Unknown symbol type in loadAttr: ' +  inttostr(integer(symbol.symbolType)));
   end;
 end;
 
 
-procedure TVM.storeSecondary (symbolName : string);
+procedure TVM.storeAttr (symbolName : string);
 var m : TModule;
     symbol : TSymbol;
     value : PMachineStackRecord;
@@ -1250,7 +1256,7 @@ begin
     stFunction: m.symbolTable.storeFunction (symbol, value.fValue);
     stModule:   m.symbolTable.storeModule (symbol, value.module);
   else
-    raise ERuntimeException.Create('Internal error: Unrecognized stacktype in storeSymbol: ' + TRttiEnumerationType.GetName(symbol.symbolType));
+    raise ERuntimeException.Create('Internal error: Unrecognized stacktype in storeAttr: ' + TRttiEnumerationType.GetName(symbol.symbolType));
   end;
 
 end;
@@ -2038,9 +2044,9 @@ end;
 
 procedure TVM.importModule (moduleName : string);
 var vm : TVM;
-    printObj : TPrintClass;
     module : TModule;
     symbol : TSymbol;
+    main : TModule;
 begin
   // Find the module
   if not symbolTable.find (moduleName, symbol) then
@@ -2051,16 +2057,13 @@ begin
   module := TModule (symbol.mValue);
 
   vm := TVM.Create;
-  printObj := TPrintClass.Create;
+  vm.printCallbackPtr := self.printCallbackPtr;
+  vm.printlnCallbackPtr := self.printlnCallBackPtr;
+  vm.setColorCallBackPtr :=self.setColorCallBackPtr;
   try
-    vm.registerPrintCallBack(printObj.print);
-    vm.registerPrintlnCallBack(printObj.println);
-    vm.registerSetColorCallBack(printObj.setColor);
-
     vm.runModule (module);
   finally
     vm.Free;
-    printObj.Free;
   end;
 end;
 
@@ -2233,8 +2236,8 @@ begin
           oLoadSymbol: loadSymbol (c[ip].symbolName);
 
        // This are used to load and store symbols when we reference modules outside the current one
-       oLoadSecondary: loadSecondary (c[ip].symbolName);
-      oStoreSecondary: storeSecondary (c[ip].symbolName);
+          oLoadAttr: loadAttr (c[ip].symbolName);
+          oStoreAttr: storeAttr (c[ip].symbolName);
 
        // These are used to load and store symbols in user functions
           oStoreLocal:  begin

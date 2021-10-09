@@ -42,12 +42,7 @@ begin
 
   addMethod (getpwd, 0, 'getcwd', 'Return the path to the current working directory');
   addMethod (setpwd, 1, 'setcwd', 'Sets the current wroking dirctory');
-
-  path := TListObject.Create(0);
-  path.append(TStringObject.create('.'));
-  path.blockType := btBound;   // To make sure the garbage collector doesn't get it.
-
-  addListValue ('path', path, 'Search path for Rhodus import libraries', True);
+  //addMethod ();
 end;
 
 

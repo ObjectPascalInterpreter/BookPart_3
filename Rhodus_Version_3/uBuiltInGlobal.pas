@@ -39,6 +39,7 @@ type
      private
      public
        procedure myInt (vm : TObject);
+       procedure myFloat (vm : TObject);
        procedure readNumber (vm : TObject);
        procedure readString (vm : TObject);
        procedure getChar (vm : TObject);  // Convert int into character
@@ -65,7 +66,8 @@ var  builtInGlobal : TBuiltInGlobal;
 
 procedure addGlobalMethodsToModule (module : TModuleLib);
 begin
-  module.addMethod (builtInGlobal.myInt,          1, 'int', 'Convert float to integer: int (3.4)');
+  module.addMethod (builtInGlobal.myInt,          1, 'int',           'Convert float to integer: int (3.4)');
+  module.addMethod (builtInGlobal.myFloat,          1, 'float',         'Convert and integer to a float: float (3)');
   module.addMethod (builtInGlobal.readNumber,     0, 'readNumber',    'Read an integer from the console');
   module.addMethod (builtInGlobal.readString,     0, 'readString',    'Rread a string from the console');
   module.addMethod (builtInGlobal.listSymbols,    1, 'symbols',       'Returns list of symbols in the specified module: symbols(math). Use ' + TSymbol.mainModuleId + ' to get the symbols for the main module');
@@ -118,6 +120,7 @@ begin
   inherited Create (TSymbol.globalId, 'Global Module');
 
   addMethod (myInt,          1, 'int',           'Convert float to integer: int (3.4)');
+  addMethod (myFloat,        1, 'float',         'Convert an integer to a float: float (3)');
   addMethod (readNumber,     0, 'readNumber',    'Read an integer from the console');
   addMethod (readString,     0, 'readString',    'Rread a string from the console');
   addMethod (listSymbols,    1, 'symbols',       'Returns list of symbols in the specified module: symbols(math). Use ' + TSymbol.mainModuleId + ' to get the symbols for the main module');
@@ -292,6 +295,21 @@ begin
      argMustBeNumber;
   end;
 end;
+
+
+procedure TBuiltInGlobal.myFloat (vm : TObject);
+var x : PMachineStackRecord; tmp : int32;
+begin
+  x := TVM (vm).pop;
+  case x.stackType of
+       stInteger : TVM (vm).push (double (x.iValue));
+       stDouble  : TVM (vm).push (x.dValue);
+
+  else
+     argMustBeNumber;
+  end;
+end;
+
 
 procedure TBuiltInGlobal.dis (vm : TObject);
 var x : PMachineStackRecord;

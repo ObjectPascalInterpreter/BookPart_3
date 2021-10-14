@@ -314,6 +314,50 @@ begin
   result := result + ']';
 end;
 
+function isRectangular (astr : string) : boolean;
+var i : integer;
+    count : integer;
+    dimCount : integer;
+    dims : TIndexArray;
+    check : integer;
+begin
+  result := False;
+  i := 1; dimCount := 0;
+  while i < length (astr) do
+      begin
+      if astr[i] = '[' then
+         begin
+         if astr[i+1] = '0' then
+            begin
+            inc (i);
+            count := 0;
+            while (astr[i] = '0') or (astr[i] = ',') do
+                  begin
+                  if astr[i] = '0' then
+                     inc (count);
+                  inc (i);
+                  end;
+            setlength (dims, dimCount+1);
+            dims[dimCount] := count;
+            inc (dimCount);
+            end;
+         end
+      else if astr[i] = '0' then
+              exit (False);
+      inc (i);
+      end;
+  if length (dims) = 0 then
+     exit (True);
+
+  if length (dims) = 1 then
+     exit (True);
+  check := dims[0];
+  for i := 1 to length (dims) - 1 do
+      if dims[i] <> check then
+         exit (False);
+  exit (True);
+end;
+
 
 procedure TArrayConstructor.getDimensions (alist : TListObject; var dims : TIndexArray);
 var i : integer;
@@ -321,6 +365,8 @@ var i : integer;
 begin
   elementCount := 0;
   astr := addLevel (alist);
+  if not isRectangular (astr) then
+     raise ERuntimeException.Create('An array must be rectangular, the current array is jagged');
 
   determineDimensions (astr, dims);
 end;
@@ -337,6 +383,7 @@ begin
      count := 0;
      // Get number of elements
      ac.countValues (alist, count);
+
      ac.arrayObject := TArrayObject.Create();
      setLength (ac.arrayObject.data, count);
 

@@ -81,7 +81,6 @@ begin
 end;
 
 
-
 procedure TStringMethods.getLength (vm : TObject);
 var s : TStringObject;
 begin

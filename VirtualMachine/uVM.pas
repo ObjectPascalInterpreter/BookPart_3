@@ -1683,8 +1683,12 @@ begin
 
   if p.stackType = stObjectMethod then
      begin
-     if nArgs <> p.oValue.nArgs then
-        raise ERuntimeException.Create('Expecting ' + inttostr (p.oValue.nArgs) + ' arguments in function call [' + p.oValue.name + '] but received ' + inttostr (nArgs) + ' arguments');
+     if p.oValue.nArgs <> -1 then
+        if nArgs <> p.oValue.nArgs then
+           raise ERuntimeException.Create('Expecting ' + inttostr (p.oValue.nArgs) + ' arguments in function call [' + p.oValue.name + '] but received ' + inttostr (nArgs) + ' arguments');
+
+     if p.oValue.nArgs = -1 then
+        push(nArgs);
      // The order of stack entries from the top will be
      //   Arguments
      //   Object method

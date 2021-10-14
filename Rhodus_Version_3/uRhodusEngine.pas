@@ -336,6 +336,7 @@ begin
         vm.registerPrintlnCallBack(printlnCallBack);
         vm.registerSetColorcallBack (setColorCallBack);
 
+
         try
           vm.runModule (module);
 

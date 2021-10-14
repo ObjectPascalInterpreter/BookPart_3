@@ -86,7 +86,7 @@ begin
   module.addMethod (builtInGlobal.myFloat,        1, 'float',         'Convert and integer to a float: float (3)');
   module.addMethod (builtInGlobal.readNumber,     0, 'readNumber',    'Read an integer from the console');
   module.addMethod (builtInGlobal.readString,     0, 'readString',    'Rread a string from the console');
-  module.addMethod (builtInGlobal.listSymbols,    1, 'symbols',       'Returns list of symbols in the specified module: symbols(math). Use ' + TSymbol.mainModuleId + ' to get the symbols for the main module');
+  module.addMethod (builtInGlobal.listSymbols,    1, 'symbols',       'Returns list of symbols in the specified module: symbols(math). Use main() as the argument to get the symbols for the main module');
   module.addMethod (builtInGlobal.getType,        1, 'type',          'Returns the type of a given variable: type (x)');
   module.addMethod (builtInGlobal.getAttr,        2, 'getAttr',       'Returns the value attached to the symbol attribute: getAttr (mylib, "x")');
   module.addMethod (builtInGlobal.listModules,    0, 'modules',       'Get a list of all currently loaded mdules');
@@ -323,8 +323,6 @@ begin
   astr := addLevel (alist);
 
   determineDimensions (astr, dims);
-  for i := 0 to length (dims) - 1 do
-      write (dims[i], ' ');
   writeln;
 end;
 
@@ -358,25 +356,19 @@ var nArgs, i : integer;
     ar : TArrayObject;
     dim : TIndexArray;
     alist : TListObject;
-    argument : PMachineStackRecord;
 begin
   nArgs := TVM (vm).popInteger;
-  argument := TVM (vm).pop;
-  if argument.stackType = stList then
+  if TVM (vm).peek.stackType = stList then
      begin
-     alist := argument.lValue;
+     alist := TVM (vm).popList;
      ar := convertListToArray (alist);
      TVM (vm).push(ar);
      end
   else
      begin
      setLength (dim, nArgs);
-     dim[0] := argument.iValue;
-     for i := nArgs - 1 downto 1 do
-         begin
-         argument := TVM (vm).pop;
-         dim[i] := argument.iValue;
-         end;
+     for i := nArgs - 1 downto 0 do
+         dim[i] := TVM (vm).popInteger;
 
      ar := TArrayObject.Create (dim);
      TVM (vm).push(ar);

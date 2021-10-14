@@ -16,6 +16,7 @@ type
 
   TArrayMethods = class (TMethodsBase)
      procedure   getLength (vm : TObject);
+     procedure   getShape (vm : TObject);
      constructor Create;
      destructor  Destroy; override;
   end;
@@ -76,7 +77,8 @@ constructor TArrayMethods.Create;
 begin
   methodList := TMethodList.Create;
 
-  methodList.Add(TMethodDetails.Create ('len',   'get the length of an array: var.len ()', 0, getLength));
+  methodList.Add(TMethodDetails.Create ('len',   'get the length of an array: var.len ()', -1, getLength));
+  methodList.Add(TMethodDetails.Create ('shape', 'get the dimensions of the array var.shape ()', 0, getShape));
 
   methodList.Add(TMethodDetails.Create ('dir',     'dir of array object methods', 0, dir));
 end;
@@ -93,12 +95,47 @@ end;
 
 procedure TArrayMethods.getLength (vm : TObject);
 var s : TArrayObject;
+    nArgs, d : integer;
+begin
+   nArgs := TVM (vm).popInteger;
+   if nArgs = 1 then
+      d := TVM (vm).popInteger
+   else
+   if nArgs > 1 then
+      raise ERuntimeException.Create('Too many arguments passed to len()');
+
+   TVM (vm).decStackTop; // Dump the object method
+   s := TVM (vm).popArray;
+
+   if nArgs = 0 then
+      TVM (vm).push(s.size)
+   else
+      begin
+      if nArgs = 1 then
+         begin
+         if (d <= s.numDimensions - 1) and (d > -1) then
+            TVM (vm).push(s.dim[d])
+         else
+            raise ERuntimeException.Create('Array only has: ' + inttostr (s.numDimensions) + ' dimensions');
+         end;
+      end;
+end;
+
+
+procedure TArrayMethods.getShape (vm : TObject);
+var s : TArrayObject;
+    r : TListObject;
 begin
    TVM (vm).decStackTop; // Dump the object method
    s := TVM (vm).popArray;
-   TVM (vm).push(s.size);
-end;
+   r := TListObject.Create(2);
+   r.list[0].itemType := liInteger;
+   r.list[0].iValue := s.dim[0];
+   r.list[1].itemType := liInteger;
+   r.list[1].iValue := s.dim[1];
 
+   TVM (vm).push(r);
+end;
 
 // ---------------------------------------------------------------------
 function createArrayObject (const dim : TIndexArray) : TArrayObject;
@@ -123,7 +160,7 @@ begin
   if length (dim) > 2 then
      raise ERuntimeException.Create('Only 1D and 2D arrays are currently supported');
 
-  self.dim := dim;
+  self.dim := copy (dim);
   self.size := dim[0];
   for i := 1 to High (dim) do
       self.size := self.size * dim[1];
@@ -228,7 +265,7 @@ var i, j : integer;
 begin
   if length (dim) = 1 then
      begin
-     result := '{';
+     result := '[';
      for i := 0 to self.getNthDimension(0) - 1 do
          begin
          if i = 0 then
@@ -243,7 +280,7 @@ begin
 
   if length (dim) = 2 then
      begin
-     result := '{';
+     result := '[';
      for i := 0 to self.getNthDimension(0) - 1 do
          begin
          for j := 0 to self.getNthDimension(1) - 1 do
@@ -260,7 +297,7 @@ begin
         end;
      end;
 
-  result := result + '}';
+  result := result + ']';
 end;
 
 

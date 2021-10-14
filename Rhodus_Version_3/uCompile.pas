@@ -49,7 +49,6 @@ type
     procedure compileAssignment(node: TASTAssignment);
     procedure compileUserFunction(node: TASTNode);
     procedure compileList(node: TASTCreatelist);
-    //procedure compileRow (node : TASTArrayRow);
     procedure compileArray (node : TASTNode);
     procedure compileGlobalVariable(node: TASTNode);
     procedure compileStatementList(node: TASTNode);

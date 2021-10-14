@@ -1,0 +1,2846 @@
+
+--------------------------------2021/10/13 21:11:30--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 28
+
+This block was previously allocated by thread 0x3457C, and the stack trace (return addresses) at the time was:
+40C1BC [System.pas][System][@NewAnsiString$qqrius][25729]
+40CB13 [System.pas][System][@LStrSetLength$qqrr27System.%AnsiStringT$us$i0$%ius][29547]
+40C5D0 [System.pas][System][@LStrFromPWCharLen$qqrr27System.%AnsiStringT$us$i0$%pbius][26511]
+40968A [System.pas][System][@WriteUString$qqrr15System.TTextRecx20System.UnicodeStringi][14746]
+4095E3 [System.pas][System][@Write0UString$qqrr15System.TTextRecx20System.UnicodeString][14721]
+55B970 [uTerminal.pas][uTerminal][setCurrentColors$qqrv][140]
+55B9E5 [uTerminal.pas][uTerminal][setWhite$qqrv][167]
+55BE1A [uTerminal.pas][uTerminal][displayPrompt$qqrv][233]
+58CF34 [uRepl.pas][uRepl][startRepl$qqrv][257]
+597F9E 
+7788F989 [BaseThreadInitThunk]
+
+The allocation number was: 4400
+
+The block was previously freed by thread 0x3457C, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40C259 [System.pas][System][@LStrClr$qqrpv][25920]
+4096CA [System.pas][System][@WriteUString$qqrr15System.TTextRecx20System.UnicodeStringi][14753]
+4095E3 [System.pas][System][@Write0UString$qqrr15System.TTextRecx20System.UnicodeString][14721]
+55B970 [uTerminal.pas][uTerminal][setCurrentColors$qqrv][140]
+55B9E5 [uTerminal.pas][uTerminal][setWhite$qqrv][167]
+55BE1A [uTerminal.pas][uTerminal][displayPrompt$qqrv][233]
+58CF34 [uRepl.pas][uRepl][startRepl$qqrv][257]
+597F9E 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+
+The current thread ID is 0x3457C, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 7E BC 11 14
+80 80 80 80 80 80 80 80 00 00 00 00 01 7B 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+2F 11 00 00 BC C1 40 00 13 CB 40 00 D0 C5 40 00 8A 96 40 00 E3 95 40 00 52 B8 55 00 61 B9 55 00
+E5 B9 55 00 1A BE 55 00 34 CF 58 00 9E 7F 59 00 7C 45 03 00 7C 45 03 00 2E 73 40 00 59 C2 40 00
+CA 96 40 00 E3 95 40 00 52 B8 55 00 61 B9 55 00 E5 B9 55 00 1A BE 55 00 34 CF 58 00 9E 7F 59 00
+89 F9 88 77 20 00 00 00 B5 01 01 00 8D 46 73 FD 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 72 B9 8C 02 80 80 80 80 00 00 00 00 61 A8 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  ~  º  .  .
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  .  {  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+/  .  .  .  º  ¡  @  .  .  À  @  .  –  ≈  @  .  ä  ñ  @  .  „  ï  @  .  R  ∏  U  .  a  π  U  .
+Â  π  U  .  .  æ  U  .  4  œ  X  .  û    Y  .  |  E  .  .  |  E  .  .  .  s  @  .  Y  ¬  @  .
+   ñ  @  .  „  ï  @  .  R  ∏  U  .  a  π  U  .  Â  π  U  .  .  æ  U  .  4  œ  X  .  û    Y  .
+â  ˘  à  w     .  .  .  µ  .  .  .  ç  F  s  ˝  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  r  π  å  .  Ä  Ä  Ä  Ä  .  .  .  .  a  ®  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 21:12:58--------------------------------
+A memory block has been leaked. The size is: 36
+
+This block was allocated by thread 0xBD68, and the stack trace (return addresses) at the time was:
+407381 [System.pas][System][@ReallocMem$qqrrpvi][5120]
+40F277 [System.pas][System][DynArraySetLength$qqrrpvpvipi][36389]
+40AACC [System.pas][System][@AfterConstruction$qqrxp14System.TObject][19330]
+44C9EA [System.Generics.Collections.pas][System.Generics.Collections][Generics.Collections.TListHelper.InternalSetCapacity][4519]
+44A7C5 [System.Generics.Collections.pas][System.Generics.Collections][Generics.Collections.TListHelper.InternalGrow][1310]
+44B42F [System.Generics.Collections.pas][System.Generics.Collections][Generics.Collections.TListHelper.InternalAdd4][2979]
+526414 [uConstructAST.pas][uConstructAST][TConstructAST.statementList][767]
+517420 [uSyntaxParser.pas][uSyntaxParser][TSyntaxParser.relationalOperators][472]
+40E252 [System.pas][System][@CopyRecord$qqrv][34052]
+40E307 [System.pas][System][@CopyRecord$qqrv][34172]
+528CB4 [uConstructAST.pas][uConstructAST][TConstructAST.constructAST][1630]
+
+The block is currently used for an object of class: Unknown
+
+The allocation number is: 4374
+
+Current memory dump of 256 bytes starting at pointer address 7F8A7B80:
+01 00 00 00 04 00 00 00 B0 6F 8E 7F 00 00 00 00 00 00 00 00 00 00 00 00 9D FB B6 79 80 80 80 80
+80 80 80 80 80 80 80 80 00 00 00 00 01 A7 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+2D 05 00 00 36 9D 41 00 4F 73 40 00 19 CF 40 00 9A CF 40 00 9A 84 4F 00 5A 8C 4F 00 74 74 9D 77
+32 84 41 00 D5 84 41 00 98 9C 41 00 AD 9C 41 00 68 BD 00 00 68 BD 00 00 2E 73 40 00 35 C2 40 00
+D9 DA 40 00 13 DF 40 00 2F F5 40 00 04 51 4F 00 44 85 51 00 DF 1D 56 00 EF CC 58 00 AD CF 58 00
+9E 7F 59 00 1A 00 00 00 B0 04 02 00 42 6C 1A FD 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 BD 93 E5 02 80 80 80 80 80 80 80 80 80 80 00 00 00 00 B1 7B 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 35 05 00 00 36 9D 41 00 4F 73 40 00 19 CF 40 00
+.  .  .  .  .  .  .  .  ∞  o  é    .  .  .  .  .  .  .  .  .  .  .  .  ù  ˚  ∂  y  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  .  ß  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+-  .  .  .  6  ù  A  .  O  s  @  .  .  œ  @  .  ö  œ  @  .  ö  Ñ  O  .  Z  å  O  .  t  t  ù  w
+2  Ñ  A  .  ’  Ñ  A  .  ò  ú  A  .  ≠  ú  A  .  h  Ω  .  .  h  Ω  .  .  .  s  @  .  5  ¬  @  .
+Ÿ  ⁄  @  .  .  ﬂ  @  .  /  ı  @  .  .  Q  O  .  D  Ö  Q  .  ﬂ  .  V  .  Ô  Ã  X  .  ≠  œ  X  .
+û    Y  .  .  .  .  .  ∞  .  .  .  B  l  .  ˝  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ω  ì  Â  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  ±  {  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  5  .  .  .  6  ù  A  .  O  s  @  .  .  œ  @  .
+
+--------------------------------2021/10/13 21:12:58--------------------------------
+A memory block has been leaked. The size is: 20
+
+This block was allocated by thread 0xBD68, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40C17B [System.pas][System][@NewUnicodeString$qqri][25652]
+40C3BC [System.pas][System][@UStrFromPWCharLen$qqrr20System.UnicodeStringpbi][26264]
+40CD8D [System.pas][System][@UStrFromWChar$qqrr20System.UnicodeStringb][30499]
+4F848C [uScanner.pas][uScanner][TScanner.getWord][523]
+4F8C5A [uScanner.pas][uScanner][TScanner.nextToken][656]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+418432 [FastMM4.pas][FastMM4][FreeMediumBlock$qqrpv][6193]
+4184D5 [FastMM4.pas][FastMM4][FastFreeMem$qqrpv][6443]
+419C98 [FastMM4.pas][FastMM4][DebugFreeMem$qqrpv][9837]
+419CAD [FastMM4.pas][FastMM4][DebugFreeMem$qqrpv][9844]
+
+The block is currently used for an object of class: UnicodeString
+
+The allocation number is: 4361
+
+Current memory dump of 256 bytes starting at pointer address 7F8E6B50:
+B0 04 02 00 01 00 00 00 01 00 00 00 61 00 00 00 13 E8 A0 02 80 80 80 80 00 00 00 00 11 6C 8E 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 57 05 00 00 12 73 40 00 6B A3 40 00 5E AA 40 00
+BE B7 50 00 EA 4F 4F 00 D5 88 52 00 81 73 40 00 15 F3 40 00 CC AA 40 00 31 63 52 00 5D 64 52 00
+68 BD 00 00 68 BD 00 00 2E 73 40 00 89 A3 40 00 A9 AA 40 00 65 B8 50 00 7F A4 40 00 A0 BB 50 00
+DA A5 50 00 7F A4 40 00 EE BD 50 00 9B 23 56 00 04 1A 56 00 10 00 00 00 48 7E 50 00 01 B4 2D 86
+84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80 FE 4B D2 79 80 80 80 80 00 00 00 00 F1 72 8E 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 52 05 00 00 12 73 40 00 6B A3 40 00 5E AA 40 00
+BE B7 50 00 EA 4F 4F 00 D5 88 52 00 D8 6C 51 00 7A 72 51 00 BB 72 51 00 A0 72 51 00 31 63 52 00
+∞  .  .  .  .  .  .  .  .  .  .  .  a  .  .  .  .  Ë  †  .  Ä  Ä  Ä  Ä  .  .  .  .  .  l  é  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  W  .  .  .  .  s  @  .  k  £  @  .  ^  ™  @  .
+æ  ∑  P  .  Í  O  O  .  ’  à  R  .  Å  s  @  .  .  Û  @  .  Ã  ™  @  .  1  c  R  .  ]  d  R  .
+h  Ω  .  .  h  Ω  .  .  .  s  @  .  â  £  @  .  ©  ™  @  .  e  ∏  P  .    §  @  .  †  ª  P  .
+⁄  •  P  .    §  @  .  Ó  Ω  P  .  õ  #  V  .  .  .  V  .  .  .  .  .  H  ~  P  .  .  ¥  -  Ü
+Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  ˛  K  “  y  Ä  Ä  Ä  Ä  .  .  .  .  Ò  r  é  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  R  .  .  .  .  s  @  .  k  £  @  .  ^  ™  @  .
+æ  ∑  P  .  Í  O  O  .  ’  à  R  .  ÿ  l  Q  .  z  r  Q  .  ª  r  Q  .  †  r  Q  .  1  c  R  .
+
+--------------------------------2021/10/13 21:12:58--------------------------------
+A memory block has been leaked. The size is: 20
+
+This block was allocated by thread 0xBD68, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+509F02 [uAST.pas][uAST][TASTIdentifier.Create][571]
+4F4FEA [uTokenVector.pas][uTokenVector][TTokenVector.getTokenString][89]
+525216 [uConstructAST.pas][uConstructAST][TConstructAST.factor][401]
+77A4F74B [RtlRegisterSecureMemoryCacheCallback]
+77A4F720 [RtlRegisterSecureMemoryCacheCallback]
+77A503D6 [RtlRegisterSecureMemoryCacheCallback]
+42B881 [System.SysUtils.pas][System.SysUtils][Sysutils.FormatBuf$qqrpbuipxvuipx14System.TVarRecxirx31System.Sysutils.TFormatSettings][12736]
+42B862 [System.SysUtils.pas][System.SysUtils][Sysutils.FormatBuf$qqrpbuipxvuipx14System.TVarRecxi][12729]
+
+The block is currently used for an object of class: uAST.TASTIdentifier
+
+The allocation number is: 4364
+
+Current memory dump of 256 bytes starting at pointer address 7F8E6D30:
+DC 51 50 00 3D 01 00 00 5C 6B 8E 7F 00 00 00 00 E8 13 07 14 80 80 80 80 00 00 00 00 71 6B 8E 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 21 11 00 00 12 73 40 00 7B C1 40 00 43 CF 40 00
+EC A3 42 00 85 A7 42 00 AA B7 55 00 30 B8 55 00 61 B9 55 00 E5 B9 55 00 1A BE 55 00 3C CF 58 00
+68 BD 00 00 68 BD 00 00 2E 73 40 00 A1 C2 40 00 D4 B7 55 00 30 B8 55 00 61 B9 55 00 E5 B9 55 00
+1A BE 55 00 3C CF 58 00 9E 7F 59 00 89 F9 88 77 A4 74 9D 77 14 00 00 00 B0 04 02 00 F6 51 E5 74
+84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 09 AE 1A 8B 00 00 00 00 51 6D 8E 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 20 11 00 00 12 73 40 00 7B C1 40 00 43 CF 40 00
+EC A3 42 00 85 A7 42 00 95 B7 55 00 30 B8 55 00 61 B9 55 00 E5 B9 55 00 1A BE 55 00 3C CF 58 00
+‹  Q  P  .  =  .  .  .  \  k  é    .  .  .  .  Ë  .  .  .  Ä  Ä  Ä  Ä  .  .  .  .  q  k  é  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  !  .  .  .  .  s  @  .  {  ¡  @  .  C  œ  @  .
+Ï  £  B  .  Ö  ß  B  .  ™  ∑  U  .  0  ∏  U  .  a  π  U  .  Â  π  U  .  .  æ  U  .  <  œ  X  .
+h  Ω  .  .  h  Ω  .  .  .  s  @  .  °  ¬  @  .  ‘  ∑  U  .  0  ∏  U  .  a  π  U  .  Â  π  U  .
+.  æ  U  .  <  œ  X  .  û    Y  .  â  ˘  à  w  §  t  ù  w  .  .  .  .  ∞  .  .  .  ˆ  Q  Â  t
+Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  Æ  .  ã  .  .  .  .  Q  m  é  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .     .  .  .  .  s  @  .  {  ¡  @  .  C  œ  @  .
+Ï  £  B  .  Ö  ß  B  .  ï  ∑  U  .  0  ∏  U  .  a  π  U  .  Â  π  U  .  .  æ  U  .  <  œ  X  .
+
+--------------------------------2021/10/13 21:12:58--------------------------------
+A memory block has been leaked. The size is: 20
+
+This block was allocated by thread 0xBD68, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+50A3EA [uAST.pas][uAST][TASTAssignment.Create][684]
+40A773 [System.pas][System][@IsClass$qqrxp14System.TObjectp17System.TMetaClass][18524]
+40A79E [System.pas][System][@AsClass$qqrxp14System.TObjectp17System.TMetaClass][18530]
+526EC6 [uConstructAST.pas][uConstructAST][TConstructAST.exprStatement][1019]
+517337 [uSyntaxParser.pas][uSyntaxParser][TSyntaxParser.power][425]
+526393 [uConstructAST.pas][uConstructAST][TConstructAST.statement][745]
+5263B1 [uConstructAST.pas][uConstructAST][TConstructAST.statementList][755]
+517420 [uSyntaxParser.pas][uSyntaxParser][TSyntaxParser.relationalOperators][472]
+
+The block is currently used for an object of class: uAST.TASTAssignment
+
+The allocation number is: 4371
+
+Current memory dump of 256 bytes starting at pointer address 7F8E6FB0:
+B4 61 50 00 37 01 00 00 D0 72 8E 7F 50 70 8E 7F 00 00 00 00 59 56 99 79 00 00 00 00 90 21 8E 7F
+00 00 00 00 00 00 00 00 28 9A 41 00 00 00 00 00 12 11 00 00 12 73 40 00 6B A3 40 00 5E AA 40 00
+52 A3 50 00 CF 50 4F 00 5B 6E 52 00 37 73 51 00 93 63 52 00 B1 63 52 00 20 74 51 00 52 E2 40 00
+68 BD 00 00 68 BD 00 00 2E 73 40 00 89 A3 40 00 A9 AA 40 00 10 9A 50 00 7F A4 40 00 58 BB 50 00
+1C 97 50 00 7F A4 40 00 28 BB 50 00 B0 9C 50 00 7F A4 40 00 10 00 00 00 1C 57 50 00 83 94 75 86
+8C 60 50 00 19 01 00 00 90 71 8E 7F 00 00 00 00 7C 6B 8A 79 80 80 80 80 00 00 00 00 90 21 8E 7F
+00 00 00 00 00 00 00 00 28 9A 41 00 00 00 00 00 14 11 00 00 12 73 40 00 6B A3 40 00 5E AA 40 00
+2E A5 50 00 93 63 52 00 F4 63 52 00 20 74 51 00 52 E2 40 00 07 E3 40 00 B4 8C 52 00 EE 1D 56 00
+¥  a  P  .  7  .  .  .  –  r  é    P  p  é    .  .  .  .  Y  V  ô  y  .  .  .  .  ê  !  é  
+.  .  .  .  .  .  .  .  (  ö  A  .  .  .  .  .  .  .  .  .  .  s  @  .  k  £  @  .  ^  ™  @  .
+R  £  P  .  œ  P  O  .  [  n  R  .  7  s  Q  .  ì  c  R  .  ±  c  R  .     t  Q  .  R  ‚  @  .
+h  Ω  .  .  h  Ω  .  .  .  s  @  .  â  £  @  .  ©  ™  @  .  .  ö  P  .    §  @  .  X  ª  P  .
+.  ó  P  .    §  @  .  (  ª  P  .  ∞  ú  P  .    §  @  .  .  .  .  .  .  W  P  .  É  î  u  Ü
+å  `  P  .  .  .  .  .  ê  q  é    .  .  .  .  |  k  ä  y  Ä  Ä  Ä  Ä  .  .  .  .  ê  !  é  
+.  .  .  .  .  .  .  .  (  ö  A  .  .  .  .  .  .  .  .  .  .  s  @  .  k  £  @  .  ^  ™  @  .
+.  •  P  .  ì  c  R  .  Ù  c  R  .     t  Q  .  R  ‚  @  .  .  „  @  .  ¥  å  R  .  Ó  .  V  .
+
+--------------------------------2021/10/13 21:12:58--------------------------------
+A memory block has been leaked. The size is: 20
+
+This block was allocated by thread 0xBD68, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+50A352 [uAST.pas][uAST][TASTExpression.Create][668]
+4F50CF [uTokenVector.pas][uTokenVector][TTokenVector.nextToken][113]
+526E5B [uConstructAST.pas][uConstructAST][TConstructAST.exprStatement][1008]
+517337 [uSyntaxParser.pas][uSyntaxParser][TSyntaxParser.power][425]
+526393 [uConstructAST.pas][uConstructAST][TConstructAST.statement][745]
+5263B1 [uConstructAST.pas][uConstructAST][TConstructAST.statementList][755]
+517420 [uSyntaxParser.pas][uSyntaxParser][TSyntaxParser.relationalOperators][472]
+40E252 [System.pas][System][@CopyRecord$qqrv][34052]
+
+The block is currently used for an object of class: uAST.TASTExpression
+
+The allocation number is: 4370
+
+Current memory dump of 256 bytes starting at pointer address 7F8E7050:
+8C 60 50 00 19 01 00 00 90 71 8E 7F 00 00 00 00 7C 6B 8A 79 80 80 80 80 00 00 00 00 90 21 8E 7F
+00 00 00 00 00 00 00 00 28 9A 41 00 00 00 00 00 14 11 00 00 12 73 40 00 6B A3 40 00 5E AA 40 00
+2E A5 50 00 93 63 52 00 F4 63 52 00 20 74 51 00 52 E2 40 00 07 E3 40 00 B4 8C 52 00 EE 1D 56 00
+68 BD 00 00 68 BD 00 00 2E 73 40 00 89 A3 40 00 A9 AA 40 00 72 A4 40 00 B8 99 50 00 7F A4 40 00
+58 BB 50 00 1C 97 50 00 7F A4 40 00 28 BB 50 00 B0 9C 50 00 10 00 00 00 78 84 50 00 83 1F 6C 86
+3C 64 50 00 3B 01 00 00 20 98 91 7F 00 00 00 00 7C E0 93 79 80 80 80 80 00 00 00 00 90 21 8E 7F
+00 00 00 00 00 00 00 00 28 9A 41 00 00 00 00 00 11 11 00 00 12 73 40 00 6B A3 40 00 5E AA 40 00
+36 9C 50 00 6B 9C 50 00 40 50 52 00 82 5B 52 00 A4 5B 52 00 36 93 29 01 92 5C 52 00 BA 5D 52 00
+å  `  P  .  .  .  .  .  ê  q  é    .  .  .  .  |  k  ä  y  Ä  Ä  Ä  Ä  .  .  .  .  ê  !  é  
+.  .  .  .  .  .  .  .  (  ö  A  .  .  .  .  .  .  .  .  .  .  s  @  .  k  £  @  .  ^  ™  @  .
+.  •  P  .  ì  c  R  .  Ù  c  R  .     t  Q  .  R  ‚  @  .  .  „  @  .  ¥  å  R  .  Ó  .  V  .
+h  Ω  .  .  h  Ω  .  .  .  s  @  .  â  £  @  .  ©  ™  @  .  r  §  @  .  ∏  ô  P  .    §  @  .
+X  ª  P  .  .  ó  P  .    §  @  .  (  ª  P  .  ∞  ú  P  .  .  .  .  .  x  Ñ  P  .  É  .  l  Ü
+<  d  P  .  ;  .  .  .     ò  ë    .  .  .  .  |  ‡  ì  y  Ä  Ä  Ä  Ä  .  .  .  .  ê  !  é  
+.  .  .  .  .  .  .  .  (  ö  A  .  .  .  .  .  .  .  .  .  .  s  @  .  k  £  @  .  ^  ™  @  .
+6  ú  P  .  k  ú  P  .  @  P  R  .  Ç  [  R  .  §  [  R  .  6  ì  )  .  í  \  R  .  ∫  ]  R  .
+
+--------------------------------2021/10/13 21:12:58--------------------------------
+A memory block has been leaked. The size is: 20
+
+This block was allocated by thread 0xBD68, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+50A52E [uAST.pas][uAST][TASTStatementList.Create][719]
+526393 [uConstructAST.pas][uConstructAST][TConstructAST.statement][745]
+5263F4 [uConstructAST.pas][uConstructAST][TConstructAST.statementList][766]
+517420 [uSyntaxParser.pas][uSyntaxParser][TSyntaxParser.relationalOperators][472]
+40E252 [System.pas][System][@CopyRecord$qqrv][34052]
+40E307 [System.pas][System][@CopyRecord$qqrv][34172]
+528CB4 [uConstructAST.pas][uConstructAST][TConstructAST.constructAST][1630]
+561DEE [uRhodusEngine.pas][uRhodusEngine][TRhodus.compileToAST][160]
+
+The block is currently used for an object of class: uAST.TASTStatementList
+
+The allocation number is: 4372
+
+Current memory dump of 256 bytes starting at pointer address 7F8E70F0:
+3C 64 50 00 3B 01 00 00 20 98 91 7F 00 00 00 00 7C E0 93 79 80 80 80 80 00 00 00 00 90 21 8E 7F
+00 00 00 00 00 00 00 00 28 9A 41 00 00 00 00 00 11 11 00 00 12 73 40 00 6B A3 40 00 5E AA 40 00
+36 9C 50 00 6B 9C 50 00 40 50 52 00 82 5B 52 00 A4 5B 52 00 36 93 29 01 92 5C 52 00 BA 5D 52 00
+68 BD 00 00 68 BD 00 00 2E 73 40 00 89 A3 40 00 A9 AA 40 00 38 97 50 00 7F A4 40 00 28 BB 50 00
+B0 9C 50 00 7F A4 40 00 10 BB 50 00 F9 A4 50 00 7F A4 40 00 14 00 00 00 60 54 50 00 E7 37 61 87
+18 53 50 00 3E 01 00 00 30 72 8E 7F B0 21 90 7F 00 00 00 00 18 C8 9E 78 00 00 00 00 90 21 8E 7F
+00 00 00 00 00 00 00 00 28 9A 41 00 00 00 00 00 0F 11 00 00 12 73 40 00 6B A3 40 00 5E AA 40 00
+E6 9B 50 00 CF 50 4F 00 35 51 52 00 4B F7 A4 77 20 F7 A4 77 D6 03 A5 77 81 B8 42 00 B9 D0 9C 77
+<  d  P  .  ;  .  .  .     ò  ë    .  .  .  .  |  ‡  ì  y  Ä  Ä  Ä  Ä  .  .  .  .  ê  !  é  
+.  .  .  .  .  .  .  .  (  ö  A  .  .  .  .  .  .  .  .  .  .  s  @  .  k  £  @  .  ^  ™  @  .
+6  ú  P  .  k  ú  P  .  @  P  R  .  Ç  [  R  .  §  [  R  .  6  ì  )  .  í  \  R  .  ∫  ]  R  .
+h  Ω  .  .  h  Ω  .  .  .  s  @  .  â  £  @  .  ©  ™  @  .  8  ó  P  .    §  @  .  (  ª  P  .
+∞  ú  P  .    §  @  .  .  ª  P  .  ˘  §  P  .    §  @  .  .  .  .  .  `  T  P  .  Á  7  a  á
+.  S  P  .  >  .  .  .  0  r  é    ∞  !  ê    .  .  .  .  .  »  û  x  .  .  .  .  ê  !  é  
+.  .  .  .  .  .  .  .  (  ö  A  .  .  .  .  .  .  .  .  .  .  s  @  .  k  £  @  .  ^  ™  @  .
+Ê  õ  P  .  œ  P  O  .  5  Q  R  .  K  ˜  §  w     ˜  §  w  ÷  .  •  w  Å  ∏  B  .  π  –  ú  w
+
+--------------------------------2021/10/13 21:12:58--------------------------------
+A memory block has been leaked. The size is: 20
+
+This block was allocated by thread 0xBD68, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+509C36 [uAST.pas][uAST][TASTPrimary.Create][506]
+509C6B [uAST.pas][uAST][TASTPrimary.Create][510]
+525040 [uConstructAST.pas][uConstructAST][TConstructAST.primary][343]
+525B82 [uConstructAST.pas][uConstructAST][TConstructAST.power][530]
+525BA4 [uConstructAST.pas][uConstructAST][TConstructAST.power][534]
+1299336 [GetRawStackTrace]
+525C92 [uConstructAST.pas][uConstructAST][TConstructAST.term][558]
+525DBA [uConstructAST.pas][uConstructAST][TConstructAST.term][562]
+
+The block is currently used for an object of class: uAST.TASTPrimary
+
+The allocation number is: 4369
+
+Current memory dump of 256 bytes starting at pointer address 7F8E7190:
+18 53 50 00 3E 01 00 00 30 72 8E 7F B0 21 90 7F 00 00 00 00 18 C8 9E 78 00 00 00 00 90 21 8E 7F
+00 00 00 00 00 00 00 00 28 9A 41 00 00 00 00 00 0F 11 00 00 12 73 40 00 6B A3 40 00 5E AA 40 00
+E6 9B 50 00 CF 50 4F 00 35 51 52 00 4B F7 A4 77 20 F7 A4 77 D6 03 A5 77 81 B8 42 00 B9 D0 9C 77
+68 BD 00 00 68 BD 00 00 2E 73 40 00 A1 C2 40 00 D4 B7 55 00 30 B8 55 00 61 B9 55 00 E5 B9 55 00
+1A BE 55 00 3C CF 58 00 9E 7F 59 00 89 F9 88 77 A4 74 9D 77 10 00 00 00 B0 04 02 00 F1 AA 5C 52
+18 4B 50 00 02 01 00 00 04 00 00 00 00 00 00 00 0E 55 A3 AD 80 80 80 80 00 00 00 00 90 21 8E 7F
+00 00 00 00 00 00 00 00 28 9A 41 00 00 00 00 00 0E 11 00 00 12 73 40 00 6B A3 40 00 5E AA 40 00
+36 9C 50 00 40 50 52 00 82 5B 52 00 36 93 29 01 B9 D0 9C 77 92 5C 52 00 3D 7E 4F 00 36 93 29 01
+.  S  P  .  >  .  .  .  0  r  é    ∞  !  ê    .  .  .  .  .  »  û  x  .  .  .  .  ê  !  é  
+.  .  .  .  .  .  .  .  (  ö  A  .  .  .  .  .  .  .  .  .  .  s  @  .  k  £  @  .  ^  ™  @  .
+Ê  õ  P  .  œ  P  O  .  5  Q  R  .  K  ˜  §  w     ˜  §  w  ÷  .  •  w  Å  ∏  B  .  π  –  ú  w
+h  Ω  .  .  h  Ω  .  .  .  s  @  .  °  ¬  @  .  ‘  ∑  U  .  0  ∏  U  .  a  π  U  .  Â  π  U  .
+.  æ  U  .  <  œ  X  .  û    Y  .  â  ˘  à  w  §  t  ù  w  .  .  .  .  ∞  .  .  .  Ò  ™  \  R
+.  K  P  .  .  .  .  .  .  .  .  .  .  .  .  .  .  U  £  ≠  Ä  Ä  Ä  Ä  .  .  .  .  ê  !  é  
+.  .  .  .  .  .  .  .  (  ö  A  .  .  .  .  .  .  .  .  .  .  s  @  .  k  £  @  .  ^  ™  @  .
+6  ú  P  .  @  P  R  .  Ç  [  R  .  6  ì  )  .  π  –  ú  w  í  \  R  .  =  ~  O  .  6  ì  )  .
+
+--------------------------------2021/10/13 21:12:58--------------------------------
+A memory block has been leaked. The size is: 20
+
+This block was allocated by thread 0xBD68, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+509BE6 [uAST.pas][uAST][TASTInteger.Create][499]
+4F50CF [uTokenVector.pas][uTokenVector][TTokenVector.nextToken][113]
+525135 [uConstructAST.pas][uConstructAST][TConstructAST.factor][391]
+77A4F74B [RtlRegisterSecureMemoryCacheCallback]
+77A4F720 [RtlRegisterSecureMemoryCacheCallback]
+77A503D6 [RtlRegisterSecureMemoryCacheCallback]
+42B881 [System.SysUtils.pas][System.SysUtils][Sysutils.FormatBuf$qqrpbuipxvuipx14System.TVarRecxirx31System.Sysutils.TFormatSettings][12736]
+779CD0B9 [RtlSetLastWin32Error]
+
+The block is currently used for an object of class: uAST.TASTInteger
+
+The allocation number is: 4367
+
+Current memory dump of 256 bytes starting at pointer address 7F8E7230:
+18 4B 50 00 02 01 00 00 04 00 00 00 00 00 00 00 0E 55 A3 AD 80 80 80 80 00 00 00 00 90 21 8E 7F
+00 00 00 00 00 00 00 00 28 9A 41 00 00 00 00 00 0E 11 00 00 12 73 40 00 6B A3 40 00 5E AA 40 00
+36 9C 50 00 40 50 52 00 82 5B 52 00 36 93 29 01 B9 D0 9C 77 92 5C 52 00 3D 7E 4F 00 36 93 29 01
+68 BD 00 00 68 BD 00 00 2E 73 40 00 A1 C2 40 00 DF CA 58 00 9B CF 58 00 9E 7F 59 00 89 F9 88 77
+A4 74 9D 77 74 74 9D 77 00 00 00 00 00 00 00 00 00 00 00 00 14 00 00 00 B0 04 02 00 69 AA 6C 64
+18 53 50 00 3E 01 00 00 30 6D 8E 7F 48 22 90 7F 00 00 00 00 96 55 93 9B 00 00 00 00 91 73 8E 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 2E 10 00 00 12 73 40 00 6B A3 40 00 5E AA 40 00
+CE E7 50 00 D9 DA 40 00 3B 3A 52 00 73 A7 40 00 F8 3D 52 00 55 35 50 00 AC 39 52 00 BE 3D 52 00
+.  K  P  .  .  .  .  .  .  .  .  .  .  .  .  .  .  U  £  ≠  Ä  Ä  Ä  Ä  .  .  .  .  ê  !  é  
+.  .  .  .  .  .  .  .  (  ö  A  .  .  .  .  .  .  .  .  .  .  s  @  .  k  £  @  .  ^  ™  @  .
+6  ú  P  .  @  P  R  .  Ç  [  R  .  6  ì  )  .  π  –  ú  w  í  \  R  .  =  ~  O  .  6  ì  )  .
+h  Ω  .  .  h  Ω  .  .  .  s  @  .  °  ¬  @  .  ﬂ     X  .  õ  œ  X  .  û    Y  .  â  ˘  à  w
+§  t  ù  w  t  t  ù  w  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ∞  .  .  .  i  ™  l  d
+.  S  P  .  >  .  .  .  0  m  é    H  "  ê    .  .  .  .  ñ  U  ì  õ  .  .  .  .  ë  s  é  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  s  @  .  k  £  @  .  ^  ™  @  .
+Œ  Á  P  .  Ÿ  ⁄  @  .  ;  :  R  .  s  ß  @  .  ¯  =  R  .  U  5  P  .  ¨  9  R  .  æ  =  R  .
+
+--------------------------------2021/10/13 21:12:58--------------------------------
+A memory block has been leaked. The size is: 20
+
+This block was allocated by thread 0xBD68, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+509C36 [uAST.pas][uAST][TASTPrimary.Create][506]
+525040 [uConstructAST.pas][uConstructAST][TConstructAST.primary][343]
+525B82 [uConstructAST.pas][uConstructAST][TConstructAST.power][530]
+1299336 [GetRawStackTrace]
+779CD0B9 [RtlSetLastWin32Error]
+525C92 [uConstructAST.pas][uConstructAST][TConstructAST.term][558]
+4F7E3D [uScanner.pas][uScanner][TScanner.skipBlanksAndComments][378]
+1299336 [GetRawStackTrace]
+
+The block is currently used for an object of class: uAST.TASTPrimary
+
+The allocation number is: 4366
+
+Current memory dump of 256 bytes starting at pointer address 7F8E72D0:
+18 53 50 00 3E 01 00 00 30 6D 8E 7F 48 22 90 7F 00 00 00 00 96 55 93 9B 00 00 00 00 91 73 8E 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 2E 10 00 00 12 73 40 00 6B A3 40 00 5E AA 40 00
+CE E7 50 00 D9 DA 40 00 3B 3A 52 00 73 A7 40 00 F8 3D 52 00 55 35 50 00 AC 39 52 00 BE 3D 52 00
+68 BD 00 00 68 BD 00 00 2E 73 40 00 89 A3 40 00 A9 AA 40 00 72 A4 40 00 B4 3A 52 00 F8 3D 52 00
+55 35 50 00 AC 39 52 00 BE 3D 52 00 0C 31 52 00 D9 DA 40 00 10 00 00 00 78 84 50 00 7F 69 3C 86
+84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80 80 96 C3 79 80 80 80 80 00 00 00 00 71 89 8E 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 3B 0B 00 00 12 73 40 00 6B A3 40 00 5E AA 40 00
+AA 3F 46 00 71 AE 40 00 74 A3 40 00 C8 4A 46 00 B7 4C 46 00 29 4D 46 00 B9 6F 46 00 1B 30 52 00
+.  S  P  .  >  .  .  .  0  m  é    H  "  ê    .  .  .  .  ñ  U  ì  õ  .  .  .  .  ë  s  é  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  s  @  .  k  £  @  .  ^  ™  @  .
+Œ  Á  P  .  Ÿ  ⁄  @  .  ;  :  R  .  s  ß  @  .  ¯  =  R  .  U  5  P  .  ¨  9  R  .  æ  =  R  .
+h  Ω  .  .  h  Ω  .  .  .  s  @  .  â  £  @  .  ©  ™  @  .  r  §  @  .  ¥  :  R  .  ¯  =  R  .
+U  5  P  .  ¨  9  R  .  æ  =  R  .  .  1  R  .  Ÿ  ⁄  @  .  .  .  .  .  x  Ñ  P  .    i  <  Ü
+Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  ñ  √  y  Ä  Ä  Ä  Ä  .  .  .  .  q  â  é  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ;  .  .  .  .  s  @  .  k  £  @  .  ^  ™  @  .
+™  ?  F  .  q  Æ  @  .  t  £  @  .  »  J  F  .  ∑  L  F  .  )  M  F  .  π  o  F  .  .  0  R  .
+
+--------------------------------2021/10/13 21:12:58--------------------------------
+A memory block has been leaked. The size is: 12
+
+This block was allocated by thread 0xBD68, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+509A26 [uAST.pas][uAST][TASTNull.Create][468]
+525AB4 [uConstructAST.pas][uConstructAST][TConstructAST.primaryPlus][508]
+418B46 [FastMM4.pas][FastMM4][CalculateHeaderCheckSum$qqrp29Fastmm4.TFullDebugBlockHeader][9133]
+418B55 [FastMM4.pas][FastMM4][UpdateHeaderAndFooterCheckSums$qqrp29Fastmm4.TFullDebugBlockHeader][9143]
+40AACC [System.pas][System][@AfterConstruction$qqrxp14System.TObject][19330]
+509C6B [uAST.pas][uAST][TASTPrimary.Create][510]
+525011 [uConstructAST.pas][uConstructAST][TConstructAST.primary][336]
+525B82 [uConstructAST.pas][uConstructAST][TConstructAST.power][530]
+
+The block is currently used for an object of class: uAST.TASTNull
+
+The allocation number is: 4368
+
+Current memory dump of 256 bytes starting at pointer address 7F9021B0:
+80 58 50 00 42 01 00 00 00 00 00 00 1C AB E8 79 00 00 00 00 20 F5 8F 7F 00 00 00 00 00 00 00 00
+28 9A 41 00 00 00 00 00 0D 11 00 00 12 73 40 00 6B A3 40 00 5E AA 40 00 26 9A 50 00 39 A6 DF 75
+B4 5A 52 00 16 B5 DF 75 11 50 52 00 82 5B 52 00 36 93 29 01 B9 D0 9C 77 68 BD 00 00 68 BD 00 00
+2E 73 40 00 38 F5 40 00 B6 DF 40 00 86 70 43 00 60 88 4C 00 B8 89 4C 00 94 83 4C 00 8D 8B 4C 00
+A5 7B 4F 00 09 7C 4F 00 FC 7C 4F 00 0C 00 00 00 00 00 00 00 E4 B6 88 E9 80 58 50 00 42 01 00 00
+00 00 00 00 1B 49 77 16 00 00 00 00 F9 22 90 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+07 11 00 00 81 73 40 00 77 F2 40 00 B9 D0 9C 77 DE F3 40 00 D2 8C 43 00 C2 6F 43 00 15 F3 40 00
+60 88 4C 00 B8 89 4C 00 94 83 4C 00 8D 8B 4C 00 68 BD 00 00 68 BD 00 00 2E 73 40 00 38 F5 40 00
+Ä  X  P  .  B  .  .  .  .  .  .  .  .  ´  Ë  y  .  .  .  .     ı  è    .  .  .  .  .  .  .  .
+(  ö  A  .  .  .  .  .  .  .  .  .  .  s  @  .  k  £  @  .  ^  ™  @  .  &  ö  P  .  9  ¶  ﬂ  u
+¥  Z  R  .  .  µ  ﬂ  u  .  P  R  .  Ç  [  R  .  6  ì  )  .  π  –  ú  w  h  Ω  .  .  h  Ω  .  .
+.  s  @  .  8  ı  @  .  ∂  ﬂ  @  .  Ü  p  C  .  `  à  L  .  ∏  â  L  .  î  É  L  .  ç  ã  L  .
+•  {  O  .  .  |  O  .  ¸  |  O  .  .  .  .  .  .  .  .  .  ‰  ∂  à  È  Ä  X  P  .  B  .  .  .
+.  .  .  .  .  I  w  .  .  .  .  .  ˘  "  ê    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+.  .  .  .  Å  s  @  .  w  Ú  @  .  π  –  ú  w  ﬁ  Û  @  .  “  å  C  .  ¬  o  C  .  .  Û  @  .
+`  à  L  .  ∏  â  L  .  î  É  L  .  ç  ã  L  .  h  Ω  .  .  h  Ω  .  .  .  s  @  .  8  ı  @  .
+
+--------------------------------2021/10/13 21:12:58--------------------------------
+A memory block has been leaked. The size is: 12
+
+This block was allocated by thread 0xBD68, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+509A26 [uAST.pas][uAST][TASTNull.Create][468]
+75DFA639 [MultiByteToWideChar]
+525AB4 [uConstructAST.pas][uConstructAST][TConstructAST.primaryPlus][508]
+75DFB516 [Unknown function at CompareStringW]
+525011 [uConstructAST.pas][uConstructAST][TConstructAST.primary][336]
+525B82 [uConstructAST.pas][uConstructAST][TConstructAST.power][530]
+1299336 [GetRawStackTrace]
+779CD0B9 [RtlSetLastWin32Error]
+
+The block is currently used for an object of class: uAST.TASTNull
+
+The allocation number is: 4365
+
+Current memory dump of 256 bytes starting at pointer address 7F902248:
+80 58 50 00 42 01 00 00 00 00 00 00 1B 49 77 16 00 00 00 00 F9 22 90 7F 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 07 11 00 00 81 73 40 00 77 F2 40 00 B9 D0 9C 77 DE F3 40 00 D2 8C 43 00
+C2 6F 43 00 15 F3 40 00 60 88 4C 00 B8 89 4C 00 94 83 4C 00 8D 8B 4C 00 68 BD 00 00 68 BD 00 00
+2E 73 40 00 38 F5 40 00 B6 DF 40 00 86 70 43 00 60 88 4C 00 B8 89 4C 00 94 83 4C 00 8D 8B 4C 00
+A5 7B 4F 00 09 7C 4F 00 FC 7C 4F 00 0A 00 00 00 00 00 00 00 37 38 11 FD 84 4C 5A 00 80 80 80 80
+80 80 C8 C7 EE 02 80 80 00 00 00 00 91 23 90 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+3D 0B 00 00 12 73 40 00 6B A3 40 00 5E AA 40 00 50 A4 40 00 5E AA 40 00 07 4A 47 00 BA 3F 46 00
+C8 4A 46 00 B7 4C 46 00 29 4D 46 00 B9 6F 46 00 68 BD 00 00 68 BD 00 00 89 A3 40 00 A9 AA 40 00
+Ä  X  P  .  B  .  .  .  .  .  .  .  .  I  w  .  .  .  .  .  ˘  "  ê    .  .  .  .  .  .  .  .
+.  .  .  .  .  .  .  .  .  .  .  .  Å  s  @  .  w  Ú  @  .  π  –  ú  w  ﬁ  Û  @  .  “  å  C  .
+¬  o  C  .  .  Û  @  .  `  à  L  .  ∏  â  L  .  î  É  L  .  ç  ã  L  .  h  Ω  .  .  h  Ω  .  .
+.  s  @  .  8  ı  @  .  ∂  ﬂ  @  .  Ü  p  C  .  `  à  L  .  ∏  â  L  .  î  É  L  .  ç  ã  L  .
+•  {  O  .  .  |  O  .  ¸  |  O  .  .  .  .  .  .  .  .  .  7  8  .  ˝  Ñ  L  Z  .  Ä  Ä  Ä  Ä
+Ä  Ä  »  «  Ó  .  Ä  Ä  .  .  .  .  ë  #  ê    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+=  .  .  .  .  s  @  .  k  £  @  .  ^  ™  @  .  P  §  @  .  ^  ™  @  .  .  J  G  .  ∫  ?  F  .
+»  J  F  .  ∑  L  F  .  )  M  F  .  π  o  F  .  h  Ω  .  .  h  Ω  .  .  â  £  @  .  ©  ™  @  .
+
+--------------------------------2021/10/13 21:12:58--------------------------------
+A memory block has been leaked. The size is: 52
+
+This block was allocated by thread 0xBD68, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+50DA82 [System.Generics.Collections.pas][uAST][Generics.Collections.%TList__1$p13Uast.TASTNode%.Create][4838]
+50959A [uAST.pas][uAST][TASTNode.create][366]
+50A54C [uAST.pas][uAST][TASTStatementList.Create][721]
+5263F4 [uConstructAST.pas][uConstructAST][TConstructAST.statementList][766]
+517420 [uSyntaxParser.pas][uSyntaxParser][TSyntaxParser.relationalOperators][472]
+40E252 [System.pas][System][@CopyRecord$qqrv][34052]
+40E307 [System.pas][System][@CopyRecord$qqrv][34172]
+528CB4 [uConstructAST.pas][uConstructAST][TConstructAST.constructAST][1630]
+
+The block is currently used for an object of class: uAST.TChildNodes
+
+The allocation number is: 4373
+
+Current memory dump of 256 bytes starting at pointer address 7F919820:
+A4 46 50 00 88 7B 8A 7F 01 00 00 00 FC 81 50 00 20 98 91 7F 00 00 00 00 00 00 00 00 D4 B3 59 00
+00 00 00 00 00 00 00 00 00 00 00 00 23 2F 28 7A 80 80 80 80 80 80 80 80 00 00 00 00 E1 99 91 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 23 11 00 00 12 73 40 00 7B C1 40 00 B2 D0 40 00
+45 B8 55 00 61 B9 55 00 E5 B9 55 00 1A BE 55 00 3C CF 58 00 9E 7F 59 00 89 F9 88 77 A4 74 9D 77
+68 BD 00 00 68 BD 00 00 2E 73 40 00 A1 C2 40 00 76 B8 55 00 61 B9 55 00 E5 B9 55 00 1A BE 55 00
+3C CF 58 00 9E 7F 59 00 89 F9 88 77 A4 74 9D 77 74 74 9D 77 34 00 00 00 B0 04 02 00 42 26 D5 DA
+84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 BD D9 2A 25 00 00 00 00 A1 AC 91 7F
+§  F  P  .  à  {  ä    .  .  .  .  ¸  Å  P  .     ò  ë    .  .  .  .  .  .  .  .  ‘  ≥  Y  .
+.  .  .  .  .  .  .  .  .  .  .  .  #  /  (  z  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  ·  ô  ë  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  #  .  .  .  .  s  @  .  {  ¡  @  .  ≤  –  @  .
+E  ∏  U  .  a  π  U  .  Â  π  U  .  .  æ  U  .  <  œ  X  .  û    Y  .  â  ˘  à  w  §  t  ù  w
+h  Ω  .  .  h  Ω  .  .  .  s  @  .  °  ¬  @  .  v  ∏  U  .  a  π  U  .  Â  π  U  .  .  æ  U  .
+<  œ  X  .  û    Y  .  â  ˘  à  w  §  t  ù  w  t  t  ù  w  4  .  .  .  ∞  .  .  .  B  &  ’  ⁄
+Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ω  Ÿ  *  %  .  .  .  .  °  ¨  ë  
+
+--------------------------------2021/10/13 21:12:58--------------------------------
+This application has leaked memory. The small block leaks are (excluding expected leaks registered by pointer):
+
+5 - 12 bytes: uAST.TASTNull x 2
+13 - 20 bytes: uAST.TASTInteger x 1, uAST.TASTPrimary x 2, uAST.TASTStatementList x 1, uAST.TASTExpression x 1, uAST.TASTAssignment x 1, uAST.TASTIdentifier x 1, UnicodeString x 1
+21 - 36 bytes: Unknown x 1
+37 - 52 bytes: uAST.TChildNodes x 1
+
+Note: Memory leak detail is logged to a text file in the same folder as this application. To disable this memory leak check, undefine "EnableMemoryLeakReporting".
+
+--------------------------------2021/10/13 21:17:29--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 28
+
+This block was previously allocated by thread 0x180, and the stack trace (return addresses) at the time was:
+40C1BC [System.pas][System][@NewAnsiString$qqrius][25729]
+40CB13 [System.pas][System][@LStrSetLength$qqrr27System.%AnsiStringT$us$i0$%ius][29547]
+40C5D0 [System.pas][System][@LStrFromPWCharLen$qqrr27System.%AnsiStringT$us$i0$%pbius][26511]
+40968A [System.pas][System][@WriteUString$qqrr15System.TTextRecx20System.UnicodeStringi][14746]
+4095E3 [System.pas][System][@Write0UString$qqrr15System.TTextRecx20System.UnicodeString][14721]
+55B970 [uTerminal.pas][uTerminal][setCurrentColors$qqrv][140]
+55B9E5 [uTerminal.pas][uTerminal][setWhite$qqrv][167]
+55BE1A [uTerminal.pas][uTerminal][displayPrompt$qqrv][233]
+58CFD8 [uRepl.pas][uRepl][startRepl$qqrv][257]
+597F9E 
+7788F989 [BaseThreadInitThunk]
+
+The allocation number was: 4400
+
+The block was previously freed by thread 0x180, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40C259 [System.pas][System][@LStrClr$qqrpv][25920]
+4096CA [System.pas][System][@WriteUString$qqrr15System.TTextRecx20System.UnicodeStringi][14753]
+4095E3 [System.pas][System][@Write0UString$qqrr15System.TTextRecx20System.UnicodeString][14721]
+55B970 [uTerminal.pas][uTerminal][setCurrentColors$qqrv][140]
+55B9E5 [uTerminal.pas][uTerminal][setWhite$qqrv][167]
+55BE1A [uTerminal.pas][uTerminal][displayPrompt$qqrv][233]
+58CFD8 [uRepl.pas][uRepl][startRepl$qqrv][257]
+597F9E 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+
+The current thread ID is 0x180, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 2E 43 18 14
+80 80 80 80 80 80 80 80 00 00 00 00 01 7B 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+2F 11 00 00 BC C1 40 00 13 CB 40 00 D0 C5 40 00 8A 96 40 00 E3 95 40 00 52 B8 55 00 61 B9 55 00
+E5 B9 55 00 1A BE 55 00 D8 CF 58 00 9E 7F 59 00 80 01 00 00 80 01 00 00 2E 73 40 00 59 C2 40 00
+CA 96 40 00 E3 95 40 00 52 B8 55 00 61 B9 55 00 E5 B9 55 00 1A BE 55 00 D8 CF 58 00 9E 7F 59 00
+89 F9 88 77 20 00 00 00 B5 01 01 00 DD BF 6C FD 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 22 40 93 02 80 80 80 80 00 00 00 00 61 A8 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  C  .  .
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  .  {  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+/  .  .  .  º  ¡  @  .  .  À  @  .  –  ≈  @  .  ä  ñ  @  .  „  ï  @  .  R  ∏  U  .  a  π  U  .
+Â  π  U  .  .  æ  U  .  ÿ  œ  X  .  û    Y  .  Ä  .  .  .  Ä  .  .  .  .  s  @  .  Y  ¬  @  .
+   ñ  @  .  „  ï  @  .  R  ∏  U  .  a  π  U  .  Â  π  U  .  .  æ  U  .  ÿ  œ  X  .  û    Y  .
+â  ˘  à  w     .  .  .  µ  .  .  .  ›  ø  l  ˝  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  "  @  ì  .  Ä  Ä  Ä  Ä  .  .  .  .  a  ®  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 21:18:07--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 28
+
+This block was previously allocated by thread 0x20828, and the stack trace (return addresses) at the time was:
+40C1BC [System.pas][System][@NewAnsiString$qqrius][25729]
+40CB13 [System.pas][System][@LStrSetLength$qqrr27System.%AnsiStringT$us$i0$%ius][29547]
+40C5D0 [System.pas][System][@LStrFromPWCharLen$qqrr27System.%AnsiStringT$us$i0$%pbius][26511]
+40968A [System.pas][System][@WriteUString$qqrr15System.TTextRecx20System.UnicodeStringi][14746]
+4095E3 [System.pas][System][@Write0UString$qqrr15System.TTextRecx20System.UnicodeString][14721]
+55B970 [uTerminal.pas][uTerminal][setCurrentColors$qqrv][140]
+55B9E5 [uTerminal.pas][uTerminal][setWhite$qqrv][167]
+55BE1A [uTerminal.pas][uTerminal][displayPrompt$qqrv][233]
+58CF34 [uRepl.pas][uRepl][startRepl$qqrv][257]
+597F9E 
+7788F989 [BaseThreadInitThunk]
+
+The allocation number was: 4400
+
+The block was previously freed by thread 0x20828, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40C259 [System.pas][System][@LStrClr$qqrpv][25920]
+4096CA [System.pas][System][@WriteUString$qqrr15System.TTextRecx20System.UnicodeStringi][14753]
+4095E3 [System.pas][System][@Write0UString$qqrr15System.TTextRecx20System.UnicodeString][14721]
+55B970 [uTerminal.pas][uTerminal][setCurrentColors$qqrv][140]
+55B9E5 [uTerminal.pas][uTerminal][setWhite$qqrv][167]
+55BE1A [uTerminal.pas][uTerminal][displayPrompt$qqrv][233]
+58CF34 [uRepl.pas][uRepl][startRepl$qqrv][257]
+597F9E 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+
+The current thread ID is 0x20828, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 26 37 14 14
+80 80 80 80 80 80 80 80 00 00 00 00 01 7B 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+2F 11 00 00 BC C1 40 00 13 CB 40 00 D0 C5 40 00 8A 96 40 00 E3 95 40 00 52 B8 55 00 61 B9 55 00
+E5 B9 55 00 1A BE 55 00 34 CF 58 00 9E 7F 59 00 28 08 02 00 28 08 02 00 2E 73 40 00 59 C2 40 00
+CA 96 40 00 E3 95 40 00 52 B8 55 00 61 B9 55 00 E5 B9 55 00 1A BE 55 00 34 CF 58 00 9E 7F 59 00
+89 F9 88 77 20 00 00 00 B5 01 01 00 E5 CB 70 FD 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 1A 34 8F 02 80 80 80 80 00 00 00 00 61 A8 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  &  7  .  .
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  .  {  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+/  .  .  .  º  ¡  @  .  .  À  @  .  –  ≈  @  .  ä  ñ  @  .  „  ï  @  .  R  ∏  U  .  a  π  U  .
+Â  π  U  .  .  æ  U  .  4  œ  X  .  û    Y  .  (  .  .  .  (  .  .  .  .  s  @  .  Y  ¬  @  .
+   ñ  @  .  „  ï  @  .  R  ∏  U  .  a  π  U  .  Â  π  U  .  .  æ  U  .  4  œ  X  .  û    Y  .
+â  ˘  à  w     .  .  .  µ  .  .  .  Â  À  p  ˝  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  4  è  .  Ä  Ä  Ä  Ä  .  .  .  .  a  ®  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 21:19:16--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 28
+
+This block was previously allocated by thread 0x2D240, and the stack trace (return addresses) at the time was:
+40C1BC [System.pas][System][@NewAnsiString$qqrius][25729]
+40CB13 [System.pas][System][@LStrSetLength$qqrr27System.%AnsiStringT$us$i0$%ius][29547]
+40C5D0 [System.pas][System][@LStrFromPWCharLen$qqrr27System.%AnsiStringT$us$i0$%pbius][26511]
+40968A [System.pas][System][@WriteUString$qqrr15System.TTextRecx20System.UnicodeStringi][14746]
+4095E3 [System.pas][System][@Write0UString$qqrr15System.TTextRecx20System.UnicodeString][14721]
+55B970 [uTerminal.pas][uTerminal][setCurrentColors$qqrv][140]
+55B9E5 [uTerminal.pas][uTerminal][setWhite$qqrv][167]
+55BE1A [uTerminal.pas][uTerminal][displayPrompt$qqrv][233]
+58CF34 [uRepl.pas][uRepl][startRepl$qqrv][257]
+597F9E 
+7788F989 [BaseThreadInitThunk]
+
+The allocation number was: 4400
+
+The block was previously freed by thread 0x2D240, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40C259 [System.pas][System][@LStrClr$qqrpv][25920]
+4096CA [System.pas][System][@WriteUString$qqrr15System.TTextRecx20System.UnicodeStringi][14753]
+4095E3 [System.pas][System][@Write0UString$qqrr15System.TTextRecx20System.UnicodeString][14721]
+55B970 [uTerminal.pas][uTerminal][setCurrentColors$qqrv][140]
+55B9E5 [uTerminal.pas][uTerminal][setWhite$qqrv][167]
+55BE1A [uTerminal.pas][uTerminal][displayPrompt$qqrv][233]
+58CF34 [uRepl.pas][uRepl][startRepl$qqrv][257]
+597F9E 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+
+The current thread ID is 0x2D240, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 F6 A2 12 14
+80 80 80 80 80 80 80 80 00 00 00 00 01 7B 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+2F 11 00 00 BC C1 40 00 13 CB 40 00 D0 C5 40 00 8A 96 40 00 E3 95 40 00 52 B8 55 00 61 B9 55 00
+E5 B9 55 00 1A BE 55 00 34 CF 58 00 9E 7F 59 00 40 D2 02 00 40 D2 02 00 2E 73 40 00 59 C2 40 00
+CA 96 40 00 E3 95 40 00 52 B8 55 00 61 B9 55 00 E5 B9 55 00 1A BE 55 00 34 CF 58 00 9E 7F 59 00
+89 F9 88 77 20 00 00 00 B5 01 01 00 15 60 72 FD 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 EA 9F 8D 02 80 80 80 80 00 00 00 00 61 A8 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  ˆ  ¢  .  .
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  .  {  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+/  .  .  .  º  ¡  @  .  .  À  @  .  –  ≈  @  .  ä  ñ  @  .  „  ï  @  .  R  ∏  U  .  a  π  U  .
+Â  π  U  .  .  æ  U  .  4  œ  X  .  û    Y  .  @  “  .  .  @  “  .  .  .  s  @  .  Y  ¬  @  .
+   ñ  @  .  „  ï  @  .  R  ∏  U  .  a  π  U  .  Â  π  U  .  .  æ  U  .  4  œ  X  .  û    Y  .
+â  ˘  à  w     .  .  .  µ  .  .  .  .  `  r  ˝  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Í  ü  ç  .  Ä  Ä  Ä  Ä  .  .  .  .  a  ®  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 21:20:15--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 24
+
+This block was previously allocated by thread 0x1B8F0, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+57340A [uStringObject.pas][uStringObject][TStringObject.Create][205]
+58296D [uSymbolTable.pas][uSymbolTable][TSymbolTable.addSymbol][404]
+5041E4 [uLibModule.pas][uLibModule][TModuleLib.addStringValue][92]
+51B403 [uBuiltInSys.pas][uBuiltInSys][TBuiltInSys.Create][35]
+581C5E [uSymbolTable.pas][uSymbolTable][addModule$qqrp20Usymboltable.TModulet1][166]
+581CA7 [uSymbolTable.pas][uSymbolTable][addAllBuiltInLibraries$qqrp20Usymboltable.TModule][177]
+5618F9 [uRhodusEngine.pas][uRhodusEngine][TRhodus.Create][98]
+58CE78 [uRepl.pas][uRepl][startRepl$qqrv][240]
+
+The block was previously used for an object of class: uStringObject.TStringObject
+
+The allocation number was: 1181
+
+The block was previously freed by thread 0x1B8F0, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40A389 [System.pas][System][TObject.FreeInstance][17960]
+40AAA9 [System.pas][System][@ClassDestroy$qqrxp14System.TObject][19324]
+5734D8 [uStringObject.pas][uStringObject][TStringObject.Destroy][218]
+40A47F [System.pas][System][TObject.Free][18023]
+4FBE37 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeMiddleNode][306]
+4FBED4 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeGarbage][333]
+56F8AB [uVM.pas][uVM][TVM.collectGarbage][2276]
+57046E [uVM.pas][uVM][TVM.run][2391]
+419AEB [FastMM4.pas][FastMM4][DebugGetMem$qqri][9684]
+419B3C [FastMM4.pas][FastMM4][DebugGetMem$qqri][9721]
+
+The current thread ID is 0x1B8F0, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 2D 91 7E 79 80 80 80 80
+80 80 80 80 80 80 80 80 00 00 00 00 01 7B 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+9E 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00 45 34 57 00 E4 41 50 00 03 B4 51 00 5E 1C 58 00
+A7 1C 58 00 F9 18 56 00 78 CE 58 00 9E 7F 59 00 F0 B8 01 00 F0 B8 01 00 2E 73 40 00 35 C2 40 00
+BC 34 57 00 7F A4 40 00 37 BE 4F 00 D4 BE 4F 00 AB F8 56 00 6E 04 57 00 EB 9A 41 00 3C 9B 41 00
+81 73 40 00 1C 00 00 00 B0 04 02 00 59 CF 2D 86 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 A6 30 D2 79 80 80 80 80 80 80 80 80 00 00 00 00 61 A8 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  -  ë  ~  y  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  .  {  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+û  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .  E  4  W  .  ‰  A  P  .  .  ¥  Q  .  ^  .  X  .
+ß  .  X  .  ˘  .  V  .  x  Œ  X  .  û    Y  .    ∏  .  .    ∏  .  .  .  s  @  .  5  ¬  @  .
+º  4  W  .    §  @  .  7  æ  O  .  ‘  æ  O  .  ´  ¯  V  .  n  .  W  .  Î  ö  A  .  <  õ  A  .
+Å  s  @  .  .  .  .  .  ∞  .  .  .  Y  œ  -  Ü  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  ¶  0  “  y  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  a  ®  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 21:20:48--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 24
+
+This block was previously allocated by thread 0x2C8D8, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+57343E [uStringObject.pas][uStringObject][TStringObject.Create][205]
+5829A1 [uSymbolTable.pas][uSymbolTable][TSymbolTable.addSymbol][404]
+5041E4 [uLibModule.pas][uLibModule][TModuleLib.addStringValue][92]
+51B403 [uBuiltInSys.pas][uBuiltInSys][TBuiltInSys.Create][35]
+581C92 [uSymbolTable.pas][uSymbolTable][addModule$qqrp20Usymboltable.TModulet1][166]
+581CDB [uSymbolTable.pas][uSymbolTable][addAllBuiltInLibraries$qqrp20Usymboltable.TModule][177]
+56192D [uRhodusEngine.pas][uRhodusEngine][TRhodus.Create][98]
+58CEAC [uRepl.pas][uRepl][startRepl$qqrv][240]
+
+The block was previously used for an object of class: uStringObject.TStringObject
+
+The allocation number was: 1181
+
+The block was previously freed by thread 0x2C8D8, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40A389 [System.pas][System][TObject.FreeInstance][17960]
+40AAA9 [System.pas][System][@ClassDestroy$qqrxp14System.TObject][19324]
+57350C [uStringObject.pas][uStringObject][TStringObject.Destroy][218]
+40A47F [System.pas][System][TObject.Free][18023]
+4FBE37 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeMiddleNode][306]
+4FBED4 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeGarbage][333]
+56F8DF [uVM.pas][uVM][TVM.collectGarbage][2276]
+5704A2 [uVM.pas][uVM][TVM.run][2391]
+419AEB [FastMM4.pas][FastMM4][DebugGetMem$qqri][9684]
+419B3C [FastMM4.pas][FastMM4][DebugGetMem$qqri][9721]
+
+The current thread ID is 0x2C8D8, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 55 6F 7C 79 80 80 80 80
+80 80 80 80 80 80 80 80 00 00 00 00 01 7B 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+9E 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00 79 34 57 00 E4 41 50 00 03 B4 51 00 92 1C 58 00
+DB 1C 58 00 2D 19 56 00 AC CE 58 00 9E 7F 59 00 D8 C8 02 00 D8 C8 02 00 2E 73 40 00 35 C2 40 00
+F0 34 57 00 7F A4 40 00 37 BE 4F 00 D4 BE 4F 00 DF F8 56 00 A2 04 57 00 EB 9A 41 00 3C 9B 41 00
+81 73 40 00 1C 00 00 00 B0 04 02 00 C9 F0 2F 86 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 36 0F D0 79 80 80 80 80 80 80 80 80 00 00 00 00 61 A8 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  U  o  |  y  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  .  {  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+û  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .  y  4  W  .  ‰  A  P  .  .  ¥  Q  .  í  .  X  .
+€  .  X  .  -  .  V  .  ¨  Œ  X  .  û    Y  .  ÿ  »  .  .  ÿ  »  .  .  .  s  @  .  5  ¬  @  .
+  4  W  .    §  @  .  7  æ  O  .  ‘  æ  O  .  ﬂ  ¯  V  .  ¢  .  W  .  Î  ö  A  .  <  õ  A  .
+Å  s  @  .  .  .  .  .  ∞  .  .  .  …    /  Ü  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  6  .  –  y  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  a  ®  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 21:21:17--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 28
+
+This block was previously allocated by thread 0x11838, and the stack trace (return addresses) at the time was:
+40C1BC [System.pas][System][@NewAnsiString$qqrius][25729]
+40CB13 [System.pas][System][@LStrSetLength$qqrr27System.%AnsiStringT$us$i0$%ius][29547]
+40C5D0 [System.pas][System][@LStrFromPWCharLen$qqrr27System.%AnsiStringT$us$i0$%pbius][26511]
+40968A [System.pas][System][@WriteUString$qqrr15System.TTextRecx20System.UnicodeStringi][14746]
+4095E3 [System.pas][System][@Write0UString$qqrr15System.TTextRecx20System.UnicodeString][14721]
+55B970 [uTerminal.pas][uTerminal][setCurrentColors$qqrv][140]
+55B9E5 [uTerminal.pas][uTerminal][setWhite$qqrv][167]
+55BE1A [uTerminal.pas][uTerminal][displayPrompt$qqrv][233]
+58CDEF [uRepl.pas][uRepl][startRepl$qqrv][257]
+597F9E 
+7788F989 [BaseThreadInitThunk]
+
+The allocation number was: 4400
+
+The block was previously freed by thread 0x11838, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40C259 [System.pas][System][@LStrClr$qqrpv][25920]
+4096CA [System.pas][System][@WriteUString$qqrr15System.TTextRecx20System.UnicodeStringi][14753]
+4095E3 [System.pas][System][@Write0UString$qqrr15System.TTextRecx20System.UnicodeString][14721]
+55B970 [uTerminal.pas][uTerminal][setCurrentColors$qqrv][140]
+55B9E5 [uTerminal.pas][uTerminal][setWhite$qqrv][167]
+55BE1A [uTerminal.pas][uTerminal][displayPrompt$qqrv][233]
+58CDEF [uRepl.pas][uRepl][startRepl$qqrv][257]
+597F9E 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+
+The current thread ID is 0x11838, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 90 19 16 14
+80 80 80 80 80 80 80 80 00 00 00 00 01 7B 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+2F 11 00 00 BC C1 40 00 13 CB 40 00 D0 C5 40 00 8A 96 40 00 E3 95 40 00 52 B8 55 00 61 B9 55 00
+E5 B9 55 00 1A BE 55 00 EF CD 58 00 9E 7F 59 00 38 18 01 00 38 18 01 00 2E 73 40 00 59 C2 40 00
+CA 96 40 00 E3 95 40 00 52 B8 55 00 61 B9 55 00 E5 B9 55 00 1A BE 55 00 EF CD 58 00 9E 7F 59 00
+89 F9 88 77 20 00 00 00 B5 01 01 00 7B E9 6E FD 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 84 16 91 02 80 80 80 80 00 00 00 00 61 A8 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  ê  .  .  .
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  .  {  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+/  .  .  .  º  ¡  @  .  .  À  @  .  –  ≈  @  .  ä  ñ  @  .  „  ï  @  .  R  ∏  U  .  a  π  U  .
+Â  π  U  .  .  æ  U  .  Ô  Õ  X  .  û    Y  .  8  .  .  .  8  .  .  .  .  s  @  .  Y  ¬  @  .
+   ñ  @  .  „  ï  @  .  R  ∏  U  .  a  π  U  .  Â  π  U  .  .  æ  U  .  Ô  Õ  X  .  û    Y  .
+â  ˘  à  w     .  .  .  µ  .  .  .  {  È  n  ˝  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ñ  .  ë  .  Ä  Ä  Ä  Ä  .  .  .  .  a  ®  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 21:21:37--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 28
+
+This block was previously allocated by thread 0x30658, and the stack trace (return addresses) at the time was:
+40C1BC [System.pas][System][@NewAnsiString$qqrius][25729]
+40CB13 [System.pas][System][@LStrSetLength$qqrr27System.%AnsiStringT$us$i0$%ius][29547]
+40C5D0 [System.pas][System][@LStrFromPWCharLen$qqrr27System.%AnsiStringT$us$i0$%pbius][26511]
+40968A [System.pas][System][@WriteUString$qqrr15System.TTextRecx20System.UnicodeStringi][14746]
+4095E3 [System.pas][System][@Write0UString$qqrr15System.TTextRecx20System.UnicodeString][14721]
+55B970 [uTerminal.pas][uTerminal][setCurrentColors$qqrv][140]
+55B9E5 [uTerminal.pas][uTerminal][setWhite$qqrv][167]
+55BE1A [uTerminal.pas][uTerminal][displayPrompt$qqrv][233]
+58CF34 [uRepl.pas][uRepl][startRepl$qqrv][257]
+597F9E 
+7788F989 [BaseThreadInitThunk]
+
+The allocation number was: 4400
+
+The block was previously freed by thread 0x30658, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40C259 [System.pas][System][@LStrClr$qqrpv][25920]
+4096CA [System.pas][System][@WriteUString$qqrr15System.TTextRecx20System.UnicodeStringi][14753]
+4095E3 [System.pas][System][@Write0UString$qqrr15System.TTextRecx20System.UnicodeString][14721]
+55B970 [uTerminal.pas][uTerminal][setCurrentColors$qqrv][140]
+55B9E5 [uTerminal.pas][uTerminal][setWhite$qqrv][167]
+55BE1A [uTerminal.pas][uTerminal][displayPrompt$qqrv][233]
+58CF34 [uRepl.pas][uRepl][startRepl$qqrv][257]
+597F9E 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+
+The current thread ID is 0x30658, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 C6 3A 12 14
+80 80 80 80 80 80 80 80 00 00 00 00 01 7B 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+2F 11 00 00 BC C1 40 00 13 CB 40 00 D0 C5 40 00 8A 96 40 00 E3 95 40 00 52 B8 55 00 61 B9 55 00
+E5 B9 55 00 1A BE 55 00 34 CF 58 00 9E 7F 59 00 58 06 03 00 58 06 03 00 2E 73 40 00 59 C2 40 00
+CA 96 40 00 E3 95 40 00 52 B8 55 00 61 B9 55 00 E5 B9 55 00 1A BE 55 00 34 CF 58 00 9E 7F 59 00
+89 F9 88 77 20 00 00 00 B5 01 01 00 45 C8 72 FD 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 BA 37 8D 02 80 80 80 80 00 00 00 00 61 A8 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  ∆  :  .  .
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  .  {  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+/  .  .  .  º  ¡  @  .  .  À  @  .  –  ≈  @  .  ä  ñ  @  .  „  ï  @  .  R  ∏  U  .  a  π  U  .
+Â  π  U  .  .  æ  U  .  4  œ  X  .  û    Y  .  X  .  .  .  X  .  .  .  .  s  @  .  Y  ¬  @  .
+   ñ  @  .  „  ï  @  .  R  ∏  U  .  a  π  U  .  Â  π  U  .  .  æ  U  .  4  œ  X  .  û    Y  .
+â  ˘  à  w     .  .  .  µ  .  .  .  E  »  r  ˝  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  ∫  7  ç  .  Ä  Ä  Ä  Ä  .  .  .  .  a  ®  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 21:24:04--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 24
+
+This block was previously allocated by thread 0x2A300, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+57340A [uStringObject.pas][uStringObject][TStringObject.Create][205]
+58296D [uSymbolTable.pas][uSymbolTable][TSymbolTable.addSymbol][404]
+5041E4 [uLibModule.pas][uLibModule][TModuleLib.addStringValue][92]
+51B403 [uBuiltInSys.pas][uBuiltInSys][TBuiltInSys.Create][35]
+581C5E [uSymbolTable.pas][uSymbolTable][addModule$qqrp20Usymboltable.TModulet1][166]
+581CA7 [uSymbolTable.pas][uSymbolTable][addAllBuiltInLibraries$qqrp20Usymboltable.TModule][177]
+5618F9 [uRhodusEngine.pas][uRhodusEngine][TRhodus.Create][98]
+58CE78 [uRepl.pas][uRepl][startRepl$qqrv][240]
+
+The block was previously used for an object of class: uStringObject.TStringObject
+
+The allocation number was: 1181
+
+The block was previously freed by thread 0x2A300, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40A389 [System.pas][System][TObject.FreeInstance][17960]
+40AAA9 [System.pas][System][@ClassDestroy$qqrxp14System.TObject][19324]
+5734D8 [uStringObject.pas][uStringObject][TStringObject.Destroy][218]
+40A47F [System.pas][System][TObject.Free][18023]
+4FBE37 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeMiddleNode][306]
+4FBED4 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeGarbage][333]
+56F8AB [uVM.pas][uVM][TVM.collectGarbage][2276]
+57046E [uVM.pas][uVM][TVM.run][2391]
+419AEB [FastMM4.pas][FastMM4][DebugGetMem$qqri][9684]
+419B3C [FastMM4.pas][FastMM4][DebugGetMem$qqri][9721]
+
+The current thread ID is 0x2A300, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 0D BD 7C 79 80 80 80 80
+80 80 80 80 80 80 80 80 00 00 00 00 01 7B 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+9E 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00 45 34 57 00 E4 41 50 00 03 B4 51 00 5E 1C 58 00
+A7 1C 58 00 F9 18 56 00 78 CE 58 00 9E 7F 59 00 00 A3 02 00 00 A3 02 00 2E 73 40 00 35 C2 40 00
+BC 34 57 00 7F A4 40 00 37 BE 4F 00 D4 BE 4F 00 AB F8 56 00 6E 04 57 00 EB 9A 41 00 3C 9B 41 00
+81 73 40 00 1C 00 00 00 B0 04 02 00 79 A3 2F 86 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 86 5C D0 79 80 80 80 80 80 80 80 80 00 00 00 00 61 A8 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  Ω  |  y  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  .  {  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+û  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .  E  4  W  .  ‰  A  P  .  .  ¥  Q  .  ^  .  X  .
+ß  .  X  .  ˘  .  V  .  x  Œ  X  .  û    Y  .  .  £  .  .  .  £  .  .  .  s  @  .  5  ¬  @  .
+º  4  W  .    §  @  .  7  æ  O  .  ‘  æ  O  .  ´  ¯  V  .  n  .  W  .  Î  ö  A  .  <  õ  A  .
+Å  s  @  .  .  .  .  .  ∞  .  .  .  y  £  /  Ü  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ü  \  –  y  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  a  ®  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 21:27:57--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 24
+
+This block was previously allocated by thread 0x44430, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+57340A [uStringObject.pas][uStringObject][TStringObject.Create][205]
+58296D [uSymbolTable.pas][uSymbolTable][TSymbolTable.addSymbol][404]
+5041E4 [uLibModule.pas][uLibModule][TModuleLib.addStringValue][92]
+51B403 [uBuiltInSys.pas][uBuiltInSys][TBuiltInSys.Create][35]
+581C5E [uSymbolTable.pas][uSymbolTable][addModule$qqrp20Usymboltable.TModulet1][166]
+581CA7 [uSymbolTable.pas][uSymbolTable][addAllBuiltInLibraries$qqrp20Usymboltable.TModule][177]
+5618F9 [uRhodusEngine.pas][uRhodusEngine][TRhodus.Create][98]
+58CE78 [uRepl.pas][uRepl][startRepl$qqrv][240]
+
+The block was previously used for an object of class: uStringObject.TStringObject
+
+The allocation number was: 1181
+
+The block was previously freed by thread 0x44430, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40A389 [System.pas][System][TObject.FreeInstance][17960]
+40AAA9 [System.pas][System][@ClassDestroy$qqrxp14System.TObject][19324]
+5734D8 [uStringObject.pas][uStringObject][TStringObject.Destroy][218]
+40A47F [System.pas][System][TObject.Free][18023]
+4FBE37 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeMiddleNode][306]
+4FBED4 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeGarbage][333]
+56F8AB [uVM.pas][uVM][TVM.collectGarbage][2276]
+57046E [uVM.pas][uVM][TVM.run][2391]
+419AEB [FastMM4.pas][FastMM4][DebugGetMem$qqri][9684]
+419B3C [FastMM4.pas][FastMM4][DebugGetMem$qqri][9721]
+
+The current thread ID is 0x44430, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 AD 7A 79 79 80 80 80 80
+80 80 80 80 80 80 80 80 00 00 00 00 51 7A 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+9E 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00 45 34 57 00 E4 41 50 00 03 B4 51 00 5E 1C 58 00
+A7 1C 58 00 F9 18 56 00 78 CE 58 00 9E 7F 59 00 30 44 04 00 30 44 04 00 2E 73 40 00 35 C2 40 00
+BC 34 57 00 7F A4 40 00 37 BE 4F 00 D4 BE 4F 00 AB F8 56 00 6E 04 57 00 EB 9A 41 00 3C 9B 41 00
+81 73 40 00 1C 00 00 00 B0 04 02 00 D9 E5 32 86 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 26 1A CD 79 80 80 80 80 80 80 80 80 00 00 00 00 E1 76 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  ≠  z  y  y  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  Q  z  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+û  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .  E  4  W  .  ‰  A  P  .  .  ¥  Q  .  ^  .  X  .
+ß  .  X  .  ˘  .  V  .  x  Œ  X  .  û    Y  .  0  D  .  .  0  D  .  .  .  s  @  .  5  ¬  @  .
+º  4  W  .    §  @  .  7  æ  O  .  ‘  æ  O  .  ´  ¯  V  .  n  .  W  .  Î  ö  A  .  <  õ  A  .
+Å  s  @  .  .  .  .  .  ∞  .  .  .  Ÿ  Â  2  Ü  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  &  .  Õ  y  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  ·  v  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 21:28:51--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 24
+
+This block was previously allocated by thread 0xA668, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+57340A [uStringObject.pas][uStringObject][TStringObject.Create][205]
+58296D [uSymbolTable.pas][uSymbolTable][TSymbolTable.addSymbol][404]
+5041E4 [uLibModule.pas][uLibModule][TModuleLib.addStringValue][92]
+51B403 [uBuiltInSys.pas][uBuiltInSys][TBuiltInSys.Create][35]
+581C5E [uSymbolTable.pas][uSymbolTable][addModule$qqrp20Usymboltable.TModulet1][166]
+581CA7 [uSymbolTable.pas][uSymbolTable][addAllBuiltInLibraries$qqrp20Usymboltable.TModule][177]
+5618F9 [uRhodusEngine.pas][uRhodusEngine][TRhodus.Create][98]
+58CE78 [uRepl.pas][uRepl][startRepl$qqrv][240]
+
+The block was previously used for an object of class: uStringObject.TStringObject
+
+The allocation number was: 1181
+
+The block was previously freed by thread 0xA668, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40A389 [System.pas][System][TObject.FreeInstance][17960]
+40AAA9 [System.pas][System][@ClassDestroy$qqrxp14System.TObject][19324]
+5734D8 [uStringObject.pas][uStringObject][TStringObject.Destroy][218]
+40A47F [System.pas][System][TObject.Free][18023]
+4FBE37 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeMiddleNode][306]
+4FBED4 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeGarbage][333]
+56F8AB [uVM.pas][uVM][TVM.collectGarbage][2276]
+57046E [uVM.pas][uVM][TVM.run][2391]
+419AEB [FastMM4.pas][FastMM4][DebugGetMem$qqri][9684]
+419B3C [FastMM4.pas][FastMM4][DebugGetMem$qqri][9721]
+
+The current thread ID is 0xA668, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 3D B6 80 79 80 80 80 80
+80 80 80 80 80 80 80 80 00 00 00 00 51 7A 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+9E 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00 45 34 57 00 E4 41 50 00 03 B4 51 00 5E 1C 58 00
+A7 1C 58 00 F9 18 56 00 78 CE 58 00 9E 7F 59 00 68 A6 00 00 68 A6 00 00 2E 73 40 00 35 C2 40 00
+BC 34 57 00 7F A4 40 00 37 BE 4F 00 D4 BE 4F 00 AB F8 56 00 6E 04 57 00 EB 9A 41 00 3C 9B 41 00
+81 73 40 00 1C 00 00 00 B0 04 02 00 49 AA 2B 86 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 B6 55 D4 79 80 80 80 80 80 80 80 80 00 00 00 00 E1 76 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  =  ∂  Ä  y  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  Q  z  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+û  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .  E  4  W  .  ‰  A  P  .  .  ¥  Q  .  ^  .  X  .
+ß  .  X  .  ˘  .  V  .  x  Œ  X  .  û    Y  .  h  ¶  .  .  h  ¶  .  .  .  s  @  .  5  ¬  @  .
+º  4  W  .    §  @  .  7  æ  O  .  ‘  æ  O  .  ´  ¯  V  .  n  .  W  .  Î  ö  A  .  <  õ  A  .
+Å  s  @  .  .  .  .  .  ∞  .  .  .  I  ™  +  Ü  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  ∂  U  ‘  y  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  ·  v  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 21:29:42--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 24
+
+This block was previously allocated by thread 0xAD00, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+57340A [uStringObject.pas][uStringObject][TStringObject.Create][205]
+58296D [uSymbolTable.pas][uSymbolTable][TSymbolTable.addSymbol][404]
+5041E4 [uLibModule.pas][uLibModule][TModuleLib.addStringValue][92]
+51B403 [uBuiltInSys.pas][uBuiltInSys][TBuiltInSys.Create][35]
+581C5E [uSymbolTable.pas][uSymbolTable][addModule$qqrp20Usymboltable.TModulet1][166]
+581CA7 [uSymbolTable.pas][uSymbolTable][addAllBuiltInLibraries$qqrp20Usymboltable.TModule][177]
+5618F9 [uRhodusEngine.pas][uRhodusEngine][TRhodus.Create][98]
+58CE78 [uRepl.pas][uRepl][startRepl$qqrv][240]
+
+The block was previously used for an object of class: uStringObject.TStringObject
+
+The allocation number was: 1181
+
+The block was previously freed by thread 0xAD00, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40A389 [System.pas][System][TObject.FreeInstance][17960]
+40AAA9 [System.pas][System][@ClassDestroy$qqrxp14System.TObject][19324]
+5734D8 [uStringObject.pas][uStringObject][TStringObject.Destroy][218]
+40A47F [System.pas][System][TObject.Free][18023]
+4FBE37 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeMiddleNode][306]
+4FBED4 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeGarbage][333]
+56F8AB [uVM.pas][uVM][TVM.collectGarbage][2276]
+57046E [uVM.pas][uVM][TVM.run][2391]
+419AEB [FastMM4.pas][FastMM4][DebugGetMem$qqri][9684]
+419B3C [FastMM4.pas][FastMM4][DebugGetMem$qqri][9721]
+
+The current thread ID is 0xAD00, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 0D A9 80 79 80 80 80 80
+80 80 80 80 80 80 80 80 00 00 00 00 51 7A 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+9E 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00 45 34 57 00 E4 41 50 00 03 B4 51 00 5E 1C 58 00
+A7 1C 58 00 F9 18 56 00 78 CE 58 00 9E 7F 59 00 00 AD 00 00 00 AD 00 00 2E 73 40 00 35 C2 40 00
+BC 34 57 00 7F A4 40 00 37 BE 4F 00 D4 BE 4F 00 AB F8 56 00 6E 04 57 00 EB 9A 41 00 3C 9B 41 00
+81 73 40 00 1C 00 00 00 B0 04 02 00 79 B7 2B 86 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 86 48 D4 79 80 80 80 80 80 80 80 80 00 00 00 00 E1 76 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  ©  Ä  y  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  Q  z  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+û  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .  E  4  W  .  ‰  A  P  .  .  ¥  Q  .  ^  .  X  .
+ß  .  X  .  ˘  .  V  .  x  Œ  X  .  û    Y  .  .  ≠  .  .  .  ≠  .  .  .  s  @  .  5  ¬  @  .
+º  4  W  .    §  @  .  7  æ  O  .  ‘  æ  O  .  ´  ¯  V  .  n  .  W  .  Î  ö  A  .  <  õ  A  .
+Å  s  @  .  .  .  .  .  ∞  .  .  .  y  ∑  +  Ü  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ü  H  ‘  y  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  ·  v  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 21:30:05--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 24
+
+This block was previously allocated by thread 0x246AC, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+57340A [uStringObject.pas][uStringObject][TStringObject.Create][205]
+58296D [uSymbolTable.pas][uSymbolTable][TSymbolTable.addSymbol][404]
+5041E4 [uLibModule.pas][uLibModule][TModuleLib.addStringValue][92]
+51B403 [uBuiltInSys.pas][uBuiltInSys][TBuiltInSys.Create][35]
+581C5E [uSymbolTable.pas][uSymbolTable][addModule$qqrp20Usymboltable.TModulet1][166]
+581CA7 [uSymbolTable.pas][uSymbolTable][addAllBuiltInLibraries$qqrp20Usymboltable.TModule][177]
+5618F9 [uRhodusEngine.pas][uRhodusEngine][TRhodus.Create][98]
+58CE78 [uRepl.pas][uRepl][startRepl$qqrv][240]
+
+The block was previously used for an object of class: uStringObject.TStringObject
+
+The allocation number was: 1181
+
+The block was previously freed by thread 0x246AC, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40A389 [System.pas][System][TObject.FreeInstance][17960]
+40AAA9 [System.pas][System][@ClassDestroy$qqrxp14System.TObject][19324]
+5734D8 [uStringObject.pas][uStringObject][TStringObject.Destroy][218]
+40A47F [System.pas][System][TObject.Free][18023]
+4FBE37 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeMiddleNode][306]
+4FBED4 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeGarbage][333]
+56F8AB [uVM.pas][uVM][TVM.collectGarbage][2276]
+57046E [uVM.pas][uVM][TVM.run][2391]
+419AEB [FastMM4.pas][FastMM4][DebugGetMem$qqri][9684]
+419B3C [FastMM4.pas][FastMM4][DebugGetMem$qqri][9721]
+
+The current thread ID is 0x246AC, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 B5 75 7D 79 80 80 80 80
+80 80 80 80 80 80 80 80 00 00 00 00 51 7A 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+9E 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00 45 34 57 00 E4 41 50 00 03 B4 51 00 5E 1C 58 00
+A7 1C 58 00 F9 18 56 00 78 CE 58 00 9E 7F 59 00 AC 46 02 00 AC 46 02 00 2E 73 40 00 35 C2 40 00
+BC 34 57 00 7F A4 40 00 37 BE 4F 00 D4 BE 4F 00 AB F8 56 00 6E 04 57 00 EB 9A 41 00 3C 9B 41 00
+81 73 40 00 1C 00 00 00 B0 04 02 00 D1 EA 2E 86 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 2E 15 D1 79 80 80 80 80 80 80 80 80 00 00 00 00 E1 76 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  µ  u  }  y  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  Q  z  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+û  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .  E  4  W  .  ‰  A  P  .  .  ¥  Q  .  ^  .  X  .
+ß  .  X  .  ˘  .  V  .  x  Œ  X  .  û    Y  .  ¨  F  .  .  ¨  F  .  .  .  s  @  .  5  ¬  @  .
+º  4  W  .    §  @  .  7  æ  O  .  ‘  æ  O  .  ´  ¯  V  .  n  .  W  .  Î  ö  A  .  <  õ  A  .
+Å  s  @  .  .  .  .  .  ∞  .  .  .  —  Í  .  Ü  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  —  y  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  ·  v  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 21:32:40--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 24
+
+This block was previously allocated by thread 0x2AC9C, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+5731F2 [uStringObject.pas][uStringObject][TStringObject.Create][204]
+582755 [uSymbolTable.pas][uSymbolTable][TSymbolTable.addSymbol][404]
+504184 [uLibModule.pas][uLibModule][TModuleLib.addStringValue][92]
+51B3A3 [uBuiltInSys.pas][uBuiltInSys][TBuiltInSys.Create][35]
+581A46 [uSymbolTable.pas][uSymbolTable][addModule$qqrp20Usymboltable.TModulet1][166]
+581A8F [uSymbolTable.pas][uSymbolTable][addAllBuiltInLibraries$qqrp20Usymboltable.TModule][177]
+5616E1 [uRhodusEngine.pas][uRhodusEngine][TRhodus.Create][98]
+58CC60 [uRepl.pas][uRepl][startRepl$qqrv][240]
+
+The block was previously used for an object of class: uStringObject.TStringObject
+
+The allocation number was: 1181
+
+The block was previously freed by thread 0x2AC9C, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40A389 [System.pas][System][TObject.FreeInstance][17960]
+40AAA9 [System.pas][System][@ClassDestroy$qqrxp14System.TObject][19324]
+5732C0 [uStringObject.pas][uStringObject][TStringObject.Destroy][217]
+40A47F [System.pas][System][TObject.Free][18023]
+4FBDD7 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeMiddleNode][306]
+4FBE74 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeGarbage][333]
+56F693 [uVM.pas][uVM][TVM.collectGarbage][2276]
+570256 [uVM.pas][uVM][TVM.run][2391]
+419AEB [FastMM4.pas][FastMM4][DebugGetMem$qqri][9684]
+419B3C [FastMM4.pas][FastMM4][DebugGetMem$qqri][9721]
+
+The current thread ID is 0x2AC9C, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 45 C0 7C 79 80 80 80 80
+80 80 80 80 80 80 80 80 00 00 00 00 51 7A 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+9E 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00 2D 32 57 00 84 41 50 00 A3 B3 51 00 46 1A 58 00
+8F 1A 58 00 E1 16 56 00 60 CC 58 00 9E 7F 59 00 9C AC 02 00 9C AC 02 00 2E 73 40 00 35 C2 40 00
+A4 32 57 00 7F A4 40 00 D7 BD 4F 00 74 BE 4F 00 93 F6 56 00 56 02 57 00 EB 9A 41 00 3C 9B 41 00
+81 73 40 00 1C 00 00 00 B0 04 02 00 71 A4 2F 86 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 8E 5B D0 79 80 80 80 80 80 80 80 80 00 00 00 00 E1 76 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  E  ¿  |  y  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  Q  z  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+û  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .  -  2  W  .  Ñ  A  P  .  £  ≥  Q  .  F  .  X  .
+è  .  X  .  ·  .  V  .  `  Ã  X  .  û    Y  .  ú  ¨  .  .  ú  ¨  .  .  .  s  @  .  5  ¬  @  .
+§  2  W  .    §  @  .  ◊  Ω  O  .  t  æ  O  .  ì  ˆ  V  .  V  .  W  .  Î  ö  A  .  <  õ  A  .
+Å  s  @  .  .  .  .  .  ∞  .  .  .  q  §  /  Ü  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  é  [  –  y  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  ·  v  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 21:33:28--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 24
+
+This block was previously allocated by thread 0x48068, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+5734A6 [uStringObject.pas][uStringObject][TStringObject.Create][204]
+582A09 [uSymbolTable.pas][uSymbolTable][TSymbolTable.addSymbol][404]
+5041E4 [uLibModule.pas][uLibModule][TModuleLib.addStringValue][92]
+51B403 [uBuiltInSys.pas][uBuiltInSys][TBuiltInSys.Create][35]
+581CFA [uSymbolTable.pas][uSymbolTable][addModule$qqrp20Usymboltable.TModulet1][166]
+581D43 [uSymbolTable.pas][uSymbolTable][addAllBuiltInLibraries$qqrp20Usymboltable.TModule][177]
+5618F9 [uRhodusEngine.pas][uRhodusEngine][TRhodus.Create][98]
+58CF14 [uRepl.pas][uRepl][startRepl$qqrv][240]
+
+The block was previously used for an object of class: uStringObject.TStringObject
+
+The allocation number was: 1181
+
+The block was previously freed by thread 0x48068, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40A389 [System.pas][System][TObject.FreeInstance][17960]
+40AAA9 [System.pas][System][@ClassDestroy$qqrxp14System.TObject][19324]
+573574 [uStringObject.pas][uStringObject][TStringObject.Destroy][217]
+40A47F [System.pas][System][TObject.Free][18023]
+4FBE37 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeMiddleNode][306]
+4FBED4 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeGarbage][333]
+56F947 [uVM.pas][uVM][TVM.collectGarbage][2276]
+57050A [uVM.pas][uVM][TVM.run][2391]
+419AEB [FastMM4.pas][FastMM4][DebugGetMem$qqri][9684]
+419B3C [FastMM4.pas][FastMM4][DebugGetMem$qqri][9721]
+
+The current thread ID is 0x48068, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 C1 FC 78 79 80 80 80 80
+80 80 80 80 80 80 80 80 00 00 00 00 51 7A 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+9E 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00 E1 34 57 00 E4 41 50 00 03 B4 51 00 FA 1C 58 00
+43 1D 58 00 F9 18 56 00 14 CF 58 00 9E 7F 59 00 68 80 04 00 68 80 04 00 2E 73 40 00 35 C2 40 00
+58 35 57 00 7F A4 40 00 37 BE 4F 00 D4 BE 4F 00 47 F9 56 00 0A 05 57 00 EB 9A 41 00 3C 9B 41 00
+81 73 40 00 1C 00 00 00 B0 04 02 00 8D 62 33 86 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 72 9D CC 79 80 80 80 80 80 80 80 80 00 00 00 00 E1 76 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  ¡  ¸  x  y  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  Q  z  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+û  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .  ·  4  W  .  ‰  A  P  .  .  ¥  Q  .  ˙  .  X  .
+C  .  X  .  ˘  .  V  .  .  œ  X  .  û    Y  .  h  Ä  .  .  h  Ä  .  .  .  s  @  .  5  ¬  @  .
+X  5  W  .    §  @  .  7  æ  O  .  ‘  æ  O  .  G  ˘  V  .  .  .  W  .  Î  ö  A  .  <  õ  A  .
+Å  s  @  .  .  .  .  .  ∞  .  .  .  ç  b  3  Ü  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  r  ù  Ã  y  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  ·  v  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 21:33:53--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 24
+
+This block was previously allocated by thread 0x3C628, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+5734AE [uStringObject.pas][uStringObject][TStringObject.Create][204]
+582A11 [uSymbolTable.pas][uSymbolTable][TSymbolTable.addSymbol][404]
+5041E4 [uLibModule.pas][uLibModule][TModuleLib.addStringValue][92]
+51B403 [uBuiltInSys.pas][uBuiltInSys][TBuiltInSys.Create][35]
+581D02 [uSymbolTable.pas][uSymbolTable][addModule$qqrp20Usymboltable.TModulet1][166]
+581D4B [uSymbolTable.pas][uSymbolTable][addAllBuiltInLibraries$qqrp20Usymboltable.TModule][177]
+5618F9 [uRhodusEngine.pas][uRhodusEngine][TRhodus.Create][98]
+58CF1C [uRepl.pas][uRepl][startRepl$qqrv][240]
+
+The block was previously used for an object of class: uStringObject.TStringObject
+
+The allocation number was: 1181
+
+The block was previously freed by thread 0x3C628, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40A389 [System.pas][System][TObject.FreeInstance][17960]
+40AAA9 [System.pas][System][@ClassDestroy$qqrxp14System.TObject][19324]
+57357C [uStringObject.pas][uStringObject][TStringObject.Destroy][217]
+40A47F [System.pas][System][TObject.Free][18023]
+4FBE37 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeMiddleNode][306]
+4FBED4 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeGarbage][333]
+56F94F [uVM.pas][uVM][TVM.collectGarbage][2276]
+570512 [uVM.pas][uVM][TVM.run][2391]
+419AEB [FastMM4.pas][FastMM4][DebugGetMem$qqri][9684]
+419B3C [FastMM4.pas][FastMM4][DebugGetMem$qqri][9721]
+
+The current thread ID is 0x3C628, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 F9 70 7A 79 80 80 80 80
+80 80 80 80 80 80 80 80 00 00 00 00 51 7A 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+9E 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00 E9 34 57 00 E4 41 50 00 03 B4 51 00 02 1D 58 00
+4B 1D 58 00 F9 18 56 00 1C CF 58 00 9E 7F 59 00 28 C6 03 00 28 C6 03 00 2E 73 40 00 35 C2 40 00
+60 35 57 00 7F A4 40 00 37 BE 4F 00 D4 BE 4F 00 4F F9 56 00 12 05 57 00 EB 9A 41 00 3C 9B 41 00
+81 73 40 00 1C 00 00 00 B0 04 02 00 45 EE 31 86 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 BA 11 CE 79 80 80 80 80 80 80 80 80 00 00 00 00 E1 76 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  ˘  p  z  y  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  Q  z  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+û  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .  È  4  W  .  ‰  A  P  .  .  ¥  Q  .  .  .  X  .
+K  .  X  .  ˘  .  V  .  .  œ  X  .  û    Y  .  (  ∆  .  .  (  ∆  .  .  .  s  @  .  5  ¬  @  .
+`  5  W  .    §  @  .  7  æ  O  .  ‘  æ  O  .  O  ˘  V  .  .  .  W  .  Î  ö  A  .  <  õ  A  .
+Å  s  @  .  .  .  .  .  ∞  .  .  .  E  Ó  1  Ü  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  ∫  .  Œ  y  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  ·  v  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 21:39:28--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 24
+
+This block was previously allocated by thread 0x2E79C, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+57340A [uStringObject.pas][uStringObject][TStringObject.Create][204]
+58296D [uSymbolTable.pas][uSymbolTable][TSymbolTable.addSymbol][404]
+5041E4 [uLibModule.pas][uLibModule][TModuleLib.addStringValue][92]
+51B403 [uBuiltInSys.pas][uBuiltInSys][TBuiltInSys.Create][35]
+581C5E [uSymbolTable.pas][uSymbolTable][addModule$qqrp20Usymboltable.TModulet1][166]
+581CA7 [uSymbolTable.pas][uSymbolTable][addAllBuiltInLibraries$qqrp20Usymboltable.TModule][177]
+5618F9 [uRhodusEngine.pas][uRhodusEngine][TRhodus.Create][98]
+58CE78 [uRepl.pas][uRepl][startRepl$qqrv][240]
+
+The block was previously used for an object of class: uStringObject.TStringObject
+
+The allocation number was: 1181
+
+The block was previously freed by thread 0x2E79C, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40A389 [System.pas][System][TObject.FreeInstance][17960]
+40AAA9 [System.pas][System][@ClassDestroy$qqrxp14System.TObject][19324]
+5734D8 [uStringObject.pas][uStringObject][TStringObject.Destroy][217]
+40A47F [System.pas][System][TObject.Free][18023]
+4FBE37 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeMiddleNode][306]
+4FBED4 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeGarbage][333]
+56F8AB [uVM.pas][uVM][TVM.collectGarbage][2276]
+57046E [uVM.pas][uVM][TVM.run][2391]
+419AEB [FastMM4.pas][FastMM4][DebugGetMem$qqri][9684]
+419B3C [FastMM4.pas][FastMM4][DebugGetMem$qqri][9721]
+
+The current thread ID is 0x2E79C, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 D5 33 7C 79 80 80 80 80
+80 80 80 80 80 80 80 80 00 00 00 00 51 7A 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+9E 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00 45 34 57 00 E4 41 50 00 03 B4 51 00 5E 1C 58 00
+A7 1C 58 00 F9 18 56 00 78 CE 58 00 9E 7F 59 00 9C E7 02 00 9C E7 02 00 2E 73 40 00 35 C2 40 00
+BC 34 57 00 7F A4 40 00 37 BE 4F 00 D4 BE 4F 00 AB F8 56 00 6E 04 57 00 EB 9A 41 00 3C 9B 41 00
+81 73 40 00 1C 00 00 00 B0 04 02 00 B1 2C 30 86 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 4E D3 CF 79 80 80 80 80 80 80 80 80 00 00 00 00 E1 76 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  ’  3  |  y  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  Q  z  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+û  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .  E  4  W  .  ‰  A  P  .  .  ¥  Q  .  ^  .  X  .
+ß  .  X  .  ˘  .  V  .  x  Œ  X  .  û    Y  .  ú  Á  .  .  ú  Á  .  .  .  s  @  .  5  ¬  @  .
+º  4  W  .    §  @  .  7  æ  O  .  ‘  æ  O  .  ´  ¯  V  .  n  .  W  .  Î  ö  A  .  <  õ  A  .
+Å  s  @  .  .  .  .  .  ∞  .  .  .  ±  ,  0  Ü  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  N  ”  œ  y  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  ·  v  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 21:43:55--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 24
+
+This block was previously allocated by thread 0x278E0, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+573372 [uStringObject.pas][uStringObject][TStringObject.Create][204]
+5828D5 [uSymbolTable.pas][uSymbolTable][TSymbolTable.addSymbol][404]
+5041E4 [uLibModule.pas][uLibModule][TModuleLib.addStringValue][92]
+51B403 [uBuiltInSys.pas][uBuiltInSys][TBuiltInSys.Create][35]
+581BC6 [uSymbolTable.pas][uSymbolTable][addModule$qqrp20Usymboltable.TModulet1][166]
+581C0F [uSymbolTable.pas][uSymbolTable][addAllBuiltInLibraries$qqrp20Usymboltable.TModule][177]
+561861 [uRhodusEngine.pas][uRhodusEngine][TRhodus.Create][98]
+58CDE0 [uRepl.pas][uRepl][startRepl$qqrv][240]
+
+The block was previously used for an object of class: uStringObject.TStringObject
+
+The allocation number was: 1181
+
+The block was previously freed by thread 0x278E0, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40A389 [System.pas][System][TObject.FreeInstance][17960]
+40AAA9 [System.pas][System][@ClassDestroy$qqrxp14System.TObject][19324]
+573440 [uStringObject.pas][uStringObject][TStringObject.Destroy][217]
+40A47F [System.pas][System][TObject.Free][18023]
+4FBE37 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeMiddleNode][306]
+4FBED4 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeGarbage][333]
+56F813 [uVM.pas][uVM][TVM.collectGarbage][2276]
+5703D6 [uVM.pas][uVM][TVM.run][2391]
+419AEB [FastMM4.pas][FastMM4][DebugGetMem$qqri][9684]
+419B3C [FastMM4.pas][FastMM4][DebugGetMem$qqri][9721]
+
+The current thread ID is 0x278E0, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 3D 17 7D 79 80 80 80 80
+80 80 80 80 80 80 80 80 00 00 00 00 F1 78 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+9E 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00 AD 33 57 00 E4 41 50 00 03 B4 51 00 C6 1B 58 00
+0F 1C 58 00 61 18 56 00 E0 CD 58 00 9E 7F 59 00 E0 78 02 00 E0 78 02 00 2E 73 40 00 35 C2 40 00
+24 34 57 00 7F A4 40 00 37 BE 4F 00 D4 BE 4F 00 13 F8 56 00 D6 03 57 00 EB 9A 41 00 3C 9B 41 00
+81 73 40 00 1C 00 00 00 B0 04 02 00 79 4A 2F 86 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 86 B5 D0 79 80 80 80 80 80 80 80 80 00 00 00 00 81 75 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  =  .  }  y  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  Ò  x  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+û  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .  ≠  3  W  .  ‰  A  P  .  .  ¥  Q  .  ∆  .  X  .
+.  .  X  .  a  .  V  .  ‡  Õ  X  .  û    Y  .  ‡  x  .  .  ‡  x  .  .  .  s  @  .  5  ¬  @  .
+$  4  W  .    §  @  .  7  æ  O  .  ‘  æ  O  .  .  ¯  V  .  ÷  .  W  .  Î  ö  A  .  <  õ  A  .
+Å  s  @  .  .  .  .  .  ∞  .  .  .  y  J  /  Ü  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ü  µ  –  y  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  Å  u  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 21:46:02--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 24
+
+This block was previously allocated by thread 0x2E908, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+573416 [uStringObject.pas][uStringObject][TStringObject.Create][204]
+582979 [uSymbolTable.pas][uSymbolTable][TSymbolTable.addSymbol][404]
+5041E4 [uLibModule.pas][uLibModule][TModuleLib.addStringValue][92]
+51B403 [uBuiltInSys.pas][uBuiltInSys][TBuiltInSys.Create][36]
+581C6A [uSymbolTable.pas][uSymbolTable][addModule$qqrp20Usymboltable.TModulet1][166]
+581CB3 [uSymbolTable.pas][uSymbolTable][addAllBuiltInLibraries$qqrp20Usymboltable.TModule][177]
+561905 [uRhodusEngine.pas][uRhodusEngine][TRhodus.Create][98]
+58CE84 [uRepl.pas][uRepl][startRepl$qqrv][240]
+
+The block was previously used for an object of class: uStringObject.TStringObject
+
+The allocation number was: 1181
+
+The block was previously freed by thread 0x2E908, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40A389 [System.pas][System][TObject.FreeInstance][17960]
+40AAA9 [System.pas][System][@ClassDestroy$qqrxp14System.TObject][19324]
+5734E4 [uStringObject.pas][uStringObject][TStringObject.Destroy][217]
+40A47F [System.pas][System][TObject.Free][18023]
+4FBE37 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeMiddleNode][306]
+4FBED4 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeGarbage][333]
+56F8B7 [uVM.pas][uVM][TVM.collectGarbage][2276]
+57047A [uVM.pas][uVM][TVM.run][2391]
+419AEB [FastMM4.pas][FastMM4][DebugGetMem$qqri][9684]
+419B3C [FastMM4.pas][FastMM4][DebugGetMem$qqri][9721]
+
+The current thread ID is 0x2E908, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 85 30 7C 79 80 80 80 80
+80 80 80 80 80 80 80 80 00 00 00 00 51 7A 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+9E 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00 51 34 57 00 E4 41 50 00 03 B4 51 00 6A 1C 58 00
+B3 1C 58 00 05 19 56 00 84 CE 58 00 9E 7F 59 00 08 E9 02 00 08 E9 02 00 2E 73 40 00 35 C2 40 00
+C8 34 57 00 7F A4 40 00 37 BE 4F 00 D4 BE 4F 00 B7 F8 56 00 7A 04 57 00 EB 9A 41 00 3C 9B 41 00
+81 73 40 00 1C 00 00 00 B0 04 02 00 E9 2F 30 86 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 16 D0 CF 79 80 80 80 80 80 80 80 80 00 00 00 00 E1 76 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ö  0  |  y  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  Q  z  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+û  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .  Q  4  W  .  ‰  A  P  .  .  ¥  Q  .  j  .  X  .
+≥  .  X  .  .  .  V  .  Ñ  Œ  X  .  û    Y  .  .  È  .  .  .  È  .  .  .  s  @  .  5  ¬  @  .
+»  4  W  .    §  @  .  7  æ  O  .  ‘  æ  O  .  ∑  ¯  V  .  z  .  W  .  Î  ö  A  .  <  õ  A  .
+Å  s  @  .  .  .  .  .  ∞  .  .  .  È  /  0  Ü  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  –  œ  y  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  ·  v  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 21:46:57--------------------------------
+FastMM has detected an attempt to call a virtual method on a freed object. An access violation will now be raised in order to abort the current operation.
+
+Freed object class: uStringObject.TStringObject
+
+Virtual method: Destroy
+
+Virtual method address: 5734AC
+
+The allocation number was: 1194
+
+The object was allocated by thread 0x9BD4, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+573416 [uStringObject.pas][uStringObject][TStringObject.Create][204]
+407848 [System.pas][System][ParamCount$qqrv][6420]
+407868 [System.pas][System][ParamCount$qqrv][6431]
+51B442 [uBuiltInSys.pas][uBuiltInSys][TBuiltInSys.Create][41]
+581C6A [uSymbolTable.pas][uSymbolTable][addModule$qqrp20Usymboltable.TModulet1][166]
+581CB3 [uSymbolTable.pas][uSymbolTable][addAllBuiltInLibraries$qqrp20Usymboltable.TModule][177]
+561905 [uRhodusEngine.pas][uRhodusEngine][TRhodus.Create][98]
+58CE84 [uRepl.pas][uRepl][startRepl$qqrv][240]
+
+The object was subsequently freed by thread 0x9BD4, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40A389 [System.pas][System][TObject.FreeInstance][17960]
+40AAA9 [System.pas][System][@ClassDestroy$qqrxp14System.TObject][19324]
+5734E4 [uStringObject.pas][uStringObject][TStringObject.Destroy][217]
+40A47F [System.pas][System][TObject.Free][18023]
+57BC97 [uListObject.pas][uListObject][TListItem.Destroy][765]
+40A47F [System.pas][System][TObject.Free][18023]
+57A9F6 [uListObject.pas][uListObject][TListObject.Destroy][438]
+40A47F [System.pas][System][TObject.Free][18023]
+4FBE37 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeMiddleNode][306]
+4FBED4 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeGarbage][333]
+
+The current thread ID is 0x9BD4, and the stack trace (return addresses) leading to this error is:
+40A47F [System.pas][System][TObject.Free][18023]
+4FBF1D [uMemoryManager.pas][uMemoryManager][TMemoryList.freeList][353]
+4FB669 [uMemoryManager.pas][uMemoryManager][TMemoryList.Destroy][131]
+40A47F [System.pas][System][TObject.Free][18023]
+4FBF69 [uMemoryManager.pas][uMemoryManager][Finalization$qqrv][366]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A6000:
+84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 AB C5 A8 79 80 80 80 80
+80 80 80 80 80 80 80 80 00 00 00 00 81 5F 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+AD 04 00 00 81 73 40 00 77 F2 40 00 EA C9 44 00 C5 A7 44 00 2F B4 44 00 ED B6 57 00 57 B4 51 00
+6A 1C 58 00 B3 1C 58 00 05 19 56 00 84 CE 58 00 D4 9B 00 00 D4 9B 00 00 2E 73 40 00 38 F5 40 00
+45 F1 40 00 98 9C 41 00 EA C9 44 00 5C C7 57 00 08 AB 40 00 C3 A8 57 00 7F A4 40 00 0A AA 57 00
+7F A4 40 00 18 00 00 00 00 00 00 00 B9 82 F5 85 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 46 7D 0A 7A 80 80 80 80 80 80 80 80 80 80 80 80 00 00 00 00 91 61 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 AF 04 00 00 12 73 40 00 6B A3 40 00 5E AA 40 00
+Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  ´  ≈  ®  y  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  Å  _  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+≠  .  .  .  Å  s  @  .  w  Ú  @  .  Í  …  D  .  ≈  ß  D  .  /  ¥  D  .  Ì  ∂  W  .  W  ¥  Q  .
+j  .  X  .  ≥  .  X  .  .  .  V  .  Ñ  Œ  X  .  ‘  õ  .  .  ‘  õ  .  .  .  s  @  .  8  ı  @  .
+E  Ò  @  .  ò  ú  A  .  Í  …  D  .  \  «  W  .  .  ´  @  .  √  ®  W  .    §  @  .  .  ™  W  .
+  §  @  .  .  .  .  .  .  .  .  .  π  Ç  ı  Ö  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  F  }  .  z  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  ë  a  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  Ø  .  .  .  .  s  @  .  k  £  @  .  ^  ™  @  .
+
+--------------------------------2021/10/13 21:47:02--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 24
+
+This block was previously allocated by thread 0x9BD4, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+573416 [uStringObject.pas][uStringObject][TStringObject.Create][204]
+582979 [uSymbolTable.pas][uSymbolTable][TSymbolTable.addSymbol][404]
+5041E4 [uLibModule.pas][uLibModule][TModuleLib.addStringValue][92]
+51B403 [uBuiltInSys.pas][uBuiltInSys][TBuiltInSys.Create][36]
+581C6A [uSymbolTable.pas][uSymbolTable][addModule$qqrp20Usymboltable.TModulet1][166]
+581CB3 [uSymbolTable.pas][uSymbolTable][addAllBuiltInLibraries$qqrp20Usymboltable.TModule][177]
+561905 [uRhodusEngine.pas][uRhodusEngine][TRhodus.Create][98]
+58CE84 [uRepl.pas][uRepl][startRepl$qqrv][240]
+
+The block was previously used for an object of class: uStringObject.TStringObject
+
+The allocation number was: 1181
+
+The block was previously freed by thread 0x9BD4, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40A389 [System.pas][System][TObject.FreeInstance][17960]
+40AAA9 [System.pas][System][@ClassDestroy$qqrxp14System.TObject][19324]
+5734E4 [uStringObject.pas][uStringObject][TStringObject.Destroy][217]
+40A47F [System.pas][System][TObject.Free][18023]
+4FBE37 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeMiddleNode][306]
+4FBED4 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeGarbage][333]
+56F8B7 [uVM.pas][uVM][TVM.collectGarbage][2276]
+57047A [uVM.pas][uVM][TVM.run][2391]
+419AEB [FastMM4.pas][FastMM4][DebugGetMem$qqri][9684]
+419B3C [FastMM4.pas][FastMM4][DebugGetMem$qqri][9721]
+
+The current thread ID is 0x9BD4, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BBF8 [System.pas][System][FinalizeUnits$qqrv][23720]
+75E19962 [RaiseException]
+779F71E2 [Unknown function at RtlInterlockedCompareExchange64]
+779F71B4 [Unknown function at RtlInterlockedCompareExchange64]
+779D851F [RtlUnwind]
+75DFF55A [CloseHandle]
+41894E [FastMM4.pas][FastMM4][AppendEventLog$qqrpvui][8846]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 ED CA 80 79 80 80 80 80
+80 80 80 80 80 80 80 80 00 00 00 00 51 7A 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+9E 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00 51 34 57 00 E4 41 50 00 03 B4 51 00 6A 1C 58 00
+B3 1C 58 00 05 19 56 00 84 CE 58 00 9E 7F 59 00 D4 9B 00 00 D4 9B 00 00 2E 73 40 00 35 C2 40 00
+C8 34 57 00 7F A4 40 00 37 BE 4F 00 D4 BE 4F 00 B7 F8 56 00 7A 04 57 00 EB 9A 41 00 3C 9B 41 00
+81 73 40 00 1C 00 00 00 B0 04 02 00 81 95 2B 86 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 7E 6A D4 79 80 80 80 80 80 80 80 80 00 00 00 00 E1 76 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ì     Ä  y  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  Q  z  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+û  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .  Q  4  W  .  ‰  A  P  .  .  ¥  Q  .  j  .  X  .
+≥  .  X  .  .  .  V  .  Ñ  Œ  X  .  û    Y  .  ‘  õ  .  .  ‘  õ  .  .  .  s  @  .  5  ¬  @  .
+»  4  W  .    §  @  .  7  æ  O  .  ‘  æ  O  .  ∑  ¯  V  .  z  .  W  .  Î  ö  A  .  <  õ  A  .
+Å  s  @  .  .  .  .  .  ∞  .  .  .  Å  ï  +  Ü  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  ~  j  ‘  y  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  ·  v  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 21:47:03--------------------------------
+A memory block has been leaked. The size is: 212
+
+This block was allocated by thread 0x9BD4, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40C17B [System.pas][System][@NewUnicodeString$qqri][25652]
+40C3BC [System.pas][System][@UStrFromPWCharLen$qqrr20System.UnicodeStringpbi][26264]
+42BA1C [System.SysUtils.pas][System.SysUtils][Sysutils.FmtStr$qqrr20System.UnicodeStringx20System.UnicodeStringpx14System.TVarRecxirx31System.Sysutils.TFormatSettings][12891]
+779B78F6 [Unknown function at RtlAllocateHeap]
+779B7C7B [Unknown function at RtlAllocateHeap]
+779B579E [Unknown function at RtlAllocateHeap]
+779B579E [Unknown function at RtlAllocateHeap]
+779B539E [RtlAllocateHeap]
+77A4EF8D [RtlRegisterSecureMemoryCacheCallback]
+77A4EF64 [RtlRegisterSecureMemoryCacheCallback]
+
+The block is currently used for an object of class: UnicodeString
+
+The allocation number is: 1542
+
+Current memory dump of 256 bytes starting at pointer address 7F8C8000:
+B0 04 02 00 01 00 00 00 63 00 00 00 41 00 63 00 63 00 65 00 73 00 73 00 20 00 76 00 69 00 6F 00
+6C 00 61 00 74 00 69 00 6F 00 6E 00 20 00 61 00 74 00 20 00 61 00 64 00 64 00 72 00 65 00 73 00
+73 00 20 00 37 00 35 00 45 00 31 00 39 00 39 00 36 00 32 00 20 00 69 00 6E 00 20 00 6D 00 6F 00
+64 00 75 00 6C 00 65 00 20 00 27 00 4B 00 45 00 52 00 4E 00 45 00 4C 00 42 00 41 00 53 00 45 00
+2E 00 64 00 6C 00 6C 00 27 00 2E 00 20 00 49 00 6E 00 76 00 61 00 6C 00 69 00 64 00 20 00 61 00
+63 00 63 00 65 00 73 00 73 00 20 00 6F 00 66 00 20 00 61 00 64 00 64 00 72 00 65 00 73 00 73 00
+20 00 30 00 30 00 30 00 30 00 30 00 30 00 30 00 30 00 00 00 95 9C 3C 48 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+∞  .  .  .  .  .  .  .  c  .  .  .  A  .  c  .  c  .  e  .  s  .  s  .     .  v  .  i  .  o  .
+l  .  a  .  t  .  i  .  o  .  n  .     .  a  .  t  .     .  a  .  d  .  d  .  r  .  e  .  s  .
+s  .     .  7  .  5  .  E  .  1  .  9  .  9  .  6  .  2  .     .  i  .  n  .     .  m  .  o  .
+d  .  u  .  l  .  e  .     .  '  .  K  .  E  .  R  .  N  .  E  .  L  .  B  .  A  .  S  .  E  .
+.  .  d  .  l  .  l  .  '  .  .  .     .  I  .  n  .  v  .  a  .  l  .  i  .  d  .     .  a  .
+c  .  c  .  e  .  s  .  s  .     .  o  .  f  .     .  a  .  d  .  d  .  r  .  e  .  s  .  s  .
+   .  0  .  0  .  0  .  0  .  0  .  0  .  0  .  0  .  .  .  ï  ú  <  H  .  .  .  .  .  .  .  .
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+
+--------------------------------2021/10/13 21:47:03--------------------------------
+A memory block has been leaked. The size is: 20
+
+This block was allocated by thread 0x9BD4, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+4FB606 [uMemoryManager.pas][uMemoryManager][TMemoryList.Create][121]
+4A9BD5 [System.Classes.pas][System.Classes][Classes.RegisterIntegerConsts$qqrpvpqqrx20System.UnicodeStringri$opqqrir20System.UnicodeString$o][4253]
+596024 
+40BC4C [System.pas][System][InitUnits$qqrv][23842]
+40BCB8 [System.pas][System][@StartExe$qqrp23System.PackageInfoTablep17System.TLibModule][23917]
+413903 [SysInit.pas][SysInit][@InitExe$qqrpv][1540]
+597F5D 
+7788F989 [BaseThreadInitThunk]
+
+The block is currently used for an object of class: uMemoryManager.TMemoryList
+
+The allocation number is: 574
+
+Current memory dump of 256 bytes starting at pointer address 7F8E3130:
+30 B2 4F 00 16 00 00 00 B8 1E 90 7F E8 1F 90 7F 00 00 00 00 3A F9 D4 05 00 00 00 00 51 3B 8E 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 42 02 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+2B 52 57 00 98 C7 4F 00 3C B6 4F 00 44 60 59 00 4C BC 40 00 B8 BC 40 00 03 39 41 00 5D 7F 59 00
+D4 9B 00 00 D4 9B 00 00 2E 73 40 00 35 C2 40 00 D9 DA 40 00 98 9C 41 00 55 A5 40 00 82 A3 40 00
+A9 AA 40 00 72 A4 40 00 7F A4 40 00 31 C9 4F 00 7F A4 40 00 14 00 00 00 B0 04 02 00 3F 23 97 85
+84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 C0 DC 68 7A 00 00 00 00 51 31 8E 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 46 02 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+2B 52 57 00 D6 C7 4F 00 3C B6 4F 00 44 60 59 00 4C BC 40 00 B8 BC 40 00 03 39 41 00 5D 7F 59 00
+0  ≤  O  .  .  .  .  .  ∏  .  ê    Ë  .  ê    .  .  .  .  :  ˘  ‘  .  .  .  .  .  Q  ;  é  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  B  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
++  R  W  .  ò  «  O  .  <  ∂  O  .  D  `  Y  .  L  º  @  .  ∏  º  @  .  .  9  A  .  ]    Y  .
+‘  õ  .  .  ‘  õ  .  .  .  s  @  .  5  ¬  @  .  Ÿ  ⁄  @  .  ò  ú  A  .  U  •  @  .  Ç  £  @  .
+©  ™  @  .  r  §  @  .    §  @  .  1  …  O  .    §  @  .  .  .  .  .  ∞  .  .  .  ?  #  ó  Ö
+Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  ¿  ‹  h  z  .  .  .  .  Q  1  é  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  F  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
++  R  W  .  ÷  «  O  .  <  ∂  O  .  D  `  Y  .  L  º  @  .  ∏  º  @  .  .  9  A  .  ]    Y  .
+
+--------------------------------2021/10/13 21:47:03--------------------------------
+A memory block has been leaked. The size is: 12
+
+This block was allocated by thread 0x9BD4, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+4FB6BE [uMemoryManager.pas][uMemoryManager][TMemoryList.newNode][144]
+4FB6FD [uMemoryManager.pas][uMemoryManager][TMemoryList.addNode][154]
+57346C [uStringObject.pas][uStringObject][TStringObject.Create][209]
+51B442 [uBuiltInSys.pas][uBuiltInSys][TBuiltInSys.Create][41]
+581C6A [uSymbolTable.pas][uSymbolTable][addModule$qqrp20Usymboltable.TModulet1][166]
+581CB3 [uSymbolTable.pas][uSymbolTable][addAllBuiltInLibraries$qqrp20Usymboltable.TModule][177]
+561905 [uRhodusEngine.pas][uRhodusEngine][TRhodus.Create][98]
+58CE84 [uRepl.pas][uRepl][startRepl$qqrv][240]
+597F9E 
+7788F989 [BaseThreadInitThunk]
+
+The block is currently used for an object of class: Unknown
+
+The allocation number is: 1195
+
+Current memory dump of 256 bytes starting at pointer address 7F901E20:
+00 60 8A 7F B8 1E 90 7F 68 44 63 05 80 80 80 80 00 00 00 00 20 F5 8F 7F 00 00 00 00 00 00 00 00
+28 9A 41 00 00 00 00 00 B0 04 00 00 12 73 40 00 BE B6 4F 00 FD B6 4F 00 6C 34 57 00 42 B4 51 00
+6A 1C 58 00 B3 1C 58 00 05 19 56 00 84 CE 58 00 9E 7F 59 00 89 F9 88 77 D4 9B 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 08 00 00 00 00 00 00 00 34 BC 9C FA 60 61 8A 7F 50 1F 90 7F
+CB 43 63 05 80 80 80 80 00 00 00 00 20 F5 8F 7F 00 00 00 00 00 00 00 00 28 9A 41 00 00 00 00 00
+B4 04 00 00 12 73 40 00 BE B6 4F 00 FD B6 4F 00 6C 34 57 00 42 B4 51 00 6A 1C 58 00 B3 1C 58 00
+05 19 56 00 84 CE 58 00 9E 7F 59 00 89 F9 88 77 D4 9B 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+.  `  ä    ∏  .  ê    h  D  c  .  Ä  Ä  Ä  Ä  .  .  .  .     ı  è    .  .  .  .  .  .  .  .
+(  ö  A  .  .  .  .  .  ∞  .  .  .  .  s  @  .  æ  ∂  O  .  ˝  ∂  O  .  l  4  W  .  B  ¥  Q  .
+j  .  X  .  ≥  .  X  .  .  .  V  .  Ñ  Œ  X  .  û    Y  .  â  ˘  à  w  ‘  õ  .  .  .  .  .  .
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  4  º  ú  ˙  `  a  ä    P  .  ê  
+À  C  c  .  Ä  Ä  Ä  Ä  .  .  .  .     ı  è    .  .  .  .  .  .  .  .  (  ö  A  .  .  .  .  .
+¥  .  .  .  .  s  @  .  æ  ∂  O  .  ˝  ∂  O  .  l  4  W  .  B  ¥  Q  .  j  .  X  .  ≥  .  X  .
+.  .  V  .  Ñ  Œ  X  .  û    Y  .  â  ˘  à  w  ‘  õ  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+
+--------------------------------2021/10/13 21:47:03--------------------------------
+A memory block has been leaked. The size is: 12
+
+This block was allocated by thread 0x9BD4, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+4FB6BE [uMemoryManager.pas][uMemoryManager][TMemoryList.newNode][144]
+4FB6FD [uMemoryManager.pas][uMemoryManager][TMemoryList.addNode][154]
+57346C [uStringObject.pas][uStringObject][TStringObject.Create][209]
+51B442 [uBuiltInSys.pas][uBuiltInSys][TBuiltInSys.Create][41]
+581C6A [uSymbolTable.pas][uSymbolTable][addModule$qqrp20Usymboltable.TModulet1][166]
+581CB3 [uSymbolTable.pas][uSymbolTable][addAllBuiltInLibraries$qqrp20Usymboltable.TModule][177]
+561905 [uRhodusEngine.pas][uRhodusEngine][TRhodus.Create][98]
+58CE84 [uRepl.pas][uRepl][startRepl$qqrv][240]
+597F9E 
+7788F989 [BaseThreadInitThunk]
+
+The block is currently used for an object of class: Unknown
+
+The allocation number is: 1200
+
+Current memory dump of 256 bytes starting at pointer address 7F901EB8:
+60 61 8A 7F 50 1F 90 7F CB 43 63 05 80 80 80 80 00 00 00 00 20 F5 8F 7F 00 00 00 00 00 00 00 00
+28 9A 41 00 00 00 00 00 B4 04 00 00 12 73 40 00 BE B6 4F 00 FD B6 4F 00 6C 34 57 00 42 B4 51 00
+6A 1C 58 00 B3 1C 58 00 05 19 56 00 84 CE 58 00 9E 7F 59 00 89 F9 88 77 D4 9B 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 08 00 00 00 00 00 00 00 D0 BC 9C FA 10 62 8A 7F E8 1F 90 7F
+2F 43 63 05 80 80 80 80 00 00 00 00 20 F5 8F 7F 00 00 00 00 00 00 00 00 28 9A 41 00 00 00 00 00
+B8 04 00 00 12 73 40 00 BE B6 4F 00 FD B6 4F 00 6C 34 57 00 42 B4 51 00 6A 1C 58 00 B3 1C 58 00
+05 19 56 00 84 CE 58 00 9E 7F 59 00 89 F9 88 77 D4 9B 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+`  a  ä    P  .  ê    À  C  c  .  Ä  Ä  Ä  Ä  .  .  .  .     ı  è    .  .  .  .  .  .  .  .
+(  ö  A  .  .  .  .  .  ¥  .  .  .  .  s  @  .  æ  ∂  O  .  ˝  ∂  O  .  l  4  W  .  B  ¥  Q  .
+j  .  X  .  ≥  .  X  .  .  .  V  .  Ñ  Œ  X  .  û    Y  .  â  ˘  à  w  ‘  õ  .  .  .  .  .  .
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  –  º  ú  ˙  .  b  ä    Ë  .  ê  
+/  C  c  .  Ä  Ä  Ä  Ä  .  .  .  .     ı  è    .  .  .  .  .  .  .  .  (  ö  A  .  .  .  .  .
+∏  .  .  .  .  s  @  .  æ  ∂  O  .  ˝  ∂  O  .  l  4  W  .  B  ¥  Q  .  j  .  X  .  ≥  .  X  .
+.  .  V  .  Ñ  Œ  X  .  û    Y  .  â  ˘  à  w  ‘  õ  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+
+--------------------------------2021/10/13 21:47:03--------------------------------
+A memory block has been leaked. The size is: 12
+
+This block was allocated by thread 0x9BD4, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+4FB6BE [uMemoryManager.pas][uMemoryManager][TMemoryList.newNode][144]
+4FB6FD [uMemoryManager.pas][uMemoryManager][TMemoryList.addNode][154]
+57346C [uStringObject.pas][uStringObject][TStringObject.Create][209]
+51B442 [uBuiltInSys.pas][uBuiltInSys][TBuiltInSys.Create][41]
+581C6A [uSymbolTable.pas][uSymbolTable][addModule$qqrp20Usymboltable.TModulet1][166]
+581CB3 [uSymbolTable.pas][uSymbolTable][addAllBuiltInLibraries$qqrp20Usymboltable.TModule][177]
+561905 [uRhodusEngine.pas][uRhodusEngine][TRhodus.Create][98]
+58CE84 [uRepl.pas][uRepl][startRepl$qqrv][240]
+597F9E 
+7788F989 [BaseThreadInitThunk]
+
+The block is currently used for an object of class: Unknown
+
+The allocation number is: 1204
+
+Current memory dump of 256 bytes starting at pointer address 7F901F50:
+10 62 8A 7F E8 1F 90 7F 2F 43 63 05 80 80 80 80 00 00 00 00 20 F5 8F 7F 00 00 00 00 00 00 00 00
+28 9A 41 00 00 00 00 00 B8 04 00 00 12 73 40 00 BE B6 4F 00 FD B6 4F 00 6C 34 57 00 42 B4 51 00
+6A 1C 58 00 B3 1C 58 00 05 19 56 00 84 CE 58 00 9E 7F 59 00 89 F9 88 77 D4 9B 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 08 00 00 00 00 00 00 00 6C BD 9C FA C0 62 8A 7F 00 00 00 00
+93 42 63 05 80 80 80 80 00 00 00 00 09 1D 90 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+C1 04 00 00 12 73 40 00 BE B6 4F 00 FD B6 4F 00 80 A9 57 00 87 41 50 00 8B B4 51 00 6A 1C 58 00
+B3 1C 58 00 05 19 56 00 84 CE 58 00 9E 7F 59 00 D4 9B 00 00 D4 9B 00 00 2E 73 40 00 41 BE 4F 00
+.  b  ä    Ë  .  ê    /  C  c  .  Ä  Ä  Ä  Ä  .  .  .  .     ı  è    .  .  .  .  .  .  .  .
+(  ö  A  .  .  .  .  .  ∏  .  .  .  .  s  @  .  æ  ∂  O  .  ˝  ∂  O  .  l  4  W  .  B  ¥  Q  .
+j  .  X  .  ≥  .  X  .  .  .  V  .  Ñ  Œ  X  .  û    Y  .  â  ˘  à  w  ‘  õ  .  .  .  .  .  .
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  l  Ω  ú  ˙  ¿  b  ä    .  .  .  .
+ì  B  c  .  Ä  Ä  Ä  Ä  .  .  .  .  .  .  ê    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+¡  .  .  .  .  s  @  .  æ  ∂  O  .  ˝  ∂  O  .  Ä  ©  W  .  á  A  P  .  ã  ¥  Q  .  j  .  X  .
+≥  .  X  .  .  .  V  .  Ñ  Œ  X  .  û    Y  .  ‘  õ  .  .  ‘  õ  .  .  .  s  @  .  A  æ  O  .
+
+--------------------------------2021/10/13 21:47:03--------------------------------
+A memory block has been leaked. The size is: 12
+
+This block was allocated by thread 0x9BD4, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+4FB6BE [uMemoryManager.pas][uMemoryManager][TMemoryList.newNode][144]
+4FB6FD [uMemoryManager.pas][uMemoryManager][TMemoryList.addNode][154]
+57346C [uStringObject.pas][uStringObject][TStringObject.Create][209]
+51B442 [uBuiltInSys.pas][uBuiltInSys][TBuiltInSys.Create][41]
+581C6A [uSymbolTable.pas][uSymbolTable][addModule$qqrp20Usymboltable.TModulet1][166]
+581CB3 [uSymbolTable.pas][uSymbolTable][addAllBuiltInLibraries$qqrp20Usymboltable.TModule][177]
+561905 [uRhodusEngine.pas][uRhodusEngine][TRhodus.Create][98]
+58CE84 [uRepl.pas][uRepl][startRepl$qqrv][240]
+597F9E 
+7788F989 [BaseThreadInitThunk]
+
+The block is currently used for an object of class: Unknown
+
+The allocation number is: 1208
+
+Current memory dump of 256 bytes starting at pointer address 7F901FE8:
+C0 62 8A 7F 00 00 00 00 93 42 63 05 80 80 80 80 00 00 00 00 09 1D 90 7F 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 C1 04 00 00 12 73 40 00 BE B6 4F 00 FD B6 4F 00 80 A9 57 00 87 41 50 00
+8B B4 51 00 6A 1C 58 00 B3 1C 58 00 05 19 56 00 84 CE 58 00 9E 7F 59 00 D4 9B 00 00 D4 9B 00 00
+2E 73 40 00 41 BE 4F 00 D4 BE 4F 00 F6 1C 56 00 7F A4 40 00 D9 CF 58 00 9E 7F 59 00 89 F9 88 77
+A4 74 9D 77 74 74 9D 77 00 00 00 00 08 00 00 00 D0 64 8A 7F B4 C5 9A 6B 84 4C 5A 00 80 80 80 80
+4B 3A 65 94 80 80 80 80 00 00 00 00 01 20 90 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+C4 04 00 00 12 73 40 00 BE B6 4F 00 FD B6 4F 00 7B C1 40 00 6C 34 57 00 9F B4 51 00 B3 1C 58 00
+05 19 56 00 84 CE 58 00 9E 7F 59 00 89 F9 88 77 D4 9B 00 00 D4 9B 00 00 2E 73 40 00 FE BD 4F 00
+¿  b  ä    .  .  .  .  ì  B  c  .  Ä  Ä  Ä  Ä  .  .  .  .  .  .  ê    .  .  .  .  .  .  .  .
+.  .  .  .  .  .  .  .  ¡  .  .  .  .  s  @  .  æ  ∂  O  .  ˝  ∂  O  .  Ä  ©  W  .  á  A  P  .
+ã  ¥  Q  .  j  .  X  .  ≥  .  X  .  .  .  V  .  Ñ  Œ  X  .  û    Y  .  ‘  õ  .  .  ‘  õ  .  .
+.  s  @  .  A  æ  O  .  ‘  æ  O  .  ˆ  .  V  .    §  @  .  Ÿ  œ  X  .  û    Y  .  â  ˘  à  w
+§  t  ù  w  t  t  ù  w  .  .  .  .  .  .  .  .  –  d  ä    ¥  ≈  ö  k  Ñ  L  Z  .  Ä  Ä  Ä  Ä
+K  :  e  î  Ä  Ä  Ä  Ä  .  .  .  .  .     ê    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ƒ  .  .  .  .  s  @  .  æ  ∂  O  .  ˝  ∂  O  .  {  ¡  @  .  l  4  W  .  ü  ¥  Q  .  ≥  .  X  .
+.  .  V  .  Ñ  Œ  X  .  û    Y  .  â  ˘  à  w  ‘  õ  .  .  ‘  õ  .  .  .  s  @  .  ˛  Ω  O  .
+
+--------------------------------2021/10/13 21:47:03--------------------------------
+A memory block has been leaked. The size is: 36
+
+This block was allocated by thread 0x9BD4, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+430D48 [System.SysUtils.pas][System.SysUtils][Sysutils.Exception.CreateFmt][23383]
+40D175 [System.pas][System][@UStrCopy$qqrx20System.UnicodeStringii][31476]
+431A09 [System.SysUtils.pas][System.SysUtils][CreateAVObject][23876]
+75E19962 [RaiseException]
+779F621D [RtlGetNtGlobalFlags]
+779F6244 [RtlGetNtGlobalFlags]
+77A503D6 [RtlRegisterSecureMemoryCacheCallback]
+77A4F74B [RtlRegisterSecureMemoryCacheCallback]
+
+The block is currently used for an object of class: System.SysUtils.EAccessViolation
+
+The allocation number is: 1540
+
+Current memory dump of 256 bytes starting at pointer address 7F938550:
+54 4B 42 00 0C 80 8C 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 6F 19 00 00 00 00 00
+FC A7 37 27 80 80 80 80 00 00 00 00 01 8B 93 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FD 02 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00 19 F6 51 00 81 6A 59 00 4C BC 40 00 B8 BC 40 00
+03 39 41 00 5D 7F 59 00 89 F9 88 77 A4 74 9D 77 D4 9B 00 00 D4 9B 00 00 2E 73 40 00 35 C2 40 00
+D9 DA 40 00 55 A5 40 00 82 A3 40 00 A9 AA 40 00 9D F6 51 00 7F A4 40 00 D8 09 52 00 78 FA 51 00
+D0 B6 44 00 16 00 00 00 B0 04 02 00 B3 19 46 74 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 4C E6 B9 8B 80 80 80 80 80 80 80 80 80 80 80 80 80 80 00 00 00 00 F1 88 93 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 18 03 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+T  K  B  .  .  Ä  å    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  o  .  .  .  .  .  .
+¸  ß  7  '  Ä  Ä  Ä  Ä  .  .  .  .  .  ã  ì    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+˝  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .  .  ˆ  Q  .  Å  j  Y  .  L  º  @  .  ∏  º  @  .
+.  9  A  .  ]    Y  .  â  ˘  à  w  §  t  ù  w  ‘  õ  .  .  ‘  õ  .  .  .  s  @  .  5  ¬  @  .
+Ÿ  ⁄  @  .  U  •  @  .  Ç  £  @  .  ©  ™  @  .  ù  ˆ  Q  .    §  @  .  ÿ  .  R  .  x  ˙  Q  .
+–  ∂  D  .  .  .  .  .  ∞  .  .  .  ≥  .  F  t  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  L  Ê  π  ã  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  Ò  à  ì  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 21:47:03--------------------------------
+This application has leaked memory. The small block leaks are (excluding expected leaks registered by pointer):
+
+5 - 12 bytes: Unknown x 4
+13 - 20 bytes: uMemoryManager.TMemoryList x 1
+21 - 36 bytes: System.SysUtils.EAccessViolation x 1
+181 - 212 bytes: UnicodeString x 1
+
+Note: Memory leak detail is logged to a text file in the same folder as this application. To disable this memory leak check, undefine "EnableMemoryLeakReporting".
+
+--------------------------------2021/10/13 21:50:29--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 24
+
+This block was previously allocated by thread 0x12564, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+573416 [uStringObject.pas][uStringObject][TStringObject.Create][204]
+582979 [uSymbolTable.pas][uSymbolTable][TSymbolTable.addSymbol][404]
+5041E4 [uLibModule.pas][uLibModule][TModuleLib.addStringValue][92]
+51B403 [uBuiltInSys.pas][uBuiltInSys][TBuiltInSys.Create][36]
+581C6A [uSymbolTable.pas][uSymbolTable][addModule$qqrp20Usymboltable.TModulet1][166]
+581CB3 [uSymbolTable.pas][uSymbolTable][addAllBuiltInLibraries$qqrp20Usymboltable.TModule][177]
+561905 [uRhodusEngine.pas][uRhodusEngine][TRhodus.Create][98]
+58CE84 [uRepl.pas][uRepl][startRepl$qqrv][240]
+
+The block was previously used for an object of class: uStringObject.TStringObject
+
+The allocation number was: 1181
+
+The block was previously freed by thread 0x12564, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40A389 [System.pas][System][TObject.FreeInstance][17960]
+40AAA9 [System.pas][System][@ClassDestroy$qqrxp14System.TObject][19324]
+5734E4 [uStringObject.pas][uStringObject][TStringObject.Destroy][217]
+40A47F [System.pas][System][TObject.Free][18023]
+4FBE37 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeMiddleNode][306]
+4FBED4 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeGarbage][333]
+56F8B7 [uVM.pas][uVM][TVM.collectGarbage][2276]
+57047A [uVM.pas][uVM][TVM.run][2391]
+419AEB [FastMM4.pas][FastMM4][DebugGetMem$qqri][9684]
+419B3C [FastMM4.pas][FastMM4][DebugGetMem$qqri][9721]
+
+The current thread ID is 0x12564, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 CD B7 7F 79 80 80 80 80
+80 80 80 80 80 80 80 80 00 00 00 00 51 7A 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+9E 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00 51 34 57 00 E4 41 50 00 03 B4 51 00 6A 1C 58 00
+B3 1C 58 00 05 19 56 00 84 CE 58 00 9E 7F 59 00 64 25 01 00 64 25 01 00 2E 73 40 00 35 C2 40 00
+C8 34 57 00 7F A4 40 00 37 BE 4F 00 D4 BE 4F 00 B7 F8 56 00 7A 04 57 00 EB 9A 41 00 3C 9B 41 00
+81 73 40 00 1C 00 00 00 B0 04 02 00 A1 A8 2C 86 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 5E 57 D3 79 80 80 80 80 80 80 80 80 00 00 00 00 E1 76 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Õ  ∑    y  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  Q  z  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+û  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .  Q  4  W  .  ‰  A  P  .  .  ¥  Q  .  j  .  X  .
+≥  .  X  .  .  .  V  .  Ñ  Œ  X  .  û    Y  .  d  %  .  .  d  %  .  .  .  s  @  .  5  ¬  @  .
+»  4  W  .    §  @  .  7  æ  O  .  ‘  æ  O  .  ∑  ¯  V  .  z  .  W  .  Î  ö  A  .  <  õ  A  .
+Å  s  @  .  .  .  .  .  ∞  .  .  .  °  ®  ,  Ü  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  ^  W  ”  y  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  ·  v  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 21:52:37--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 24
+
+This block was previously allocated by thread 0x4492C, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+573402 [uStringObject.pas][uStringObject][TStringObject.Create][204]
+582965 [uSymbolTable.pas][uSymbolTable][TSymbolTable.addSymbol][404]
+5041E4 [uLibModule.pas][uLibModule][TModuleLib.addStringValue][92]
+51B403 [uBuiltInSys.pas][uBuiltInSys][TBuiltInSys.Create][36]
+581C56 [uSymbolTable.pas][uSymbolTable][addModule$qqrp20Usymboltable.TModulet1][166]
+581C9F [uSymbolTable.pas][uSymbolTable][addAllBuiltInLibraries$qqrp20Usymboltable.TModule][177]
+5618F1 [uRhodusEngine.pas][uRhodusEngine][TRhodus.Create][98]
+58CE70 [uRepl.pas][uRepl][startRepl$qqrv][240]
+
+The block was previously used for an object of class: uStringObject.TStringObject
+
+The allocation number was: 1181
+
+The block was previously freed by thread 0x4492C, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40A389 [System.pas][System][TObject.FreeInstance][17960]
+40AAA9 [System.pas][System][@ClassDestroy$qqrxp14System.TObject][19324]
+5734D0 [uStringObject.pas][uStringObject][TStringObject.Destroy][217]
+40A47F [System.pas][System][TObject.Free][18023]
+4FBE37 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeMiddleNode][306]
+4FBED4 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeGarbage][333]
+56F8A3 [uVM.pas][uVM][TVM.collectGarbage][2276]
+570466 [uVM.pas][uVM][TVM.run][2391]
+419AEB [FastMM4.pas][FastMM4][DebugGetMem$qqri][9684]
+419B3C [FastMM4.pas][FastMM4][DebugGetMem$qqri][9721]
+
+The current thread ID is 0x4492C, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 05 71 79 79 80 80 80 80
+80 80 80 80 80 80 80 80 00 00 00 00 A1 79 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+9E 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00 3D 34 57 00 E4 41 50 00 03 B4 51 00 56 1C 58 00
+9F 1C 58 00 F1 18 56 00 70 CE 58 00 9E 7F 59 00 2C 49 04 00 2C 49 04 00 2E 73 40 00 35 C2 40 00
+B4 34 57 00 7F A4 40 00 37 BE 4F 00 D4 BE 4F 00 A3 F8 56 00 66 04 57 00 EB 9A 41 00 3C 9B 41 00
+81 73 40 00 1C 00 00 00 B0 04 02 00 91 EF 32 86 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 6E 10 CD 79 80 80 80 80 80 80 80 80 00 00 00 00 31 76 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  q  y  y  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  °  y  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+û  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .  =  4  W  .  ‰  A  P  .  .  ¥  Q  .  V  .  X  .
+ü  .  X  .  Ò  .  V  .  p  Œ  X  .  û    Y  .  ,  I  .  .  ,  I  .  .  .  s  @  .  5  ¬  @  .
+¥  4  W  .    §  @  .  7  æ  O  .  ‘  æ  O  .  £  ¯  V  .  f  .  W  .  Î  ö  A  .  <  õ  A  .
+Å  s  @  .  .  .  .  .  ∞  .  .  .  ë  Ô  2  Ü  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  n  .  Õ  y  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  1  v  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 21:53:48--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 24
+
+This block was previously allocated by thread 0x27690, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+573402 [uStringObject.pas][uStringObject][TStringObject.Create][204]
+582965 [uSymbolTable.pas][uSymbolTable][TSymbolTable.addSymbol][404]
+5041E4 [uLibModule.pas][uLibModule][TModuleLib.addStringValue][92]
+51B403 [uBuiltInSys.pas][uBuiltInSys][TBuiltInSys.Create][36]
+581C56 [uSymbolTable.pas][uSymbolTable][addModule$qqrp20Usymboltable.TModulet1][166]
+581C9F [uSymbolTable.pas][uSymbolTable][addAllBuiltInLibraries$qqrp20Usymboltable.TModule][177]
+5618F1 [uRhodusEngine.pas][uRhodusEngine][TRhodus.Create][98]
+58CE70 [uRepl.pas][uRepl][startRepl$qqrv][240]
+
+The block was previously used for an object of class: uStringObject.TStringObject
+
+The allocation number was: 1181
+
+The block was previously freed by thread 0x27690, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40A389 [System.pas][System][TObject.FreeInstance][17960]
+40AAA9 [System.pas][System][@ClassDestroy$qqrxp14System.TObject][19324]
+5734D0 [uStringObject.pas][uStringObject][TStringObject.Destroy][217]
+40A47F [System.pas][System][TObject.Free][18023]
+4FBE37 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeMiddleNode][306]
+4FBED4 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeGarbage][333]
+56F8A3 [uVM.pas][uVM][TVM.collectGarbage][2276]
+570466 [uVM.pas][uVM][TVM.run][2391]
+419AEB [FastMM4.pas][FastMM4][DebugGetMem$qqri][9684]
+419B3C [FastMM4.pas][FastMM4][DebugGetMem$qqri][9721]
+
+The current thread ID is 0x27690, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 3D 16 7D 79 80 80 80 80
+80 80 80 80 80 80 80 80 00 00 00 00 A1 79 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+9E 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00 3D 34 57 00 E4 41 50 00 03 B4 51 00 56 1C 58 00
+9F 1C 58 00 F1 18 56 00 70 CE 58 00 9E 7F 59 00 90 76 02 00 90 76 02 00 2E 73 40 00 35 C2 40 00
+B4 34 57 00 7F A4 40 00 37 BE 4F 00 D4 BE 4F 00 A3 F8 56 00 66 04 57 00 EB 9A 41 00 3C 9B 41 00
+81 73 40 00 1C 00 00 00 B0 04 02 00 59 4A 2F 86 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 A6 B5 D0 79 80 80 80 80 80 80 80 80 00 00 00 00 31 76 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  =  .  }  y  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  °  y  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+û  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .  =  4  W  .  ‰  A  P  .  .  ¥  Q  .  V  .  X  .
+ü  .  X  .  Ò  .  V  .  p  Œ  X  .  û    Y  .  ê  v  .  .  ê  v  .  .  .  s  @  .  5  ¬  @  .
+¥  4  W  .    §  @  .  7  æ  O  .  ‘  æ  O  .  £  ¯  V  .  f  .  W  .  Î  ö  A  .  <  õ  A  .
+Å  s  @  .  .  .  .  .  ∞  .  .  .  Y  J  /  Ü  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  ¶  µ  –  y  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  1  v  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 21:54:33--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 24
+
+This block was previously allocated by thread 0x1A840, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+573402 [uStringObject.pas][uStringObject][TStringObject.Create][204]
+582959 [uSymbolTable.pas][uSymbolTable][TSymbolTable.addSymbol][404]
+5041E4 [uLibModule.pas][uLibModule][TModuleLib.addStringValue][92]
+51B403 [uBuiltInSys.pas][uBuiltInSys][TBuiltInSys.Create][36]
+581C4A [uSymbolTable.pas][uSymbolTable][addModule$qqrp20Usymboltable.TModulet1][166]
+581C93 [uSymbolTable.pas][uSymbolTable][addAllBuiltInLibraries$qqrp20Usymboltable.TModule][177]
+5618F1 [uRhodusEngine.pas][uRhodusEngine][TRhodus.Create][98]
+58CE64 [uRepl.pas][uRepl][startRepl$qqrv][240]
+
+The block was previously used for an object of class: uStringObject.TStringObject
+
+The allocation number was: 1181
+
+The block was previously freed by thread 0x1A840, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40A389 [System.pas][System][TObject.FreeInstance][17960]
+40AAA9 [System.pas][System][@ClassDestroy$qqrxp14System.TObject][19324]
+5734C4 [uStringObject.pas][uStringObject][TStringObject.Destroy][217]
+40A47F [System.pas][System][TObject.Free][18023]
+4FBE37 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeMiddleNode][306]
+4FBED4 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeGarbage][333]
+56F8A3 [uVM.pas][uVM][TVM.collectGarbage][2276]
+570466 [uVM.pas][uVM][TVM.run][2391]
+419AEB [FastMM4.pas][FastMM4][DebugGetMem$qqri][9684]
+419B3C [FastMM4.pas][FastMM4][DebugGetMem$qqri][9721]
+
+The current thread ID is 0x1A840, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 19 B3 7E 79 80 80 80 80
+80 80 80 80 80 80 80 80 00 00 00 00 A1 79 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+9E 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00 3D 34 57 00 E4 41 50 00 03 B4 51 00 4A 1C 58 00
+93 1C 58 00 F1 18 56 00 64 CE 58 00 9E 7F 59 00 40 A8 01 00 40 A8 01 00 2E 73 40 00 35 C2 40 00
+A8 34 57 00 7F A4 40 00 37 BE 4F 00 D4 BE 4F 00 A3 F8 56 00 66 04 57 00 EB 9A 41 00 3C 9B 41 00
+81 73 40 00 1C 00 00 00 B0 04 02 00 89 AD 2D 86 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 76 52 D2 79 80 80 80 80 80 80 80 80 00 00 00 00 31 76 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  ≥  ~  y  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  °  y  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+û  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .  =  4  W  .  ‰  A  P  .  .  ¥  Q  .  J  .  X  .
+ì  .  X  .  Ò  .  V  .  d  Œ  X  .  û    Y  .  @  ®  .  .  @  ®  .  .  .  s  @  .  5  ¬  @  .
+®  4  W  .    §  @  .  7  æ  O  .  ‘  æ  O  .  £  ¯  V  .  f  .  W  .  Î  ö  A  .  <  õ  A  .
+Å  s  @  .  .  .  .  .  ∞  .  .  .  â  ≠  -  Ü  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  v  R  “  y  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  1  v  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 21:56:04--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 24
+
+This block was previously allocated by thread 0x43290, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+573402 [uStringObject.pas][uStringObject][TStringObject.Create][204]
+582965 [uSymbolTable.pas][uSymbolTable][TSymbolTable.addSymbol][404]
+5041E4 [uLibModule.pas][uLibModule][TModuleLib.addStringValue][92]
+51B403 [uBuiltInSys.pas][uBuiltInSys][TBuiltInSys.Create][36]
+581C56 [uSymbolTable.pas][uSymbolTable][addModule$qqrp20Usymboltable.TModulet1][166]
+581C9F [uSymbolTable.pas][uSymbolTable][addAllBuiltInLibraries$qqrp20Usymboltable.TModule][177]
+5618F1 [uRhodusEngine.pas][uRhodusEngine][TRhodus.Create][98]
+58CE70 [uRepl.pas][uRepl][startRepl$qqrv][240]
+
+The block was previously used for an object of class: uStringObject.TStringObject
+
+The allocation number was: 1181
+
+The block was previously freed by thread 0x43290, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40A389 [System.pas][System][TObject.FreeInstance][17960]
+40AAA9 [System.pas][System][@ClassDestroy$qqrxp14System.TObject][19324]
+5734D0 [uStringObject.pas][uStringObject][TStringObject.Destroy][217]
+40A47F [System.pas][System][TObject.Free][18023]
+4FBE37 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeMiddleNode][306]
+4FBED4 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeGarbage][333]
+56F8A3 [uVM.pas][uVM][TVM.collectGarbage][2276]
+570466 [uVM.pas][uVM][TVM.run][2391]
+419AEB [FastMM4.pas][FastMM4][DebugGetMem$qqri][9684]
+419B3C [FastMM4.pas][FastMM4][DebugGetMem$qqri][9721]
+
+The current thread ID is 0x43290, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 3D 9E 79 79 80 80 80 80
+80 80 80 80 80 80 80 80 00 00 00 00 A1 79 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+9E 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00 3D 34 57 00 E4 41 50 00 03 B4 51 00 56 1C 58 00
+9F 1C 58 00 F1 18 56 00 70 CE 58 00 9E 7F 59 00 90 32 04 00 90 32 04 00 2E 73 40 00 35 C2 40 00
+B4 34 57 00 7F A4 40 00 37 BE 4F 00 D4 BE 4F 00 A3 F8 56 00 66 04 57 00 EB 9A 41 00 3C 9B 41 00
+81 73 40 00 1C 00 00 00 B0 04 02 00 59 C2 32 86 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 A6 3D CD 79 80 80 80 80 80 80 80 80 00 00 00 00 31 76 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  =  û  y  y  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  °  y  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+û  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .  =  4  W  .  ‰  A  P  .  .  ¥  Q  .  V  .  X  .
+ü  .  X  .  Ò  .  V  .  p  Œ  X  .  û    Y  .  ê  2  .  .  ê  2  .  .  .  s  @  .  5  ¬  @  .
+¥  4  W  .    §  @  .  7  æ  O  .  ‘  æ  O  .  £  ¯  V  .  f  .  W  .  Î  ö  A  .  <  õ  A  .
+Å  s  @  .  .  .  .  .  ∞  .  .  .  Y  ¬  2  Ü  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  ¶  =  Õ  y  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  1  v  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 21:56:43--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 24
+
+This block was previously allocated by thread 0xA58C, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+57335A [uStringObject.pas][uStringObject][TStringObject.Create][204]
+5828BD [uSymbolTable.pas][uSymbolTable][TSymbolTable.addSymbol][404]
+5041E4 [uLibModule.pas][uLibModule][TModuleLib.addStringValue][92]
+51B403 [uBuiltInSys.pas][uBuiltInSys][TBuiltInSys.Create][36]
+581BAE [uSymbolTable.pas][uSymbolTable][addModule$qqrp20Usymboltable.TModulet1][166]
+581BF7 [uSymbolTable.pas][uSymbolTable][addAllBuiltInLibraries$qqrp20Usymboltable.TModule][177]
+561849 [uRhodusEngine.pas][uRhodusEngine][TRhodus.Create][98]
+58CDC8 [uRepl.pas][uRepl][startRepl$qqrv][240]
+
+The block was previously used for an object of class: uStringObject.TStringObject
+
+The allocation number was: 1181
+
+The block was previously freed by thread 0xA58C, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40A389 [System.pas][System][TObject.FreeInstance][17960]
+40AAA9 [System.pas][System][@ClassDestroy$qqrxp14System.TObject][19324]
+573428 [uStringObject.pas][uStringObject][TStringObject.Destroy][217]
+40A47F [System.pas][System][TObject.Free][18023]
+4FBE37 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeMiddleNode][306]
+4FBED4 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeGarbage][333]
+56F7FB [uVM.pas][uVM][TVM.collectGarbage][2276]
+5703BE [uVM.pas][uVM][TVM.run][2391]
+419AEB [FastMM4.pas][FastMM4][DebugGetMem$qqri][9684]
+419B3C [FastMM4.pas][FastMM4][DebugGetMem$qqri][9721]
+
+The current thread ID is 0xA58C, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 D5 BE 80 79 80 80 80 80
+80 80 80 80 80 80 80 80 00 00 00 00 91 77 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+9E 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00 95 33 57 00 E4 41 50 00 03 B4 51 00 AE 1B 58 00
+F7 1B 58 00 49 18 56 00 C8 CD 58 00 9E 7F 59 00 8C A5 00 00 8C A5 00 00 2E 73 40 00 35 C2 40 00
+0C 34 57 00 7F A4 40 00 37 BE 4F 00 D4 BE 4F 00 FB F7 56 00 BE 03 57 00 EB 9A 41 00 3C 9B 41 00
+81 73 40 00 1C 00 00 00 B0 04 02 00 11 A3 2B 86 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 EE 5C D4 79 80 80 80 80 80 80 80 80 00 00 00 00 21 74 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  ’  æ  Ä  y  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  ë  w  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+û  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .  ï  3  W  .  ‰  A  P  .  .  ¥  Q  .  Æ  .  X  .
+˜  .  X  .  I  .  V  .  »  Õ  X  .  û    Y  .  å  •  .  .  å  •  .  .  .  s  @  .  5  ¬  @  .
+.  4  W  .    §  @  .  7  æ  O  .  ‘  æ  O  .  ˚  ˜  V  .  æ  .  W  .  Î  ö  A  .  <  õ  A  .
+Å  s  @  .  .  .  .  .  ∞  .  .  .  .  £  +  Ü  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ó  \  ‘  y  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  !  t  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 21:57:31--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 24
+
+This block was previously allocated by thread 0x327B4, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+57329E [uStringObject.pas][uStringObject][TStringObject.Create][204]
+582801 [uSymbolTable.pas][uSymbolTable][TSymbolTable.addSymbol][404]
+5041E4 [uLibModule.pas][uLibModule][TModuleLib.addStringValue][92]
+51B403 [uBuiltInSys.pas][uBuiltInSys][TBuiltInSys.Create][36]
+581AF2 [uSymbolTable.pas][uSymbolTable][addModule$qqrp20Usymboltable.TModulet1][166]
+581B3B [uSymbolTable.pas][uSymbolTable][addAllBuiltInLibraries$qqrp20Usymboltable.TModule][177]
+56178D [uRhodusEngine.pas][uRhodusEngine][TRhodus.Create][98]
+58CD0C [uRepl.pas][uRepl][startRepl$qqrv][240]
+
+The block was previously used for an object of class: uStringObject.TStringObject
+
+The allocation number was: 1181
+
+The block was previously freed by thread 0x327B4, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40A389 [System.pas][System][TObject.FreeInstance][17960]
+40AAA9 [System.pas][System][@ClassDestroy$qqrxp14System.TObject][19324]
+57336C [uStringObject.pas][uStringObject][TStringObject.Destroy][217]
+40A47F [System.pas][System][TObject.Free][18023]
+4FBE37 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeMiddleNode][306]
+4FBED4 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeGarbage][333]
+56F73F [uVM.pas][uVM][TVM.collectGarbage][2276]
+570302 [uVM.pas][uVM][TVM.run][2391]
+419AEB [FastMM4.pas][FastMM4][DebugGetMem$qqri][9684]
+419B3C [FastMM4.pas][FastMM4][DebugGetMem$qqri][9721]
+
+The current thread ID is 0x327B4, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 DD C1 7B 79 80 80 80 80
+80 80 80 80 80 80 80 80 00 00 00 00 D1 74 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+9E 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00 D9 32 57 00 E4 41 50 00 03 B4 51 00 F2 1A 58 00
+3B 1B 58 00 8D 17 56 00 0C CD 58 00 9E 7F 59 00 B4 27 03 00 B4 27 03 00 2E 73 40 00 35 C2 40 00
+50 33 57 00 7F A4 40 00 37 BE 4F 00 D4 BE 4F 00 3F F7 56 00 02 03 57 00 EB 9A 41 00 3C 9B 41 00
+81 73 40 00 1C 00 00 00 B0 04 02 00 81 A1 30 86 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 7E 5E CF 79 80 80 80 80 80 80 80 80 00 00 00 00 61 71 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  ›  ¡  {  y  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  —  t  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+û  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .  Ÿ  2  W  .  ‰  A  P  .  .  ¥  Q  .  Ú  .  X  .
+;  .  X  .  ç  .  V  .  .  Õ  X  .  û    Y  .  ¥  '  .  .  ¥  '  .  .  .  s  @  .  5  ¬  @  .
+P  3  W  .    §  @  .  7  æ  O  .  ‘  æ  O  .  ?  ˜  V  .  .  .  W  .  Î  ö  A  .  <  õ  A  .
+Å  s  @  .  .  .  .  .  ∞  .  .  .  Å  °  0  Ü  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  ~  ^  œ  y  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  a  q  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 21:58:09--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 24
+
+This block was previously allocated by thread 0x3AD78, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+5732A6 [uStringObject.pas][uStringObject][TStringObject.Create][204]
+582809 [uSymbolTable.pas][uSymbolTable][TSymbolTable.addSymbol][404]
+5041E4 [uLibModule.pas][uLibModule][TModuleLib.addStringValue][92]
+51B403 [uBuiltInSys.pas][uBuiltInSys][TBuiltInSys.Create][36]
+581AFA [uSymbolTable.pas][uSymbolTable][addModule$qqrp20Usymboltable.TModulet1][166]
+581B43 [uSymbolTable.pas][uSymbolTable][addAllBuiltInLibraries$qqrp20Usymboltable.TModule][177]
+561795 [uRhodusEngine.pas][uRhodusEngine][TRhodus.Create][98]
+58CD14 [uRepl.pas][uRepl][startRepl$qqrv][240]
+
+The block was previously used for an object of class: uStringObject.TStringObject
+
+The allocation number was: 1181
+
+The block was previously freed by thread 0x3AD78, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40A389 [System.pas][System][TObject.FreeInstance][17960]
+40AAA9 [System.pas][System][@ClassDestroy$qqrxp14System.TObject][19324]
+573374 [uStringObject.pas][uStringObject][TStringObject.Destroy][217]
+40A47F [System.pas][System][TObject.Free][18023]
+4FBE37 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeMiddleNode][306]
+4FBED4 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeGarbage][333]
+56F747 [uVM.pas][uVM][TVM.collectGarbage][2276]
+57030A [uVM.pas][uVM][TVM.run][2391]
+419AEB [FastMM4.pas][FastMM4][DebugGetMem$qqri][9684]
+419B3C [FastMM4.pas][FastMM4][DebugGetMem$qqri][9721]
+
+The current thread ID is 0x3AD78, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 05 B6 7A 79 80 80 80 80
+80 80 80 80 80 80 80 80 00 00 00 00 D1 74 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+9E 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00 E1 32 57 00 E4 41 50 00 03 B4 51 00 FA 1A 58 00
+43 1B 58 00 95 17 56 00 14 CD 58 00 9E 7F 59 00 78 AD 03 00 78 AD 03 00 2E 73 40 00 35 C2 40 00
+58 33 57 00 7F A4 40 00 37 BE 4F 00 D4 BE 4F 00 47 F7 56 00 0A 03 57 00 EB 9A 41 00 3C 9B 41 00
+81 73 40 00 1C 00 00 00 B0 04 02 00 49 AD 31 86 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 B6 52 CE 79 80 80 80 80 80 80 80 80 00 00 00 00 61 71 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  ∂  z  y  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  —  t  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+û  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .  ·  2  W  .  ‰  A  P  .  .  ¥  Q  .  ˙  .  X  .
+C  .  X  .  ï  .  V  .  .  Õ  X  .  û    Y  .  x  ≠  .  .  x  ≠  .  .  .  s  @  .  5  ¬  @  .
+X  3  W  .    §  @  .  7  æ  O  .  ‘  æ  O  .  G  ˜  V  .  .  .  W  .  Î  ö  A  .  <  õ  A  .
+Å  s  @  .  .  .  .  .  ∞  .  .  .  I  ≠  1  Ü  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  ∂  R  Œ  y  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  a  q  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 21:59:32--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 24
+
+This block was previously allocated by thread 0x2B4B4, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+573336 [uStringObject.pas][uStringObject][TStringObject.Create][204]
+582899 [uSymbolTable.pas][uSymbolTable][TSymbolTable.addSymbol][404]
+5041E4 [uLibModule.pas][uLibModule][TModuleLib.addStringValue][92]
+51B403 [uBuiltInSys.pas][uBuiltInSys][TBuiltInSys.Create][36]
+581B8A [uSymbolTable.pas][uSymbolTable][addModule$qqrp20Usymboltable.TModulet1][166]
+581BD3 [uSymbolTable.pas][uSymbolTable][addAllBuiltInLibraries$qqrp20Usymboltable.TModule][177]
+561825 [uRhodusEngine.pas][uRhodusEngine][TRhodus.Create][98]
+58CDA4 [uRepl.pas][uRepl][startRepl$qqrv][240]
+
+The block was previously used for an object of class: uStringObject.TStringObject
+
+The allocation number was: 1181
+
+The block was previously freed by thread 0x2B4B4, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40A389 [System.pas][System][TObject.FreeInstance][17960]
+40AAA9 [System.pas][System][@ClassDestroy$qqrxp14System.TObject][19324]
+573404 [uStringObject.pas][uStringObject][TStringObject.Destroy][217]
+40A47F [System.pas][System][TObject.Free][18023]
+4FBE37 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeMiddleNode][306]
+4FBED4 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeGarbage][333]
+56F7D7 [uVM.pas][uVM][TVM.collectGarbage][2276]
+57039A [uVM.pas][uVM][TVM.run][2391]
+419AEB [FastMM4.pas][FastMM4][DebugGetMem$qqri][9684]
+419B3C [FastMM4.pas][FastMM4][DebugGetMem$qqri][9721]
+
+The current thread ID is 0x2B4B4, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 ED A1 7C 79 80 80 80 80
+80 80 80 80 80 80 80 80 00 00 00 00 31 76 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+9E 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00 71 33 57 00 E4 41 50 00 03 B4 51 00 8A 1B 58 00
+D3 1B 58 00 25 18 56 00 A4 CD 58 00 9E 7F 59 00 B4 B4 02 00 B4 B4 02 00 2E 73 40 00 35 C2 40 00
+E8 33 57 00 7F A4 40 00 37 BE 4F 00 D4 BE 4F 00 D7 F7 56 00 9A 03 57 00 EB 9A 41 00 3C 9B 41 00
+81 73 40 00 1C 00 00 00 B0 04 02 00 41 C0 2F 86 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 BE 3F D0 79 80 80 80 80 80 80 80 80 00 00 00 00 C1 72 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ì  °  |  y  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  1  v  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+û  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .  q  3  W  .  ‰  A  P  .  .  ¥  Q  .  ä  .  X  .
+”  .  X  .  %  .  V  .  §  Õ  X  .  û    Y  .  ¥  ¥  .  .  ¥  ¥  .  .  .  s  @  .  5  ¬  @  .
+Ë  3  W  .    §  @  .  7  æ  O  .  ‘  æ  O  .  ◊  ˜  V  .  ö  .  W  .  Î  ö  A  .  <  õ  A  .
+Å  s  @  .  .  .  .  .  ∞  .  .  .  A  ¿  /  Ü  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  æ  ?  –  y  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  ¡  r  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 22:02:20--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 24
+
+This block was previously allocated by thread 0x16E08, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+573336 [uStringObject.pas][uStringObject][TStringObject.Create][204]
+582899 [uSymbolTable.pas][uSymbolTable][TSymbolTable.addSymbol][404]
+5041E4 [uLibModule.pas][uLibModule][TModuleLib.addStringValue][92]
+51B403 [uBuiltInSys.pas][uBuiltInSys][TBuiltInSys.Create][36]
+581B8A [uSymbolTable.pas][uSymbolTable][addModule$qqrp20Usymboltable.TModulet1][166]
+581BD3 [uSymbolTable.pas][uSymbolTable][addAllBuiltInLibraries$qqrp20Usymboltable.TModule][177]
+561825 [uRhodusEngine.pas][uRhodusEngine][TRhodus.Create][98]
+58CDA4 [uRepl.pas][uRepl][startRepl$qqrv][240]
+
+The block was previously used for an object of class: uStringObject.TStringObject
+
+The allocation number was: 1181
+
+The block was previously freed by thread 0x16E08, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40A389 [System.pas][System][TObject.FreeInstance][17960]
+40AAA9 [System.pas][System][@ClassDestroy$qqrxp14System.TObject][19324]
+573404 [uStringObject.pas][uStringObject][TStringObject.Destroy][217]
+40A47F [System.pas][System][TObject.Free][18023]
+4FBE37 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeMiddleNode][306]
+4FBED4 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeGarbage][333]
+56F7D7 [uVM.pas][uVM][TVM.collectGarbage][2276]
+57039A [uVM.pas][uVM][TVM.run][2391]
+419AEB [FastMM4.pas][FastMM4][DebugGetMem$qqri][9684]
+419B3C [FastMM4.pas][FastMM4][DebugGetMem$qqri][9721]
+
+The current thread ID is 0x16E08, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 45 2F 7F 79 80 80 80 80
+80 80 80 80 80 80 80 80 00 00 00 00 E1 76 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+9E 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00 71 33 57 00 E4 41 50 00 03 B4 51 00 8A 1B 58 00
+D3 1B 58 00 25 18 56 00 A4 CD 58 00 9E 7F 59 00 08 6E 01 00 08 6E 01 00 2E 73 40 00 35 C2 40 00
+E8 33 57 00 7F A4 40 00 37 BE 4F 00 D4 BE 4F 00 D7 F7 56 00 9A 03 57 00 EB 9A 41 00 3C 9B 41 00
+81 73 40 00 1C 00 00 00 B0 04 02 00 E9 32 2D 86 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 16 CD D2 79 80 80 80 80 80 80 80 80 00 00 00 00 C1 72 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  E  /    y  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  ·  v  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+û  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .  q  3  W  .  ‰  A  P  .  .  ¥  Q  .  ä  .  X  .
+”  .  X  .  %  .  V  .  §  Õ  X  .  û    Y  .  .  n  .  .  .  n  .  .  .  s  @  .  5  ¬  @  .
+Ë  3  W  .    §  @  .  7  æ  O  .  ‘  æ  O  .  ◊  ˜  V  .  ö  .  W  .  Î  ö  A  .  <  õ  A  .
+Å  s  @  .  .  .  .  .  ∞  .  .  .  È  2  -  Ü  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  Õ  “  y  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  ¡  r  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .
+
+--------------------------------2021/10/13 22:03:26--------------------------------
+FastMM has detected an error during a free block scan operation. FastMM detected that a block has been modified after being freed. 
+
+Modified byte offsets (and lengths): 4(1)
+
+The previous block size was: 24
+
+This block was previously allocated by thread 0x2212C, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40A36B [System.pas][System][TObject.NewInstance][17951]
+40AA5E [System.pas][System][@ClassCreate$qqrpvzc][19281]
+57340E [uStringObject.pas][uStringObject][TStringObject.Create][204]
+582971 [uSymbolTable.pas][uSymbolTable][TSymbolTable.addSymbol][404]
+5041E4 [uLibModule.pas][uLibModule][TModuleLib.addStringValue][92]
+51B403 [uBuiltInSys.pas][uBuiltInSys][TBuiltInSys.Create][36]
+581C62 [uSymbolTable.pas][uSymbolTable][addModule$qqrp20Usymboltable.TModulet1][166]
+581CAB [uSymbolTable.pas][uSymbolTable][addAllBuiltInLibraries$qqrp20Usymboltable.TModule][177]
+5618FD [uRhodusEngine.pas][uRhodusEngine][TRhodus.Create][98]
+58CE7C [uRepl.pas][uRepl][startRepl$qqrv][240]
+
+The block was previously used for an object of class: uStringObject.TStringObject
+
+The allocation number was: 1181
+
+The block was previously freed by thread 0x2212C, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40A389 [System.pas][System][TObject.FreeInstance][17960]
+40AAA9 [System.pas][System][@ClassDestroy$qqrxp14System.TObject][19324]
+5734DC [uStringObject.pas][uStringObject][TStringObject.Destroy][217]
+40A47F [System.pas][System][TObject.Free][18023]
+4FBE37 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeMiddleNode][306]
+4FBED4 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeGarbage][333]
+56F8AF [uVM.pas][uVM][TVM.collectGarbage][2276]
+570472 [uVM.pas][uVM][TVM.run][2391]
+419AEB [FastMM4.pas][FastMM4][DebugGetMem$qqri][9684]
+419B3C [FastMM4.pas][FastMM4][DebugGetMem$qqri][9721]
+
+The current thread ID is 0x2212C, and the stack trace (return addresses) leading to this error is:
+41AF68 [FastMM4.pas][FastMM4][CheckBlocksOnShutdown$qqro][11459]
+41BD52 [FastMM4.pas][FastMM4][FinalizeMemoryManager$qqrv][13003]
+41BDB4 [FastMM4.pas][FastMM4][Finalization$qqrv][13102]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+597FC2 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+Current memory dump of 256 bytes starting at pointer address 7F8A5C90:
+84 4C 5A 00 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 8D C0 7D 79 80 80 80 80
+80 80 80 80 80 80 80 80 00 00 00 00 51 7A 8A 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+9E 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00 49 34 57 00 E4 41 50 00 03 B4 51 00 62 1C 58 00
+AB 1C 58 00 FD 18 56 00 7C CE 58 00 9E 7F 59 00 2C 21 02 00 2C 21 02 00 2E 73 40 00 35 C2 40 00
+C0 34 57 00 7F A4 40 00 37 BE 4F 00 D4 BE 4F 00 AF F8 56 00 72 04 57 00 EB 9A 41 00 3C 9B 41 00
+81 73 40 00 1C 00 00 00 B0 04 02 00 F1 9F 2E 86 84 4C 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 0E 60 D1 79 80 80 80 80 80 80 80 80 00 00 00 00 E1 76 8A 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A2 04 00 00 12 73 40 00 7B C1 40 00 18 C6 40 00
+Ñ  L  Z  .  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  ç  ¿  }  y  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  Q  z  ä    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+û  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .  I  4  W  .  ‰  A  P  .  .  ¥  Q  .  b  .  X  .
+´  .  X  .  ˝  .  V  .  |  Œ  X  .  û    Y  .  ,  !  .  .  ,  !  .  .  .  s  @  .  5  ¬  @  .
+¿  4  W  .    §  @  .  7  æ  O  .  ‘  æ  O  .  Ø  ¯  V  .  r  .  W  .  Î  ö  A  .  <  õ  A  .
+Å  s  @  .  .  .  .  .  ∞  .  .  .  Ò  ü  .  Ü  Ñ  L  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  `  —  y  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  ·  v  ä  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  ¢  .  .  .  .  s  @  .  {  ¡  @  .  .  ∆  @  .

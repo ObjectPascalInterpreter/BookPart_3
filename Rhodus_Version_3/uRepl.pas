@@ -263,10 +263,9 @@ begin
           if sourceCode = '#p' then
              sourceCode := readBlockOfcode;
 
-         if not executeCommandX(sourceCode) then
-            executeCode (sourceCode);
-
-         end;
+          if not executeCommandX(sourceCode) then
+             executeCode (sourceCode);
+          end;
     except
        on e:Exception do
           writeln ('Internal error in Repl Loop: ' + e.message);

@@ -1,5 +1,7 @@
 # BookPart 3
 
+Update (10/14/2021): I uploaded the beginning of the book that will accompany the project. You'll find the text in the folder Book. I've not decided how to receive corrections etc, but we could use pull requests. At the moment I've just included the first draft of Chapter 1 and a corresponding pdf
+
 Update (10/13/2021): Updated to 3.0.1.2. This includes the beginnings of array support. Also the repl was updated with new commands such as showtree and showcode. showtree lets you view the generated AST and showcode the byte code. The accompanying textbook has been started and the first chapter will be released sometime in the next few weeks. One big change is that after much thought and a number of attempts at designing array support I decided to switch from curley brackets to square brackets for lists. This matches python. Curely brackets will likely be reserved for maps/dictionaries. The same code below has been updated to reflect this change. Note that gif video
 still shows curely brackets. This will be updated shortly. There is a new binary release to accompany this version.
 

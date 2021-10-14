@@ -9,22 +9,23 @@ unit uMachineStack;
 
 interface
 
-Uses Classes, SysUtils, uListObject, uStringObject, uSymbolTable, uMemoryManager, uObjectSupport;
+Uses Classes, SysUtils, uListObject, uStringObject, uArrayObject, uSymbolTable, uMemoryManager, uObjectSupport;
 
 type
-  TStackType = (stNone, stInteger, stDouble, stBoolean, stString, stSymbol,
+  TStackType = (stNone, stInteger, stDouble, stBoolean, stString, stArray, stSymbol,
                 stLocalSymbol, stList, stModule, stFunction, stObjectMethod);
   TMachineStackRecord = record
      stackType : TStackType;  // 1 byte
      module : TModule;
      symbol : TSymbol;
-     symbolIndex : integer;
      case TStackType of       // Max 8 bytes
        stInteger     : (iValue : integer);
        stBoolean     : (bValue : boolean);
        stDouble      : (dValue : double);
        stString      : (sValue : TStringObject);
        stList        : (lValue : TListObject);
+       stArray       : (aValue : TArrayObject);
+
        stFunction    : (fValue : TUserFunction);
        stObjectMethod: (oValue : TMethodDetails);
      end;
@@ -47,6 +48,7 @@ begin
      stDouble   : result := 'double';
      stString   : result := 'string';
      stList     : result := 'list';
+     stArray    : result := 'array';
      stModule   : result := 'module';
      stFunction : result := 'function';
      stSymbol   : result := 'symbol';

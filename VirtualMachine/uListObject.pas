@@ -11,10 +11,11 @@ unit uListObject;
 
 interface
 
-Uses System.SysUtils, uUtils, System.generics.Collections, uObjectSupport, uMemoryManager, uStringObject;
+Uses System.SysUtils, uUtils, System.generics.Collections, uObjectSupport,
+     uMemoryManager, uStringObject, uArrayObject;
 
 type
-  TListItemType = (liInteger, liBoolean, liDouble, liString, liList, liFunction, liModule);
+  TListItemType = (liInteger, liBoolean, liDouble, liString, liList, liArray, liFunction, liModule);
   TListItem = class;
 
   TListMethods = class (TMethodsBase)
@@ -26,6 +27,7 @@ type
       procedure removeLastElement (vm : TObject);
       procedure getMax (vm : TObject);
       procedure getMin (vm : TObject);
+      procedure getDims (vm : TObject);
       constructor Create;
       destructor  Destroy; override;
   end;
@@ -49,6 +51,7 @@ type
     procedure append(dValue: double); overload;
     procedure append(sValue: TStringObject); overload;
     procedure append(lValue: TListObject); overload;
+    procedure append(aValue: TArrayObject); overload;
     procedure appendUserFunction(fValue: TObject);
     procedure appendModule(mValue: TObject);
 
@@ -75,17 +78,20 @@ type
     dValue: double;
     sValue: TStringObject;
     lValue: TListObject;
+    aValue: TArrayObject;
     fValue: TObject; // User function
     mValue: TObject; // Module
     function elementToString: string;
     class function listEquals(list1: TListItem; list2: TListItem): boolean;
     function getsize(): integer;
+    function getScalar : double;
 
     constructor Create(iValue: integer); overload;
     constructor Create(bValue: boolean); overload;
     constructor Create(dValue: double); overload;
     constructor Create(sValue: TStringObject); overload;
     constructor Create(lValue: TListObject); overload;
+    constructor Create(aValue: TArrayObject); overload;
     constructor CreateUserFunction(fValue: TObject);
     constructor CreateModule(mValue: TObject);
 
@@ -97,12 +103,16 @@ type
 implementation
 
 Uses Math,
+     Rtti,
      uVMExceptions,
      uSymbolTable,
      uRhodusTypes,
      uMachineStack,
      uVM;
 
+type
+  TIntArray = array of integer;
+  TDoubleArray = array of double;
 
 var globalListMethods : TListMethods;
 
@@ -118,6 +128,7 @@ begin
   methodList.Add(TMethodDetails.Create ('pop',    'Remove the last element from a list: var.pop (list)', 1, removeLastElement));
   methodList.Add(TMethodDetails.Create ('max',    'Find the maximum value is a 1D list of values: var.max ({1,2,3})', 1, getMin));
   methodList.Add(TMethodDetails.Create ('min',    'Find the minimum value is a 1D list of values: var.min ({1,2,3})', 1, getMin));
+  methodList.Add(TMethodDetails.Create ('dims',   'Get dims: var.min ({1,2,3})', 0, getDims));
 
   methodList.Add(TMethodDetails.Create ('dir',     'dir of string object methods', 0, dir));
 end;
@@ -155,6 +166,7 @@ var s : TListObject;
     value : PMachineStackRecord;
     ts : TStringObject;
     ls : TListObject;
+    ar : TArrayObject;
     fs : TUserFunction;
 begin
   value := TVM (vm).pop;
@@ -174,6 +186,11 @@ begin
                      ls := value.lValue.clone;
                      ls.blockType := btOwned;
                      s.append (ls);
+                     end;
+      stArray   :    begin
+                     ar := value.aValue.clone;
+                     ar.blockType := btOwned;
+                     s.append (ar);
                      end;
       stFunction:    begin
                      fs := value.fValue.clone;
@@ -326,6 +343,68 @@ begin
 end;
 
 
+procedure countItems (s : TListObject; dims : TIntArray; level : integer);
+var i : integer;
+begin
+  for i := 0 to s.list.Count - 1 do
+      begin
+      if s.list[i].itemType = liInteger then
+         inc (dims[level])
+      else
+         countItems (s.list[i].lValue, dims, level+1);
+      writeln (TRttiEnumerationType.GetName(s.list[i].itemType));
+      end;
+end;
+
+
+procedure collectData (s : TListObject; data : TDoubleArray; var count : integer);
+var i : integer;
+begin
+  for i := 0 to s.list.Count - 1 do
+      begin
+      if s.list[i].itemType = liInteger then
+         begin
+         data[count] := s.list[i].iValue;
+         inc (count);
+         end;
+      if s.list[i].itemType = liList then
+         collectData (s.list[i].lValue, data, count);
+      end;
+end;
+
+
+procedure TListMethods.getDims (vm : TObject);
+var s, r : TListObject;
+    i : integer;
+    dims: TIntArray;
+    data : TDoubleArray;
+    level, count : integer;
+begin
+  TVM (vm).decStackTop; // Dump the object method
+  s := TVM (vm).popList;
+  setlength (dims, 10);
+  setLength (data, 16);
+  r := s;
+  count := 0;
+  while r.list.Count > 0 do
+      begin
+      r := r.list[0].lValue;
+      inc (count);
+      end;
+  dims[0] := s.list.Count;
+  dims[1] := s.list[0].lValue.list.Count;
+
+  count := 0;
+  collectData (s, data, count);
+  //level := 0;
+  //countItems (s, dims, level);
+  for i := 0 to 10 do
+      write (data[i]:3:1, ' ');
+  writeln;
+  TVM (vm).push (double(2.6));
+end;
+
+
 
 // ---------------------------------------------------------------------------------------------------
 
@@ -415,7 +494,7 @@ function TListObject.listToString: string;
 var
   i: integer;
 begin
-  result := '{';
+  result := '[';
   if self.list.count > 0 then
     result := result + self.list[0].elementToString;
 
@@ -423,7 +502,7 @@ begin
     begin
       result := result + ',' + self.list[i].elementToString;
     end;
-  result := result + '}';
+  result := result + ']';
 end;
 
 function TListObject.getsize: integer;
@@ -554,6 +633,14 @@ begin
   list.add(TListItem.Create(sValue));
 end;
 
+procedure TListObject.append(aValue: TArrayObject);
+begin
+  if aValue.blockType = btGarbage then
+    aValue.blockType := btOwned;
+
+  list.add(TListItem.Create(aValue));
+end;
+
 procedure TListObject.append(lValue: TListObject);
 begin
   if lValue.blockType = btGarbage then
@@ -643,6 +730,12 @@ begin
   self.lValue := lValue;
 end;
 
+constructor TListItem.Create(aValue: TArrayObject);
+begin
+  itemType := liArray;
+  self.aValue := aValue;
+end;
+
 constructor TListItem.CreateUserFunction(fValue: TObject);
 begin
   itemType := liFunction;
@@ -698,6 +791,17 @@ begin
       result := result + lValue.getsize();
   end;
 end;
+
+
+function TListItem.getScalar : double;
+begin
+  if itemType = liInteger then
+     exit (iValue);
+  if itemType = liDouble then
+     exit (dValue);
+  exit (0);
+end;
+
 
 function boolToString(value: boolean): string;
 begin

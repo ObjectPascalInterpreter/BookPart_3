@@ -28,6 +28,7 @@ Uses Math,
      uVMExceptions,
      uStringObject,
      uListObject,
+     uArrayObject,
      uMemoryManager,
      uMachineStack,
      uCompile,
@@ -38,6 +39,7 @@ type
   TBuiltInGlobal = class (TModuleLib)
      private
      public
+       procedure createArray (vm : TObject);
        procedure myInt (vm : TObject);
        procedure myFloat (vm : TObject);
        procedure readNumber (vm : TObject);
@@ -60,14 +62,28 @@ type
        destructor  Destroy; override;
   end;
 
+  TDoubleArray = array of double;
+  TArrayConstructor = class (TObject)
+       elementCount : integer;
+       arrayObject : TArrayObject;
+       procedure determineDimensions (argument : string; var dims : TIndexArray);
+       function  addLevel (alist : TListObject) : string;
+       procedure getDimensions (alist : TListObject; var dims : TIndexArray);
+       function  countValues (alist : TListObject; var count : integer) : integer;
+  end;
+
+
+
 var  builtInGlobal : TBuiltInGlobal;
 
 // -------------------------------------------------------------------------------------
 
 procedure addGlobalMethodsToModule (module : TModuleLib);
+var i : integer;
 begin
+  module.addMethod (builtInGlobal.createArray,   -1, 'array',         'Create an array: x = array (3, 4)');
   module.addMethod (builtInGlobal.myInt,          1, 'int',           'Convert float to integer: int (3.4)');
-  module.addMethod (builtInGlobal.myFloat,          1, 'float',         'Convert and integer to a float: float (3)');
+  module.addMethod (builtInGlobal.myFloat,        1, 'float',         'Convert and integer to a float: float (3)');
   module.addMethod (builtInGlobal.readNumber,     0, 'readNumber',    'Read an integer from the console');
   module.addMethod (builtInGlobal.readString,     0, 'readString',    'Rread a string from the console');
   module.addMethod (builtInGlobal.listSymbols,    1, 'symbols',       'Returns list of symbols in the specified module: symbols(math). Use ' + TSymbol.mainModuleId + ' to get the symbols for the main module');
@@ -119,6 +135,7 @@ constructor TBuiltInGlobal.Create;
 begin
   inherited Create (TSymbol.globalId, 'Global Module');
 
+  addMethod (createArray,   -1, 'array',         'Create an array of a given size: a = array(4,5,2)');
   addMethod (myInt,          1, 'int',           'Convert float to integer: int (3.4)');
   addMethod (myFloat,        1, 'float',         'Convert an integer to a float: float (3)');
   addMethod (readNumber,     0, 'readNumber',    'Read an integer from the console');
@@ -199,6 +216,171 @@ end;
 procedure TBuiltInGlobal.getMemoryUsed (vm : TObject);
 begin
   TVM (vm).push (memoryList.getMemoryListSize());
+end;
+
+
+function TArrayConstructor.countValues (alist : TListObject; var count : integer) : integer;
+var i : integer;
+begin
+  for i := 0 to alist.list.Count - 1 do
+      if alist.list[i].itemType <> liList then
+         inc (count)
+      else
+         countValues (alist.list[i].lValue, count);
+end;
+
+
+procedure TArrayConstructor.determineDimensions (argument : string; var dims : TIndexArray);
+var i, j : integer;
+    count : double;
+
+    depth : integer;
+    dimensions : integer;
+    upOrdown : integer;
+    c : Char;
+begin
+  setLength (dims, 0);
+  upOrDown := 0;
+  dimensions := 0;
+  depth := 0;
+  for i := 0 to length (argument) - 1 do
+      begin
+      upOrDown := 0;
+      c := argument[i+1];
+      if (c = '[') then
+         begin
+         upOrDown := 1;  // determine if we're going down in depth
+         end
+      else
+         begin
+         if (c = ']')  then
+            upOrDown := -1;
+         end;
+
+      depth := depth + upOrDown;
+
+      if upOrDown = 1 then
+         begin
+         if depth > dimensions then
+            begin
+            dimensions := depth;
+            setLength (dims, dimensions);
+            end;
+         dims[depth - 1] := 0;
+         end;
+
+      if not ((c = '[') or (c = ']')) then
+         begin
+         if c = ',' then
+            begin
+            if dims[depth-1] = 0 then
+               dims[depth-1] := 2
+            else
+               dims[depth-1] := dims[depth-1] + 1;
+            end
+         else
+            begin
+            if dims[depth-1] = 0 then
+               dims[depth - 1] := 1;
+            end;
+         end;
+       end;
+end;
+
+
+function TArrayConstructor.addLevel (alist : TListObject) : string;
+var i : integer;
+begin
+  result := '[';
+  for i := 0 to alist.list.Count - 1 do
+      if alist.list[i].itemType = liList then
+         begin
+         if result[length(result)] = ']' then
+            result := result + ',';
+         result := result + addLevel (alist.list[i].lValue);
+         end
+      else
+         begin
+         if result[length(result)] = ']' then
+            result := result + ',';
+
+         if i < alist.list.Count - 1  then
+            result := result + '0' + ','
+         else
+            result := result + '0';
+         arrayObject.data[elementCount] := alist.list[i].getScalar();
+         inc (elementCount);
+         end;
+  result := result + ']';
+end;
+
+
+procedure TArrayConstructor.getDimensions (alist : TListObject; var dims : TIndexArray);
+var i : integer;
+    astr : string;
+begin
+  elementCount := 0;
+  astr := addLevel (alist);
+
+  determineDimensions (astr, dims);
+  for i := 0 to length (dims) - 1 do
+      write (dims[i], ' ');
+  writeln;
+end;
+
+
+function convertListToArray (alist : TListObject) :TArrayObject;
+var i : integer;
+    count : integer;
+    dims : TIndexArray;
+    ac : TArrayConstructor;
+begin
+   ac := TArrayConstructor.Create;
+   try
+     count := 0;
+     // Get number of elements
+     ac.countValues (alist, count);
+     ac.arrayObject := TArrayObject.Create();
+     setLength (ac.arrayObject.data, count);
+
+     // Get the dimensions of the array
+     ac.getDimensions(alist, dims);
+     ac.arrayObject.dim := copy (dims);
+     result := ac.arrayObject;
+   finally
+     ac.Free;
+   end;
+end;
+
+
+procedure TBuiltInGlobal.createArray (vm : TObject);
+var nArgs, i : integer;
+    ar : TArrayObject;
+    dim : TIndexArray;
+    alist : TListObject;
+    argument : PMachineStackRecord;
+begin
+  nArgs := TVM (vm).popInteger;
+  argument := TVM (vm).pop;
+  if argument.stackType = stList then
+     begin
+     alist := argument.lValue;
+     ar := convertListToArray (alist);
+     TVM (vm).push(ar);
+     end
+  else
+     begin
+     setLength (dim, nArgs);
+     dim[0] := argument.iValue;
+     for i := nArgs - 1 downto 1 do
+         begin
+         argument := TVM (vm).pop;
+         dim[i] := argument.iValue;
+         end;
+
+     ar := TArrayObject.Create (dim);
+     TVM (vm).push(ar);
+     end;
 end;
 
 

@@ -14,7 +14,7 @@ interface
 type
    // symNonExistant: Requests for symbols that aren't even in the symbol table
    TSymbolElementType = (symNonExistant = -1, symUndefined, symInteger, symDouble, symBoolean,
-         symString, symList, symUserFunc, symModule);
+         symString, symList, symArray, symUserFunc, symModule);
 
 
 implementation

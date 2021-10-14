@@ -22,7 +22,7 @@ testUtils.runtestTrue (type ("abc") == "string");
 testUtils.runtestTrue (type (2.34) == "float");
 testUtils.runtestTrue (type (True) == "bool");
 testUtils.runtestTrue (type (False) == "bool");
-testUtils.runtestTrue (type ({1,2,3}) == "list");
+testUtils.runtestTrue (type ([1,2,3]) == "list");
 
 
 testUtils.endTests()

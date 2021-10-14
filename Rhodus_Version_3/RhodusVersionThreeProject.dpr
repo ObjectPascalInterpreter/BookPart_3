@@ -89,7 +89,9 @@ uses
   uTokenVector in 'uTokenVector.pas',
   uScannerTypes in 'uScannerTypes.pas',
   uEmbeddAPI in 'uEmbeddAPI.pas',
-  uRepl in 'uRepl.pas';
+  uRepl in 'uRepl.pas',
+  uArrayObject in '..\VirtualMachine\uArrayObject.pas',
+  uBuiltInArray in 'uBuiltInArray.pas';
 
 var sourceCode : string;
     fragment : string;
@@ -204,8 +206,8 @@ begin
 
    if leftStr (src, 5) = 'debug' then
       begin
-      bolShowAssembler := not bolShowAssembler;
-      if bolShowAssembler then
+      bolShowByteCode := not bolShowByteCode;
+      if bolShowByteCode then
          writeln ('Debug ON')
       else writeln ('Debug OFF');
       exit (True);

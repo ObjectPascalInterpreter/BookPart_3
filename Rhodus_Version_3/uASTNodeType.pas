@@ -47,6 +47,8 @@ type
       ntGlobalStmt,   // 32
       ntModule,
       ntCreateList,
+      ntArray,
+      //ntArrayRow,
       ntPrint,
       ntPrintln,
       ntSetColor,

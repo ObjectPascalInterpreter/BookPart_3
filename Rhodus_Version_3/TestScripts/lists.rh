@@ -6,87 +6,87 @@ println ("---------------------- List Tests ------------------------")
 setColor ("white")
 
 testUtils.beginTests ("")
-  a = {1,2,3,4};
+  a = [1,2,3,4];
   a = 1;
   testUtils.runtestTrue(a == 1);
 
-  testUtils.runtestTrue({} == {});
-  testUtils.runtestTrue({1} == {1});
-  testUtils.runtestTrue({1,2,3} == {1,2,3});
-  testUtils.runtestTrue({1,2,3} + 4 == {1,2,3,4});
-  testUtils.runtestTrue({1,2,3} + 3.14 == {1,2,3,3.14});
+  testUtils.runtestTrue([] == []);
+  testUtils.runtestTrue([1] == [1]);
+  testUtils.runtestTrue([1,2,3] == [1,2,3]);
+  testUtils.runtestTrue([1,2,3] + 4 == [1,2,3,4]);
+  testUtils.runtestTrue([1,2,3] + 3.14 == [1,2,3,3.14]);
 
-  testUtils.runtestTrue({1,2,3} + True == {1,2,3,True});
-  testUtils.runtestTrue({1,2,3} + "string" == {1,2,3,"string"}); 
+  testUtils.runtestTrue([1,2,3] + True == [1,2,3,True]);
+  testUtils.runtestTrue([1,2,3] + "string" == [1,2,3,"string"]); 
 
-  testUtils.runtestTrue({1,2,3} + {4} == {1,2,3,4});
-  testUtils.runtestTrue({1,2,3} + {{4}} == {1,2,3,{4}});
+  testUtils.runtestTrue([1,2,3] + [4] == [1,2,3,4]);
+  testUtils.runtestTrue([1,2,3] + [[4]] == [1,2,3,[4]]);
 
-  testUtils.runtestTrue ({1,2,3} + 3.14 == {1,2,3,3.14});
-  testUtils.runtestTrue ({1,2,3} + True == {1,2,3,True});
+  testUtils.runtestTrue ([1,2,3] + 3.14 == [1,2,3,3.14]);
+  testUtils.runtestTrue ([1,2,3] + True == [1,2,3,True]);
 
-  testUtils.runtestTrue ({1,2,3} + {"string"} == {1,2,3,"string"});
+  testUtils.runtestTrue ([1,2,3] + ["string"] == [1,2,3,"string"]);
 
-  testUtils.runtestTrue ({1,2,3} + {4,True,2.81,"string"} == {1,2,3,4,True,2.81,"string"});
+  testUtils.runtestTrue ([1,2,3] + [4,True,2.81,"string"] == [1,2,3,4,True,2.81,"string"]);
 
-  testUtils.runtestTrue ({1,2,3} + {{4,True,2.81,"string"}} == {1,2,3,{4,True,2.81,"string"}});
+  testUtils.runtestTrue ([1,2,3] + [[4,True,2.81,"string"]] == [1,2,3,[4,True,2.81,"string"]]);
 
-  testUtils.runtestTrue ({1,2,3} + {{4,5,{6,{7}}}} == {1,2,3,{4,5,{6,{7}}}});
+  testUtils.runtestTrue ([1,2,3] + [[4,5,[6,[7]]]] == [1,2,3,[4,5,[6,[7]]]]);
 testUtils.endTests()
 
 
 testUtils.beginTests ("")
-  a = {1};
-  testUtils.runtestTrue (3*a == {1,1,1});
+  a = [1];
+  testUtils.runtestTrue (3*a == [1,1,1]);
 
-  a = {1,2};
-  testUtils.runtestTrue (3*a == {1,2,1,2,1,2});
+  a = [1,2];
+  testUtils.runtestTrue (3*a == [1,2,1,2,1,2]);
 
-  a = {1,{2}};
-  testUtils.runtestTrue (a*3 == {1,{2},1,{2},1,{2}});
+  a = [1,[2]];
+  testUtils.runtestTrue (a*3 == [1,[2],1,[2],1,[2]]);
 
   a = True;
-  alist = {1,2,3};
+  alist = [1,2,3];
   alist[1] = a;
-  testUtils.runtestTrue (alist == {1, True, 3});
+  testUtils.runtestTrue (alist == [1, True, 3]);
 testUtils.endTests()
  
 testUtils.beginTests ("")
-  alist = {1,2,3,4};
+  alist = [1,2,3,4];
   testUtils.runtestTrue (alist[1] == 2);
   testUtils.runtestTrue (alist[2] == 3);
 
-  alist = {1,2,3,{4,5},6};
-  testUtils.runtestTrue (alist[3] == {4,5});
+  alist = [1,2,3,[4,5],6];
+  testUtils.runtestTrue (alist[3] == [4,5]);
 
-  alist = {1,2,3,{4,5},6};
+  alist = [1,2,3,[4,5],6];
   alist[0] = 99;
   testUtils.runtestTrue (alist[0] == 99);
 
-  alist = {1,2,3,{4,5},6};
-  alist[0] = {"ab","xy"};
-  testUtils.runtestTrue (alist[0] == {"ab","xy"}); 
+  alist = [1,2,3,[4,5],6];
+  alist[0] = ["ab","xy"];
+  testUtils.runtestTrue (alist[0] == ["ab","xy"]); 
 
-  a = {3,4};
-  a = {1,2};
-  a = {1,2,3,4,5};
+  a = [3,4];
+  a = [1,2];
+  a = [1,2,3,4,5];
   testUtils.runtestTrue (a[1] + a[3] == 6);
 
-  a = {1,2,{3,{4,5}}};
-  testUtils.runtestTrue (a[2,1] == {4,5});
+  a = [1,2,[3,[4,5]]];
+  testUtils.runtestTrue (a[2,1] == [4,5]);
   a[2,1,0] = 99;
-  testUtils.runtestTrue (a == {1,2,{3,{99,5}}});
+  testUtils.runtestTrue (a == [1,2,[3,[99,5]]]);
 testUtils.endTests()
 
 testUtils.beginTests ("")
   // Memmory leak tests for multipying lists
-  a = {1,2,3};
+  a = [1,2,3];
   b = 3*a;
-  testUtils.runtestTrue (b == {1,2,3,1,2,3,1,2,3}); 
+  testUtils.runtestTrue (b == [1,2,3,1,2,3,1,2,3]); 
 
-  a = {1,2,3,{7,8,9,{56,78}}};
+  a = [1,2,3,[7,8,9,[56,78]]];
   x = a[3,3];
-  testUtils.runtestTrue (x == {56,78});
+  testUtils.runtestTrue (x == [56,78]);
 testUtils.endTests()
 
 
@@ -95,9 +95,9 @@ testUtils.beginTests ("")
 // --------------------------------------------------------
 // Test period syntax and index of lists containing methods
 //println ("\nList containing methods")
-r = {math.sin (30), math.cos (30), math.tan (30)};
+r = [math.sin (30), math.cos (30), math.tan (30)];
 
-x = {math.sin, math.cos, math.tan};
+x = [math.sin, math.cos, math.tan];
 
 testUtils.runtestTrue (r[0] == x[0](30));
 testUtils.runtestTrue (r[1] == x[1](30));
@@ -113,7 +113,7 @@ testUtils.beginTests ("")
   // And user defined funtions
   function test (x) return x*x; end
 
-  x = {test}
+  x = [test]
   testUtils.runtestTrue (3*3 == x[0](3));
 
   function runtest (fcn, x)

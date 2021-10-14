@@ -58,6 +58,9 @@ type
     function parseIndexedVariable : TASTNode;
     function parseFunctionCall: TASTNode;
 
+    //function  parseArrayRow : TASTNode;
+    //function  parseLiteralArray : TASTNode;
+
     function primary : TASTNode;
     function factor : TASTNode;
     function primaryPlus : TASTNode;
@@ -341,9 +344,45 @@ begin
 end;
 
 
+//function TConstructAST.parseArrayRow : TASTNode;
+//var count : integer;
+//begin
+//  count := 0;
+//
+//  result := TASTArrayRow.Create;
+//  if ((sc.token <> tSemicolon) and (sc.token <> tRightBracket)) then  // Check for empty display statement
+//      begin
+//      count := 1;
+//      (result as TASTArrayRow).row.Add(expression);
+//      // CREATE_MATRIX
+//      while sc.token = tComma do
+//            begin
+//            sc.nextToken;
+//            (result as TASTArrayRow).row.Add(expression);
+//            count := count + 1;
+//            end;
+//      end;
+//end;
+
+
+//function TConstructAST.parseLiteralArray : TASTNode;
+//var arow : TASTArrayRow;
+//begin
+//  sc.nextToken;
+//  result := TAST2DArray.Create;
+//  (result as TAST2DArray).rows.add (parseArrayRow() as TASTArrayRow);
+//
+//  while sc.token = tSemicolon do
+//      begin
+//      sc.nextToken;
+//     (result as TAST2DArray).rows.add (parseArrayRow() as TASTArrayRow);
+//     end;
+//  expect(tRightCurleyBracket);
+//end;
+
+
 function TConstructAST.factor : TASTNode;
 var node, primary : TASTNode;
-    alist: TASTNodeList;
 begin
   result := nil;
   case sc.token of
@@ -389,22 +428,14 @@ begin
       begin
         sc.nextToken;
         result := expression();
-        if result.nodeType = ntError then
-           exit (result);
-
-        node := expect(tRightParenthesis);
-        if node <> nil then
-           begin
-           result.freeAST;
-           result := node;
-           end;
+        expect(tRightParenthesis);
       end;
-    tLeftCurleyBracket:
+
+    tLeftBracket:
       begin
         sc.nextToken;
-        alist := nil;
         result := TASTCreateList.Create;
-        if sc.token <> tRightCurleyBracket then
+        if sc.token <> tRightBracket then
            begin
            (result as TASTCreateList).list.Add(expression);
            while sc.token = tComma do
@@ -413,14 +444,26 @@ begin
               (result as TASTCreateList).list.Add(expression);
               end;
            end;
+      expect(tRightBracket);
+      end;
 
-        node := expect(tRightCurleyBracket);
-        if node <> nil then
+     tLeftCurleyBracket:
+        begin
+        sc.nextToken;
+        result := TASTArray.Create;
+        if sc.token <> tRightCurleyBracket then
            begin
-           alist.freeAST;
-           exit (node);
+           (result as TASTArray).list.Add(expression);
+           while sc.token = tComma do
+              begin
+              sc.nextToken;
+              (result as TASTArray).list.Add(expression);
+              end;
            end;
-       end;
+        expect(tRightCurleyBracket);
+        end;
+
+
     tError:
        begin
        result := TASTErrorNode.Create ('Expecting a factor [literal, identifier, or ''{''] but found ' + sc.tokenRecord.FTokenCharacter, sc.tokenRecord.lineNumber, sc.tokenRecord.columnNumber);

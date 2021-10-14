@@ -50,11 +50,11 @@ testUtils.runtestTrue(test_4() == 1.2);
 function test_5()
    for i = 1 to 10 do
      if i == 5 then
-       return {5, 12345}
+       return [5, 12345]
      end;
    end;
 end;
-testUtils.runtestTrue(test_5() == {5, 12345});
+testUtils.runtestTrue(test_5() == [5, 12345]);
 
 
 function test_6()
@@ -68,18 +68,18 @@ end;
 testUtils.runtestTrue (test_6() == 123456);
 
 function test_7()
-  a = {1,2,3,4};
+  a = [1,2,3,4]
   a[2] = 1;
   return a
 end;
-testUtils.runtestTrue (test_7() == {1,2,1,4});
+testUtils.runtestTrue (test_7() == [1,2,1,4]);
 
 function test_8()
-  a = {1,2,3,4,5,{6,7,8}};
+  a = [1,2,3,4,5,[6,7,8]];
   a[5,0] = 99;
   return a
 end;
-testUtils.runtestTrue (test_8() == {1,2,3,4,5,{99,7,8}});
+testUtils.runtestTrue (test_8() == [1,2,3,4,5,[99,7,8]]);
 testUtils.endTests()
 
 //----------------------------------------------------
@@ -150,7 +150,7 @@ function mean (x)
   end
   return sum/5
 end
-testUtils.runtestTrue (mean ({1,2,3,4,5}) == 3)
+testUtils.runtestTrue (mean ([1,2,3,4,5]) == 3)
 
 function repeatString(count, text)
    ret = "";
@@ -290,12 +290,12 @@ function abc
    return 5
 end
 
-x = {abc}
+x = [abc]
 testUtils.runtestTrue (x[0]() == 5)
 
-r = {math.sin (30), math.cos (30), math.tan (30)};
+r = [math.sin (30), math.cos (30), math.tan (30)];
 
-x = {math.sin, math.cos, math.tan};
+x = [math.sin, math.cos, math.tan];
 
 testUtils.runtestTrue (r[0] == x[0](30));
 testUtils.runtestTrue (r[1] == x[1](30));
@@ -313,7 +313,7 @@ end
 // And user defined funtions
 function test (x) return x*x; end
 
-x = {test}
+x = [test]
 testUtils.runtestTrue (3*3 == x[0](3));
 
 function runtest (fcn, x)
@@ -321,16 +321,16 @@ function runtest (fcn, x)
 end
 
 function testlog (x)
-   a = {math.log}
+   a = [math.log]
    return a[0](x)
 end
 
 testUtils.runtestTrue (testlog (100) == 2)
 
-function t1 (x) return {1,2,3} + x end
+function t1 (x) return [1,2,3] + x end
 function t2 (y) return t1 (y) end
 
-testUtils.runtestTrue (t2 (25) == {1,2,3,25})
+testUtils.runtestTrue (t2 (25) == [1,2,3,25])
 
 testUtils.endTests()
 
@@ -356,7 +356,7 @@ testUtils.runtestTrue (True);  // just record we did the test
 
 // Memory leak test for lists
 function test_10()
-   a = {1,2,3};
+   a = [1,2,3];
    b = a;
    b = 1;
 end;

@@ -2,7 +2,7 @@ unit uStringObject;
 
 // This source is distributed under Apache 2.0
 
-// Copyright (C)  2019-2020 Herbert M Sauro
+// Copyright (C)  2019-2021 Herbert M Sauro
 
 // Author Contact Information:
 // email: hsauro@gmail.com
@@ -185,57 +185,6 @@ begin
       alist.append(TStringObject.create(splitted[i]));
   TVM (vm).push(alist);
 end;
-
-
-//class procedure TStringMethods.val (vm : TObject);
-//var iValue : integer; dValue : double;
-//begin
-//  case TVM (vm).peek().stackType of
-//    stInteger :
-//        begin
-//        iValue := TVM (vm).popInteger;
-//        TVM (vm).decStackTop; // Dump the object method
-//        TVM (vm).push (TStringObject.create (inttostr (iValue)));
-//        end;
-//    stDouble :
-//        begin
-//        dValue := TVM (vm).popScalar;
-//        TVM (vm).decStackTop; // Dump the object method
-//        TVM (vm).push (TStringObject.create (floattostr (dValue)));
-//        end
-//  else
-//     raise ERuntimeException.Create('can only convert integers or floats to a string form');
-//  end;
-//end;
-
-//class procedure TStringMethods.str (vm : TObject);
-//var s : TStringObject;
-//    iValue, iCode : integer;
-//    ch : Char;
-//begin
-//  s := TVM (vm).popString;
-//  TVM (vm).decStackTop; // Dump the object method
-//
-//  for ch in s.value do
-//      if not TCharacter.IsNumber(ch) then
-//         begin
-//         // Float
-//         TVM (vm).push (strtofloat (s.value));
-//         exit;
-//         end;
-//
-//  // Must be an integer
-//  system.Val (s.value, iValue, iCode);
-//  if iCode = 0 then
-//     TVM (vm).push (iValue)
-//  else
-//     raise ERuntimeException.Create('Internal error in val(), expecting an integer');
-//end;
-
-//class procedure TStringMethods.formatStr (vm : TObject);
-//begin
-//
-//end;
 
 // ---------------------------------------------------------------------
 function createStringObject (value : string) : TStringObject;

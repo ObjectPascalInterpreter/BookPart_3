@@ -320,6 +320,7 @@ begin
         oStoreLocal   : result := result + '  ' + opCodeNAmes[oStoreLocal] + ' ' + inttostr (aProgram.code[i].index1) + sLineBreak;
         oLoadLocal    : result := result + '  ' + opCodeNames[oLoadLocal]  + ' ' + inttostr (aProgram.code[i].index1) + sLineBreak;
 
+        oCreateArray  : result := result + '  ' + opCodeNames[oCreateArray] + ' ' + inttostr (aProgram.code[i].index1) + sLineBreak;
         oCall       : result := result + '  ' + opCodeNames[oCall]  + sLineBreak;
         oBuiltin    : result := result + '  ' + opCodeNames[oBuiltin] + ' ' + inttostr (aProgram.code[i].index1) + sLineBreak;
         oRet        : result := result + '  ' + opCodeNames[oRet]     + ' ' + sLineBreak;

@@ -72,23 +72,25 @@ const
    oLocalLvecIdx = byte (93);  // Load element from local vector
    oLocalSvecIdx = byte (94);  // Save element to local vector
 
+   oCreateArray  = byte (100);
+
    // Calling routines
-   oCall         = byte (100);  // Call a user defined function
-   oBuiltin      = byte (101);  // Call a builin function
-   oRet          = byte (102);  // Return from a function
+   oCall         = byte (110);  // Call a user defined function
+   oBuiltin      = byte (111);  // Call a builin function
+   oRet          = byte (112);  // Return from a function
 
-   oPrint        = byte (110);  // Pop the stack and write the item to stdout
-   oPrintln      = byte (111);  // Pop the stack and write a newline stdout
-   oSetColor     = byte (112);  // Pop the stack and set the color
-   oAssertTrue   = byte (113);  // Pop the stack and check that the operand is a boolean True, then print
-   oAssertTrueEx = byte (114);  // Pop the stack and check that the operand is a boolean True
-   oAssertFalse  = byte (115);  // Pop the stack and check that the operand is a boolean False
-   oHelp         = byte (116);
+   oPrint        = byte (120);  // Pop the stack and write the item to stdout
+   oPrintln      = byte (121);  // Pop the stack and write a newline stdout
+   oSetColor     = byte (122);  // Pop the stack and set the color
+   oAssertTrue   = byte (123);  // Pop the stack and check that the operand is a boolean True, then print
+   oAssertTrueEx = byte (124);  // Pop the stack and check that the operand is a boolean True
+   oAssertFalse  = byte (125);  // Pop the stack and check that the operand is a boolean False
+   oHelp         = byte (126);
 
-   oImportModule = byte (120);  //
+   oImportModule = byte (130);  //
 
 
-   oPopAndSend  = byte (200); // Debug opcode, not currently used
+   oPopAndSend  = byte (300); // Debug opcode, not currently used
 
    type
     TOpCode = byte;
@@ -152,6 +154,8 @@ initialization
   opCodeNames[oSvecIdx]      := 'svecIdx';
   opCodeNames[oLocalLvecIdx] := 'locallvecIdx';
   opCodeNames[oLocalSvecIdx] := 'localsvecIdx';
+
+  opCodeNames[oCreateArray]  := 'createArray';
 
   opCodeNames[oCall]         := 'call';
   opCodeNames[oBuiltIn]      := 'builtin';

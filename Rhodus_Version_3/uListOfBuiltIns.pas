@@ -21,7 +21,14 @@ var listofBuiltIns : TListOfBuiltIns;
 
 implementation
 
-Uses uBuiltInMath, uBuiltInSys, uBuiltInConfig, uBuiltInRandom, uBuiltInFile, uBuiltInOS, uBuiltInStr;
+Uses uBuiltInMath,
+     uBuiltInSys,
+     uBuiltInConfig,
+     uBuiltInArray,
+     uBuiltInRandom,
+     uBuiltInFile,
+     uBuiltInOS,
+     uBuiltInStr;
 
 
 constructor TBuiltIn.Create (name, className : string);
@@ -57,6 +64,7 @@ initialization
   listOfBuiltIns.Add (TBuiltIn.Create ('sys',    'uBuiltInSys.'    + TBuiltInSys.ClassName));
   listOfBuiltIns.Add (TBuiltIn.Create ('config', 'uBuiltInConfig.' + TBuiltInConfig.ClassName));
   listofBuiltIns.Add (TBuiltIn.Create ('random', 'uBuiltInRandom.' + TBuiltInRandom.ClassName));
+  listofBuiltIns.Add (TBuiltIn.Create ('arrays', 'uBuiltInArray.'  + TBuiltInArray.ClassName));
   listofBuiltIns.Add (TBuiltIn.Create ('file',   'uBuiltInFile.'   + TBuiltInFile.ClassName));
   listofBuiltIns.Add (TBuiltIn.Create ('time',   'uBuiltInOS.'     + TBuiltInTime.ClassName));
   listofBuiltIns.Add (TBuiltIn.Create ('strings','uBuiltInStrings.' + TBuiltInStr.ClassName));

@@ -17,7 +17,7 @@ testGlobal_2 ()
 testUtils.runtestTrue (x == 4.5);
 
 y = 4.5; w = 8.9;
-a = "str"; b= {1,2,3};
+a = "str"; b= [1,2,3];
 
 function testGlobal_3 ()
    x = 4.5;  

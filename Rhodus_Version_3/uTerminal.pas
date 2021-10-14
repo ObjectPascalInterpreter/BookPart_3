@@ -110,8 +110,6 @@ procedure setBlue;
 begin
   currentColor[0] := 0;  currentColor[1] := 0;  currentColor[2] := 255;
   setCurrentColors;
-
-  //setConsoleTextAttribute(TTextRec(Output).Handle, FOREGROUND_INTENSITY or FOREGROUND_BLUE);
 end;
 
 
@@ -119,8 +117,6 @@ procedure setYellow;
 begin
   currentColor[0] := 255;  currentColor[1] := 255;  currentColor[2] := 0;
   setCurrentColors;
-
-  //setConsoleTextAttribute(TTextRec(Output).Handle, FOREGROUND_INTENSITY or FOREGROUND_GREEN or FOREGROUND_RED);
 end;
 
 
@@ -128,8 +124,6 @@ procedure setAqua;
 begin
   currentColor[0] := 0;  currentColor[1] := 255;  currentColor[2] := 255;
   setCurrentColors;
-
-  //setConsoleTextAttribute(TTextRec(Output).Handle, FOREGROUND_INTENSITY or FOREGROUND_GREEN or FOREGROUND_BLUE);
 end;
 
 
@@ -137,8 +131,6 @@ procedure setPurple;
 begin
   currentColor[0] := 158;  currentColor[1] := 0;  currentColor[2] := 211;
   setCurrentColors;
-
-  //setConsoleTextAttribute(TTextRec(Output).Handle, FOREGROUND_INTENSITY or FOREGROUND_RED or FOREGROUND_BLUE);
 end;
 
 
@@ -163,7 +155,6 @@ begin
   currentColor[2] := 0;
 
   setCurrentColors;
-  //setConsoleTextAttribute(TTextRec(Output).Handle, FOREGROUND_INTENSITY or FOREGROUND_RED);
 end;
 
 
@@ -174,7 +165,6 @@ begin
   currentColor[2] := 204;
 
   setCurrentColors;
-   //setConsoleTextAttribute(conOut, FOREGROUND_INTENSITY or FOREGROUND_RED or FOREGROUND_GREEN or FOREGROUND_BLUE);
 end;
 
 
@@ -182,7 +172,6 @@ procedure setGreen;
 begin
   currentColor[0] := 0;  currentColor[1] := 255;  currentColor[2] := 0;
   setCurrentColors;
-  //setConsoleTextAttribute(conOut, FOREGROUND_INTENSITY or FOREGROUND_GREEN);
 end;
 
 

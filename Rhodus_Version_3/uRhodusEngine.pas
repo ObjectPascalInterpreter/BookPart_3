@@ -23,6 +23,7 @@ Uses Generics.Collections,
      uBuiltInGlobal,
      uBuiltInMath,
      uBuiltInRandom,
+     uBuiltInArray,
      uBuiltInStr,
      uBuiltinList,
      uBuiltInTurtle,
@@ -47,9 +48,8 @@ type
       setColorCallBack : TCallBackFunction;
       function memAllocatedByVm : integer;
     public
-      showAssembler : boolean;
-      class var showByteCode : boolean;
-
+      class var bolShowTree : boolean;
+      class var bolShowByteCode : boolean;
 
       procedure setPrintCallBack (printcallBack : TCallBackFunction);
       procedure setPrintLnCallBack (printLnCallBack : TCallBackFunction);
@@ -91,7 +91,6 @@ uses uCommands,
 constructor TRhodus.Create;
 var astr : string;
 begin
-  showAssembler := False;
   mainModule := TModuleLib.Create (TSymbol.mainModuleId, 'Main Module');  // mainModule is declared in uModule
 
   addGlobalMethodsToModule (mainModule);
@@ -99,7 +98,7 @@ begin
   addAllBuiltInLibraries (mainModule);
 
   sc  := TScanner.Create;             // Create the lexical scanner
-  syntaxParser := TSyntaxParser.Create (sc);
+  syntaxParser := TSyntaxParser.Create (sc);  // This only does a syntax analysis
   ast := TConstructAst.Create (syntaxParser.tokenVector);   // Create the parser that will generate the AST
 
   vmMemory := memAllocatedByVm;
@@ -159,11 +158,17 @@ begin
     if syntaxParser.syntaxCheck(syntaxError) then
        begin
        root := ast.constructAST ();
+       if bolShowTree then
+          writeln (displayAST (root));
        end
     else
       result := False;
   except
-    result := False;
+    on e: exception do
+       begin
+       syntaxError.errorMsg := 'Internal Error: ' + e.Message;
+       result := False;
+       end;
   end;
 end;
 
@@ -179,9 +184,6 @@ begin
   // may need to refer to entries in the symbol table.
   mainModule.clearCode;
   try
-    if bolShowAssembler then
-       writeln (displayAST (root));
-
     try
      // The compiler will generate vm byte code and store it in module
      compiler := TCompiler.Create (mainModule);
@@ -194,18 +196,18 @@ begin
      finally
        compiler.Free;
      end;
+  finally
+    root.freeAST();
+  end;
     except
       on e:exception do
          begin
          setGreen;
-         writeln ('ERROR ' + '[line ' + inttostr (sc.tokenElement.lineNumber) + ', column: ' + inttostr (sc.tokenElement.columnNumber) + '] ' + e.Message);
+         compileError.errorMsg := 'ERROR ' + '[line ' + inttostr (sc.tokenElement.lineNumber) + ', column: ' + inttostr (sc.tokenElement.columnNumber) + '] ' + e.Message;
          setWhite;
          result := False;
          end;
     end;
-  finally
-    root.freeAST();
-  end;
 end;
 
 // Carries out the following:
@@ -239,7 +241,7 @@ begin
              end;
         root := ast.constructAST;
 
-        if bolShowAssembler then
+        if bolShowByteCode  then
            writeln (displayAST (root));
         try
           if not compiler.startCompilation (module, root, compilerError) then
@@ -256,7 +258,6 @@ begin
           on e: ERuntimeException do
              begin
              setGreen;
-             //writeln ('ERROR ' + '[line ' + inttostr (e.lineNumber) + ', column: ' + inttostr (e.columnNumber) + '] ' + e.errorMsg);
              writeln ('ERROR: ' + e.Message);
              setWhite;
              result := False;
@@ -298,10 +299,7 @@ begin
       if mainModule.symbolTable.items[key] <> nil then
          if mainModule.symbolTable.Items[key].symbolType = symUserFunc then
             begin
-            if mainModule.symbolTable.items[key].fValue.isbuiltInFunction then
-               continue
-               //writeln ('No code for builtin function')
-            else
+            if not mainModule.symbolTable.items[key].fValue.isbuiltInFunction then
                writeln (dissassemble(mainModule, mainModule.symbolTable.items[key].fValue.funcCode));
             end;
   writeln (dissassemble(mainModule, mainModule.code));
@@ -351,6 +349,7 @@ begin
                 stDouble  : writeln (Format('%g', [st.dValue]));
                 stString  : writeln (st.sValue.value);
                 stList    : writeln (st.lValue.listToString());
+                stArray   : writeln (st.aValue.arrayToString());
                 stModule  : writeln ('Module: ' + st.module.name + ' ' + st.module.helpStr);
                 stFunction: writeln ('Function: ' + st.fValue.moduleRef.name + '.' + st.fValue.name);
                 stObjectMethod : begin writeln ('Object: ' + st.oValue.name); vm.pop(); end;   // pop the operand
@@ -358,19 +357,7 @@ begin
                  writeln ('Unrecognized type of value returned from virtual machine');
                end;
                end;
-          if bolShowAssembler then
-              begin
-              for key in mainModule.symbolTable.keys do
-                  if mainModule.symbolTable.items[key] <> nil then
-                     if mainModule.symbolTable.Items[key].symbolType = symUserFunc then
-                        begin
-                        if not mainModule.symbolTable.items[key].fValue.isbuiltInFunction then
-                           writeln (dissassemble(mainModule, mainModule.symbolTable.items[key].fValue.funcCode));
-                        end;
-              writeln (dissassemble(mainModule, mainModule.code));
-             end;
-
-        except
+          except
           on e:exception do
              begin
               setGreen;
@@ -404,8 +391,8 @@ begin
         vm.registerSetColorcallBack (setColorCallBack);
 
         try
-          if TRhodus.showByteCode then
-             showByteCodeMethod(mainModule);
+         // if bolShowByteCode then
+        //     showByteCodeMethod(mainModule);
 
           vm.runModule (mainModule);
 
@@ -419,13 +406,14 @@ begin
                 stDouble  : writeln (Format('%g', [st.dValue]));
                 stString  : writeln (st.sValue.value);
                 stList    : writeln (st.lValue.listToString());
+                stArray   : writeln (st.aValue.arrayToString());
                 stModule  : writeln ('Module: ' + st.module.name + ' ' + st.module.helpStr);
                 stFunction: writeln ('Function: ' + st.fValue.moduleRef.name + '.' + st.fValue.name);
                else
                  writeln ('Unrecognized type of value returned from virtual machine');
                end;
                end;
-          if bolShowAssembler then
+          if bolShowByteCode then
               begin
               for key in mainModule.symbolTable.keys do
                   if mainModule.symbolTable.items[key] <> nil then

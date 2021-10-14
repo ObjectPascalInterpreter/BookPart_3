@@ -45,6 +45,8 @@ begin
           stList    : begin
                       write (st.lValue.listToString);
                       end;
+          stArray   : write (st.aValue.arrayToString());
+
           stModule  : begin
                       write (st.module.name);
                       end;
@@ -160,7 +162,7 @@ begin
 end;
 
     
-function executeCommand (src : string) : boolean;
+function executeCommandX (src : string) : boolean;
 var index : integer;
     helpStr : string;
 begin
@@ -179,28 +181,7 @@ begin
       exit (True);
       end;
 
-   if leftStr (src, 5) = 'debug' then
-      begin
-      bolShowAssembler := not bolShowAssembler;
-      if bolShowAssembler then
-         writeln ('Debug ON')
-      else writeln ('Debug OFF');
-      exit (True);
-      end;
-
    exit (False);
-
-   // not a command, see if is a file name, if so run it
-   if ExtractFileExt(src) <> '.rh' then
-      src := src + '.rh';
-
-   if FileExists (getCurrentDir + '\' + src) then
-      begin
-      //
-      computeBaseLineMemoryAllocated;
-      runFramework.compileAndRun (TFile.ReadAllText (getCurrentDir + '\' + src), False);  // False = not interactive
-      exit (True)
-      end;
 end;
 
 
@@ -210,14 +191,14 @@ var fragment: string;
 begin
   writeln ('Type q or return to exit and run program');
   write ('... ');
-  sourceCode := '';
+  result := '';
   readln (fragment);
   while (fragment <> 'q') and (fragment <> '') do
          begin
-         if sourceCode = '' then
-            sourceCode := fragment
+         if result = '' then
+            result := fragment
          else
-            sourceCode := sourceCode + sLineBreak + fragment;
+            result := result + sLineBreak + fragment;
          write ('... ');
          readln (fragment)
          end;
@@ -230,55 +211,67 @@ begin
 end;
 
 
+procedure executeCode (const sourceCode : string);
+begin
+  if runFramework.compileToAST (sourceCode, syntaxError) then
+     begin
+     if runFramework.generateByteCode (True, compilerError) then
+        begin
+        if TRhodus.bolShowByteCode then
+           runFramework.showByteCodeMethod (mainModule);
+        runFrameWork.runCode (mainModule, True, print);
+        end
+     else
+       begin
+       setGreen;
+       writeln ('ERROR ' + '[line ' + inttostr (compilerError.lineNumber) + ', column: ' + inttostr (compilerError.columnNumber) + '] ' + compilerError.errorMsg);
+       setWhite;
+       end;
+     end
+  else
+     writeln ('ERROR ' + '[line ' + inttostr (syntaxError.lineNumber) + ', column: ' + inttostr (syntaxError.columnNumber) + '] ' + syntaxError.errorMsg);
+end;
+
+
 procedure startRepl;
 var errMsg : string;
+    output : string;
 begin
   runFramework := TRhodus.Create;
 
   registerRuntimeWithConsole (runFramework);
-  
+
   runFramework.setPrintCallBack(print);
   runFramework.setPrintLnCallBack(println);
   runFramework.setSetColorCallBack (setColor);
-  
-  // Note we don't clear the symboltables because the next script
-  // may need to refer to entries in the symbol table.
-  //module.clearCode;
-    
+
   try
     displayWelcome;
 
+    try
     while True do
           begin
+          TRhodus.bolShowByteCode := bolShowByteCode;
+          TRhodus.bolShowTree := bolShowTree;
+
           displayPrompt;
           readln (sourceCode);
+
           if sourceCode = 'quit' then
              break;
 
-          if executeCommand (sourceCode) then
-             continue;
-                
           if sourceCode = '#p' then
              sourceCode := readBlockOfcode;
-          
-          if runFramework.compileToAST (sourceCode, syntaxError) then
-             begin
-             if runFramework.generateByteCode (True, compilerError) then
-                begin
-                if TRhodus.showByteCode then       
-                   runFramework.showByteCodeMethod (mainModule);
-                runFrameWork.runCode (mainModule, True, print);                
-                end
-             else
-               begin
-               setGreen;
-               writeln ('ERROR ' + '[line ' + inttostr (compilerError.lineNumber) + ', column: ' + inttostr (compilerError.columnNumber) + '] ' + compilerError.errorMsg);
-               setWhite;
-               end;
-             end
-          else
-             writeln ('ERROR ' + '[line ' + inttostr (syntaxError.lineNumber) + ', column: ' + inttostr (syntaxError.columnNumber) + '] ' + syntaxError.errorMsg);
-          end;
+
+         if not executeCommandX(sourceCode) then
+            executeCode (sourceCode);
+
+         end;
+    except
+       on e:Exception do
+          writeln ('Internal error in Repl Loop: ' + e.message);
+     end;
+
   finally
     runFramework.Free;
 

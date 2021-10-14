@@ -18,9 +18,10 @@ type
 
   TCommand = class (TObject)
     name : string;
+    helpStr : string;
     argument : string;
     fcn : TCallCommand;
-    constructor Create (name : string; fcn : TCallCommand);
+    constructor Create (const name, helpStr: string; fcn : TCallCommand);
   end;
 
   TListOfCommand = class (TObjectList<TCommand>)
@@ -32,7 +33,8 @@ type
 var
   listOfCommands : TListOfCommand;
 
-  bolShowAssembler : boolean;
+  bolShowByteCode : boolean;
+  bolShowTree : boolean;
 
   procedure displayHelp;
   function  getMemoryAllocated : UInt64;
@@ -49,15 +51,17 @@ Uses System.Types,
      uTerminal,
      uBuiltInGlobal,
      uConstantTable,
-     uEnvironment;
+     uEnvironment,
+     uArrayObject;
 
 var
    winList : TStringList;
 
 
-constructor TCommand.Create(name: string; fcn: TCallCommand);
+constructor TCommand.Create(const name, helpStr: string; fcn: TCallCommand);
 begin
   self.name := name;
+  self.helpStr := helpStr;
   self.fcn := fcn;
 end;
 
@@ -78,25 +82,17 @@ end;
 // -------------------------------------------------------------------
 
 procedure displayHelp;
+var i : integer;
 begin
   writeln;
   writeln ('quit'#9#9'Quit the application, really really quit');
-  writeln ('type fileName'#9'List the contents of a file');
-  writeln ('run fileName'#9'Run the code in the specified file');
-  writeln ('edit fileName'#9'Start notepad to edit the file');
-  writeln ('del filenName'#9'Delete a file');
-  writeln ('dir'#9#9'List the directory of .rh files');
-  writeln ('pwd'#9#9'Print the current working directory');
-  writeln ('cd path'#9#9'Change working directory, eg cd ., cd .\myfiles');
-  writeln ('samples'#9#9'Change to samples directory');
-  writeln ('basepath'#9'Print out the startup path');
-  writeln ('cls'#9#9'Clear the screen');
-  writeln ('debug'#9#9'Turn debugging on and off (displays bytecode)');
-  writeln ('mem'#9#9'Report on current memory usage');
-  writeln ('MEM'#9#9'Detailed report on current memory usage');
-  writeln ('free'#9#9'Run the memory garbage collector');
+  for i := 0 to listOfCommands.Count - 1 do
+      if length (listOfCommands[i].name) > 7 then
+         writeln (listOfCommands[i].name + #9 + listOfCommands[i].helpStr)
+      else
+         writeln (listOfCommands[i].name + #9#9 + listOfCommands[i].helpStr);
+
   writeln ('symbols'#9#9'Display symbols in main module');
-  writeln ('tests'#9#9'Run the tests');
   writeln ('#p'#9#9'Start a multi-line program (q or return to finish)');
   writeln ('');
   writeln ('?X or ?M.X'#9'Get help about a symbol, X, or a symbol in a module, M');
@@ -128,7 +124,7 @@ begin
   result := True;
 end;
 
-function basePathCommand (argument : string) : boolean;
+function startPathCommand (argument : string) : boolean;
 begin
   writeln (launchEnvironment.basePath);
   result := True;
@@ -265,6 +261,23 @@ begin
 end;
 
 
+function showTreeCommand (command : string) : boolean;
+begin
+  bolShowTree := not bolShowTree;
+  if bolShowTree then
+     writeln ('Show tree ON')
+  else writeln ('Show tree OFF')
+end;
+
+function showCodeCommand (command : string) : boolean;
+begin
+  bolShowByteCode := not bolShowByteCode;
+  if bolShowByteCode then
+     writeln ('Show code ON')
+  else writeln ('Show code OFF')
+end;
+
+
 function listCommand (fileName : string) : boolean;
 begin
   if ExtractFileExt(fileName) <> '.rh' then
@@ -273,7 +286,7 @@ begin
   if TFile.Exists (getCurrentDir + '\' + fileName) then
      writeln (TFile.ReadAllText(getCurrentDir + '\' + fileName))
   else
-     writeln ('type: No such file');
+     writeln ('cat: No such file');
   exit (True);
 end;
 
@@ -309,7 +322,7 @@ begin
       writeln ('Test File: ' + Format('%-20s', [extractFileName (tdir + fileName)]));
       setWhite;
 
-      getRunTime().showAssembler := False;
+      TRhodus.bolShowByteCode := False;
       getRuntime().compileAndRun (TFile.ReadAllText(fileName), False);  // false = not interactive
       writeln;
       end;
@@ -361,21 +374,23 @@ end;
 
 initialization
    listOfCommands := TListOfCommand.Create;
-   listOfCommands.Add (TCommand.Create ('pwd',        pwdCommand));
-   listOfCommands.Add (TCommand.Create ('help',       helpCommand));
-   listOfCommands.Add (TCommand.Create ('cls',        clearCommand));
-   listOfCommands.Add (TCommand.Create ('basepath',   basePathCommand));
-   listOfCommands.Add (TCommand.Create ('samples',    samplesCommand));
-   listOfCommands.Add (TCommand.Create ('cd',         cdCommand));
-   listOfCommands.Add (TCommand.Create ('free',       freeCommand));
-   listOfCommands.Add (TCommand.Create ('mem',        memoryUsedCommand));
-   listOfCommands.Add (TCommand.Create ('MEM',        detailedMemoryUsageCommand));
-   listOfCommands.Add (TCommand.Create ('edit',       editCommand));
-   listOfCommands.Add (TCommand.Create ('dir',        dirCommand));
-   listOfCommands.Add (TCommand.Create ('type',       listCommand));
-   listOfCommands.Add (TCommand.Create ('tests',      testsCommand));
-   listOfCommands.Add (TCommand.Create ('run',        runCommand));
-   listOfCommands.Add (TCommand.Create ('del',        delCommand));
+   listOfCommands.Add (TCommand.Create ('pwd',        'Print the current working directory', pwdCommand));
+   listOfCommands.Add (TCommand.Create ('help',       'Print out the help screen', helpCommand));
+   listOfCommands.Add (TCommand.Create ('cls',        'Clear the screen', clearCommand));
+   listOfCommands.Add (TCommand.Create ('startPath',  'Print out the startup path', startPathCommand));
+   listOfCommands.Add (TCommand.Create ('samples',    'cd to the samples directory', samplesCommand));
+   listOfCommands.Add (TCommand.Create ('cd',         'Change working directory, eg cd .\myfiles', cdCommand));
+   listOfCommands.Add (TCommand.Create ('free',       'Run the memory garbage collector', freeCommand));
+   listOfCommands.Add (TCommand.Create ('mem',        'Report on current memory usage', memoryUsedCommand));
+   listOfCommands.Add (TCommand.Create ('MEM',        'Detailed report on current memory usage', detailedMemoryUsageCommand));
+   listOfCommands.Add (TCommand.Create ('edit',       'Start notepad to edit the file, eg edit myfile', editCommand));
+   listOfCommands.Add (TCommand.Create ('dir',        'List the directory of .rh files', dirCommand));
+   listOfCommands.Add (TCommand.Create ('cat',        'List the contents of a file', listCommand));
+   listOfCommands.Add (TCommand.Create ('tests',      'Run the test files', testsCommand));
+   listOfCommands.Add (TCommand.Create ('run',        'Run the code in the specified file, eg run myfile ', runCommand));
+   listOfCommands.Add (TCommand.Create ('#del',       'Delete a file, eg #del myfile', delCommand));
+   listOfCommands.Add (TCommand.Create ('showtree',   'Toggle show/hide abstract syntax tree', showTreeCommand));
+   listOfCommands.Add (TCommand.Create ('showcode',   'Toggle show/hide generated bytecode', showCodeCommand));
 
    winList := TStringList.Create;
 finalization

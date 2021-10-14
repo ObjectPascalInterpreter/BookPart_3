@@ -74,6 +74,11 @@ type
       destructor  Destroy; override;
    end;
 
+   TASTArray = class (TASTNodeList)
+      constructor Create;
+      destructor  Destroy; override;
+   end;
+
    TASTIdentifier = class (TASTNode)
       symbolName : string;
       constructor Create (symbolName : string);
@@ -325,7 +330,7 @@ type
 
 implementation
 
-Uses StrUtils;
+Uses StrUtils, RTTi;
 
 var pool : TPool;
 
@@ -543,11 +548,23 @@ begin
   inherited Create (ntCreateList);
 end;
 
-
 destructor TASTCreateList.Destroy;
 begin
   inherited;
 end;
+
+
+constructor TASTArray.Create;
+begin
+  inherited Create (ntArray);
+end;
+
+
+destructor TASTArray.Destroy;
+begin
+  inherited;
+end;
+
 
 
 constructor TASTIdentifier.Create (symbolName : string);
@@ -1160,6 +1177,10 @@ begin
         (node as TASTGlobal).free;
     ntCreateList:
          (node as TASTCreateList).free;
+    ntArray :
+         (node as TASTArray).free;
+    //ntArrayRow :
+    //     (node as TASTArrayRow).free;
     ntPrint:
          (node as TASTPrint).free;
     ntPrintln:
@@ -1207,7 +1228,7 @@ begin
     ntStatementList:
        (node as TASTStatementList).free;
   else
-     raise Exception.Create('Unrecognized node in freeAST: ' + inttostr (integer (node.nodeType)));
+     raise Exception.Create('Unrecognized node in freeAST: ' + TRttiEnumerationType.GetName(node.nodeType));
   end;
 end;
 
@@ -1313,6 +1334,10 @@ begin
            for i := 0 to (node as TASTCreateList).list.Count - 1 do
               result := result + print ((node as TASTCreateList).list[i], prefix + '|  ');
            end;
+       ntArray :
+          begin
+          result := result + 'ntarray'
+          end;
        ntAdd, ntSub, ntMult, ntDiv, ntDivI, ntLT, ntLE, ntGT, ntGE, ntNE, ntEQ,
        ntAnd, ntOr, ntXor :
            begin
@@ -1402,8 +1427,7 @@ begin
          begin
          result := result + print ((node as TASTAssertFalse).expression, prefix + '|  ');
          end
-
-      else
+       else
           begin  end;
   end;
 end;

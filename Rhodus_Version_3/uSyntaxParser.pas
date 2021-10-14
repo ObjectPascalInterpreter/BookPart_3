@@ -67,12 +67,14 @@ type
 
     procedure expect(thisToken: TTokenCode);
     procedure variable;
+    function  parseArrayRow : integer;
+    procedure parseLiteralArray;
     procedure parseList;
     procedure parseIndexedVariable;
     procedure parseFunctionCall;
 
     procedure primary;
-    procedure factor2;
+    procedure factor;
     procedure primaryPlus;
 
     procedure power;
@@ -259,12 +261,50 @@ end;
 // primary => factor primaryPlus
 procedure TSyntaxParser.primary;
 begin
-  factor2;
+  factor;
   primaryPlus;
 end;
 
 
-procedure TSyntaxParser.factor2;
+function TSyntaxParser.parseArrayRow : integer;
+var count : integer;
+begin
+  count := 0;
+
+  if ((tokenVector.token <> tSemicolon) and (tokenVector.token <> tRightBracket)) then  // Check for empty display statement
+      begin
+      count := 1;
+      expression;
+      while tokenVector.token = tComma do
+            begin
+            nextToken();
+            expression;
+            count := count + 1;
+            end;
+      end;
+      result := count;
+end;
+
+
+procedure TSyntaxParser.parseLiteralArray;
+var elementCount : integer;
+begin
+  elementCount := 0;
+
+  nextToken();
+  elementCount := parseArrayRow;
+  if elementCount = 0 then
+     raise ESyntaxException.Create ('Empty matrices not permitted', tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
+  while tokenVector.token = tSemicolon do
+      begin
+      nextToken();
+      elementCount := parseArrayRow;
+     end;
+  expect(tRightCurleyBracket);
+end;
+
+
+procedure TSyntaxParser.factor;
 begin
   case tokenVector.token of
    tInteger:
@@ -302,10 +342,10 @@ begin
         expression();
         expect(tRightParenthesis);
       end;
-    tLeftCurleyBracket:
+    tLeftBracket:
       begin
         nextToken;
-        if tokenVector.token <> tRightCurleyBracket then
+        if tokenVector.token <> tRightBracket then
            begin
            expression;
            while tokenVector.token = tComma do
@@ -314,8 +354,21 @@ begin
               expression;
               end;
            end;
-
-        expect(tRightCurleyBracket);
+       expect(tRightBracket);
+       end;
+     tLeftCurleyBracket :
+       begin
+       nextToken;
+       if tokenVector.token <> tRightCurleyBracket then
+          begin
+          expression;
+          while tokenVector.token = tComma do
+             begin
+             nextToken;
+             expression;
+             end;
+          end;
+       expect(tRightCurleyBracket);
        end;
     tError:
        begin

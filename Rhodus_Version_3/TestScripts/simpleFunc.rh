@@ -42,14 +42,14 @@ testUtils.runtestTrue (test_6() == False)
 
 
 function test_7
-  return {1,2,3}
+  return [1,2,3]
 end
-testUtils.runtestTrue (test_7() == {1,2,3})
+testUtils.runtestTrue (test_7() == [1,2,3])
 
 function test_8
-  return {1,2,3,{4,5}}
+  return [1,2,3,[4,5]]
 end
-testUtils.runtestTrue (test_8() == {1,2,3,{4,5}})
+testUtils.runtestTrue (test_8() == [1,2,3,[4,5]])
 
 
 function test_9

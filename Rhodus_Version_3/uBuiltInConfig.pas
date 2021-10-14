@@ -50,7 +50,7 @@ procedure TBuiltInConfig.showByteCode (vm : TObject);
 var b : boolean;
 begin
    b := TVM (vm).popBoolean;
-   TRhodus.showByteCode := b;
+   TRhodus.bolShowByteCode := b;
    TVM (vm).pushNone;
 end;
 

@@ -49,6 +49,8 @@ type
     procedure compileAssignment(node: TASTAssignment);
     procedure compileUserFunction(node: TASTNode);
     procedure compileList(node: TASTCreatelist);
+    //procedure compileRow (node : TASTArrayRow);
+    procedure compileArray (node : TASTNode);
     procedure compileGlobalVariable(node: TASTNode);
     procedure compileStatementList(node: TASTNode);
     procedure compilePowerOperator(node: TASTPowerOp);
@@ -450,12 +452,12 @@ begin
          begin
          // Special case, we only save is its the last index, otherwise we load
          if i = subscripts.Count - 1 then
-            code.addByteCode(oSvecIdx)
+            code.addByteCode(oSvecIdx, subscripts.Count)
          else
-            code.addByteCode(oLvecIdx);
+            code.addByteCode(oLvecIdx, subscripts.Count);
          end
       else
-         code.addByteCode(oLvecIdx)
+         code.addByteCode(oLvecIdx, subscripts.Count)
       end;
 end;
 
@@ -507,8 +509,7 @@ end;
 
 
 procedure TCompiler.compileList(node: TASTCreatelist);
-var
-  i: integer;
+var i: integer;
 begin
   if node <> nil then
     begin
@@ -518,6 +519,41 @@ begin
     end
   else
     code.addByteCode(oCreateList, 0); // empty list
+end;
+
+
+//procedure TCompiler.compileRow (node : TASTArrayRow);
+//var i : integer;
+//begin
+//  for i := 0 to node.row.Count - 1 do
+//      compileCode (node.row[i]);
+//   code.addByteCode(oCreateMatRow, node.row.Count);
+//end;
+//
+//
+procedure TCompiler.compileArray (node : TASTNode);
+var i : integer;
+    _array : TASTArray;
+begin
+  _array := node as TASTArray;
+  if node <> nil then
+    begin
+      for i := 0 to _array.list.Count - 1 do
+        compileCode(_array.list[i]);
+      code.addByteCode(oCreateArray, _array.list.Count);
+    end
+  else
+    code.addByteCode(oCreateArray, 0); // empty list
+//  twoDArray := node as TAST2DArray;
+//  if node <> nil then
+//     begin
+//     compileRow (twoDArray.rows[0]);
+//     for i := 1 to twoDArray.rows.Count - 1 do
+//         begin
+//         compileRow (twoDArray.rows[i]);
+//         code.addByteCode (oMatAppendRow);
+//         end;
+//     end;
 end;
 
 
@@ -978,6 +1014,8 @@ begin
       compilePrimaryFunction (node as TASTPrimaryFunction);
     ntCreateList:
       compileList(node as TASTCreatelist);
+    ntArray:
+      compileArray (node);
     ntAssignment:
       compileAssignment (node as TASTAssignment);
     // An expression on its own, has to be dealt with separately
@@ -1071,8 +1109,7 @@ begin
       stackOfBreakStacks.Peek.Push(code.addByteCode(oJmp));
     ntNull : begin end;
    else
-      raise ECompilerException.Create('Internal error: Unrecognized node type in AST: ' +   TRttiEnumerationType.GetName(node.nodeType), 0, 0);
-
+      raise ECompilerException.Create('Internal error: Unrecognized node type in AST (compileCode): ' +   TRttiEnumerationType.GetName(node.nodeType), 0, 0);
   end;
 end;
 

@@ -9,8 +9,8 @@ unit uSymbolTable;
 
 interface
 
-Uses Classes, SysUtils, Generics.Collections, uListObject, uStringObject, uOpCodes,
-     uConstantTable, uVMExceptions, uProgramCode, uMemoryManager, uRhodusTypes;
+Uses Classes, SysUtils, Generics.Collections, uListObject, uStringObject, uArrayObject,
+     uOpCodes, uConstantTable, uVMExceptions, uProgramCode, uMemoryManager, uRhodusTypes;
 
 type
    // There are too many dependencies between these classes to separate them
@@ -72,6 +72,7 @@ type
        bValue  : boolean;
        sValue  : TStringObject;
        lValue  : TListObject;
+       aValue  : TArrayObject;
        fValue  : TUserFunction;
        mValue  : TModule;
 
@@ -100,6 +101,7 @@ type
         procedure addSymbol (name : string; dValue : double;  locked : boolean; helpStr : string); overload;
         procedure addSymbol (name : string; sValue : TStringObject; locked : boolean; helpStr : string); overload;
         procedure addSymbol (name : string; lValue : TListObject; locked : boolean; helpStr : string); overload;
+        procedure addSymbol (name : string; aValue : TArrayObject; locked : boolean; helpStr : string); overload;
         procedure addSymbol (fValue : TUserFunction; locked : boolean); overload;
 
         function  find (name : string; var symbol : TSymbol) : boolean;
@@ -109,6 +111,7 @@ type
         procedure storeDouble   (symbol : TSymbol; dValue : double);
         procedure storeString (symbol : TSymbol; sValue : TStringObject);
         procedure storeList   (symbol : TSymbol; lValue : TListObject);
+        procedure storeArray  (symbol : TSymbol; aValue : TArrayObject);
 
         procedure storeFunction (symbol : TSymbol; fValue : TUserFunction);
         procedure storeModule (symbol : TSymbol; mValue : TObject);
@@ -134,6 +137,7 @@ type
         procedure storeToSymbolTable (index : integer; dValue : double); overload;
         procedure storeToSymbolTable (index : integer; lValue : TListObject); overload;
         procedure storeToSymbolTable (index : integer; sValue : TStringObject); overload;
+        procedure storeToSymbolTable (index : integer; aValue : TArrayObject); overload;
         procedure storeToSymbolTable (index : integer; fValue : TUserFunction); overload;
 
         function  getFromSymbolTable (index : integer) : TSymbol;
@@ -327,8 +331,9 @@ end;
 destructor TSymbol.destroy;
 begin
   case symbolType of
-    symString : sValue.blockType := btGarbage;
+    symString      : sValue.blockType := btGarbage;
     symList        : lValue.blockType := btGarbage;
+    symArray       : aValue.blockType := btGarbage;
     symNonExistant : begin end;
     symBoolean     : begin end;
     symInteger     : begin end;
@@ -365,6 +370,7 @@ begin
     symDouble    : result := 'float';
     symString    : result := 'string';
     symList      : result := 'list';
+    symArray     : result := 'array';
     symUserFunc  : result := 'function';
     symUndefined : result := 'Undefined variable';
   else
@@ -453,6 +459,18 @@ begin
 end;
 
 
+procedure TSymbolTable.addSymbol (name : string; aValue : TArrayObject; locked : boolean; helpStr : string);
+var symbol : TSymbol;
+begin
+  symbol := TSymbol.Create;
+  symbol.aValue := aValue;
+  symbol.symbolName := name;
+  symbol.symbolType := symArray;
+  symbol.helpStr := helpStr;
+  symbol.locked := locked;;
+  Add (name, symbol);
+end;
+
 
 function TSymbolTable.find (name : string; var symbol : TSymbol) : boolean;
 begin
@@ -495,6 +513,12 @@ begin
                       symbol.sValue.blockType := btGarbage
                    else
                        raise ERuntimeException.Create('Internal Error: checkingForExistingData (string)');
+                   end;
+       symArray  : begin
+                   if symbol.aValue <> nil then
+                      symbol.aValue.blockType := btGarbage
+                   else
+                       raise ERuntimeException.Create('Internal Error: checkingForExistingData (array)');
                    end;
        symUserFunc:begin
                    if symbol.fValue <> nil then
@@ -564,6 +588,21 @@ begin
 end;
 
 
+procedure TSymbolTable.storeArray  (symbol : TSymbol; aValue : TArrayObject);
+begin
+  checkForExistingData (symbol);
+
+  if  (aValue.blockType = btConstant) or
+      (aValue.blockType = btBound) or
+      (aValue.blockType = btOwned) then
+         symbol.aValue := aValue.clone
+  else
+     symbol.aValue := aValue;
+  symbol.aValue.blockType := btBound;
+  symbol.symbolType := symArray;
+end;
+
+
 procedure TSymbolTable.storeFunction (symbol : TSymbol; fValue : TUserFunction);
 begin
   checkForExistingData (symbol);
@@ -624,7 +663,7 @@ begin
         case self[i].symbolType of
            symList   : self[i].lValue.blockType := btGarbage;
            symString : self[i].sValue.blockType := btGarbage;
-           //symUserFunc : self[i].fValue.Free;
+           symArray  : self[i].aValue.blockType := btGarbage;
            symUserFunc : self[i].fValue.blockType := btGarbage;
         end;
       self[i].free;
@@ -752,6 +791,12 @@ begin
             result.addSymbol (self[i].symbolName);
             result[i].symbolType := symList;
             self[i].lValue := self[i].lValue.clone;
+            end;
+         symArray :
+            begin
+            result.addSymbol (self[i].symbolName);
+            result[i].symbolType := symArray;
+            self[i].aValue := self[i].aValue.clone;
             end
        else
            raise Exception.Create('Unsupported type in function clone');
@@ -777,6 +822,12 @@ begin
                       self[index].sValue.blockType := btGarbage
                    else
                        raise ERuntimeException.Create('Internal Error: checkingForExistingData (string)');
+                   end;
+      symArray   : begin
+                   if self[index].aValue <> nil then
+                      self[index].aValue.blockType := btGarbage
+                   else
+                       raise ERuntimeException.Create('Internal Error: checkingForExistingData (array)');
                    end;
        symUserFunc:begin
                    if self[index].fValue <> nil then
@@ -876,6 +927,28 @@ begin
      self[index].lValue := lValue;
   self[index].lValue.blockType := btBound;
   self[index].symbolType := symList;
+end;
+
+
+// Assign a list object to a symbol
+procedure TLocalSymbolTable.storeToSymbolTable (index : integer; aValue : TArrayObject);
+begin
+  if self[index] = nil then
+     raise Exception.Create('Symbol: ' + inttostr (index) + ' does not exist');
+
+ if self[index].locked then
+     raise ERuntimeException.Create ('Value is locked, you cannot change it');
+
+  checkForExistingData (index);
+
+  if  (aValue.blockType = btConstant) or
+      (aValue.blockType = btBound) or
+      (aValue.blockType = btOwned) then
+         self[index].aValue := aValue.clone
+  else
+     self[index].aValue := aValue;
+  self[index].lValue.blockType := btBound;
+  self[index].symbolType := symArray;
 end;
 
 

@@ -15,7 +15,8 @@ interface
 
 Uses System.SysUtils, System.Diagnostics, System.TimeSpan, uUtils,
   uMachineStack, System.generics.Collections, uListObject, uStringObject,
-  uSymbolTable, uConstantTable, uProgramCode, uMemoryManager, uObjectSupport;
+  uArrayObject, uSymbolTable, uConstantTable, uProgramCode, uMemoryManager,
+  uObjectSupport;
 
 const
   MAX_STACK_SIZE = 40000; // Maximum depth of operand stack
@@ -62,6 +63,7 @@ type
 
     symbolTable : TSymbolTable;
     VMStateStack : TStack<TVMState>;
+    subscriptStack : TStack<integer>;
 
     frameStackTop: integer;
     frameStack: TFrameStack;
@@ -112,19 +114,24 @@ type
 
     procedure loadLocalSymbol(index: integer);
 
-    procedure storeIndexable;
+    procedure storeIndexable (nSubscripts : integer);
     procedure storeIndexableString(variable: PMachineStackRecord;  index: integer);
     procedure storeIndexableList(variable: PMachineStackRecord; index: integer);
+    procedure storeIndexableArray(variable: PMachineStackRecord; index: integer; nSubscripts : integer);
+
     procedure storeLocalIndexable;
     procedure storeLocalIndexableString(st: PMachineStackRecord; index: integer);
     procedure storeLocalIndexableList(st: PMachineStackRecord; index: integer);
 
-    procedure loadIndexable;
+    procedure loadIndexable (nSubscripts : integer);
     procedure loadIndexableList(variable: PMachineStackRecord; index: integer);
     procedure loadIndexableString(st: PMachineStackRecord; index: integer);
+    procedure loadIndexableArray(st: PMachineStackRecord; index: integer; nSubscripts : integer);
+
     procedure loadLocalIndexable;
-    procedure loadLocalIndexableList(aList: TListObject; index: integer);
-    procedure loadLocalIndexableString(astr: TStringObject; index: integer);
+    procedure loadLocalIndexableList (aList: TListObject; index: integer);
+    procedure loadLocalIndexableString (astr: TStringObject; index: integer);
+    procedure loadLocalIndexableArray (arr: TArrayObject; index: integer);
 
     procedure copyToStack (stackElement: PMachineStackRecord; index : integer; frame : PFrame);
     procedure clearAnyStackHeapAllocations;
@@ -167,6 +174,7 @@ type
     procedure   push(dValue: double); overload; inline;
     procedure   push(sValue: TStringObject); overload; inline;
     procedure   push(lValue: TListObject); overload; inline;
+    procedure   push(aValue: TArrayObject); overload; inline;
     procedure   push(fValue: TUserFunction); overload; inline;
     procedure   push(oValue : TMethodDetails); overload;
     procedure   pushModule (module : TModule);
@@ -183,6 +191,7 @@ type
     function    popInteger: integer; inline;
     function    popBoolean: boolean;
     function    popScalar: double;
+    function    popArray : TArrayObject;
     function    popString : TStringObject;
     function    popList : TListObject;
     function    popModule: TModule;
@@ -218,6 +227,7 @@ begin
   createStack(MAX_STACK_SIZE);
   createFrameStack(MAX_FRAME_DEPTH);
   VMStateStack := TStack<TVMState>.Create;
+  subscriptStack := TStack<integer>.Create;
 
   callbackPtr := nil;
   printCallbackPtr := nil;
@@ -232,6 +242,7 @@ begin
   freeStack;
   freeFrameStack;
   VMStateStack.Free;
+  subscriptStack.Free;
   inherited;
 end;
 
@@ -394,6 +405,7 @@ begin
      stBoolean : push(TStringObject.Create('boolean'));
      stString  : push(TStringObject.Create('string'));
      stList    : push(TStringObject.Create('list'));
+     stArray   : push(TStringObject.Create('array'));
      stModule  : push(TStringObject.Create (st.module.helpStr));
 
      stFunction :
@@ -471,6 +483,7 @@ begin
     stDouble: stack[stackTop].dValue := entry.dValue;
     stString: stack[stackTop].sValue := entry.sValue;
     stList: stack[stackTop].lValue := entry.lValue;
+    stArray: stack[stackTop].aValue := entry.aValue;
   else
     raise ERuntimeException.Create('Unknown type in dup method');
   end;
@@ -518,6 +531,22 @@ begin
     raise ERuntimeException.Create ('Stack underflow error in popBoolean');
 end;
 
+
+function TVM.popArray : TArrayObject;
+var
+  p: PMachineStackRecord;
+begin
+  if stackTop > -1 then
+     begin
+     p := @stack[stackTop];
+     dec(stackTop);
+     if p.stackType <> stArray then
+        raise ERuntimeException.Create ('Expecting array type');
+     result := p.aValue;
+     end
+  else
+     raise ERuntimeException.Create ('Stack underflow error in popString');
+ end;
 
 
 function TVM.popString : TStringObject;
@@ -624,6 +653,7 @@ begin
     stDouble: stack[stackTop].dValue := value.dValue;
     stString: stack[stackTop].sValue := value.sValue;
     stList: stack[stackTop].lValue := value.lValue;
+    stArray: stack[stackTop].aValue := value.aValue;
     stFunction : stack[stackTop].fValue := value.fValue;
   else
     raise ERuntimeException.Create('Unknown type in push method');
@@ -684,6 +714,17 @@ begin
 {$ENDIF}
   stack[stackTop].lValue := lValue;
   stack[stackTop].stackType := TStackType.stList;
+end;
+
+
+procedure TVM.push (aValue: TArrayObject);
+begin
+  inc(stackTop);
+  {$IFDEF STACKCHECK}
+  checkStackOverflow;
+{$ENDIF}
+  stack[stackTop].aValue := aValue;
+  stack[stackTop].stackType := TStackType.stArray;
 end;
 
 
@@ -812,7 +853,14 @@ begin
           push(aList);
           end;      else
         error('adding', st2, st1);
-      end
+      end;
+
+    stArray:
+      case st1.stackType of
+        stArray: push(TArrayObject.add(st2.aValue, st1.aValue));
+      else
+        error('adding', st2, st1);
+      end;
   else
     raise ERuntimeException.Create ('Internal Error: Unsupported datatype in add');
   end
@@ -843,7 +891,13 @@ begin
       else
        raise ERuntimeException.Create(stToStr(st2.stackType) + ' and ' +
                 stToStr(st1.stackType) + ' cannot be used with the subtraction operation');
-      end
+      end;
+    stArray:
+      case st1.stackType of
+        stArray: push(TArrayObject.sub(st2.aValue, st1.aValue));
+      else
+        error('subracting', st2, st1);
+      end;
   else
     raise ERuntimeException.Create ('Only integers and floats can be subtracted from each other');
   end;
@@ -1127,10 +1181,11 @@ begin
     stBoolean:  module.symbolTable.storeBoolean (symbol, value.bValue);
     stString:   module.symbolTable.storeString (symbol, value.sValue);
     stList:     module.symbolTable.storeList   (symbol, value.lValue);
+    stArray:    module.symbolTable.storeArray   (symbol, value.aValue);
     stFunction: module.symbolTable.storeFunction (symbol, value.fValue);
+
     stModule:   begin
                 raise ERuntimeException.Create('You cannot store modules: ' + value.module.name);
-                //module.symbolTable.storeModule (symbol, value.module);
                 end;
     stObjectMethod:
        raise ERuntimeException.Create('You cannot store object methods: ' + value.oValue.name);
@@ -1154,6 +1209,7 @@ begin
     symBoolean:   push(symbol.bValue);
     symString:    push(symbol.sValue);
     symList:      push(symbol.lValue);
+    symArray:     push(symbol.aValue);
     symUserFunc:  begin
                   symbol.fValue.moduleRef := module;
                   push(symbol.fValue);
@@ -1174,6 +1230,7 @@ procedure TVM.loadAttr (symbolName : string);
 var m : TModule;
     l : TListObject;
     s : TStringObject;
+    a : TArrayObject;
     symbol : TSymbol;
     primary : PMachineStackRecord;
     f : TMethodDetails;
@@ -1207,8 +1264,21 @@ begin
                  raise ERuntimeException.Create('No method <' + symbolName + '> associated with object');
               exit;
               end;
+     stArray : begin
+              a := primary.aValue;
+              // Is symbol name a function name?
+              f := a.arrayMethods.methodList.find (symbolName);
+              if f <> nil then
+                 begin
+                 push (primary);
+                 push (f);
+                 end
+              else
+                 raise ERuntimeException.Create('No method <' + symbolName + '> associated with object');
+              exit;
+              end;
   else
-     raise ERuntimeException.Create('Primary objects can only be modules, strings or lists');
+     raise ERuntimeException.Create('Primary objects can only be modules, strings, arraysaor lists');
   end;
 
   if not m.symbolTable.find (symbolName, symbol) then
@@ -1221,6 +1291,7 @@ begin
     symBoolean:   push(symbol.bValue);
     symString:    push(symbol.sValue);
     symList:      push(symbol.lValue);
+    symArray:     push(symbol.aValue);
     symUserFunc:  begin
                   symbol.fValue.moduleRef := m;
                   push(symbol.fValue);
@@ -1253,6 +1324,7 @@ begin
     stBoolean:  begin symbol.symbolType := symBoolean; symbol.bValue := value.bValue; end;
     stString:   m.symbolTable.storeString (symbol, value.sValue);
     stList:     m.symbolTable.storeList   (symbol, value.lValue);
+    stArray:    m.symbolTable.storeArray   (symbol, value.aValue);
     stFunction: m.symbolTable.storeFunction (symbol, value.fValue);
     stModule:   m.symbolTable.storeModule (symbol, value.module);
   else
@@ -1292,6 +1364,11 @@ begin
         begin
         stack[stackTop].stackType := stList;
         stack[stackTop].lValue := stackElement.lValue;
+        end;
+    stArray:
+        begin
+        stack[stackTop].stackType := stArray;
+        stack[stackTop].aValue := stackElement.aValue;
         end;
     stFunction:
         begin
@@ -1337,6 +1414,9 @@ begin
   if (stack[bsp + index].stackType = stList) and (stack[bsp + index].lValue <> nil) then
       stack[bsp + index].lValue.blockType := btGarbage; // Mark as garbage
 
+  if (stack[bsp + index].stackType = stArray) and (stack[bsp + index].aValue <> nil) then
+      stack[bsp + index].aValue.blockType := btGarbage; // Mark as garbage
+
   case value.stackType of
     stInteger:
       begin
@@ -1364,6 +1444,12 @@ begin
       stack[bsp + index].lValue := value.lValue.clone;
       stack[bsp + index].lValue.blockType := btBound;
       stack[bsp + index].stackType := stList;
+      end;
+    stArray:
+      begin
+      stack[bsp + index].aValue := value.aValue.clone;
+      stack[bsp + index].aValue.blockType := btBound;
+      stack[bsp + index].stackType := stArray;
       end;
     stNone:
       raise ERuntimeException.Create ('No value to assign in function');
@@ -1612,12 +1698,15 @@ begin
   functionObject := p.fValue;
   tArgs := functionObject.nArgs;
 
-  if nArgs <> tArgs then
-     raise ERuntimeException.Create('Expecting ' + inttostr (functionObject.nArgs) + ' arguments in function call but received ' + inttostr (nArgs) + ' arguments');
+  if tArgs <> -1 then
+     if nArgs <> tArgs then
+        raise ERuntimeException.Create('Expecting ' + inttostr (functionObject.nArgs) + ' arguments in function call but received ' + inttostr (nArgs) + ' arguments');
 
   // Support for special builtins, eg Math
   if functionObject.isBuiltInFunction then
      begin
+     if tArgs = -1 then
+         push(nArgs);
      functionObject.builtInPtr(self);
      // At this point the stack is:
      //   functionObject
@@ -1728,6 +1817,12 @@ begin
         result.list[i].lValue.blockType := btOwned;
         result.list[i].itemType := liList;
         end;
+      stArray:
+        begin
+        result.list[i].aValue := p.aValue.clone;
+        result.list[i].aValue.blockType := btOwned;
+        result.list[i].itemType := liArray;
+        end;
       stFunction :
         begin
         result.list[i].fValue := p.fValue.clone;
@@ -1760,6 +1855,34 @@ begin
     raise ERuntimeException.Create ('can only assign a single string character to an indexed string');
 
   variable.sValue.value[index + 1] := value.sValue.value[1];
+end;
+
+
+procedure TVM.storeIndexableArray(variable: PMachineStackRecord; index: integer; nSubscripts : integer);
+var value: double;
+begin
+  value := popScalar;
+
+  //if (index < 0) or (index > length(variable.sValue.value) - 1) then
+  //  raise ERuntimeException.Create('string index out of range');
+
+  if variable.stackType <> stArray then
+    raise ERuntimeException.Create('left-hand side must be a array');
+
+  if subscriptStack.Count + 1 < nSubscripts then
+     begin
+     subscriptStack.Push(index);
+     push (variable);
+     end
+  else
+     begin
+     if nSubscripts = 1 then
+         variable.aValue.setValue2D(0, index, value);
+
+     if nSubscripts = 2 then
+        variable.aValue.setValue2D(subscriptStack.Pop(), index, value);
+     subscriptStack.Clear;
+     end;
 end;
 
 
@@ -1924,20 +2047,21 @@ end;
 // index to symbol table containing indexable object
 // the item we wish to store in the indexable object
 // called by svecIdx
-procedure TVM.storeIndexable;
+procedure TVM.storeIndexable (nSubscripts : integer);
 var
   index : integer;
   symbol : PMachineStackRecord;
 begin
   index := popInteger;
   symbol := pop;   // Comes from push symbol
-  if symbol.stackType = stList then
-    storeIndexableList(symbol, index)
-  else
-  if symbol.stackType = stString then
-    storeIndexableString(symbol, index)
+  case symbol.stackType of
+     stList   : storeIndexableList(symbol, index);
+     stString : storeIndexableString(symbol, index);
+     stArray  : storeIndexableArray(symbol, index, nSubscripts);
   else
     raise Exception.Create(stToStr(symbol.stackType) + ' variable is not indexable');
+  end;
+
 end;
 
 
@@ -1947,9 +2071,32 @@ end;
 
 procedure TVM.loadIndexableString(st: PMachineStackRecord; index: integer);
 begin
-  if (index < 0) or (index > length(st.sValue.value) - 1) then
+  if (index < 0) or (index > length(st.sValue .value) - 1) then
     raise ERuntimeException.Create('string index out of range');
   push(TStringObject.Create(st.sValue.value[index + 1]));
+end;
+
+
+procedure TVM.loadIndexableArray(st: PMachineStackRecord; index: integer; nSubscripts : integer);
+begin
+  // For an n dimensional array we will collect the subscripts.
+  if subscriptStack.Count + 1 < nSubscripts then
+     begin
+     subscriptStack.Push(index);
+     push (st);
+     end
+  else
+     begin
+     if nSubscripts = 1 then
+        begin
+        push (st.aValue.getValue2D(0, index));
+        end;
+     if nSubscripts = 2 then
+        push (st.aValue.getValue2D(subscriptStack.Pop(), index));
+     subscriptStack.Clear;
+     end;
+  //if (index < 0) or (index > length(st.sValue.value) - 1) then
+  //  raise ERuntimeException.Create('string index out of range');
 end;
 
 
@@ -1978,7 +2125,7 @@ end;
 // Reference to variable to be accessed
 // Index into indexable object
 // Called by oLvecIdx
-procedure TVM.loadIndexable;
+procedure TVM.loadIndexable (nSubscripts : integer);
 var
   index: integer;
   variable: PMachineStackRecord;
@@ -1986,10 +2133,11 @@ begin
   index := trunc (popScalar);
   variable := pop;
   case variable.stackType of
-    stList: loadIndexableList(variable, index);
+    stList  : loadIndexableList(variable, index);
     stString: loadIndexableString(variable, index);
+    stArray : loadIndexableArray (variable, index, nSubscripts);
   else
-    raise ERuntimeException.Create(stToStr(variable.stackType) +  'variable is not indexable');
+    raise ERuntimeException.Create(stToStr(variable.stackType) +  ' variable is not indexable');
   end;
 end;
 
@@ -2022,6 +2170,15 @@ begin
   if (index < 0) or (index >= length(astr.value) - 1) then
     raise ERuntimeException.Create('string index out of range');
   push(TStringObject.Create(astr.value[index + 1]));
+end;
+
+
+procedure TVM.loadLocalIndexableArray(arr: TArrayObject; index: integer);
+begin
+  raise ERuntimeException.Create('loadLocalIndexableArray not implemented');
+  //if (index < 0) or (index >= length(arr.data) - 1) then
+  //  raise ERuntimeException.Create('string index out of range');
+  //push(TArrayObject.Create(arr.data[index]));
 end;
 
 
@@ -2247,7 +2404,6 @@ begin
                         end;
            oLoadLocal:  loadLocalSymbol(c[ip].index1);
 
-
         oImportModule: importModule (c[ip].moduleName);
 
           // Method call opcodes
@@ -2273,8 +2429,8 @@ begin
 
             // list handling opcodes
             oCreateList:   push(createList(c[ip].index1));
-            oLvecIdx:      loadIndexable;
-            oSvecIdx:      storeIndexable;
+            oLvecIdx:      loadIndexable (c[ip].index1);
+            oSvecIdx:      storeIndexable (c[ip].index1);
 
             oLocalLvecIdx: loadLocalIndexable;
             oLocalSvecIdx: storeLocalIndexable;

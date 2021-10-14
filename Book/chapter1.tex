@@ -1,0 +1,565 @@
+{\bfseries\sffamily\huge\color{ChapterTitleColor} \chapter{Introduction to Version III}} \label{chap:interpreters }
+
+\section{Introduction}
+
+Welcome to Part 3 of the book series on writing an interpreter using Object Pascal. In Part 1 we looked at how to tokenize source code into tokens, how to parse those tokens for syntactical structure, and how to build a simple evaluator of infix expressions. Along the way, we introduced unit testing via DUnitX, and we covered some of the essential concepts in parser theory.
+
+In Part 2, we developed a virtual machine and emitted code from the parsed Rhodus scripts. We also talked a lot about memory management. At the end of Part 2 we had a serviceable interpreter that supported strings, lists and user functions.
+
+What are we going to do in Part 3? Part 3 will focus on some major internal changes especially how we emit bytecode, how we can support external and builtin modules, and improve error handling at the parsing stage. We will also extend the language to support arrays, that is homogenous arrays of data and finally produce an embeddable version. For strings, lists, and arrays we also have a basic object model so that strings, lists, and arrays are genuine objects in the sense they have data and associated methods. To give you a flavour of the outward changes here are some examples of scripts in Version 3 that illustrates some of the new features:
+
+\begin{lstlisting}
+import math
+
+x = math.sin (1.2)
+
+a = "abcdefg"
+length = a.len()
+
+a = array ([[1,2],[3,4]])
+nRows = a.len (0)
+\end{lstlisting}
+
+A significant change in the syntax has also been made in verison 3. After much deliberation I decided to use from now own square brackets to define lists, for example:
+
+\begin{lstlisting}
+alist = [[1,2],[3,4]]
+\end{lstlisting}
+
+I did this because I realized that arrays didn't need their own literal syntax and I could reuse the list syntax. I that point I thought it better to use the Python syntax for lists which uses square brackets. The original intent was that arrays would look like MATLAB arrays which does use square brackets but I realized that this is an awkward syntax for specifying multidimensional arrays.
+
+\section{Components of an Interpreter}
+
+Let us remind ourselves again what the various components are that make up an interpreter. At the most basic level, an interpreter will read a script of instructions and execute them. There are various ways this can be accomplished; for example, the interpreter can go line by line executing the instruction on each line. Early versions of BASIC used this technique. The disadvantage is that in a loop, one will be continually and repeatedly decoding the instructions as there is no record of what instructions were interpreted in the past. The advantage is that such interpreters are relatively easy to write. More advanced interpreters, also developed early on in the history of software, convert a programming language into lower level code that was more easily executed. The advantage is that the original source code only needs to be decoded once; after that, the application executes the simpler code. The simpler code is often called intermediate code or virtual machine code. The application that executes the intermediate code is called the {\bf virtual machine}. The conversion of the high-level source code into intermediate code is called compilation. Figure~\ref{fig:simpleInterpreter2} shows a high-level view of these stages.
+
+\begin{figure}[htpb]
+\centering
+\includegraphics[scale=0.45]{StagesOfInterpreter1.pdf}
+\caption{Simplified flow from source code to output in version 2 of the Rhodus interpreter.}
+\label{fig:simpleInterpreter1}
+\end{figure}
+
+In version 3 we are going to expand this picture and insert another stage between syntax analysis and code generation. The so-called abstract syntax tree, Figure~\ref{fig:simpleInterpreter2}, or AST. This division means that the first parsing stage only deals with syntax, not necessarily meaning. For example one might type {\tt a = b}, this is syntactically correct but we don't know whether {\tt b} has been declared previously or not. Such questions are considered by the second stage when we build the AST.
+
+\begin{figure}[htpb]
+\centering
+\includegraphics[scale=0.45]{StagesOfInterpreter2.pdf}
+\caption{Simplified flow from source code to output in version 3 of the Rhodus interpreter incorporating the abstract syntax tree stage.}
+\label{fig:simpleInterpreter2}
+\end{figure}
+
+\section{Language Changes}
+
+There are quite a few  visible changes that the user will see in version 3. These include support for modules, making user functions first class objects and support for arrays.
+
+\subsection{Modules}
+
+Any self-respecting computer language needs to be able to reuse existing code. For example no one should attempt to write their own sine or cosine functions, or string routines to search and manipulate strings. Such routine activities are generally provided in the form of external libraries that a programmer can use.
+
+Many languages use a special keyword, {\tt import}, to specify an external library. For example in Python, to use the math library we would use:
+
+\begin{lstlisting}
+import math
+\end{lstlisting}
+
+In Object Pascal we would use the {\tt Uses} keyword, for example:
+
+\begin{lstlisting}
+uses math;
+\end{lstlisting}
+
+In Rhodus we will use the more commonly used {\tt import} syntax. For example, let's say we create a really simple statistics module:
+
+\begin{lstlisting}
+// Stats module
+version = 1.0
+
+// Compute the means of a list of numbers
+function mean (values)
+  sum = values.sum ()
+  return sum/values.len ()
+end
+\end{lstlisting}
+
+We will save this script to a file called {\tt stats.rh}. We would then use this module as follows:
+
+\begin{lstlisting}
+import stats
+
+println ("Version number = ", stats.version)
+
+values = [1,4,5,6,2,4,5,8,9]
+answer = stats.mean (values)
+println ("The mean is: ", answer)
+\end{lstlisting}
+
+The first thing to note is the dot notation for accessing items inside the module. This is a very common syntax used by many programming languages. We show two situations, accessing a variable called {\tt version} and calling a user function called {\tt mean}. Note that like any variable we can also assign a new value to {\tt version}, that is:
+
+\begin{lstlisting}
+stats.version = 2.0
+\end{lstlisting}
+
+At some point in the future we will allow users to define constants which can't be changed rather than use variables for important information.
+
+This is the basic syntax and user experience for using modules. Rhodus 3 includes a series of builtin modules; two of these, strings and lists are loaded at startup. The others have to be imported using {\tt import}. As an example, to find the square root of a value first import the math module, for example:
+
+\begin{lstlisting}
+import math
+x = math.sqrt (25)
+\end{lstlisting}
+
+In version 3, Rhodus also looks for a startup file ({\tt startup.rh}) in a directory called {\tt Modules}. import statements can be put into this file if one would like certain modules to be always available in the main start up module.
+
+With version 3, nine modules provided. The currently loaded modules can be listed by using the {\tt modules{}} method:
+
+\begin{lstlisting}
+>> modules()
+{"time","os","file","strings","lists","math","random","config","arrays"}
+\end{lstlisting}
+
+All modules whether built-in or user defined also get a free method called {\tt dir()}. This method will return a list of all variables and methods accessible in the module. For example, to find out what methods and variables are available in the {\tt math} library we can call:
+
+\begin{lstlisting}
+println (math.dir())
+\end{lstlisting}
+
+This will output the list:
+
+\begin{lstlisting}
+{"min","e","cos","dir","toRadians","tan","round","exp","toDegrees","abs","ceil",
+"atan","sin","log","max","pi","ln","asin","sqrt","acos","floor"}
+\end{lstlisting}
+
+When the Rhodus engine starts up, the creates a module called {\tt _main_}. This is what you interact with at the Rhodus console. Any new symbols you create, such as {\tt a = 5}, will be stored in {\tt _main_}.  A method called {\tt main()} can be used to return a reference to the main module. If you type {\tt main()} you'll get:
+
+\begin{lstlisting}
+main()
+Module: _main_
+\end{lstlisting}
+
+Like any other module you can see what's inside {\tt _main_} by using {\tt dir()}, for example:
+
+\begin{lstlisting}
+>> main().dir()
+{"dir","main","readString","dis","asc","stackInfo","strings","getAttr","os",
+"readNumber", "modules","int","assertTrueEx","symbols","mem",
+"assertFalseEx","chr","type","lists"}
+\end{lstlisting}
+
+What it lists in this case are the modules currently accessible from {\tt _main_} which is the same list when we just typed {\tt dir()} on its own. In fact to access anything from {\tt _main_} you don't have to qualify the name with {\tt _main_}. For example, to access {\tt int} we don't need to type {\tt main().int (4.5)}, just {\tt int(4.5)} will do.
+
+Let's assign a variable and ask for the list again:
+
+\begin{lstlisting}
+>> astring = "This is a string"
+>> main().dir()
+{"time","os",,"dir","file","astring","strings","lists","math","random","sys"}
+\end{lstlisting}
+
+You'll noticed that a new symbol is now in the main module, called {\tt astring}.
+
+To summarise:
+
+\begin{itemize}
+\item {\tt dir()} Every module gets a method {\tt dir()} that lists all the variables and functions in a given module, eg {\tt math.dir()}
+\item All modules get a series of free methods e.g {\tt int (3.4)}.
+\item Modules can be loaded using the {\tt import} statement.
+%\item
+\end{itemize}
+
+We will describe the build-in modules in more detail in a later chapter. Before we leave modules there are a couple of issues that needed to considered. For example where does Rhodus look for modules when it imports them? What happens if a module is imported twice?
+
+The first question, where to look, is easy. We'll use a similar mechanism to Python and have a list containing paths where Rhodus should look. We'll store this path in the built-in module {\tt sys}. Since the path is a list we can add additional locations where Rhodus should look if we need to. Note that the path variable is locked meaning you can't change its value by assignment. To change the path you must use the append method that is part of the list object. For example to use {\tt append} to add to the search path we would use:
+
+\begin{lstlisting}
+println (os.path)
+os.path.append ("c:\\myscripts")
+\end{lstlisting}
+
+At startup, two paths are included, the current working directory and a path to the Modules directory.
+
+The second issue is what happens if you import a module twice? The simple answer is nothing. You you attempt to import a module with a name that is already present in the list of loaded modules, Rhodus will ignore the attempted import. This restriction may change in the future but for now, that's what happens.
+
+Finally a brief commend on help. To get help at the console on any symbol in Rhodus, put a question mark in front of the symbol, for example:
+
+\begin{lstlisting}
+?math.min
+Returns the minimum of two numbers: math.min (3, 5)
+\end{lstlisting}
+
+Programmatically you call also get help using the help command. The help command is one of a set of special functions that are always accessible without any module qualifier. Such method are inserted into a module whenever that module is created. The list of such methods can be found using {\tt dir()}. For example:
+
+\begin{lstlisting}
+dir()
+{"dir","main","readString","dis","asc","stackInfo","strings","getAttr","os",
+"readNumber","modules","int","assertTrueEx","symbols","mem",
+"assertFalseEx","chr","type","lists"}
+\end{lstlisting}
+
+You may notice in the list a symbol called {\tt main}. This is method mention previously that returns the module you get when you start a Rhodus session.
+
+
+\subsection{User Functions}
+
+The other change to version 3 is that user functions or built-in functions are now first class objects. What this means is that the name of a function can be treated like any other variable. For example you can type:
+
+
+\begin{lstlisting}
+x = math.sin
+\end{lstlisting}
+
+Note that function brackets are not included. What this does is create a new copy of {\tt math.sin} and assign it to the variable {\tt x}. Yes you heard right, it makes a copy. This is due to the way garbage collection is handled in the current versions of Rhodus. Other languages, such as Python, use reference counting. Instead of a copy of a function being made, a reference to the function is assigned to a variable. We'll have more to say about his in a later chapter. From the user point of view, this shouldn't be of concern. However, you might not want to do something like:
+
+\begin{lstlisting}
+x = {}
+for i = 0 to 1000000 do
+    x.append (math.sin)
+end
+\end{lstlisting}
+
+because that will use up memory.
+
+When we copy the function into another variable we can still call the copied function. We can also pass functions as arguments to other functions. For example:
+
+\begin{lstlisting}
+func = stats.mean
+answer  func (values)
+
+function fcn (method, values)
+  result = method(values)
+end
+
+answer = fcn (stats.mean, values)
+\end{lstlisting}
+
+\begin{lstlisting}
+function callme()
+    return "I was called"
+end
+
+x = callme
+y = x()
+println (y)
+\end{lstlisting}
+
+Here is another example:
+
+\begin{lstlisting}
+function square(x)
+    return x*x
+end
+
+function cube(x)
+    return x*x*x
+end
+
+function compute (fcn, x)
+    return fcn (x)
+end
+
+println (compute (square, 4))
+println (compute (cube, 4))
+\end{lstlisting}
+
+\subsection{Homogeneous Arrays}
+
+The other big change to version 3 is the introduction of arrays, that is structures that can hold homogeneous data. Arrays are used when we need faster access, often for applications that do numerical work where we're dealing with blocks of data.  I went through a number of iterations on the handling arrays and decided in the end to follow the example the numpy package that Python uses. Rather than coming up with an entirely new syntax from describing literal arrays, we repurpose the list syntax. To do this a new global level method is available called {\tt array()}. The {\tt array} method also features a new idea which is a variable number of arguments. The {\tt array} can be used to do two different things. On the one hand it can be used to define an array of a given size, for example:
+
+\begin{lstlisting}
+m = array (3,4)
+\end{lstlisting}
+
+The variable {\tt m} will hold a 3 by 4 empty array and by default, entries are set to zero. {\tt array} can also accept a list which the {\tt array} method will convert into an array, for example
+
+\begin{lstlisting}
+a = array ([[1,2,3], [4,5,6], [7,8,9]])
+\end{lstlisting}
+
+The above array yields a 3 by 3 array. Note, as mentioned before, in version 3, I decided to use square brackets for lists rather than curely brackets. I did this because I realized that arrays didn't need their own literal syntax and I could reuse the list syntax. At that point I thought it better to use the Python syntax for lists which uses square brackets. The original intent was that arrays would look like MATLAB arrays which does use square brackets but I realized that this is an awkward syntax for specifying multidimensional arrays beyond 2D. With the release of curely brackets I can now use those for specifying maps.
+
+Like lists and strings, arrays are also treated as objects so that one can do the following:
+
+\begin{lstlisting}
+>>println (a.shape())
+[3,3]
+\end{lstlisting}
+
+You can also get the individual dimensions using {\tt len} where the argument of {\tt len} is the nth dimension you are interested in:
+
+\begin{lstlisting}
+>>println (a.len(0))
+3
+\end{lstlisting}
+
+or
+
+\begin{lstlisting}
+>>println (a.sqr())
+\end{lstlisting}
+
+This squares each element in the array {\tt a}. $N$ dimensional arrays can be created using the {\tt array} method:
+
+\begin{lstlisting}
+>>a = array (2,3,4)
+\end{lstlisting}
+
+This yields a 2 by 3 by 4 array, or 24 elements in total. By default, arrays hold double values but if you need an array of integers you can use:
+
+\begin{lstlisting}
+>>a = intArray (2,3)
+\end{lstlisting}
+
+Indexing arrays is the same way you index lists. Note that indexing in arrays starts at zero, for example:
+
+\begin{lstlisting}
+x = a[1,2]
+\end{lstlisting}
+
+Here is an example of iterating through each element in an array, {\tt a}:
+
+\begin{lstlisting}
+a = array([[1,2,3,[4,5,6],[6,7,8]])
+for i = 0 to a.len(0) - 1 do
+    for j = 0 to a.len(1) - 1 do
+        print (a[i,j], " ")
+    end
+    println ()
+end
+\end{lstlisting}
+
+Certain arithmetic operations are also possible with arrays, for example:
+
+\begin{lstlisting}
+>>a = array([[1,2],[3,4]])
+>>println (10 + a)
+[11,12;13,14]
+\end{lstlisting}
+
+or
+
+\begin{lstlisting}
+>>a = array([1,2;3,4])
+>>b = array([[5,6],[7,8]])
+>>println (a + b)
+[6,8;10,12]
+\end{lstlisting}
+
+In the above case, it should be clear that the dimensions of the two arrays must match in order for the sum to be computed.
+
+\section{Error Handling}
+
+Another thing users should see in Rhodus 3 are better error messages during compilation. For example the following fragment now issues a more informative error message:
+
+\begin{lstlisting}
+>>for i = 0 to 10 do println (i)
+ERROR [line 1, column: 30] expecting key word: <end>
+\end{lstlisting}
+
+or this one:
+
+\begin{lstlisting}
+>>for i = 0
+ERROR [line 1, column: 10] expecting "to" or "downto" in for loop
+\end{lstlisting}
+
+or this one:
+
+\begin{lstlisting}
+>>x+
+ERROR [line 1, column: 2] expecting a literal value, an identifier or
+ an opening '('. Instead I found "+"
+\end{lstlisting}
+
+\section{Grammar Specification for Version 3}
+
+There have been some small but critical changes to the language grammar since Version 2. The changes revolve around the primary production rules. Below is the specification for Rhodus 3:
+
+{\footnotesize
+\begin{verbatim}
+mainProgram          = statementList [ ';' ] endOfStream
+statementList        = statement { [ ';' ] statement }
+
+statement            = assignment | forStatement | ifStatement
+                     | whileStatement | repeatStatement
+                     | returnStatment | breakStatement
+                     | switchStatement | importStatement
+                     | function | expression | endOfStream
+
+list                 = '{' [ expressionList ] '}'
+expressionList       = expression { ',' expression }
+assignment           = variable '=' expression
+function             = FUNCTION identifier '(' [ argumentList ] ')' functionBody
+functionBody         = statementList END
+argumentList         = argument { ',' argument }
+argument             = identifier | REF variable
+returnStatement      = RETURN expression
+breakStatement       = BREAK
+
+relationOpExpression = simpleExpression
+                     | simpleExpression relationalOp simpleExpression
+
+expression           = relationalExpression
+                     | relationalExpression BooleanOp relationalExpression
+
+simpleExpression     = term { addingOp term }
+term                 = power { multiplyOp power }
+power                = { '+' | '-'} primary [ '^' power ]
+
+factor               = '(' expression ')'
+                     | identifier
+                     | integer
+                     | float
+                     | string
+                     | NOT expression
+                     | TRUE
+                     | FALSE
+                     | list
+
+// The follow five rules were derived using left-recursion,
+// see text for details
+
+primary              =  factor primaryPlus
+
+primaryPeriod        = '.' identifier primaryPlus
+primaryFunction      = ( exp ) primaryPlus
+primaryIndex         = [ exp ] primaryPlus
+
+primaryPlus          = primaryPeriod
+                     | primaryFunction
+                     | primaryIndex
+                     | empty
+
+addingOp             = '+' | '-'
+multiplyOp           = '*' | '/' | MOD | DIV
+relationalOp         = '==' | '!=' | '<' | '<=' | '>=' | '>'
+BooleanOp            = OR | AND | XOR
+whileStatement       = WHILE expression DO statementList END
+repeatStatement      = REPEAT statementList UNTIL expression
+forStatement         = FOR identifier = forList DO statementList END
+forList              = value TO value | value DOWNTO value
+ifStatement          = IF expression THEN statementList ifEnd
+ifEnd                = END | ELSE statementList END
+switchStatement      = SWITCH simpleExpression switchList END
+switchList           = { CASE INTEGER ':' statementList } ELSE statementList
+importStatement      = IMPORT fileName
+\end{verbatim} }
+
+
+Everything in square brackets is optional, and the vertical line represents `or'. There have been some important changes to the grammar since Part 2. In Rhodus 3 you can type the following:
+
+\begin{lstlisting}
+a = test.func ("abc")[5](math.pi)
+\end{lstlisting}
+
+In words, this reads, in the module, string or list, {\tt m}, a function called {\tt func} is called with one string argument, this returns a list which we index at position 5 which in turn returns another function which we call with argument {\tt math.pi}. Admittedly contrived but we should be able to deal with such code. Or what about something like:
+
+\begin{lstlisting}
+>>"abc".toUpper().toLower().toUpper().toLower()
+abc
+\end{lstlisting}
+
+A grammar that would satisfy such structures is given by:
+
+%In Part 1 of the series we discussed LL(1) grammars, where LL stands Left-to-right, Leftmost derivation and the number in the brackets indicates the number of lookahead tokens. The really nice thing about LL(1) grammars is they can be parsed %using recursive descent which is what we are building in software.
+
+{\footnotesize
+\begin{verbatim}
+E         = E '.' identifier
+          | E '()'
+          | E '[]'
+          | factor
+factor    = identifier
+          | Number
+\end{verbatim} }
+
+Something similar is used in the Python grammar specification. For example, {\tt a()}, would satisfy {\tt E \textquotesingle()\textquotesingle} where {\tt E} would then be replaced by the {\tt identifier} in {\tt factor}. For a more complicated expression such as: {\tt a.b[]()} we would use the second subrule {\tt E \textquotesingle()\textquotesingle}, then substitute the {\tt E} for {\tt E \textquotesingle[]\textquotesingle}, followed by another substitution of {\tt E} with {\tt E \textquotesingle.\textquotesingle identifier}. Finally the last {\tt E} would be replaced by {\tt factor}. Since we resolved to all terminals {\tt a.b[]()} is a legal sentence.
+
+If you exercise this grammar by doing more examples you'll realize it's quite straight forward even though perhaps initially, it looks a little scary.  The big problem with it is that it's not friendly for our purpose. The grammar shown above is what's called left-recursive (see Part 1). We can see this because the {\tt E} symbol, in three cases, is the first symbol in the production.  For example:
+
+{\footnotesize
+\begin{verbatim}
+E = E 'a'
+\end{verbatim} }
+
+is left-recursive because the first symbol on the right of the equals sign is {\tt E}. If you think about it, if you were to apply this production rule, you'd end up in a recursive loop, continually recognizing {\tt E}. This happens when we only lookahead one symbol. When a grammar is left-recursive we almost always have to lookahead more than one token in order to decide which production to use. However, we only do a single lookahead in Rhodus so that a left-recursive grammar is going to be trouble. Another example that shows the problem with left-recursions is that with multiple alternative options such as:
+
+{\footnotesize
+\begin{verbatim}
+E  = E 'a'
+   | E 'b'
+\end{verbatim} }
+
+it's also impossible to decide which one to pick unless we lookahead further into the token stream which we don't want to do. With out further lookahead, the parser will go into an infinite loop. The solution is to remove the left-recursion. What this essentially does is move the terminals into the front of the production and the offending left-recursive terms towards the end, resulting is a right-recursive rule which can be parsed using a recursive decent parser. The method to do the transformation was described in Part 1 but here I will cheat by using a tool to do it for me. The site~\url{https://cyberzhg.github.io/toolbox/left_rec} has an on-line tool to remove left-recursion. The tool has two panels, in the upper panel you paste your left-recursive grammar, hit the convert button and your new well-behaved grammar will appear in the bottom panel.
+
+I took the following generic left-recursive grammar and entered it into the tool:
+
+{\tt  E = E a | E b | E c | d}
+
+After conversion it looked like:
+
+{\footnotesize
+\begin{verbatim}
+E   = d E'
+E'  = a E'
+    | b E'
+    | c E'
+    | empty
+\end{verbatim} }
+
+Notice how all the terminals, {\tt a, b, c} and {\tt d} have been moved to the front. This grammar can be recognized with a single token look-ahead, that is it's LL(1) friendly which is what we're after. Notice also the empty option, that is {\tt E'} can be {\tt a, b, c} or none of them. {\tt d} has been moved to it's own production and represents factor in the grammar we had previously. If we translate the symbols into more meaningful words we get:
+
+{\footnotesize
+\begin{verbatim}
+factor               = Identifier
+
+primary              =  factor primaryPlus
+
+primaryPlus          = '.' identifier primaryPlus
+                     | '(' exp ')' primaryPlus
+                     | '[' exp ']' primaryPlus
+                     | empty
+\end{verbatim} }
+
+{\tt E'} is now called {\tt primaryPlus}. In the finally grammar the individual options in {\tt primaryPlus} are separated out for convenience into {\tt primaryPeriod}, {\tt primaryIndex} and {\tt primaryFunction}. In the final grammar {\tt factor} we will include all the literals as well as expressions with parentheses and the {\tt not} operator. We will use this grammar addition in Rhodus version 3.
+
+\section{Useful Reading}
+
+\subsection{Introductory Books}
+
+{\bf 1.} Ball, Thorsten. Writing A Compiler In Go. Thorsten Ball, 2018.
+
+{\bf 2.} Kernighan, Brian W.; Pike, Rob (1984). The Unix Programming Environment. Prentice-Hall. ISBN 0-13-937681-X.
+
+{\bf 3.} Nisan, Noam, and Shimon Schocken. The elements of computing systems: building a modern computer from first principles. MIT press, 2005.
+
+{\bf 4.} Parr, Terence. Language implementation patterns: create your own domain-specific and general programming languages. Pragmatic Bookshelf, 2009.
+
+{\bf 5.} Robert Nystrom. Crafting Interpreters, genever benning, 2021. ISBN 978-0-9905829-3-9.
+
+\subsection{More Advanced Books}
+
+{\bf 1.} Jim Smith, Ravi Nair, Virtual Machines: Versatile Platforms for Systems and Processes, Morgan Kauffmann, June 2005
+
+{\bf 2.} Aho, Alfred V., Ravi Sethi, and Jeffrey D. Ullman. Compilers: Principles, Techniques and Tools (also known as The Red Dragon Book), 1986.
+
+\subsection{Source Code}
+
+{\bf 1.} Mak, Ronald. Writing compilers and interpreters: an applied approach/by Ronald Mark. 1991
+
+Note, this is the first edition, 1991. The code is in C, which I found to be understandable. The later editions that use C++ are not as clear. The issue I found is that the object orientated approach that's used tends to obscure the design principles of the interpreter and requires much study to decipher, The C version is much more straightforward.
+
+{\bf 2.} Wren: \url{https://github.com/wren-lang/wren}.\index{wren}
+
+Of the open source interpreters on GitHub, I found this to be the easiest to read. It's written by Bob Nystrom in C, the same person who is writing the web book: Crafting Interpreters \url{https://craftinginterpreters.com/}.
+
+{\bf 3.} Gravity: \index{Gravity} Another open source interpreter worth looking at is Gravity (\url{https://github.com/marcobambini/gravity}). Gravity, like Wren, is also written in C.
+
+{\bf 4.}  If you prefer Go,\index{Go} then the source code to look at is the interpreter written by Thorsten Ball (see book reference above).
+
+There are umpteen BASIC interpreters\index{BASIC} and other languages that can be studied.
+
+\bigskip\medskip
+
+\begin{center}
+\pgfornament[width = 8cm, color = cardinal]{83}
+\end{center} 

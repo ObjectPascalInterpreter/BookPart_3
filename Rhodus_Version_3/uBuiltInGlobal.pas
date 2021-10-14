@@ -323,7 +323,6 @@ begin
   astr := addLevel (alist);
 
   determineDimensions (astr, dims);
-  writeln;
 end;
 
 
@@ -568,6 +567,7 @@ begin
     stBoolean : TVM (vm).push (TStringObject.Create ('bool'));
     stString : TVM (vm).push (TStringObject.Create ('string'));
     stList : TVM (vm).push (TStringObject.Create ('list'));
+    stArray : TVM (vm).push (TStringObject.Create ('array'));
     stFunction : TVM (vm).push (TStringObject.Create ('function'));
     stModule : TVM (vm).push (TStringObject.Create ('module'));
     stNone :  TVM (vm).push (TStringObject.Create ('none'));

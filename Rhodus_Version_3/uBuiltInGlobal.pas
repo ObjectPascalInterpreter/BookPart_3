@@ -67,7 +67,7 @@ type
        elementCount : integer;
        arrayObject : TArrayObject;
        procedure determineDimensions (argument : string; var dims : TIndexArray);
-       function  addLevel (alist : TListObject) : string;
+       function  convertToStr (alist : TListObject) : string;
        procedure getDimensions (alist : TListObject; var dims : TIndexArray);
        function  countValues (alist : TListObject; var count : integer) : integer;
   end;
@@ -288,7 +288,7 @@ begin
 end;
 
 
-function TArrayConstructor.addLevel (alist : TListObject) : string;
+function TArrayConstructor.convertToStr (alist : TListObject) : string;
 var i : integer;
 begin
   result := '[';
@@ -297,7 +297,7 @@ begin
          begin
          if result[length(result)] = ']' then
             result := result + ',';
-         result := result + addLevel (alist.list[i].lValue);
+         result := result + convertToStr (alist.list[i].lValue);
          end
       else
          begin
@@ -313,6 +313,7 @@ begin
          end;
   result := result + ']';
 end;
+
 
 function isRectangular (astr : string) : boolean;
 var i : integer;
@@ -364,7 +365,7 @@ var i : integer;
     astr : string;
 begin
   elementCount := 0;
-  astr := addLevel (alist);
+  astr := convertToStr (alist); // This also collects the data
   if not isRectangular (astr) then
      raise ERuntimeException.Create('An array must be rectangular, the current array is jagged');
 
@@ -372,6 +373,16 @@ begin
 end;
 
 
+// This is a bit hacky but its the best I came up with
+// The strategy is:
+//   Count the number of elements to workout how much memory we need
+//   Get the dimensions of the array
+//      Convert the list to string form eg "[[0,0],[0,0]]", also collect data
+//      The string forms makes it easier to work out the dimensions
+//      and whether its rectangular or not
+//      Check the list if rectangular, if not error
+//      Find the dimensions
+//   Return the array object
 function convertListToArray (alist : TListObject) :TArrayObject;
 var i : integer;
     count : integer;
@@ -385,8 +396,7 @@ begin
      ac.countValues (alist, count);
 
      ac.arrayObject := TArrayObject.Create();
-     setLength (ac.arrayObject.data, count);
-
+     ac.arrayObject.setSize (count);
      // Get the dimensions of the array
      ac.getDimensions(alist, dims);
      ac.arrayObject.dim := copy (dims);

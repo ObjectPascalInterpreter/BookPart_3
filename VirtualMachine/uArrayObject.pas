@@ -45,6 +45,7 @@ type
      function        clonex : TArrayObject;
      function        arrayToString () : string;
      function        getSize() : integer;
+     procedure       setSize (newSize : integer);
      function        getNthDimension (i : integer) : integer;
      property        numDimensions : integer read getNumDimensions;
 
@@ -57,7 +58,6 @@ type
      destructor      Destroy; override;
   end;
 
-  //function convertToArray (ar : TIArray) : TArrayObject;
 
 implementation
 
@@ -125,14 +125,17 @@ end;
 procedure TArrayMethods.getShape (vm : TObject);
 var s : TArrayObject;
     r : TListObject;
+    i : integer;
 begin
    TVM (vm).decStackTop; // Dump the object method
    s := TVM (vm).popArray;
-   r := TListObject.Create(2);
-   r.list[0].itemType := liInteger;
-   r.list[0].iValue := s.dim[0];
-   r.list[1].itemType := liInteger;
-   r.list[1].iValue := s.dim[1];
+
+   r := TListObject.Create(length (s.dim));
+   for i := 0 to length (s.dim) - 1 do
+       begin
+       r.list[i].itemType := liInteger;
+       r.list[i].iValue := s.dim[i];
+       end;
 
    TVM (vm).push(r);
 end;
@@ -259,6 +262,12 @@ begin
 end;
 
 
+procedure TArrayObject.setSize (newSize: Integer);
+begin
+  setLength (data, newSize);
+  self.size := newSize;
+end;
+
 function TArrayObject.arrayToString: string;
 var i, j : integer;
     formatStr : string;
@@ -296,8 +305,9 @@ begin
            result := result + '; ' + sLineBreak;
         end;
      end;
-
-  result := result + ']';
+   if length (dim) > 2 then
+      raise ERuntimeException.Create('Arrays with more than two dimensions cannot yet be displayed');
+   result := result + ']';
 end;
 
 

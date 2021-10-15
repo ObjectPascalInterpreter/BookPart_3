@@ -17,6 +17,7 @@ type
   TArrayMethods = class (TMethodsBase)
      procedure   getLength (vm : TObject);
      procedure   getShape (vm : TObject);
+     procedure   getSqr (vm : TObject);
      constructor Create;
      destructor  Destroy; override;
   end;
@@ -42,10 +43,10 @@ type
      function        getRow (index : integer) : TArrayObject;
      function        getDim : TIndexArray;
      function        clone : TArrayObject;
-     function        clonex : TArrayObject;
      function        arrayToString () : string;
      function        getSize() : integer;
-     procedure       setSize (newSize : integer);
+     function        getNumberOfElements : integer;
+     procedure       setNumberOfElements (newSize : integer);
      function        getNthDimension (i : integer) : integer;
      property        numDimensions : integer read getNumDimensions;
 
@@ -78,7 +79,8 @@ begin
   methodList := TMethodList.Create;
 
   methodList.Add(TMethodDetails.Create ('len',   'get the length of an array: var.len ()', -1, getLength));
-  methodList.Add(TMethodDetails.Create ('shape', 'get the dimensions of the array var.shape ()', 0, getShape));
+  methodList.Add(TMethodDetails.Create ('shape', 'get the dimensions of the array: var.shape ()', 0, getShape));
+  methodList.Add(TMethodDetails.Create ('sqr', 'square each element in the array: var.sqr ()', 0, getSqr));
 
   methodList.Add(TMethodDetails.Create ('dir',     'dir of array object methods', 0, dir));
 end;
@@ -139,6 +141,23 @@ begin
 
    TVM (vm).push(r);
 end;
+
+
+procedure TArrayMethods.getSqr (vm : TObject);
+var i : integer;
+    s1, s2 : TArrayObject;
+    len : integer;
+begin
+   TVM (vm).decStackTop; // Dump the object method
+   s1 := TVM (vm).popArray;
+   s2 := s1.clone;
+
+   len := s1.getNumberOfElements - 1;
+   for i := 0 to len do
+       s2.data[i] := s1.data[i]*s1.data[i];
+    TVM (vm).push (s2);
+end;
+
 
 // ---------------------------------------------------------------------
 function createArrayObject (const dim : TIndexArray) : TArrayObject;
@@ -216,6 +235,9 @@ end;
 function TArrayObject.getRow (index : integer) : TArrayObject;
 var i : integer;
 begin
+  if (index < 0) or (index >= self.dim[1]) then
+     raise ERuntimeException.Create('Index out of range');
+
   result := TArrayObject.Create([1, self.dim[1]]);
   for i := 0 to self.dim[1] - 1 do
       result.setValue2D(0, i, self.getValue2D(index, i));
@@ -247,14 +269,6 @@ begin
 end;
 
 
-function TArrayObject.clonex : TArrayObject;
-begin
-  result := TArrayObject.Create (dim);
-  result.size := self.size;
-  result.data := copy (self.data);
-end;
-
-
 function TArrayObject.getSize() : integer;
 begin
   result := self.InstanceSize;
@@ -262,11 +276,18 @@ begin
 end;
 
 
-procedure TArrayObject.setSize (newSize: Integer);
+procedure TArrayObject.setNumberOfElements (newSize: Integer);
 begin
   setLength (data, newSize);
   self.size := newSize;
 end;
+
+
+function TArrayObject.getNumberOfElements : integer;
+begin
+  result := self.size;
+end;
+
 
 function TArrayObject.arrayToString: string;
 var i, j : integer;

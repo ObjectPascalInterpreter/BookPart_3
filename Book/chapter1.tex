@@ -6,7 +6,7 @@ Welcome to Part 3 of the book series on writing an interpreter using Object Pasc
 
 In Part 2, we developed a virtual machine and emitted code from the parsed Rhodus scripts. We also talked a lot about memory management. At the end of Part 2 we had a serviceable interpreter that supported strings, lists and user functions.
 
-What are we going to do in Part 3? Part 3 will focus on some major internal changes especially how we emit bytecode, how we can support external and builtin modules, and improve error handling at the parsing stage. We will also extend the language to support arrays, that is homogenous arrays of data and finally produce an embeddable version. For strings, lists, and arrays we also have a basic object model so that strings, lists, and arrays are genuine objects in the sense they have data and associated methods. To give you a flavour of the outward changes here are some examples of scripts in Version 3 that illustrates some of the new features:
+What are we going to do in Part 3? Part 3 will focus on some major internal changes especially how we emit bytecode, how we can support external and builtin modules, and improve error handling at the parsing stage. We will also extend the language to support arrays, that is homogenous arrays of data and finally produce an embeddable version. For strings, lists, and arrays we also have a basic object model so that strings, lists, and arrays are genuine objects in the sense they have data and associated methods. To give you a flavour of the outward changes here are some examples of scripts in version 3 that illustrates some of the new features:
 
 \begin{lstlisting}
 import math
@@ -20,13 +20,25 @@ a = array ([[1,2],[3,4]])
 nRows = a.len (0)
 \end{lstlisting}
 
-A significant change in the syntax has also been made in verison 3. After much deliberation I decided to use from now own square brackets to define lists, for example:
+A significant change in the syntax has also been made in verison 3. After much deliberation I decided to use from now on square brackets to define lists, for example:
 
 \begin{lstlisting}
 alist = [[1,2],[3,4]]
 \end{lstlisting}
 
-I did this because I realized that arrays didn't need their own literal syntax and I could reuse the list syntax. I that point I thought it better to use the Python syntax for lists which uses square brackets. The original intent was that arrays would look like MATLAB arrays which does use square brackets but I realized that this is an awkward syntax for specifying multidimensional arrays.
+I did this because I realized that arrays didn't need their own literal syntax and I could reuse the list syntax. At that point I thought it better to use the Python syntax for lists which uses square brackets. The original intent was that arrays would look like MATLAB arrays which does use square brackets but I realized that this is an awkward syntax for specifying multidimensional arrays.
+
+A new global method called {\tt array} can be used to create arrays. e.g {\tt a = array ([1,2,3])} It also means we can do tricks like:
+
+\begin{lstlisting}
+>> a = array ([[0]*3]*3)
+>> println (a)
+>> a
+[   0.0000,     0.0000,     0.0000,
+    0.0000,     0.0000,     0.0000,
+    0.0000,     0.0000,     0.0000]
+\end{lstlisting}
+
 
 \section{Components of an Interpreter}
 
@@ -39,7 +51,7 @@ Let us remind ourselves again what the various components are that make up an in
 \label{fig:simpleInterpreter1}
 \end{figure}
 
-In version 3 we are going to expand this picture and insert another stage between syntax analysis and code generation. The so-called abstract syntax tree, Figure~\ref{fig:simpleInterpreter2}, or AST. This division means that the first parsing stage only deals with syntax, not necessarily meaning. For example one might type {\tt a = b}, this is syntactically correct but we don't know whether {\tt b} has been declared previously or not. Such questions are considered by the second stage when we build the AST.
+In version 3 we are going to expand this picture and insert another stage between syntax analysis and code generation. This is the so-called abstract syntax tree, Figure~\ref{fig:simpleInterpreter2}, or AST. We'll have an entire chapter devoted to this topic. This division means that the first parsing stage only deals with syntax, not necessarily meaning. For example one might type {\tt a = b}, this is syntactically correct but we don't know whether {\tt b} has been declared previously or not. Such questions are considered by the second stage when we build the AST.
 
 \begin{figure}[htpb]
 \centering
@@ -130,7 +142,7 @@ This will output the list:
 "atan","sin","log","max","pi","ln","asin","sqrt","acos","floor"}
 \end{lstlisting}
 
-When the Rhodus engine starts up, the creates a module called {\tt _main_}. This is what you interact with at the Rhodus console. Any new symbols you create, such as {\tt a = 5}, will be stored in {\tt _main_}.  A method called {\tt main()} can be used to return a reference to the main module. If you type {\tt main()} you'll get:
+When the Rhodus engine starts up, it creates a module called {\tt _main_}. This is what you interact with at the Rhodus console. Any new symbols you create, such as {\tt a = 5}, will be stored in {\tt _main_}.  A method called {\tt main()} can be used to return a reference to the main module. If you type {\tt main()} you'll get:
 
 \begin{lstlisting}
 main()
@@ -146,7 +158,7 @@ Like any other module you can see what's inside {\tt _main_} by using {\tt dir()
 "assertFalseEx","chr","type","lists"}
 \end{lstlisting}
 
-What it lists in this case are the modules currently accessible from {\tt _main_} which is the same list when we just typed {\tt dir()} on its own. In fact to access anything from {\tt _main_} you don't have to qualify the name with {\tt _main_}. For example, to access {\tt int} we don't need to type {\tt main().int (4.5)}, just {\tt int(4.5)} will do.
+What it lists in this case are the modules currently accessible from {\tt _main_} which is the same list when we just typed {\tt dir()} on its own. In fact, to access anything from {\tt _main_} you don't have to qualify the name with {\tt _main_}. For example, to access {\tt int} we don't need to type {\tt main().int (4.5)}, just {\tt int(4.5)} will do.
 
 Let's assign a variable and ask for the list again:
 
@@ -180,23 +192,19 @@ At startup, two paths are included, the current working directory and a path to 
 
 The second issue is what happens if you import a module twice? The simple answer is nothing. You you attempt to import a module with a name that is already present in the list of loaded modules, Rhodus will ignore the attempted import. This restriction may change in the future but for now, that's what happens.
 
-Finally a brief commend on help. To get help at the console on any symbol in Rhodus, put a question mark in front of the symbol, for example:
+Finally a brief comment on help. To get help at the console on any symbol in Rhodus, put a question mark in front of the symbol, for example:
 
 \begin{lstlisting}
 ?math.min
 Returns the minimum of two numbers: math.min (3, 5)
 \end{lstlisting}
 
-Programmatically you call also get help using the help command. The help command is one of a set of special functions that are always accessible without any module qualifier. Such method are inserted into a module whenever that module is created. The list of such methods can be found using {\tt dir()}. For example:
+Programmatically you call also get help using the help command, for example:
 
 \begin{lstlisting}
-dir()
-{"dir","main","readString","dis","asc","stackInfo","strings","getAttr","os",
-"readNumber","modules","int","assertTrueEx","symbols","mem",
-"assertFalseEx","chr","type","lists"}
+help(math.sin)
+Returns the minimum of two numbers: math.min (3, 5)
 \end{lstlisting}
-
-You may notice in the list a symbol called {\tt main}. This is method mention previously that returns the module you get when you start a Rhodus session.
 
 
 \subsection{User Functions}
@@ -208,7 +216,7 @@ The other change to version 3 is that user functions or built-in functions are n
 x = math.sin
 \end{lstlisting}
 
-Note that function brackets are not included. What this does is create a new copy of {\tt math.sin} and assign it to the variable {\tt x}. Yes you heard right, it makes a copy. This is due to the way garbage collection is handled in the current versions of Rhodus. Other languages, such as Python, use reference counting. Instead of a copy of a function being made, a reference to the function is assigned to a variable. We'll have more to say about his in a later chapter. From the user point of view, this shouldn't be of concern. However, you might not want to do something like:
+Note that function brackets are not included. What this does is create a new copy of {\tt math.sin} and assign it to the variable {\tt x}. Yes you heard right, it makes a copy. This is due to the way garbage collection is handled in the current versions of Rhodus. Other languages, such as Python, use reference counting. Instead of a copy of a function being made, a reference to the function is assigned to a variable. We'll have more to say about his in a later chapter. From the user point of view, this shouldn't be of concern. However, you might not want to do something like the following because that will use up memory.
 
 \begin{lstlisting}
 x = {}
@@ -217,9 +225,7 @@ for i = 0 to 1000000 do
 end
 \end{lstlisting}
 
-because that will use up memory.
-
-When we copy the function into another variable we can still call the copied function. We can also pass functions as arguments to other functions. For example:
+When we copy the function into another variable we can still call the copied function since they are now just like other variables. We can also pass functions as arguments to other functions. For example:
 
 \begin{lstlisting}
 func = stats.mean
@@ -275,7 +281,7 @@ The variable {\tt m} will hold a 3 by 4 empty array and by default, entries are 
 a = array ([[1,2,3], [4,5,6], [7,8,9]])
 \end{lstlisting}
 
-The above array yields a 3 by 3 array. Note, as mentioned before, in version 3, I decided to use square brackets for lists rather than curely brackets. I did this because I realized that arrays didn't need their own literal syntax and I could reuse the list syntax. At that point I thought it better to use the Python syntax for lists which uses square brackets. The original intent was that arrays would look like MATLAB arrays which does use square brackets but I realized that this is an awkward syntax for specifying multidimensional arrays beyond 2D. With the release of curely brackets I can now use those for specifying maps.
+The above array yields a 3 by 3 array. Note, as mentioned before, in version 3, I decided to use square brackets for lists rather than curely brackets. I did this because I realized that arrays didn't need their own literal syntax and I could reuse the list syntax. At that point I thought it better to use the Python syntax for lists which uses square brackets. The original intent was that arrays would look like MATLAB arrays which does use square brackets but I realized that this is an awkward syntax for specifying multidimensional arrays beyond 2D. With the release of curely brackets I can now {\tt \verb|{|\verb|}|} those for specifying maps.
 
 Like lists and strings, arrays are also treated as objects so that one can do the following:
 
@@ -297,19 +303,20 @@ or
 >>println (a.sqr())
 \end{lstlisting}
 
-This squares each element in the array {\tt a}. $N$ dimensional arrays can be created using the {\tt array} method:
+This squares each element in the array {\tt a}. $n$-dimensional arrays can be created using the {\tt array} method:
 
 \begin{lstlisting}
 >>a = array (2,3,4)
 \end{lstlisting}
 
-This yields a 2 by 3 by 4 array, or 24 elements in total. By default, arrays hold double values but if you need an array of integers you can use:
+This yields a 2 by 3 by 4 array, or 24 elements in total. By default, arrays hold double values, at a future date this will be extended.
 
-\begin{lstlisting}
->>a = intArray (2,3)
-\end{lstlisting}
+%but if you need an array of integers you can use:
+%\begin{lstlisting}
+%>>a = intArray (2,3)
+%\end{lstlisting}
 
-Indexing arrays is the same way you index lists. Note that indexing in arrays starts at zero, for example:
+Indexing arrays is done in the same way you index lists. Note that indexing in arrays starts at zero, for example:
 
 \begin{lstlisting}
 x = a[1,2]
@@ -332,16 +339,16 @@ Certain arithmetic operations are also possible with arrays, for example:
 \begin{lstlisting}
 >>a = array([[1,2],[3,4]])
 >>println (10 + a)
-[11,12;13,14]
+[[11,12],[13,14]]
 \end{lstlisting}
 
 or
 
 \begin{lstlisting}
->>a = array([1,2;3,4])
+>>a = array([[1,2],[3,4]])
 >>b = array([[5,6],[7,8]])
 >>println (a + b)
-[6,8;10,12]
+[[6,8],[10,12]]
 \end{lstlisting}
 
 In the above case, it should be clear that the dimensions of the two arrays must match in order for the sum to be computed.
@@ -416,7 +423,7 @@ factor               = '(' expression ')'
                      | list
 
 // The follow five rules were derived using left-recursion,
-// see text for details
+// and are new to version 3. See text for details
 
 primary              =  factor primaryPlus
 
@@ -445,10 +452,10 @@ importStatement      = IMPORT fileName
 \end{verbatim} }
 
 
-Everything in square brackets is optional, and the vertical line represents `or'. There have been some important changes to the grammar since Part 2. In Rhodus 3 you can type the following:
+In teh grammar, everything in square brackets is optional, and the vertical line represents `or'. There have been some important changes to the grammar since Part 2. In Rhodus 3 you can type the following:
 
 \begin{lstlisting}
-a = test.func ("abc")[5](math.pi)
+a = m.func ("abc")[5](math.pi)
 \end{lstlisting}
 
 In words, this reads, in the module, string or list, {\tt m}, a function called {\tt func} is called with one string argument, this returns a list which we index at position 5 which in turn returns another function which we call with argument {\tt math.pi}. Admittedly contrived but we should be able to deal with such code. Or what about something like:
@@ -458,7 +465,7 @@ In words, this reads, in the module, string or list, {\tt m}, a function called 
 abc
 \end{lstlisting}
 
-A grammar that would satisfy such structures is given by:
+A grammar that will satisfy such flexibility is given by:
 
 %In Part 1 of the series we discussed LL(1) grammars, where LL stands Left-to-right, Leftmost derivation and the number in the brackets indicates the number of lookahead tokens. The really nice thing about LL(1) grammars is they can be parsed %using recursive descent which is what we are building in software.
 
@@ -472,31 +479,31 @@ factor    = identifier
           | Number
 \end{verbatim} }
 
-Something similar is used in the Python grammar specification. For example, {\tt a()}, would satisfy {\tt E \textquotesingle()\textquotesingle} where {\tt E} would then be replaced by the {\tt identifier} in {\tt factor}. For a more complicated expression such as: {\tt a.b[]()} we would use the second subrule {\tt E \textquotesingle()\textquotesingle}, then substitute the {\tt E} for {\tt E \textquotesingle[]\textquotesingle}, followed by another substitution of {\tt E} with {\tt E \textquotesingle.\textquotesingle identifier}. Finally the last {\tt E} would be replaced by {\tt factor}. Since we resolved to all terminals {\tt a.b[]()} is a legal sentence.
+Something similar is used in the Python grammar specification (\url{https://docs.python.org/3/reference/grammar.html}). For example, {\tt a()}, would satisfy {\tt E \textquotesingle()\textquotesingle} where {\tt E} would then be replaced by the {\tt identifier} in {\tt factor}. For a more complicated expression such as: {\tt a.b[]()} we would use the second subrule {\tt E \textquotesingle()\textquotesingle}, then substitute the {\tt E} for {\tt E \textquotesingle[]\textquotesingle}, followed by another substitution of {\tt E} with {\tt E \textquotesingle.\textquotesingle identifier}. Finally the last {\tt E} would be replaced by {\tt factor}. Since we resolved to all terminals {\tt a.b[]()} is a legal sentence.
 
-If you exercise this grammar by doing more examples you'll realize it's quite straight forward even though perhaps initially, it looks a little scary.  The big problem with it is that it's not friendly for our purpose. The grammar shown above is what's called left-recursive (see Part 1). We can see this because the {\tt E} symbol, in three cases, is the first symbol in the production.  For example:
-
+If you exercise this grammar by doing more examples you'll realize it's quite straight forward even though perhaps initially, it looks a little scary.  The big problem with it is that it's not friendly for our recursive decent parser. The grammar shown above is what's called left-recursive (see Part 1). We can see this because the {\tt E} symbol, in three cases, is the first symbol in the production.  For example:
+%
 {\footnotesize
 \begin{verbatim}
 E = E 'a'
 \end{verbatim} }
-
-is left-recursive because the first symbol on the right of the equals sign is {\tt E}. If you think about it, if you were to apply this production rule, you'd end up in a recursive loop, continually recognizing {\tt E}. This happens when we only lookahead one symbol. When a grammar is left-recursive we almost always have to lookahead more than one token in order to decide which production to use. However, we only do a single lookahead in Rhodus so that a left-recursive grammar is going to be trouble. Another example that shows the problem with left-recursions is that with multiple alternative options such as:
-
+%
+is left-recursive because the first symbol on the right of the equals sign is {\tt E} and {\tt E} is not a terminal. If you think about it, applying this production rule, will result in a recursive loop, continually recognizing {\tt E}. When a grammar is left-recursive we almost always have to lookahead more than one token in order to decide which production to use. However, we only do a single lookahead in Rhodus so that a left-recursive grammar is going to be trouble for us. Another example that shows the problem with left-recursions is that with multiple alternative options such as:
+%
 {\footnotesize
 \begin{verbatim}
 E  = E 'a'
    | E 'b'
 \end{verbatim} }
-
-it's also impossible to decide which one to pick unless we lookahead further into the token stream which we don't want to do. With out further lookahead, the parser will go into an infinite loop. The solution is to remove the left-recursion. What this essentially does is move the terminals into the front of the production and the offending left-recursive terms towards the end, resulting is a right-recursive rule which can be parsed using a recursive decent parser. The method to do the transformation was described in Part 1 but here I will cheat by using a tool to do it for me. The site~\url{https://cyberzhg.github.io/toolbox/left_rec} has an on-line tool to remove left-recursion. The tool has two panels, in the upper panel you paste your left-recursive grammar, hit the convert button and your new well-behaved grammar will appear in the bottom panel.
+%
+it's also impossible to decide which one to pick unless we lookahead further into the token stream to identify the {\tt 'a'} and {\tt 'b'} but we don't want to do that. With out further lookahead, the parser will go into an infinite loop. The solution is to remove the left-recursion. What this essentially does is move the terminals into the front of the production and the offending left-recursive terms towards the end, resulting is a right-recursive rule which can be parsed using a single lookahead recursive decent parser. The method to do the transformation was described in Part 1 but here I will cheat by using a tool to do it for me. The site~\url{https://cyberzhg.github.io/toolbox/left_rec} has an on-line tool to remove left-recursion. The tool has two panels, in the upper panel you paste your left-recursive grammar, hit the convert button and your new well-behaved grammar will appear in the bottom panel.
 
 I took the following generic left-recursive grammar and entered it into the tool:
 
 {\tt  E = E a | E b | E c | d}
 
 After conversion it looked like:
-
+%
 {\footnotesize
 \begin{verbatim}
 E   = d E'
@@ -505,22 +512,21 @@ E'  = a E'
     | c E'
     | empty
 \end{verbatim} }
-
-Notice how all the terminals, {\tt a, b, c} and {\tt d} have been moved to the front. This grammar can be recognized with a single token look-ahead, that is it's LL(1) friendly which is what we're after. Notice also the empty option, that is {\tt E'} can be {\tt a, b, c} or none of them. {\tt d} has been moved to it's own production and represents factor in the grammar we had previously. If we translate the symbols into more meaningful words we get:
-
+%
+Notice how all the terminals, {\tt a, b, c} and {\tt d} have been moved to the front. This grammar can be recognized with a single token look-ahead, that is it's LL(1) friendly, which is what we're after. Notice also the empty option, that is {\tt E'} can be {\tt a, b, c} or none of them. {\tt d} has been moved to it's own production and represents {\tt factor} in the grammar we had previously. If we translate the symbols into more meaningful words we get:
+%
 {\footnotesize
 \begin{verbatim}
 factor               = Identifier
-
 primary              =  factor primaryPlus
-
 primaryPlus          = '.' identifier primaryPlus
                      | '(' exp ')' primaryPlus
                      | '[' exp ']' primaryPlus
                      | empty
 \end{verbatim} }
+%
+where {\tt d} is {\tt factor}, {\tt E'} is {\tt primaryPlus} and {\tt priamry} is {\tt E}.  In the final grammar the individual options in the {\tt primaryPlus} production are separated out for convenience into {\tt primaryPeriod}, {\tt primaryIndex} and {\tt primaryFunction} respectively. {\tt factor} we will include all the literals as well as expressions with parentheses and the {\tt not} operator. We will use this grammar in Rhodus version 3.
 
-{\tt E'} is now called {\tt primaryPlus}. In the finally grammar the individual options in {\tt primaryPlus} are separated out for convenience into {\tt primaryPeriod}, {\tt primaryIndex} and {\tt primaryFunction}. In the final grammar {\tt factor} we will include all the literals as well as expressions with parentheses and the {\tt not} operator. We will use this grammar addition in Rhodus version 3.
 
 \section{Useful Reading}
 

@@ -135,6 +135,7 @@ constructor TBuiltInGlobal.Create;
 begin
   inherited Create (TSymbol.globalId, 'Global Module');
 
+  // -1  means variable arguments, call function pushes the actual number of arguments provided
   addMethod (createArray,   -1, 'array',         'Create an array of a given size: a = array(4,5,2)');
   addMethod (myInt,          1, 'int',           'Convert float to integer: int (3.4)');
   addMethod (myFloat,        1, 'float',         'Convert an integer to a float: float (3)');
@@ -396,7 +397,7 @@ begin
      ac.countValues (alist, count);
 
      ac.arrayObject := TArrayObject.Create();
-     ac.arrayObject.setSize (count);
+     ac.arrayObject.setNumberOfElements (count);
      // Get the dimensions of the array
      ac.getDimensions(alist, dims);
      ac.arrayObject.dim := copy (dims);

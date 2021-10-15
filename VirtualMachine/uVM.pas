@@ -2081,6 +2081,7 @@ begin
 end;
 
 
+// This probably needs to be rewritten to genralize to n dimensions
 procedure TVM.loadIndexableArray(st: PMachineStackRecord; index: integer; nSubscripts : integer);
 begin
   // For an n dimensional array we will collect the subscripts.
@@ -2092,12 +2093,12 @@ begin
   else
      begin
      if nSubscripts = 1 then
-        begin
-        push (st.aValue.getValue2D(0, index));
-        end;
+        push (st.aValue.getRow(index));
      if nSubscripts = 2 then
         push (st.aValue.getValue2D(subscriptStack.Pop(), index));
      subscriptStack.Clear;
+     if nSubscripts > 2 then
+        raise ERuntimeException.Create('Unable to currently index more than 2 dimensions');
      end;
   //if (index < 0) or (index > length(st.sValue.value) - 1) then
   //  raise ERuntimeException.Create('string index out of range');

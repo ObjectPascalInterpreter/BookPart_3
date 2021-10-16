@@ -252,7 +252,7 @@ end;
 
 
 procedure TBuiltInList.getRndu (vm : TObject);
-var n, range : integer;
+var n : integer;
     l : TListObject;
     i : integer;
 begin

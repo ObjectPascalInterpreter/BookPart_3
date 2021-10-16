@@ -18,6 +18,7 @@ type
      procedure   getLength (vm : TObject);
      procedure   getShape (vm : TObject);
      procedure   getSqr (vm : TObject);
+     procedure   add (vm : TObject);
      constructor Create;
      destructor  Destroy; override;
   end;
@@ -84,11 +85,12 @@ constructor TArrayMethods.Create;
 begin
   methodList := TMethodList.Create;
 
-  methodList.Add(TMethodDetails.Create ('len',   'get the length of an array: var.len ()', -1, getLength));
-  methodList.Add(TMethodDetails.Create ('shape', 'get the dimensions of the array: var.shape ()', 0, getShape));
-  methodList.Add(TMethodDetails.Create ('sqr', 'square each element in the array: var.sqr ()', 0, getSqr));
+  methodList.Add(TMethodDetails.Create ('len',   -1, 'get the length of an array: var.len ()', getLength));
+  methodList.Add(TMethodDetails.Create ('shape',  0, 'get the dimensions of the array: var.shape ()', getShape));
+  methodList.Add(TMethodDetails.Create ('sqr',    0, 'square each element in the array: var.sqr ()', getSqr));
+  methodList.Add(TMethodDetails.Create ('add',    1, 'add an array argument ot the array: a.sqr (b)', add));
 
-  methodList.Add(TMethodDetails.Create ('dir',     'dir of array object methods', 0, dir));
+  methodList.Add(TMethodDetails.Create ('dir',    0, 'dir of array object methods', dir));
 end;
 
 
@@ -101,10 +103,23 @@ begin
 end;
 
 
+function sameDimensions (m1, m2 : TArrayObject) : boolean;
+var i : integer;
+    n: integer;
+begin
+  result := True;
+  n := m1.getNumDimensions() - 1;
+  for i := 0 to n do
+      if m1.dim[i] <> m2.dim[i] then
+         exit (False);
+end;
+
+
 procedure TArrayMethods.getLength (vm : TObject);
 var s : TArrayObject;
     nArgs, d : integer;
 begin
+   d := 0;
    nArgs := TVM (vm).popInteger;
    if nArgs = 1 then
       d := TVM (vm).popInteger
@@ -135,17 +150,17 @@ var s : TArrayObject;
     r : TListObject;
     i : integer;
 begin
-   TVM (vm).decStackTop; // Dump the object method
-   s := TVM (vm).popArray;
+  TVM (vm).decStackTop; // Dump the object method
+  s := TVM (vm).popArray;
 
-   r := TListObject.Create(length (s.dim));
-   for i := 0 to length (s.dim) - 1 do
-       begin
-       r.list[i].itemType := liInteger;
-       r.list[i].iValue := s.dim[i];
-       end;
+  r := TListObject.Create(length (s.dim));
+  for i := 0 to length (s.dim) - 1 do
+      begin
+      r.list[i].itemType := liInteger;
+      r.list[i].iValue := s.dim[i];
+      end;
 
-   TVM (vm).push(r);
+  TVM (vm).push(r);
 end;
 
 
@@ -162,6 +177,28 @@ begin
    for i := 0 to len do
        s2.data[i] := s1.data[i]*s1.data[i];
     TVM (vm).push (s2);
+end;
+
+
+procedure TArrayMethods.add (vm : TObject);
+var i, j : integer;
+    s1, s2 : TArrayObject;
+    argument : TArrayObject;
+begin
+  argument := TVM (vm).popArray;
+  TVM (vm).decStackTop; // Dump the object method
+  s1 := TVM (vm).popArray;
+  s2 := s1.clone;
+
+  if sameDimensions (s1, argument) then
+     begin
+     for i := 0 to s1.dim[0] - 1 do
+         for j := 0 to s1.dim[1] - 1 do
+             s2.setValue2D(i, j, s1.getValue2D(i, j) + s1.getValue2D(i, j));
+     end
+  else
+     raise ERuntimeException.Create('Arrays must have the same dimension when summing');
+  TVM (vm).push (s2);
 end;
 
 
@@ -330,6 +367,8 @@ begin
 end;
 
 
+// This needs to be redone at some point so that n-dimensional
+// arrays are convert to string format correctly.
 function TArrayObject.arrayToString: string;
 var i, j, n : integer;
     formatStr : string;
@@ -370,15 +409,17 @@ begin
      exit;
      end;
 
-   n := getNumberOfElements();
-   result := '[';
-   for i := 0 to n - 1 do
-       begin
-       if i mod 8 = 0 then
-          result := result + sLineBreak;
-       result := result + Format('%10.4f', [self.data[i]]);
-       end;
-   result := result + ']';
+
+  // tempoary affair for n-dim arrays
+  n := getNumberOfElements();
+  result := '[';
+  for i := 0 to n - 1 do
+      begin
+      if i mod 8 = 0 then
+         result := result + sLineBreak;
+      result := result + Format('%10.4f', [self.data[i]]);
+      end;
+  result := result + ']';
 end;
 
 

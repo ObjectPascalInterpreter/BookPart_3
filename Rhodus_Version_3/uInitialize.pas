@@ -27,8 +27,7 @@ implementation
 
 
 procedure setUpEnvironment (appExe : string);
-var Ini: TIniFile;
-    s1, s2 : string;
+var s1 : string;
 begin
    launchEnvironment.executionPath := ExtractFilePath (appExe);
 

@@ -65,7 +65,7 @@ begin
   s := TVM (vm).popString;
 
   for ch in s.value do
-      if not TCharacter.IsNumber(ch) then
+      if not ch.IsDigit() then
          begin
          // Float
          TVM (vm).push (strtofloat (s.value));

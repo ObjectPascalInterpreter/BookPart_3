@@ -33,7 +33,7 @@ type
   end;
 
   TListContainer = class(TList<TListItem>)
-    destructor destroy; override;
+    destructor Destroy; override;
   end;
 
   TListObject = class(TRhodusObject)
@@ -121,16 +121,16 @@ constructor TListMethods.Create;
 begin
   methodList := TMethodList.Create;
 
-  methodList.Add(TMethodDetails.Create ('len',    'Return the length of a list: var.len (mylist)', 0, getLength));
-  methodList.Add(TMethodDetails.Create ('append', 'Append the element to the list: var.append (a, 3.14)', 1, append));
-  methodList.Add(TMethodDetails.Create ('remove', 'Remove an element from a list with given index: var.remove (mylist, 4)', 1, remove));
-  methodList.Add(TMethodDetails.Create ('sum',    'Find the sum of values in a list. var.sum ()', 0, getSum));
-  methodList.Add(TMethodDetails.Create ('pop',    'Remove the last element from a list: var.pop (list)', 1, removeLastElement));
-  methodList.Add(TMethodDetails.Create ('max',    'Find the maximum value is a 1D list of values: var.max ({1,2,3})', 1, getMin));
-  methodList.Add(TMethodDetails.Create ('min',    'Find the minimum value is a 1D list of values: var.min ({1,2,3})', 1, getMin));
-  methodList.Add(TMethodDetails.Create ('dims',   'Get dims: var.min ({1,2,3})', 0, getDims));
+  methodList.Add(TMethodDetails.Create ('len',    0, 'Return the length of a list: var.len (mylist)', getLength));
+  methodList.Add(TMethodDetails.Create ('append', 1, 'Append the element to the list: var.append (a, 3.14)', append));
+  methodList.Add(TMethodDetails.Create ('remove', 1, 'Remove an element from a list with given index: var.remove (mylist, 4)', remove));
+  methodList.Add(TMethodDetails.Create ('sum',    0, 'Find the sum of values in a list. var.sum ()', getSum));
+  methodList.Add(TMethodDetails.Create ('pop',    1, 'Remove the last element from a list: var.pop (list)', removeLastElement));
+  methodList.Add(TMethodDetails.Create ('max',    1, 'Find the maximum value is a 1D list of values: var.max ({1,2,3})', getMin));
+  methodList.Add(TMethodDetails.Create ('min',    1, 'Find the minimum value is a 1D list of values: var.min ({1,2,3})', getMin));
+  methodList.Add(TMethodDetails.Create ('dims',   0, 'Get dims: var.min ({1,2,3})', getDims));
 
-  methodList.Add(TMethodDetails.Create ('dir',     'dir of string object methods', 0, dir));
+  methodList.Add(TMethodDetails.Create ('dir',    0, 'dir of string object methods', dir));
 end;
 
 
@@ -162,7 +162,6 @@ end;
 
 procedure TListMethods.append (vm : TObject);
 var s : TListObject;
-    f : TMethodDetails;
     value : PMachineStackRecord;
     ts : TStringObject;
     ls : TListObject;
@@ -378,7 +377,7 @@ var s, r : TListObject;
     i : integer;
     dims: TIntArray;
     data : TDoubleArray;
-    level, count : integer;
+    count : integer;
 begin
   TVM (vm).decStackTop; // Dump the object method
   s := TVM (vm).popList;

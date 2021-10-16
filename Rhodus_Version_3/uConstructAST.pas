@@ -167,9 +167,7 @@ end;
 // ----------------------------------------------------------------------
 constructor TConstructAST.Create(sc: TTokenVector);
 var
-  globalSymbol: TSymbol;
   module: TModule;
-  symbol : TSymbol;
 begin
   inherited Create;
   self.sc := sc;
@@ -382,7 +380,7 @@ end;
 
 
 function TConstructAST.factor : TASTNode;
-var node, primary : TASTNode;
+var node : TASTNode;
 begin
   result := nil;
   case sc.token of
@@ -477,7 +475,6 @@ end;
 function TConstructAST.primaryPlus : TASTNode;
 var periodStr : string;
     nodeList : TASTNode;
-    nIndices : integer;
 begin
   case sc.token of
      tPeriod :
@@ -1425,17 +1422,14 @@ end;
 function TConstructAST.parseUserDefinedFunction: TASTNode;
 var
   functionName: string;
-  newUserFunction: boolean;
   statementlistNode: TASTStatementList;
   argList: TASTNodeList;
   node : TASTNode;
 begin
-  newUserFunction := False;
   sc.nextToken;
   if sc.token = tIdentifier then
      begin
      functionName := sc.tokenString;
-     newUserFunction := True;
      end
   else
      begin

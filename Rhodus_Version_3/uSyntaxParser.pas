@@ -132,9 +132,7 @@ end;
 // ----------------------------------------------------------------------
 constructor TSyntaxParser.Create(sc: TScanner);
 var
-  globalSymbol: TSymbol;
   module: TModule;
-  symbol : TSymbol;
 begin
   inherited Create;
   self.sc := sc;
@@ -176,7 +174,6 @@ end;
 // At compilation, if an error node is encountered the compiler can report the error at
 // that point in time.
 procedure TSyntaxParser.expect(thisToken: TTokenCode);
-var err : string;
 begin
   if tokenVector.token <> thisToken then
      raise ESyntaxException.Create ('expecting ' + TTokenVector.tokenToString (tokenvector.token),  tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber)
@@ -287,18 +284,15 @@ end;
 
 
 procedure TSyntaxParser.parseLiteralArray;
-var elementCount : integer;
 begin
-  elementCount := 0;
-
   nextToken();
-  elementCount := parseArrayRow;
-  if elementCount = 0 then
+
+  if parseArrayRow = 0 then
      raise ESyntaxException.Create ('Empty matrices not permitted', tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
   while tokenVector.token = tSemicolon do
       begin
       nextToken();
-      elementCount := parseArrayRow;
+      parseArrayRow;
      end;
   expect(tRightCurleyBracket);
 end;
@@ -407,7 +401,7 @@ end;
 // power = {'+' | '-'} factor [ '^' power ]
 procedure TSyntaxParser.power;
 var
-  unaryMinus_count, i: integer;
+  unaryMinus_count : integer;
 begin
   unaryMinus_count := 0;
   // Handle unary operators, but only count '-'. ++2 is the same as +2 but --2 is not the same as -2
@@ -432,14 +426,11 @@ end;
 
 // term = power { ('*', '/', MOD, DIV) power }
 procedure TSyntaxParser.term;
-var
-  op: TTokenCode;
 begin
   power;
 
   while tokenVector.token in [tMult, tDivide, tDivI, tMod] do
     begin
-    op := tokenVector.token; // remember the token
     nextToken;
     power;
     end;
@@ -448,14 +439,11 @@ end;
 
 // expression = term { ('+' | '-' | MOD | DIV) power }
 procedure TSyntaxParser.simpleExpression;
-var
-  op: TTokenCode;
 begin
   term;
 
   while tokenVector.token in [tPlus, tMinus] do
      begin
-       op := tokenVector.token; // remember the token
        nextToken;
        term;
      end;
@@ -464,15 +452,12 @@ end;
 
 // expression = simpleExpression | simpleExpression relationalOp simpleExpression
 procedure TSyntaxParser.relationalOperators;
-var
-  op: TTokenCode;
 begin
   simpleExpression;
 
   while tokenVector.token in [tLessThan, tLessThanOrEqual, tMoreThan, tMoreThanOrEqual,
     tNotEqual, tEquivalence] do
-  begin
-    op := tokenVector.token;
+    begin
     nextToken;
     simpleExpression;
   end;
@@ -480,17 +465,14 @@ end;
 
 
 procedure TSyntaxParser.expression;
-var
-  op: TTokenCode;
 begin
   relationalOperators;
 
-   while tokenVector.token in [tOr, tXor, tAnd] do
-  begin
-    op := tokenVector.token; // remember the token
-    nextToken;
-    relationalOperators;
-  end;
+  while tokenVector.token in [tOr, tXor, tAnd] do
+        begin
+        nextToken;
+        relationalOperators;
+        end;
 end;
 
 
@@ -919,14 +901,11 @@ end;
 procedure TSyntaxParser.parseUserDefinedFunction;
 var
   functionName: string;
-  newUserFunction: boolean;
 begin
-  newUserFunction := False;
   nextToken;
   if tokenVector.token = tIdentifier then
      begin
      functionName := tokenVector.tokenString;
-     newUserFunction := True;
      end
   else
      begin

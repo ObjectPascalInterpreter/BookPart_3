@@ -36,7 +36,6 @@ Uses Windows, uSymboLTable, uVM, uStringObject, uListObject, uMemoryManager;
 // --------------------------------------------------------------------------------------------
 
 constructor TBuiltInOS.Create;
-var path : TListObject;
 begin
   inherited Create ('os', 'Operating system module');
 

@@ -12,7 +12,7 @@ type
         helpStr : string;
         nArgs : integer;
         method : TObjectMethod;
-        constructor Create (const name, helpStr : string; nArgs: integer; fcn : TObjectMethod);
+        constructor Create (const name : string; nArgs: integer; const helpStr : string; fcn : TObjectMethod);
    end;
 
    TMethodList = class (TList<TMethodDetails>)
@@ -69,7 +69,7 @@ end;
 
 // -------------------------------------------------------------------------------
 
-constructor TMethodDetails.Create (const name, helpStr : string; nArgs : integer; fcn : TObjectMethod);
+constructor TMethodDetails.Create (const name : string; nArgs : integer; const helpStr : string;  fcn : TObjectMethod);
 begin
   inherited Create;
   self.name := name;

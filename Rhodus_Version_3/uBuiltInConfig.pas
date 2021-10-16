@@ -31,7 +31,6 @@ Uses Windows, uSymboLTable, uVM, uStringObject, uListObject, uMemoryManager, uRh
 // --------------------------------------------------------------------------------------------
 
 constructor TBuiltInConfig.Create;
-var path : TListObject;
 begin
   inherited Create ('config', 'Configuration module');
 

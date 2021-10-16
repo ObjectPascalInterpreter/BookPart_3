@@ -48,7 +48,7 @@ end;
 procedure TBuiltInArray.getRndu(vm: TObject);
 var ar : TArrayObject;
     nArgs : integer;
-    nRows, nCols, i, j : integer;
+    i : integer;
     idx : TIndexArray;
 begin
    nArgs := TVM (vm).popInteger;

@@ -82,7 +82,7 @@ type
        class var   globalId : string;
 
        function    Clone : TSymbol;
-       function    toString : string;
+       function    convertToString : string;
        constructor Create;
        destructor  Destroy; override;
    end;
@@ -273,7 +273,6 @@ end;
 
 
 function TUserFunction.clone : TUserFunction;
-var i : integer;
 begin
   result := TUserFunction.Create;
   result.nArgs := self.nArgs;
@@ -362,7 +361,7 @@ end;
 
 
 
-function TSymbol.toString : string;
+function TSymbol.convertToString : string;
 begin
   case symbolType of
     symBoolean   : result := 'boolean';

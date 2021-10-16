@@ -220,7 +220,6 @@ end;
 
 function TTurtle.sendCmdInt (cmd : string; iValue : integer): TCmd;
 var msRecInfo: TMemoryStream;
-    s : string;
     buffer : TIdBytes;
     si : integer;
 begin
@@ -247,7 +246,6 @@ end;
 
 function TTurtle.sendCmd (cmd : string; x, y : double): TCmd;
 var msRecInfo: TMemoryStream;
-    s : string;
     buffer : TIdBytes;
     si : integer;
 begin
@@ -276,7 +274,6 @@ end;
 
 function TTurtle.sendCmd (cmd : string): TCmd;
 var msRecInfo: TMemoryStream;
-    s : string;
     buffer : TIdBytes;
     si : integer;
 begin

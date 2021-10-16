@@ -179,13 +179,16 @@ begin
   writeln ('Memory allocated: ', getMemoryAllocated - baseLineMemoryAllocated);
   writeln ('Instance size for main module: ', mainModule.getSize());
   writeln ('Constant table size : ', mainModule.code.constantValueTable.getSize);
+  result := true;
 end;
+
 
 function detailedMemoryUsageCommand (argument : string) : boolean;
 var mstr : string;
 begin
   mstr := memoryList.mapMemoryDetailed;
   writeln (mstr);
+  result := true;
 end;
 
 
@@ -266,7 +269,8 @@ begin
   bolShowTree := not bolShowTree;
   if bolShowTree then
      writeln ('Show tree ON')
-  else writeln ('Show tree OFF')
+  else writeln ('Show tree OFF');
+  result := False;
 end;
 
 function showCodeCommand (command : string) : boolean;
@@ -274,7 +278,8 @@ begin
   bolShowByteCode := not bolShowByteCode;
   if bolShowByteCode then
      writeln ('Show code ON')
-  else writeln ('Show code OFF')
+  else writeln ('Show code OFF');
+  result := False;
 end;
 
 

@@ -176,9 +176,6 @@ end;
 
 function TRhodus.generateByteCode (interactive : boolean; var compileError : TCompilerError) : boolean;
 var compiler : TCompiler;
-    errMsg : string;
-    error : TSyntaxError;
-    compilerError : TCompilerError;
 begin
   result := True;
   // Note we don't clear the symboltables because the next script
@@ -219,7 +216,6 @@ end;
 function TRhodus.compileCode (const src : string; var module : TModuleLib; interactive : boolean) : boolean;
 var root : TASTNode;
     compiler : TCompiler;
-    errMsg : string;
     error : TSyntaxError;
     compilerError : TCompilerError;
 begin
@@ -325,7 +321,7 @@ end;
 
 function TRhodus.runCode (module : TModule; interactive : boolean; printcallBack : TCallBackFunction) : boolean;
 var st :PMachineStackRecord;
-    key, fmt : string;
+    fmt : string;
 begin
   result := True;
   try
@@ -453,8 +449,8 @@ end;
 
 
 procedure TRhodus.getAllocatedSymbols (argument : string);
-var i, len : integer; f : TUserFunction; astr: string;
-    module : TModule;
+//var len : integer; f : TUserFunction; astr: string;
+//   module : TModule;
 begin
   //if argument <> '' then
   //   begin

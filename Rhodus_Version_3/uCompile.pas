@@ -386,10 +386,7 @@ end;
 // could be any number of layers like this. The item nearest the
 // '=' sign needs an actual store bytecode.
 procedure TCompiler.compilePrimary (node : TASTPrimary);
-var pm : TASTPrimaryIndex;
-    pf : TASTPrimaryFunction;
-    pp : TASTPrimaryPeriod;
-    index, j: integer;
+var pp : TASTPrimaryPeriod;
 begin
   if inAssignment then
      begin
@@ -465,9 +462,8 @@ procedure TCompiler.compileUserFunction(node: TASTNode);
 var
   oldCode: TProgram;
   functionNode: TASTUserFunction;
-  index, i: integer;
+  i: integer;
   symbol: TSymbol;
-  x : integer;
 begin
   functionNode := node as TASTUserFunction;
 
@@ -751,7 +747,7 @@ var
   scanner : TScanner;
   syntaxParser : TSyntaxParser;
   sym: TConstructAST;
-  src, errMsg: string;
+  src : string;
   compiler: TCompiler;
   root: TASTNode;
   module: TModuleLib;
@@ -853,7 +849,6 @@ end;
 procedure TCompiler.compileRightHandSide (node : TASTIdentifier);
 var symbol : TSymbol;
     localSymbolIndex : integer;
-    index : integer;
 begin
    // if we're in a user function we could be dealing
    // with a global or local symbol.
@@ -886,7 +881,6 @@ begin
 procedure TCompiler.compileLeftHandSide (node : TASTIdentifier);
 var symbol : TSymbol;
     localSymbolIndex : integer;
-    index : integer;
 begin
   if compilingFunction then
       begin
@@ -933,7 +927,6 @@ end;
 
 
 procedure TCompiler.compilePrimaryPeriod (node : TASTPrimaryPeriod);
-var symbol : TSymbol;
 begin
   if inAssignment then
      begin

@@ -86,8 +86,7 @@ end;
 
 
 function searchHelp (const helpStr : string) : string;
-var i, j, index : integer;
-    astr : TArray<string>;
+var astr : TArray<string>;
     symbol1, symbol2: TSymbol;
 begin
   // Search places for any help for things of the form X or X.Y
@@ -169,8 +168,8 @@ begin
      result := rightStr (src, length (src) - index);
 end;
 
-    
-function executeCommandX (src : string) : boolean;
+
+function executeCommand (src : string) : boolean;
 var index : integer;
     helpStr : string;
 begin
@@ -242,8 +241,6 @@ end;
 
 
 procedure startRepl;
-var errMsg : string;
-    output : string;
 begin
   runFramework := TRhodus.Create;
 
@@ -271,7 +268,7 @@ begin
           if sourceCode = '#p' then
              sourceCode := readBlockOfcode;
 
-          if not executeCommandX(sourceCode) then
+          if not executeCommand(sourceCode) then
              executeCode (sourceCode);
           end;
     except

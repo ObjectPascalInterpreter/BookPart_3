@@ -1687,7 +1687,6 @@ var
   functionObject: TUserFunction;
   i: integer;
   nPureLocals, tbsp, targs, symTableCount : integer;
-  index : integer;
   p: PMachineStackRecord;
   oldModule : TModule;
 begin
@@ -2235,7 +2234,6 @@ procedure TVM.importModule (moduleName : string);
 var vm : TVM;
     module : TModule;
     symbol : TSymbol;
-    main : TModule;
 begin
   // Find the module
   if not symbolTable.find (moduleName, symbol) then

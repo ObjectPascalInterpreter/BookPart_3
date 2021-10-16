@@ -69,7 +69,7 @@ type
        procedure determineDimensions (argument : string; var dims : TIndexArray);
        function  convertToStr (alist : TListObject) : string;
        procedure getDimensions (alist : TListObject; var dims : TIndexArray);
-       function  countValues (alist : TListObject; var count : integer) : integer;
+       procedure countValues (alist : TListObject; var count : integer);
   end;
 
 
@@ -79,7 +79,6 @@ var  builtInGlobal : TBuiltInGlobal;
 // -------------------------------------------------------------------------------------
 
 procedure addGlobalMethodsToModule (module : TModuleLib);
-var i : integer;
 begin
   module.addMethod (builtInGlobal.createArray,   -1, 'array',         'Create an array: x = array (3, 4)');
   module.addMethod (builtInGlobal.myInt,          1, 'int',           'Convert float to integer: int (3.4)');
@@ -220,7 +219,7 @@ begin
 end;
 
 
-function TArrayConstructor.countValues (alist : TListObject; var count : integer) : integer;
+procedure TArrayConstructor.countValues (alist : TListObject; var count : integer);
 var i : integer;
 begin
   for i := 0 to alist.list.Count - 1 do
@@ -232,9 +231,7 @@ end;
 
 
 procedure TArrayConstructor.determineDimensions (argument : string; var dims : TIndexArray);
-var i, j : integer;
-    count : double;
-
+var i : integer;
     depth : integer;
     dimensions : integer;
     upOrdown : integer;
@@ -362,8 +359,7 @@ end;
 
 
 procedure TArrayConstructor.getDimensions (alist : TListObject; var dims : TIndexArray);
-var i : integer;
-    astr : string;
+var astr : string;
 begin
   elementCount := 0;
   astr := convertToStr (alist); // This also collects the data
@@ -385,8 +381,7 @@ end;
 //      Find the dimensions
 //   Return the array object
 function convertListToArray (alist : TListObject) :TArrayObject;
-var i : integer;
-    count : integer;
+var count : integer;
     dims : TIndexArray;
     ac : TArrayConstructor;
 begin
@@ -529,7 +524,7 @@ end;
 
 
 procedure TBuiltInGlobal.myFloat (vm : TObject);
-var x : PMachineStackRecord; tmp : int32;
+var x : PMachineStackRecord;
 begin
   x := TVM (vm).pop;
   case x.stackType of
@@ -563,7 +558,6 @@ end;
 
 procedure TBuiltInGlobal.listModules (vm : TObject);
 var ls : TListObject;
-    i : integer;
     s : TStringObject;
     m : TModule;
     key : string;

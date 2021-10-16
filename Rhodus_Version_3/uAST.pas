@@ -32,8 +32,8 @@ type
         freeChildren : boolean; // Used for the experimental TPool
 
         procedure   freeAST;
-        constructor create(nodeType: TASTNodeType);
-        destructor  destroy; override;
+        constructor Create(nodeType: TASTNodeType);
+        destructor  Destroy; override;
    end;
 
    TASTErrorNode = class (TASTNode)
@@ -211,37 +211,37 @@ type
    TASTFor = class (TASTNode)
      iterationBlock : TASTIterationBlock;
      body : TASTNode;
-     constructor create (iterationBlock : TASTIterationBlock; body : TASTNode);
-     destructor destroy; override;
+     constructor Create (iterationBlock : TASTIterationBlock; body : TASTNode);
+     destructor  Destroy; override;
    end;
 
    TASTRepeat = class (TASTNode)
      public
         statementList : TASTNode;
         condition : TASTNode;
-        constructor create (statementList : TASTNode; condition : TASTNode);
-        destructor destroy; override;
+        constructor Create (statementList : TASTNode; condition : TASTNode);
+        destructor  Destroy; override;
    end;
 
    TASTWhile = class (TASTNode)
       condition : TASTExpression;
       statementList : TASTStatementList;
-      constructor create (condition : TASTExpression; listOfStatements : TASTStatementList);
-      destructor destroy; override;
+      constructor Create (condition : TASTExpression; listOfStatements : TASTStatementList);
+      destructor  Destroy; override;
    end;
 
    TASTCaseStatement = class (TASTNode)
       caseValue : TASTInteger;
       statementList : TASTStatementList;
-      constructor create (caseValue : TASTInteger; statementList : TASTStatementList);
-      destructor destroy; override;
+      constructor Create (caseValue : TASTInteger; statementList : TASTStatementList);
+      destructor  Destroy; override;
    end;
 
    // repeat of [case value : statementList]
    TASTListOfCaseStatements = class (TASTNode)
       list : TChildNodes;  // list of case statements, TASTCaseStatement
-      constructor create;
-      destructor destroy; override;
+      constructor Create;
+      destructor  Destroy; override;
    end;
 
    // switch switchExpression statemementListNode elseStatement
@@ -249,26 +249,26 @@ type
       switchExpression : TASTNode;
       caseList : TASTListOfCaseStatements;
       elseStatement : TASTStatementList;
-      constructor create (switchExpression : TASTNode; caseList : TASTListOfCaseStatements; elseStatement : TASTStatementList);
-      destructor destroy; override;
+      constructor Create (switchExpression : TASTNode; caseList : TASTListOfCaseStatements; elseStatement : TASTStatementList);
+      destructor  Destroy; override;
    end;
 
    TASTSetColor = class (TASTNode)
       expression : TASTExpression;
-      constructor create (expression : TASTExpression);
-      destructor destroy; override;
+      constructor Create (expression : TASTExpression);
+      destructor  Destroy; override;
    end;
 
    TASTAssertTrue = class (TASTNode)
       expression : TASTExpression;
-      constructor create (expression : TASTExpression);
-      destructor destroy; override;
+      constructor Create (expression : TASTExpression);
+      destructor  Destroy; override;
    end;
 
    TASTAssertTrueEx = class (TASTNode)
       expression : TASTExpression;
-      constructor create (expression : TASTExpression);
-      destructor destroy; override;
+      constructor Create (expression : TASTExpression);
+      destructor  Destroy; override;
    end;
 
    TASTAssertFalse = class (TASTNode)
@@ -1025,7 +1025,6 @@ end;
 
 
 destructor TASTFunctionCall.destroy;
-var node : TASTNode;
 begin
   for var i := 0 to argumentList.list.Count - 1 do
       argumentList.list[i].freeAST;

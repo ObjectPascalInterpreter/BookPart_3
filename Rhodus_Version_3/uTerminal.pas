@@ -189,8 +189,7 @@ end;
 // Color can be some set colors like red, green, blue, aqua, yellow, white, or purple
 // or it can be one of the named web colors
 procedure setColor (color: string);
-var r, g, b : byte;
-    acolor : -$7FFFFFFF-1..$7FFFFFFF;  // Saves pulling in Vcl.Graphics
+var acolor : -$7FFFFFFF-1..$7FFFFFFF;  // Saves pulling in Vcl.Graphics
 begin
   if color = '' then
      begin setWhite; exit; end;

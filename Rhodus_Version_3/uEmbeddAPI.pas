@@ -16,12 +16,12 @@ implementation
 
 function rhodus_initialize (var config : TRhodusConfig) : THandle;
 begin
-
+    result := 0;
 end;
 
 function runCode (handle : THandle; code : AnsiString) : integer;
 begin
-
+ result := 0;
 end;
 
 procedure rhodus_terminate (handle : THandle);

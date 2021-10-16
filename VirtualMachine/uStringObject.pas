@@ -58,17 +58,17 @@ constructor TStringMethods.Create;
 begin
   methodList := TMethodList.Create;
 
-  methodList.Add(TMethodDetails.Create ('len',     'Return the length of a string', 0, getLength));
-  methodList.Add(TMethodDetails.Create ('find',    'Finds a substring in string. Returns -1 if it fails: var.find ("CD")', 1, find));
-  methodList.Add(TMethodDetails.Create ('toUpper', 'Converts all letters in the string to uppoer case: var.toUpper ()', 0, toUpper));
-  methodList.Add(TMethodDetails.Create ('toLower', 'Converts all letters in the string to lower case: var.toUpper ()', 0, toLower));
-  methodList.Add(TMethodDetails.Create ('left',    'Returns the left n chars of a string. var.left (5)', 1, left));
-  methodList.Add(TMethodDetails.Create ('right',   'Returns the right n chars of a string. var.right (5)', 1, right));
-  methodList.Add(TMethodDetails.Create ('mid',     'Returns a substring of string from start to count characters: var.mid (2, 4)', 2, mid));
-  methodList.Add(TMethodDetails.Create ('trim',    'Removes any spaces from the start and endof the string: var.trim ()', 0, trim));
-  methodList.Add(TMethodDetails.Create ('split',   'Splits at a given character into a list of strings: var.split (",")', 1, split));
+  methodList.Add(TMethodDetails.Create ('len',     0, 'Return the length of a string: a.len()', getLength));
+  methodList.Add(TMethodDetails.Create ('find',    1, 'Finds a substring in string. Returns -1 if it fails: a.find ("CD")', find));
+  methodList.Add(TMethodDetails.Create ('toUpper', 0, 'Converts all letters in the string to uppoer case: a.toUpper ()', toUpper));
+  methodList.Add(TMethodDetails.Create ('toLower', 0, 'Converts all letters in the string to lower case: a.toUpper ()', toLower));
+  methodList.Add(TMethodDetails.Create ('left',    1, 'Returns the left n chars of a string: a.left (5)', left));
+  methodList.Add(TMethodDetails.Create ('right',   1, 'Returns the right n chars of a string: a.right (5)', right));
+  methodList.Add(TMethodDetails.Create ('mid',     2, 'Returns a substring of string from start to count characters: a.mid (2, 4)', mid));
+  methodList.Add(TMethodDetails.Create ('trim',    0, 'Removes any spaces from the start and end of the string: a.trim ()', trim));
+  methodList.Add(TMethodDetails.Create ('split',   1, 'Splits at a given character into a list of strings: a.split (",")', split));
 
-  methodList.Add(TMethodDetails.Create ('dir',     'dir of string object methods', 0, dir));
+  methodList.Add(TMethodDetails.Create ('dir',     0, 'dir of string object methods', dir));
 end;
 
 

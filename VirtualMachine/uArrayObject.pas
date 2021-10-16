@@ -49,6 +49,7 @@ type
      function        arrayToString () : string;
      function        getMemorySize() : integer;
      function        getNumberOfElements : integer;
+     // Only use this method if you intend to set the dims as well.
      procedure       setNumberOfElements (newSize : integer);
      function        getNthDimension (i : integer) : integer;
      property        numDimensions : integer read getNumDimensions;
@@ -346,6 +347,7 @@ begin
          if i < self.getNthDimension(0) - 1 then
              result := result + ', ';
          end;
+     exit;
      end;
 
   if length (dim) = 2 then
@@ -365,7 +367,9 @@ begin
         if i < self.getNthDimension(0) - 1 then
            result := result + '; ' + sLineBreak;
         end;
+     exit;
      end;
+
    n := getNumberOfElements();
    result := '[';
    for i := 0 to n - 1 do

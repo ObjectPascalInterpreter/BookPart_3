@@ -26,6 +26,7 @@ Uses Generics.Collections,
      uBuiltInArray,
      uBuiltInStr,
      uBuiltinList,
+     uBuiltInSys,
      uBuiltInTurtle,
      uMemoryManager,
      uObjectSupport,
@@ -321,9 +322,10 @@ begin
   self.setColorCallBack := setColorCallBack;
 end;
 
+
 function TRhodus.runCode (module : TModule; interactive : boolean; printcallBack : TCallBackFunction) : boolean;
 var st :PMachineStackRecord;
-    key : string;
+    key, fmt : string;
 begin
   result := True;
   try
@@ -345,9 +347,15 @@ begin
                st := vm.pop;
                case st.stackType of
                 stNone    : begin end;
-                stInteger : writeln (st.iValue);
+                stInteger : begin
+                            fmt := SysLibraryRef.find ('integerFormat').sValue.value;
+                            writeln (Format (fmt,  [st.iValue]));
+                            end;
                 stBoolean : writeln (BoolToStr(st.bValue, True));
-                stDouble  : writeln (Format('%g', [st.dValue]));
+                stDouble  : begin
+                            fmt := SysLibraryRef.find ('doubleFormat').sValue.value;
+                            writeln (Format(fmt, [st.dValue]));
+                            end;
                 stString  : writeln (st.sValue.value);
                 stList    : writeln (st.lValue.listToString());
                 stArray   : writeln (st.aValue.arrayToString());

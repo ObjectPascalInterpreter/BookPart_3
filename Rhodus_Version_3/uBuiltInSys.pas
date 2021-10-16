@@ -14,15 +14,27 @@ interface
 Uses SysUtils, Classes, uLibModule, System.Diagnostics;
 
 type
-  TBuiltInSys= class (TModuleLib)
+  TBuiltInSys = class (TModuleLib)
 
-     //procedure   getArgv (vm : TObject);
+     class var defaultDoubleFormat : string;
+     class var defaultIntegerFormat : string;
+
+     procedure setRecursionLimit (vm: TObject);
+     procedure getRecursionLimit (vm: TObject);
+     procedure getMaxIntSize  (vm: TObject);
      constructor Create;
   end;
 
 implementation
 
-Uses Windows, uSymbolTable, uVM, uStringObject, uListObject, uMemoryManager, uBuiltInConfig;
+Uses Windows,
+     uSymbolTable,
+     uVM,
+     uVMExceptions,
+     uStringObject,
+     uListObject,
+     uMemoryManager,
+     uBuiltInConfig;
 
 // --------------------------------------------------------------------------------------------
 
@@ -34,6 +46,8 @@ begin
   inherited Create ('sys', 'System module');
 
   addStringValue ('version',  uBuiltInConfig.RHODUS_VERSION, 'returns the current version number for Rhodus', True);
+  addStringValue ('doubleFormat',  TBuiltInSys.defaultDoubleFormat, 'default output format string for double values', False);
+  addStringValue ('integerFormat',  TBuiltInSys.defaultIntegerFormat, 'default output format string for integer values', False);
 
   argv := TListObject.Create(0);
   for var i := 0 to ParamCount do
@@ -50,20 +64,37 @@ begin
   path.blockType := btBound;   // To make sure the garbage collector doesn't get it.
 
   addListValue ('path', path, 'Search path for Rhodus import libraries', True);
+
+  addMethod (setRecursionLimit,  1, 'setRecursionLimit', 'Set the function recursion limit');
+  addMethod (getRecursionLimit,  0, 'getRecursionLimit', 'Get the current function recursion limit');
+  addMethod (getMaxIntSize,      0, 'maxIntSize', 'Returns the maximum initeger size');
 end;
 
 
-
-//procedure TBuiltInSys.getArgv (vm : TObject);
-//var list : TListObject;
-//begin
-//  list := TListObject.Create(0);
-//  for var i := 0 to ParamCount do
-//      list.append(TStringObject.Create (ParamStr(i)));
-//
-//  TVM (vm).push(list);
-//end;
+procedure TBuiltInSys.getRecursionLimit (vm: TObject);
+begin
+  TVM (vm).push(TVM (vm).getRecursionLimit());
+end;
 
 
+procedure TBuiltInSys.setRecursionLimit (vm: TObject);
+var rl : integer;
+begin
+  rl := TVM (vm).popInteger;
+  if rl > TVM (vm).recursionLimit then
+     TVM (vm).setRecursionLimit (rl)
+  else
+     raise ERuntimeException.Create('The current recursion limit is: ' + inttostr (TVM (vm).getRecursionLimit()) + '. You cannot go below that');
+  TVM (vm).pushNone;
+end;
 
+
+procedure TBuiltInSys.getMaxIntSize  (vm: TObject);
+begin
+  TVM (vm).push (MaxInt);
+end;
+
+initialization
+  TBuiltInSys.defaultDoubleFormat := '%g';
+  TBuiltInSys.defaultIntegerFormat := '%d';
 end.

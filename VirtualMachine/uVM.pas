@@ -77,7 +77,6 @@ type
 
     procedure issueMessage (msg : string);
 
-
     procedure createStack(n: integer);
     procedure freeStack;
     procedure createFrameStack(n: integer);
@@ -161,6 +160,8 @@ type
     printlnCallbackPtr: TVMPrintlnCallBack;
     setColorCallBackPtr : TVMSetColorCallBack;
 
+    recursionLimit : integer;
+
     interactive : boolean;
     constructor Create;
     destructor  Destroy; override;
@@ -196,6 +197,9 @@ type
     function    popList : TListObject;
     function    popModule: TModule;
 
+    procedure   setRecursionLimit (rl : integer);
+    function    getRecursionLimit : integer;
+
     procedure   run(code: TProgram; symbolTable : TSymbolTable);
     procedure   runModule(module: TModule);
 
@@ -224,8 +228,9 @@ var
 constructor TVM.Create;
 begin
   inherited;
+  recursionLimit := MAX_FRAME_DEPTH;
   createStack(MAX_STACK_SIZE);
-  createFrameStack(MAX_FRAME_DEPTH);
+  createFrameStack(recursionLimit);
   VMStateStack := TStack<TVMState>.Create;
   subscriptStack := TStack<integer>.Create;
 
@@ -424,7 +429,16 @@ begin
 end;
 
 // ---------------------------------------------------------------------------------
-// Virtual Machine instructions
+
+procedure TVM.setRecursionLimit (rl : integer);
+begin
+  createFrameStack(rl);
+end;
+
+function TVM.getRecursionLimit : integer;
+begin
+  result := length (frameStack);
+end;
 
 function TVM.stackHasEntry : boolean;
 begin
@@ -433,6 +447,8 @@ begin
   else
      result := False;
 end;
+
+// Virtual Machine instructions
 
 
 function TVM.peek : PMachineStackRecord;
@@ -2454,5 +2470,6 @@ begin
   end;
 end;
 
+initialization
 end.
 

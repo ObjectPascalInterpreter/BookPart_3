@@ -451,6 +451,7 @@ var symbol : TSymbol;
 begin
   symbol := TSymbol.Create;
   symbol.sValue := sValue;
+  symbol.sValue.blockType := btBound;  // protect the string object from the garbage collector.
   symbol.symbolName := name;
   symbol.symbolType := symString;
   symbol.helpStr := helpStr;

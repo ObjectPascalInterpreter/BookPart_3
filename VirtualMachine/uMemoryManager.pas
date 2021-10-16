@@ -312,7 +312,6 @@ end;
 procedure TMemoryList.freeGarbage;
 var cursor, previous : PMemoryNodePtr;
 begin
-
   if head = nil then
       exit;
 

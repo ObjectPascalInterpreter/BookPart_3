@@ -58,14 +58,15 @@ begin
       TVM (vm).push (ar);
       exit;
       end;
+
    if nArgs = 2 then
       begin
-      nRows := TVM (vm).popInteger;
       nCols := TVM (vm).popInteger;
+      nRows := TVM (vm).popInteger;
       ar := TArrayObject.Create([nRows, nCols]);
       for i := 0 to nRows - 1 do
           for j := 0 to nCols - 1 do
-              ar.setValue2D(i,j, random());
+              ar.setValue2D(i, j, random());
       TVM (vm).push (ar);
       end;
 end;

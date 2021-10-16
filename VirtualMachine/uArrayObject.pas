@@ -214,13 +214,15 @@ function TArrayObject.getIndex (const dim, idx : array of integer) : integer;
 begin
   result := idx[0];
   for var i := 1 to high (dim) do
-      //result := result*dim[i-1] + idx[i];
-      result := result*dim[i] + idx[i];
+      result := result*dim[i-1] + idx[i];
 end;
 
 
 function TArrayObject.getValue1D (i : integer) : double;
 begin
+  if i >= dim[0] then
+     raise ERuntimeException.Create('Index out of range while accessing array element');
+
   result := data[i];
 end;
 
@@ -228,9 +230,14 @@ end;
 function TArrayObject.getValue2D (i, j : integer) : double;
 var x : integer;
 begin
-  x := j + dim[1]*i;
+  if (i >= dim[0]) or (j >= dim[1]) then
+     raise ERuntimeException.Create('Index out of range while accessing array element');
+
+  x := getIndex ([dim[0],dim[1]],[i,j]);
+  //x := j + dim[1]*i;
   result := data[x];
 end;
+
 
 function TArrayObject.getRow (index : integer) : TArrayObject;
 var i : integer;
@@ -249,14 +256,21 @@ begin
   result := dim;
 end;
 
+
 procedure TArrayObject.setValue1D (i : integer; value : double);
 begin
+  if i >= dim[0] then
+     raise ERuntimeException.Create('Index out of range while accessing array element');
+
   data[getIndex (dim, [i])] := value;
 end;
 
 
 procedure TArrayObject.setValue2D (i, j : integer; value : double);
 begin
+  if (i >= dim[0]) or (j >= dim[1]) then
+     raise ERuntimeException.Create('Index out of range while accessing array element');
+
   data[getIndex (dim, [i, j])] := value;
 end;
 

@@ -10,7 +10,8 @@ implementation
 
 Uses StrUtils, 
      uMemoryManager, 
-     uBuiltInGlobal, 
+     uBuiltInGlobal,
+     uBuiltInSys,
      uSyntaxParser, 
      uRhodusTypes, 
      uSymbolTable,
@@ -29,14 +30,21 @@ var runFramework : TRhodus;
 // Print methods to support output from the VM
 // -------------------------------------------------------------------------------
 procedure print (st : PMachineStackRecord);
+var fmt : string;
 begin
   uTerminal.setColor (currentColor);
 
   if st <> nil then
      case st.stackType of
           stNone    : begin end; //write ('undefined value'); end;
-          stInteger : write (st.iValue);
-          stDouble  : write (Format('%g', [st.dValue]));
+          stInteger : begin
+                      fmt := SysLibraryRef.find ('integerFormat').sValue.value;
+                      write (Format(fmt, [st.iValue]));
+                      end;
+           stDouble : begin
+                      fmt := SysLibraryRef.find ('doubleFormat').sValue.value;
+                      write (Format(fmt, [st.dValue]));
+                      end;
           stString  : write (st.sValue.value);
           stBoolean : if st.bValue = True then
                          write ('True')
@@ -110,7 +118,7 @@ begin
               result := 'Unable to locate symbol';
            end
         else
-           result := 'Internal error: global space could not be located';
+           result := 'Unable to locate symbol';
          end;
      end
   else

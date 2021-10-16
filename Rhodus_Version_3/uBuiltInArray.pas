@@ -16,6 +16,7 @@ type
   TBuiltInArray = class (TModuleLib)
 
      procedure   getRndu (vm : TObject);
+     procedure   getIdent (vm : TObject);
      //procedure   getRndi (vm : TObject);
      constructor Create;
      destructor  Destroy; override;
@@ -32,6 +33,7 @@ constructor TBuiltInArray.Create;
 begin
   inherited Create ('arrays', 'Array Module');
 
+  addMethod(getIdent,          1, 'ident', 'Create an identity matrix for a 2D array: m = arrays.ident (4)');
   addMethod(getRndu,          -1, 'rndu', 'Create an array of uniformly random numbers: l = arrays.rndu (4,4)');
   //addMethod(getRndi,         3, 'rndi', 'Create a list if uniformly random integer: l = lists.rndi (lower, upper, number)');
 end;
@@ -50,27 +52,6 @@ var ar : TArrayObject;
     idx : TIndexArray;
 begin
    nArgs := TVM (vm).popInteger;
-//   if nArgs = 1 then
-//      begin
-//      nRows := TVM (vm).popInteger;
-//      ar := TArrayObject.Create([nRows]);
-//      for i := 0 to nRows - 1 do
-//          ar.setValue2D(0, i, random());
-//      TVM (vm).push (ar);
-//      exit;
-//      end;
-//
-//   if nArgs = 2 then
-//      begin
-//      nCols := TVM (vm).popInteger;
-//      nRows := TVM (vm).popInteger;
-//      ar := TArrayObject.Create([nRows, nCols]);
-//      for i := 0 to nRows - 1 do
-//          for j := 0 to nCols - 1 do
-//              ar.setValue2D(i, j, random());
-//      TVM (vm).push (ar);
-//      exit;
-//      end;
 
    setLength (idx, nArgs);
    for i := nArgs - 1 downto 0 do
@@ -80,6 +61,17 @@ begin
    for i := 0 to length (ar.data) - 1 do
        ar.data[i] := random ();
    TVM (vm).push (ar);
+end;
+
+procedure TBuiltInArray.getIdent (vm : TObject);
+var n : integer;
+    ar : TArrayObject;
+begin
+  n := TVM (vm).popInteger;
+  ar := TArrayObject.Create([n,n]);
+  for var i := 0 to n - 1 do
+      ar.setValue2D (i, i, 1.0);
+  TVM (vm).push (ar);
 end;
 
 //procedure TBuiltInList.getRndi (vm : TObject);

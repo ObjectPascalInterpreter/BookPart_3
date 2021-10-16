@@ -28,7 +28,7 @@ type
   TArrayObject = class (TRhodusObject)
     private
 
-     size : integer;
+     //size : integer;
      function getNumDimensions : integer;
 
     public
@@ -47,7 +47,7 @@ type
      function        getDim : TIndexArray;
      function        clone : TArrayObject;
      function        arrayToString () : string;
-     function        getSize() : integer;
+     function        getMemorySize() : integer;
      function        getNumberOfElements : integer;
      procedure       setNumberOfElements (newSize : integer);
      function        getNthDimension (i : integer) : integer;
@@ -115,7 +115,7 @@ begin
    s := TVM (vm).popArray;
 
    if nArgs = 0 then
-      TVM (vm).push(s.size)
+      TVM (vm).push(s.getNumberOfElements())
    else
       begin
       if nArgs = 1 then
@@ -181,15 +181,11 @@ end;
 
 
 constructor TArrayObject.Create (dim : TIndexArray);
-var i : integer;
 begin
   Create;
 
   self.dim := copy (dim);
-  self.size := dim[0];
-  for i := 1 to High (dim) do
-      self.size := self.size * dim[i];
-  setlength (data, self.size);
+  setlength (data, getNumberOfElements());
 end;
 
 
@@ -224,9 +220,11 @@ end;
 function TArrayObject.getValue (idx : array of integer) : double;
 var index : integer;
 begin
+  for var i := 0 to length (dim) - 1 do
+      if idx[i] >= dim[i] then
+         raise ERuntimeException.Create(outOfRangeMsg);
+
   index := getIndex (dim, idx);
-  if index >= size then
-     raise ERuntimeException.Create(outOfRangeMsg);
   result := data[index];
 end;
 
@@ -305,33 +303,34 @@ end;
 function TArrayObject.clone : TArrayObject;
 begin
   result := TArrayObject.Create (dim);
-  result.size := self.size;
   result.data := copy (self.data);
 end;
 
 
-function TArrayObject.getSize() : integer;
+function TArrayObject.getMemorySize() : integer;
 begin
   result := self.InstanceSize;
-  result := result + size;
+  result := result + getNumDimensions()*SizeOf(double);
 end;
 
 
 procedure TArrayObject.setNumberOfElements (newSize: Integer);
 begin
   setLength (data, newSize);
-  self.size := newSize;
 end;
 
 
 function TArrayObject.getNumberOfElements : integer;
+var i : integer;
 begin
-  result := self.size;
+  result := 1;
+  for i := 0 to length (dim) - 1 do
+      result := result * dim[i];
 end;
 
 
 function TArrayObject.arrayToString: string;
-var i, j : integer;
+var i, j, n : integer;
     formatStr : string;
 begin
   if length (dim) = 1 then
@@ -359,7 +358,7 @@ begin
              if (i = 0) and (j=0) then formatStr := '%9.4f'
              else
                 formatStr := '%10.4f';
-              result := result + Format(formatStr, [self.getValue2D(i, j)]);
+             result := result + Format(formatStr, [self.getValue2D(i, j)]);
              if j < self.getNthDimension(1) - 1 then
                 result := result + ', ';
             end;
@@ -367,8 +366,14 @@ begin
            result := result + '; ' + sLineBreak;
         end;
      end;
-   if length (dim) > 2 then
-      raise ERuntimeException.Create('Arrays with more than two dimensions cannot yet be displayed');
+   n := getNumberOfElements();
+   result := '[';
+   for i := 0 to n - 1 do
+       begin
+       if i mod 8 = 0 then
+          result := result + sLineBreak;
+       result := result + Format('%10.4f', [self.data[i]]);
+       end;
    result := result + ']';
 end;
 

@@ -1880,6 +1880,8 @@ end;
 
 procedure TVM.storeIndexableArray(variable: PMachineStackRecord; index: integer; nSubscripts : integer);
 var value: double;
+    idx : array of integer;
+    i : integer;
 begin
   value := popScalar;
 
@@ -1896,11 +1898,14 @@ begin
      end
   else
      begin
-     if nSubscripts = 1 then
-         variable.aValue.setValue2D(0, index, value);
+     subscriptStack.Push(index);
+     setLength (idx, subscriptStack.Count);
+     // Index backwards since the stack entries are backwards
+     for i := subscriptStack.Count - 1 downto 0 do
+         idx[i] := subscriptStack.Pop();
 
-     if nSubscripts = 2 then
-        variable.aValue.setValue2D(subscriptStack.Pop(), index, value);
+     variable.aValue.setValue (idx, value);
+
      subscriptStack.Clear;
      end;
 end;
@@ -2097,8 +2102,9 @@ begin
 end;
 
 
-// This probably needs to be rewritten to genralize to n dimensions
 procedure TVM.loadIndexableArray(st: PMachineStackRecord; index: integer; nSubscripts : integer);
+var idx : array of integer;
+    i : integer;
 begin
   // For an n dimensional array we will collect the subscripts.
   if subscriptStack.Count + 1 < nSubscripts then
@@ -2109,15 +2115,20 @@ begin
   else
      begin
      if nSubscripts = 1 then
+        begin
         push (st.aValue.getRow(index));
-     if nSubscripts = 2 then
-        push (st.aValue.getValue2D(subscriptStack.Pop(), index));
+        exit;
+        end;
+
+     subscriptStack.Push(index);
+     setLength (idx, subscriptStack.Count);
+     // Index backwards since the stack entries are backwards
+     for i := subscriptStack.Count - 1 downto 0 do
+         idx[i] := subscriptStack.Pop();
+
+     push (st.aValue.getValue (idx));
      subscriptStack.Clear;
-     if nSubscripts > 2 then
-        raise ERuntimeException.Create('Unable to currently index more than 2 dimensions');
      end;
-  //if (index < 0) or (index > length(st.sValue.value) - 1) then
-  //  raise ERuntimeException.Create('string index out of range');
 end;
 
 

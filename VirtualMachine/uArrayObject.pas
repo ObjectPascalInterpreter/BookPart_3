@@ -36,8 +36,11 @@ type
      dim : TIndexArray;
      arrayMethods : TArrayMethods;
      function        getIndex (const dim, idx : array of integer) : integer;
+     function        getValue (idx : array of integer) : double;
      function        getValue1D (i : integer) : double;
      function        getValue2D (i, j : integer) : double;
+
+     procedure       setValue (idx : array of integer; value : double);
      procedure       setValue1D (i : integer; value : double);
      procedure       setValue2D (i, j : integer; value : double);
      function        getRow (index : integer) : TArrayObject;
@@ -70,6 +73,8 @@ Uses SysUtils,
      uMachineStack,
      uListObject,
      uVMExceptions;
+
+const outOfRangeMsg = 'Index out of range while accessing array element';
 
 var globalArrayMethods : TArrayMethods;
 
@@ -172,20 +177,18 @@ begin
   objectType := symArray;
   arrayMethods := globalArrayMethods;
   memoryList.addNode (self);
-  end;
+end;
+
 
 constructor TArrayObject.Create (dim : TIndexArray);
 var i : integer;
 begin
   Create;
 
-  if length (dim) > 2 then
-     raise ERuntimeException.Create('Only 1D and 2D arrays are currently supported');
-
   self.dim := copy (dim);
   self.size := dim[0];
   for i := 1 to High (dim) do
-      self.size := self.size * dim[1];
+      self.size := self.size * dim[i];
   setlength (data, self.size);
 end;
 
@@ -214,14 +217,24 @@ function TArrayObject.getIndex (const dim, idx : array of integer) : integer;
 begin
   result := idx[0];
   for var i := 1 to high (dim) do
-      result := result*dim[i-1] + idx[i];
+      result := result*dim[i] + idx[i];
+end;
+
+
+function TArrayObject.getValue (idx : array of integer) : double;
+var index : integer;
+begin
+  index := getIndex (dim, idx);
+  if index >= size then
+     raise ERuntimeException.Create(outOfRangeMsg);
+  result := data[index];
 end;
 
 
 function TArrayObject.getValue1D (i : integer) : double;
 begin
   if i >= dim[0] then
-     raise ERuntimeException.Create('Index out of range while accessing array element');
+     raise ERuntimeException.Create(outOfRangeMsg);
 
   result := data[i];
 end;
@@ -231,7 +244,7 @@ function TArrayObject.getValue2D (i, j : integer) : double;
 var x : integer;
 begin
   if (i >= dim[0]) or (j >= dim[1]) then
-     raise ERuntimeException.Create('Index out of range while accessing array element');
+     raise ERuntimeException.Create(outOfRangeMsg);
 
   x := getIndex ([dim[0],dim[1]],[i,j]);
   //x := j + dim[1]*i;
@@ -243,7 +256,7 @@ function TArrayObject.getRow (index : integer) : TArrayObject;
 var i : integer;
 begin
   if (index < 0) or (index >= self.dim[1]) then
-     raise ERuntimeException.Create('Index out of range');
+     raise ERuntimeException.Create(outOfRangeMsg);
 
   result := TArrayObject.Create([1, self.dim[1]]);
   for i := 0 to self.dim[1] - 1 do
@@ -260,7 +273,7 @@ end;
 procedure TArrayObject.setValue1D (i : integer; value : double);
 begin
   if i >= dim[0] then
-     raise ERuntimeException.Create('Index out of range while accessing array element');
+     raise ERuntimeException.Create(outOfRangeMsg);
 
   data[getIndex (dim, [i])] := value;
 end;
@@ -269,9 +282,23 @@ end;
 procedure TArrayObject.setValue2D (i, j : integer; value : double);
 begin
   if (i >= dim[0]) or (j >= dim[1]) then
-     raise ERuntimeException.Create('Index out of range while accessing array element');
+     raise ERuntimeException.Create(outOfRangeMsg);
 
   data[getIndex (dim, [i, j])] := value;
+end;
+
+
+
+procedure TArrayObject.setValue (idx : array of integer; value : double);
+var index : integer;
+    i : integer;
+begin
+  for i := 0 to length (dim) - 1 do
+      if idx[i] >= dim[i] then
+         raise ERuntimeException.Create(outOfRangeMsg);
+
+  index := getIndex (dim, idx);
+  data[index] := value;
 end;
 
 

@@ -47,46 +47,40 @@ procedure TBuiltInArray.getRndu(vm: TObject);
 var ar : TArrayObject;
     nArgs : integer;
     nRows, nCols, i, j : integer;
+    idx : TIndexArray;
 begin
    nArgs := TVM (vm).popInteger;
-   if nArgs = 1 then
-      begin
-      nRows := TVM (vm).popInteger;
-      ar := TArrayObject.Create([nRows]);
-      for i := 0 to nRows - 1 do
-          ar.setValue2D(0, i, random());
-      TVM (vm).push (ar);
-      exit;
-      end;
-
-   if nArgs = 2 then
-      begin
-      nCols := TVM (vm).popInteger;
-      nRows := TVM (vm).popInteger;
-      ar := TArrayObject.Create([nRows, nCols]);
-      for i := 0 to nRows - 1 do
-          for j := 0 to nCols - 1 do
-              ar.setValue2D(i, j, random());
-      TVM (vm).push (ar);
-      end;
-end;
-
-//
-//procedure TBuiltInList.getRndu (vm : TObject);
-//var n, range : integer;
-//    l : TListObject;
-//    i : integer;
-//begin
-//  n := TVM (vm).popInteger;
-//  l := TListObject.Create (n);
-//  for i := 0 to n - 1 do
+//   if nArgs = 1 then
 //      begin
-//      l.list[i].dValue := random();
-//      l.list[i].itemType := liDouble;
+//      nRows := TVM (vm).popInteger;
+//      ar := TArrayObject.Create([nRows]);
+//      for i := 0 to nRows - 1 do
+//          ar.setValue2D(0, i, random());
+//      TVM (vm).push (ar);
+//      exit;
 //      end;
-//  TVM (vm).push (l);
-//end;
+//
+//   if nArgs = 2 then
+//      begin
+//      nCols := TVM (vm).popInteger;
+//      nRows := TVM (vm).popInteger;
+//      ar := TArrayObject.Create([nRows, nCols]);
+//      for i := 0 to nRows - 1 do
+//          for j := 0 to nCols - 1 do
+//              ar.setValue2D(i, j, random());
+//      TVM (vm).push (ar);
+//      exit;
+//      end;
 
+   setLength (idx, nArgs);
+   for i := nArgs - 1 downto 0 do
+       idx[i] := TVM (vm).popInteger;
+
+   ar := TArrayObject.Create(idx);
+   for i := 0 to length (ar.data) - 1 do
+       ar.data[i] := random ();
+   TVM (vm).push (ar);
+end;
 
 //procedure TBuiltInList.getRndi (vm : TObject);
 //var n, start, finish : integer;

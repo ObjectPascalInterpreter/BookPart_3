@@ -1,0 +1,19 @@
+
+import arrays
+
+a = arrays.rndu (4,2)
+
+for i = 0 to 4 - 1 do
+   for j = 0 to 2 - 1 do
+       a[i,j] = 0.0
+   end
+end
+println (a)
+a = arrays.rndu (2,4)
+
+for i = 0 to 2 - 1 do
+   for j = 0 to 4 - 1 do
+       a[i,j] = 0.0
+   end
+end
+println(a)

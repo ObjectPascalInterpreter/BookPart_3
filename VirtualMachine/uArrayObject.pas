@@ -9,33 +9,24 @@ unit uArrayObject;
 
 interface
 
-uses Classes, uMemoryManager, uObjectSupport, Generics.Collections;
+uses Classes, uMemoryManager, uObjectSupport, Generics.Collections, uRhodusTypes;
 
 type
-  TIndexArray = array of integer;
-
-  TArrayMethods = class (TMethodsBase)
-     procedure   getLength (vm : TObject);
-     procedure   getShape (vm : TObject);
-     procedure   getSqr (vm : TObject);
-     procedure   add (vm : TObject);
-     constructor Create;
-     destructor  Destroy; override;
-  end;
+  TArrayMethods = class;
 
   T1DArray = array of double;
-  T2DArray = array of T1DArray;
 
   TArrayObject = class (TRhodusObject)
     private
-
-     //size : integer;
-     function getNumDimensions : integer;
-
     public
      data : T1DArray;
-     dim : TIndexArray;
+     dim  : TIndexArray;
      arrayMethods : TArrayMethods;
+
+     class function arrayIntMult (m1 : TArrayObject; alpha : integer) : TArrayObject;
+     class function arrayDoubleMult (m1 : TArrayObject; alpha : double) : TArrayObject;
+
+     function        getNumDimensions : integer;
      function        getIndex (const dim, idx : array of integer) : integer;
      function        getValue (idx : array of integer) : double;
      function        getValue1D (i : integer) : double;
@@ -57,11 +48,24 @@ type
 
      //procedure       append (mat : TArrayObject);
      procedure       appendx (mat : TArrayObject);
+     class function  isEqualTo (a1, a2 : TArrayObject) : boolean;
      class function  add (a1, a2 : TArrayObject) : TArrayObject;
      class function  sub (a1, a2 : TArrayObject) : TArrayObject;
+     class function  mult (m1, m2 : TArrayObject) : TArrayObject;
      constructor     Create; overload;
      constructor     Create (dim : TIndexArray); overload;
      destructor      Destroy; override;
+  end;
+
+  TArrayMethods = class (TMethodsBase)
+     procedure   getLength (vm : TObject);
+     procedure   getShape (vm : TObject);
+     procedure   getNumDim (vm : TObject);
+     procedure   getSqr (vm : TObject);
+     procedure   add (vm : TObject);
+     procedure   sub (vm : TObject);
+     constructor Create;
+     destructor  Destroy; override;
   end;
 
 
@@ -70,15 +74,15 @@ implementation
 Uses SysUtils,
      StrUtils,
      System.Character,
-     uRhodusTypes,
      uVM,
      uMachineStack,
      uListObject,
      uVMExceptions;
 
 const outOfRangeMsg = 'Index out of range while accessing array element';
+      sameDimensionsMsg = 'Arrays must have the same dimensions';
 
-var globalArrayMethods : TArrayMethods;
+var _arrayMethods : TArrayMethods;
 
 
 constructor TArrayMethods.Create;
@@ -87,8 +91,10 @@ begin
 
   methodList.Add(TMethodDetails.Create ('len',   -1, 'get the length of an array: var.len ()', getLength));
   methodList.Add(TMethodDetails.Create ('shape',  0, 'get the dimensions of the array: var.shape ()', getShape));
+  methodList.Add(TMethodDetails.Create ('ndim',   0, 'get the number of dimensions of the array: var.ndim ()', getNumDim));
   methodList.Add(TMethodDetails.Create ('sqr',    0, 'square each element in the array: var.sqr ()', getSqr));
-  methodList.Add(TMethodDetails.Create ('add',    1, 'add an array argument ot the array: a.sqr (b)', add));
+  methodList.Add(TMethodDetails.Create ('add',    1, 'add an array argument ot the array: c = a.add (b)', add));
+  methodList.Add(TMethodDetails.Create ('sub',    1, 'subtract an array argument from the array: c = a.sub (b)', sub));
 
   methodList.Add(TMethodDetails.Create ('dir',    0, 'dir of array object methods', dir));
 end;
@@ -96,9 +102,6 @@ end;
 
 destructor TArrayMethods.Destroy;
 begin
-  for var i := 0 to methodList.Count - 1 do
-      methodList[i].Free;
-  methodlist.Free;
   inherited;
 end;
 
@@ -108,6 +111,9 @@ var i : integer;
     n: integer;
 begin
   result := True;
+  if m1.getNumDimensions() <> m2.getNumDimensions() then
+     exit (False);
+
   n := m1.getNumDimensions() - 1;
   for i := 0 to n do
       if m1.dim[i] <> m2.dim[i] then
@@ -164,6 +170,16 @@ begin
 end;
 
 
+procedure TArrayMethods.getNumDim (vm: TObject);
+var s :TArrayObject;
+begin
+  TVM (vm).decStackTop; // Dump the object method
+  s := TVM (vm).popArray;
+
+  TVM (vm).push (length (s.dim));
+end;
+
+
 procedure TArrayMethods.getSqr (vm : TObject);
 var i : integer;
     s1, s2 : TArrayObject;
@@ -181,7 +197,7 @@ end;
 
 
 procedure TArrayMethods.add (vm : TObject);
-var i, j : integer;
+var i, j, n : integer;
     s1, s2 : TArrayObject;
     argument : TArrayObject;
 begin
@@ -192,9 +208,9 @@ begin
 
   if sameDimensions (s1, argument) then
      begin
-     for i := 0 to s1.dim[0] - 1 do
-         for j := 0 to s1.dim[1] - 1 do
-             s2.setValue2D(i, j, s1.getValue2D(i, j) + s1.getValue2D(i, j));
+     n := s1.getNumDimensions() - 1;
+     for i := 0 to n do
+         s2.setValue(i, s1.getValue(i) + s1.getValue(i));
      end
   else
      raise ERuntimeException.Create('Arrays must have the same dimension when summing');
@@ -202,18 +218,34 @@ begin
 end;
 
 
-// ---------------------------------------------------------------------
-function createArrayObject (const dim : TIndexArray) : TArrayObject;
+procedure TArrayMethods.sub (vm : TObject);
+var i, j, n : integer;
+    s1, s2 : TArrayObject;
+    argument : TArrayObject;
 begin
-  result := TArrayObject.Create (dim);
+  argument := TVM (vm).popArray;
+  TVM (vm).decStackTop; // Dump the object method
+  s1 := TVM (vm).popArray;
+  s2 := s1.clone;
+
+  if sameDimensions (s1, argument) then
+     begin
+     n := s1.getNumDimensions() - 1;
+     for i := 0 to n do
+         s2.setValue(i, s1.getValue(i)-+ s1.getValue(i));
+     end
+  else
+     raise ERuntimeException.Create('Arrays must have the same dimension when summing');
+  TVM (vm).push (s2);
 end;
 
+
 // ----------------------------------------------------------------------
-constructor TArrayObject.Create ();
+constructor TArrayObject.Create;
 begin
   blockType := btGarbage;
   objectType := symArray;
-  arrayMethods := globalArrayMethods;
+  self.arrayMethods := _arrayMethods;
   memoryList.addNode (self);
 end;
 
@@ -386,6 +418,7 @@ begin
          if i < self.getNthDimension(0) - 1 then
              result := result + ', ';
          end;
+     result := result + ']';
      exit;
      end;
 
@@ -406,6 +439,7 @@ begin
         if i < self.getNthDimension(0) - 1 then
            result := result + '; ' + sLineBreak;
         end;
+     result := result + ']';
      exit;
      end;
 
@@ -475,7 +509,7 @@ begin
                result.setValue1D(i, a1.getValue1D(i) + a2.getValue1D(i));
            end
         else
-           raise ERuntimeException.Create('Arrays must have the same dimensions.');
+           raise ERuntimeException.Create(sameDimensionsMsg);
         exit;
         end;
 
@@ -487,17 +521,32 @@ begin
                 result.setValue2D(i, j, a1.getValue2D(i, j) + a2.getValue2D(i, j));
         end
      else
-        raise ERuntimeException.Create('Arrays must have the same dimensions.');
+        raise ERuntimeException.Create(sameDimensionsMsg);
      end
   else
-     raise ERuntimeException.Create('Arrays must have the same dimensions.');
+     raise ERuntimeException.Create(sameDimensionsMsg);
 end;
-
 
 
 class function TArrayObject.sub (a1, a2 : TArrayObject) : TArrayObject;
 var i, j : integer;
 begin
+  if length (a1.dim) = length (a2.dim) then
+     begin
+     if length (a1.dim) = 1 then
+        begin
+        if a1.dim[0] = a2.dim[0] then
+           begin
+           result := TArrayObject.Create (a1.dim);
+           for i := 0 to a1.dim[0] - 1 do
+               result.setValue1D(i, a1.getValue1D(i) - a2.getValue1D(i));
+           end
+        else
+           raise ERuntimeException.Create(sameDimensionsMsg);
+        exit;
+        end;
+     end;
+
   if length (a1.dim) = length (a2.dim) then
      begin
      if (a1.dim[0] = a2.dim[0]) and (a1.dim[1] = a2.dim[1]) then
@@ -508,30 +557,84 @@ begin
                 result.setValue2D(i, j, a1.getValue2D(i, j) - a2.getValue2D(i, j));
         end
      else
-        raise ERuntimeException.Create('Arrays must the same dimensions.');
+        raise ERuntimeException.Create(sameDimensionsMsg);
      end
   else
-     raise ERuntimeException.Create('Arrays must the same dimensions.');
+     raise ERuntimeException.Create(sameDimensionsMsg);
 end;
 
 
-//function TArrayObject.isEqualTo (str1 : TStringObject) : boolean;
-//begin
-//  result := self.value = str1.value;
-//end;
-//
-//
-//class function TArrayObject.add (str1, str2 : TStringObject) : TArrayObject;
-//begin
-//  result := TArrayObject.Create (str1.value + str2.value);
-//end;
+class function TArrayObject.arrayIntMult (m1 : TArrayObject; alpha : integer) : TArrayObject;
+var n : integer;
+begin
+  result := TArrayObject.Create ([m1.dim[0], m1.dim[1]]);
+  n := m1.getNumberOfElements;
+  for var i := 0 to n - 1 do
+      result.data[i] := alpha*m1.data[i];
+end;
+
+
+class function TArrayObject.arrayDoubleMult (m1 : TArrayObject; alpha : double) : TArrayObject;
+var n : integer;
+begin
+  result := TArrayObject.Create ([m1.dim[0], m1.dim[1]]);
+  n := m1.getNumberOfElements;
+  for var i := 0 to n - 1 do
+      result.data[i] := alpha*m1.data[i];
+end;
+
+
+// element-wise multiplication
+class function TArrayObject.mult (m1, m2 : TArrayObject) : TArrayObject;
+begin
+  if (m1.getNumDimensions() = 1) and (m2.getNumDimensions() = 1) then
+     begin
+     result := TArrayObject.Create ([m1.dim[0]]);
+     for var i := 0 to m1.dim[0] - 1 do
+        result.setValue([i], m1.getValue([i]) * m2.getValue ([i]));
+     exit;
+     end;
+
+  if m1.getNumDimensions() <> m2.getNumDimensions() then
+     raise ERuntimeException.Create('Array multiplcation requires the same dimensions for each array');
+
+  if (m1.getNumDimensions() > 2) or (m1.getNumDimensions() > 2) then
+     raise ERuntimeException.Create('Array multiplcation not supported beyond 2D');
+
+  result := TArrayObject.Create ([m1.dim[0], m2.dim[1]]);
+  if (m1.dim[1] = m2.dim[0]) then  // if cols = row?
+     begin
+	   for var i := 0 to m1.dim[1] - 1 do
+		     for var j := 0 to m2.dim[0] - 1 do
+           begin
+   	      result.setValue([i,j], m1.getValue([i,j]) * m2.getValue([i,j]));
+					end;
+		end
+end;
+
+
+class function TArrayObject.isEqualTo (a1, a2 : TArrayObject) : boolean;
+var n: integer;
+begin
+  result := True;
+  n := a1.getNumDimensions() - 1;
+  if not sameDimensions(a1, a2) then
+     exit (False);
+
+  for var i := 0 to n do
+      begin
+      if a1.data[i] <> a2.data[i] then
+         exit (False);
+      end;
+end;
+
 
 // -----------------------------------------------------------------------
 
 initialization
-   globalArrayMethods := TArrayMethods.Create;
+   _arrayMethods := TArrayMethods.Create;
 finalization
-   globalArrayMethods.Free;
+   _arrayMethods.Free;
 end.
 
 

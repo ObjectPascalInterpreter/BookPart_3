@@ -44,7 +44,12 @@ type
 
 implementation
 
-Uses Math, uSymbolTable, uVM, uStringObject, uListObject, uMemoryManager;
+Uses Math,
+     uSymbolTable,
+     uVM,
+     uStringObject,
+     uListObject,
+     uMemoryManager;
 
 
 constructor TBuiltInMath.Create;

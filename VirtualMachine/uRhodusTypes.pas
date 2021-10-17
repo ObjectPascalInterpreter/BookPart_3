@@ -8,7 +8,6 @@ unit uRhodusTypes;
 // Author Contact Information:
 // email: hsauro@gmail.com
 
-
 interface
 
 type
@@ -16,6 +15,8 @@ type
    TSymbolElementType = (symNonExistant = -1, symUndefined, symInteger, symDouble, symBoolean,
          symString, symList, symArray, symUserFunc, symModule);
 
+   TIndexArray = array of integer;
+   TDoubleArray = array of double;
 
 implementation
 

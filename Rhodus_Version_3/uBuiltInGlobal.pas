@@ -62,7 +62,6 @@ type
        destructor  Destroy; override;
   end;
 
-  TDoubleArray = array of double;
   TArrayConstructor = class (TObject)
        elementCount : integer;
        arrayObject : TArrayObject;

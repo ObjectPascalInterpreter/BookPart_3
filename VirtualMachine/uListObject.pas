@@ -136,9 +136,6 @@ end;
 
 destructor TListMethods.Destroy;
 begin
-  for var i := 0 to methodList.Count - 1 do
-      methodList[i].Free;
-  methodlist.Free;
   inherited;
 end;
 

@@ -933,45 +933,61 @@ begin
      raise ERuntimeException.Create ('Variable undefined');
 
   case st2.stackType of
-    stInteger: case st1.stackType of
+    stInteger:
+     case st1.stackType of
         stInteger: push(st1.iValue * st2.iValue);
-        stDouble: push(st2.iValue * st1.dValue);
-        stString:
+        stDouble : push(st2.iValue * st1.dValue);
+        stString :
         begin
           ans := st1.sValue.value;
           for i := 2 to st2.iValue do
-            ans := ans + st1.sValue.value;
+              ans := ans + st1.sValue.value;
           push(TStringObject.Create(ans));
         end;
-        stList: push(TListObject.multiply(st2.iValue, st1.lValue));
+        stList  : push(TListObject.multiply(st2.iValue, st1.lValue));
+        stArray : push (TArrayObject.arrayIntMult (st1.aValue, st2.iValue));
       else
         error('multipying', st2, st1);
       end;
+
     stBoolean: error('multiplying', st2, st1);
 
-    stDouble: case st1.stackType of
-        stInteger: push(st2.dValue * st1.iValue);
-        stDouble: push(st2.dValue * st1.dValue);
+    stDouble:
+      case st1.stackType of
+        stInteger : push(st2.dValue * st1.iValue);
+        stDouble  : push(st2.dValue * st1.dValue);
+        stArray   :  push (TArrayObject.arrayDoubleMult (st1.aValue, st2.dValue))
       else
         error('multipying', st2, st1);
       end;
+
     stString:
       begin
       if st1.stackType = stInteger then
-      begin
+        begin
         ans := st2.sValue.value;
         for i := 2 to st1.iValue do
           ans := ans + st2.sValue.value;
         push(TStringObject.Create(ans));
+        end;
       end;
-      end;
+
     stList:
       begin
       if st1.stackType = stInteger then
         push(TListObject.multiply(st1.iValue, st2.lValue))
       else
         raise ERuntimeException.Create ('Lists can only be multiplied by integers');
-      end
+      end;
+
+    stArray :
+       case st1.stackType of
+         stInteger : push (TArrayObject.arrayIntMult (st2.aValue, st1.iValue));
+         stDouble  : push (TArrayObject.arrayDoubleMult (st2.aValue, st1.dValue));
+         stArray   : push (TArrayObject.mult (st2.aValue, st1.aValue))
+       else
+         error('multipying', st2, st1);
+       end
   else
     raise ERuntimeException.Create ('Data type not supported by multiplication operator')
   end
@@ -1619,7 +1635,12 @@ begin
         push(TListObject.listEquals(st1.lValue, st2.lValue))
       else
         raise ERuntimeException.Create ('Unable to test for equality between lists and non-lists data types');
-      end
+      end;
+    stArray :
+      if st2.stackType = stArray then
+         push (TArrayObject.isEqualTo(st1.aValue, st2.aValue))
+      else
+        raise ERuntimeException.Create ('Unable to test for equality between arrays and non-arrays data types');
   else
     raise ERuntimeException.Create ('Incompatible types in equality test');
   end;

@@ -28,17 +28,27 @@ type
      methodList : TMethodList;
      procedure   dir (vm : TObject);
      constructor Create;
+     destructor  Destroy; override;
    end;
 
 implementation
 
-Uses uListObject, uStringObject, uVM;
+Uses uListObject,
+     uStringObject,
+     uVM;
 
 constructor TMethodsBase.Create;
 begin
   inherited Create;
 end;
 
+destructor TMethodsBase.Destroy;
+begin
+  for var i := 0 to methodList.Count - 1 do
+      methodList[i].Free;
+  methodlist.Free;
+  inherited;
+end;
 
 procedure TMethodsBase.dir(vm: TObject);
 var ls : TListObject;

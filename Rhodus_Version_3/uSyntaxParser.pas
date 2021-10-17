@@ -562,8 +562,7 @@ begin
   end
   else
     begin
-    //result := TASTErrorNode.Create ('Expecting opening bracket to println call', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
-    exit;
+    raise ESyntaxException.Create ('Expecting opening bracket to println call',  tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber)
     end;
 end;
 

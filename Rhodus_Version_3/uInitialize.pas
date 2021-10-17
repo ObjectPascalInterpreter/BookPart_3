@@ -21,8 +21,6 @@ var
   rhodusConfigDir : string;
   docsDir : string;
 
-  //RHODUSPATH : string;
-
 implementation
 
 

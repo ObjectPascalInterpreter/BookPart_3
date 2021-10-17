@@ -1,0 +1,10 @@
+
+import matrix
+
+a = array([1,2])
+b = array ([[1,2],[3,4]])
+
+// Vec * Mat
+println (matrix.mult (a,b))
+// Vec * Mat
+println (matrix.mult (b,a))

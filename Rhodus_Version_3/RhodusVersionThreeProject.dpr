@@ -92,7 +92,8 @@ uses
   uEmbeddAPI in 'uEmbeddAPI.pas',
   uRepl in 'uRepl.pas',
   uArrayObject in '..\VirtualMachine\uArrayObject.pas',
-  uBuiltInArray in 'uBuiltInArray.pas';
+  uBuiltInArray in 'uBuiltInArray.pas',
+  uBuiltInMatrix in 'uBuiltInMatrix.pas';
 
 var config : TRhodusConfig;
 

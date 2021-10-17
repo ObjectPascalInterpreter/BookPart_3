@@ -33,6 +33,29 @@
 
   a = array([[1,2,3],[4,5,6],[7,8,9]])
   b = array([[4,5,6],[7,8,9],[10,11,12]])
+  c = array([[5,  7,  9],
+            [11, 13, 15],
+            [17, 19, 21]])
+  if a + b == c then
+     println ("Array element-wise addition: Pass")
+  else 
+     println ("Array element-wise addition: Fail")
+  end 
+
+  a = array([[1,2,3],[4,5,6],[7,8,9]])
+  b = array([[4,5,6],[7,8,9],[10,11,12]])
+  c = array([[-3,-3, -3],
+            [-3, -3, -3],
+            [-3, -3, -3]])
+  if a - b == c then
+     println ("Array element-wise subtraction: Pass")
+  else 
+     println ("Array element-wise subtraction: Fail")
+  end 
+
+
+  a = array([[1,2,3],[4,5,6],[7,8,9]])
+  b = array([[4,5,6],[7,8,9],[10,11,12]])
   c = array([[4,  10,  18],
             [28, 40, 54],
             [70, 88, 108]])

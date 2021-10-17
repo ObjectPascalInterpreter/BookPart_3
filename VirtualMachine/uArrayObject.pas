@@ -596,10 +596,10 @@ begin
      end;
 
   if m1.getNumDimensions() <> m2.getNumDimensions() then
-     raise ERuntimeException.Create('Array multiplcation requires the same dimensions for each array');
+     raise ERuntimeException.Create('Array multiplication requires the same dimensions for each array');
 
   if (m1.getNumDimensions() > 2) or (m1.getNumDimensions() > 2) then
-     raise ERuntimeException.Create('Array multiplcation not supported beyond 2D');
+     raise ERuntimeException.Create('Array multiplication not supported beyond 2D');
 
   result := TArrayObject.Create ([m1.dim[0], m2.dim[1]]);
   if (m1.dim[1] = m2.dim[0]) then  // if cols = row?

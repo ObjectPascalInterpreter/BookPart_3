@@ -8,3 +8,14 @@ b = array ([[1,2],[3,4]])
 println (matrix.mult (a,b))
 // Vec * Mat
 println (matrix.mult (b,a))
+
+  a = array([5, 2])
+  b = array([[45, 67],
+       [32, 12]])
+  c = array([289, 359]
+
+  if c == a*b then
+     println ("Array element-wise product: Pass")
+  else 
+     println ("Array element-wise product: Fail")
+  end 

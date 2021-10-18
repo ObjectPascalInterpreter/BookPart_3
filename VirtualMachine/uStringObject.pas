@@ -52,7 +52,7 @@ Uses SysUtils,
      uListObject,
      uVMExceptions;
 
-var globalStringMethods : TStringMethods;
+var _stringMethods : TStringMethods;
 
 constructor TStringMethods.Create;
 begin
@@ -193,7 +193,7 @@ constructor TStringObject.createConstantObj (value : string);
 begin
   blockType := btConstant;
   self.value := value;
-  stringMethods := globalStringMethods;
+  stringMethods := _stringMethods;
 end;
 
 
@@ -202,7 +202,7 @@ begin
   blockType := btGarbage;
   objectType := symString;
   self.value := value;
-  stringMethods := globalStringMethods;
+  stringMethods := _stringMethods;
   memoryList.addNode (self);
 end;
 
@@ -242,9 +242,9 @@ end;
 // -----------------------------------------------------------------------
 
 initialization
-   globalStringMethods := TStringMethods.Create;
+   _stringMethods := TStringMethods.Create;
 finalization
-  globalStringMethods.Free;
+  _stringMethods.Free;
 end.
 
 

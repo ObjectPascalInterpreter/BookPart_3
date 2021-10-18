@@ -586,6 +586,7 @@ end;
 
 // element-wise multiplication
 class function TArrayObject.mult (m1, m2 : TArrayObject) : TArrayObject;
+var n : integer;
 begin
   if (m1.getNumDimensions() = 1) and (m2.getNumDimensions() = 1) then
      begin
@@ -595,21 +596,13 @@ begin
      exit;
      end;
 
-  if m1.getNumDimensions() <> m2.getNumDimensions() then
+  if not sameDimensions(m1, m2) then
      raise ERuntimeException.Create('Array multiplication requires the same dimensions for each array');
 
-  if (m1.getNumDimensions() > 2) or (m1.getNumDimensions() > 2) then
-     raise ERuntimeException.Create('Array multiplication not supported beyond 2D');
-
   result := TArrayObject.Create ([m1.dim[0], m2.dim[1]]);
-  if (m1.dim[1] = m2.dim[0]) then  // if cols = row?
-     begin
-	   for var i := 0 to m1.dim[1] - 1 do
-		     for var j := 0 to m2.dim[0] - 1 do
-           begin
-   	      result.setValue([i,j], m1.getValue([i,j]) * m2.getValue([i,j]));
-					end;
-		end
+  n := m1.dim[0] * m1.dim[1];
+  for var i := 0 to n - 1 do
+      result.data[i] :=  m1.data[i] * m2.data[i];
 end;
 
 

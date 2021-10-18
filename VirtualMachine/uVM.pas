@@ -1310,7 +1310,7 @@ begin
               exit;
               end;
   else
-     raise ERuntimeException.Create('Primary objects can only be modules, strings, arraysaor lists');
+     raise ERuntimeException.Create('Primary objects can only be modules, strings, arrays or lists');
   end;
 
   if not m.symbolTable.find (symbolName, symbol) then

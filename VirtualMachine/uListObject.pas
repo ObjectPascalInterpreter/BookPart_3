@@ -114,7 +114,7 @@ type
   TIntArray = array of integer;
   TDoubleArray = array of double;
 
-var globalListMethods : TListMethods;
+var _listMethods : TListMethods;
 
 
 constructor TListMethods.Create;
@@ -418,7 +418,7 @@ begin
 
   objectType := symList;
   list := TListContainer.Create;
-  listMethods := globalListMethods;
+  listMethods := _listMethods;
   for i := 0 to count - 1 do
     list.add(TListItem.Create(0));
   memoryList.addNode(self); // Add a reference to the memory manager
@@ -868,8 +868,8 @@ end;
 // -----------------------------------------------------------------------
 
 initialization
-   globalListMethods := TListMethods.Create;
+   _listMethods := TListMethods.Create;
 finalization
-  globalListMethods.Free;
+   _listMethods.Free;
 end.
 

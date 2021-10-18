@@ -1,0 +1,38 @@
+import math
+
+yMin = -0.2
+yMax = 0.1
+xMin = -1.5
+xMax = -1.1
+
+for yPixel = 0 to 24 do
+  y = (yPixel / 24) * (yMax - yMin) + yMin
+  for xPixel = 0 to 79 do
+    x = (xPixel / 79) * (xMax - xMin) + xMin
+    pixel = " "
+    x0 = x
+    y0 = y
+    for iter = 0 to 79 do 
+      x1 = (x0 * x0) - (y0 * y0)
+      y1 = 2 * x0 * y0
+
+      // Add the seed.
+      x1 = x1 + x
+      y1 = y1 + y
+
+      x0 = x1
+      y0 = y1
+
+      // Stop if the point escaped.
+      d = (x0 * x0) + (y0 * y0)
+      if (d > 4) then
+        pixel = " .:;+=xX$&"[math.floor (iter / 8)]
+        break
+      end
+    end
+
+    print(pixel)
+  end
+
+  println()
+end

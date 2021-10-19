@@ -35,6 +35,7 @@ type
      procedure       setValue (idx : array of integer; value : double);
      procedure       setValue1D (i : integer; value : double);
      procedure       setValue2D (i, j : integer; value : double);
+
      function        getRow (index : integer) : TArrayObject;
      function        getDim : TIndexArray;
      function        clone : TArrayObject;
@@ -45,8 +46,8 @@ type
      procedure       setNumberOfElements (newSize : integer);
      function        getNthDimension (i : integer) : integer;
      property        numDimensions : integer read getNumDimensions;
+     property        Item[index1, index2: Integer]: double read getValue2D write setValue2D; default;
 
-     //procedure       append (mat : TArrayObject);
      procedure       appendx (mat : TArrayObject);
      class function  isEqualTo (a1, a2 : TArrayObject) : boolean;
      class function  add (a1, a2 : TArrayObject) : TArrayObject;
@@ -427,6 +428,7 @@ begin
      result := '[';
      for i := 0 to self.getNthDimension(0) - 1 do
          begin
+         result := result + '[';
          for j := 0 to self.getNthDimension(1) - 1 do
              begin
              if (i = 0) and (j=0) then formatStr := '%9.4f'
@@ -437,9 +439,9 @@ begin
                 result := result + ', ';
             end;
         if i < self.getNthDimension(0) - 1 then
-           result := result + '; ' + sLineBreak;
+           result := result + ']], ' + sLineBreak;
         end;
-     result := result + ']';
+     result := result + ']]';
      exit;
      end;
 

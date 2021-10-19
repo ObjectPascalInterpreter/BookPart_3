@@ -15,6 +15,7 @@ type
    TSymbolElementType = (symNonExistant = -1, symUndefined, symInteger, symDouble, symBoolean,
          symString, symList, symArray, symUserFunc, symModule);
 
+   TIntArray = array of integer;
    TIndexArray = array of integer;
    TDoubleArray = array of double;
 

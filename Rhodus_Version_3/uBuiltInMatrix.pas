@@ -18,6 +18,7 @@ type
        procedure   getAdd (vm : TObject);
        procedure   getSub (vm : TObject);
        procedure   getMult (vm : TObject);
+       procedure   getInverse (vm : TObject);
 
        constructor Create;
        destructor  Destroy; override;
@@ -26,6 +27,7 @@ type
 implementation
 
 Uses  Math,
+      uMath,
       uVM,
       uRhodusTypes,
       uVMExceptions;
@@ -43,6 +45,7 @@ begin
   addMethod(getMult,           2, 'mult',  'Multiply two 2D matrices: m = matrix.mult (m1, m2)');
   addMethod(getAdd,            2, 'add',   'Add two 2D matrices: m = matrix.add (m1, m2)');
   addMethod(getSub,            2, 'sub',   'Subtract two 2D matrices: m = matrix.sub (m1, m2)');
+  addmethod(getInverse,        1, 'inv',   'Compute inverse of matrix: m = matrix.inv (m)');
 
   addMethod(getRndu,           2, 'rand',  'Create an array of uniformly random numbers: m = matrix.rand (4,4)');
   addMethod(getRndi,           4, 'randi', 'Create a matrix of uniformly random integers: m = matrix.randi (3, 2, lower, upper)');
@@ -257,6 +260,19 @@ begin
       stArray :
          matrixGeneralMult (vm, m1.aValue, m2);
     end;
+end;
+
+procedure TBuiltInMatrix.getInverse (vm : TObject);
+var m, cpy : TArrayObject;
+    det : double;
+    n : integer;
+begin
+  m := TVM (vm).popArray;
+  cpy := m.clone();
+  n := m.dim[0];
+  GaussJordan(cpy, 0, n-1, n-1, det);
+
+  TVM (vm).push(cpy);
 end;
 
 end.

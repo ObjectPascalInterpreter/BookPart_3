@@ -93,7 +93,8 @@ uses
   uRepl in 'uRepl.pas',
   uArrayObject in '..\VirtualMachine\uArrayObject.pas',
   uBuiltInArray in 'uBuiltInArray.pas',
-  uBuiltInMatrix in 'uBuiltInMatrix.pas';
+  uBuiltInMatrix in 'uBuiltInMatrix.pas',
+  uMath in 'uMath.pas';
 
 var config : TRhodusConfig;
 

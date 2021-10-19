@@ -22,7 +22,7 @@ type
    // TMethodBase is the parent of the object that will hold the
    // methods that are applicable to the object its attached to.
    // methodlist is a reference to the list of methods so that
-   // we can implement dir(). Note, don't free this reference here
+   // we can implement dir(). Note, don't free methodlist
    // as TMethodBase doesn't own it.
    TMethodsBase = class (TObject)
      methodList : TMethodList;

@@ -18,7 +18,6 @@ type
    TRhodusObject = class (TObject)
       blockType : TBlockType;
       objectType : TSymbolElementType;
-      methodList : TMethodList; // Contains the methods that can be applied to the data
 
       function isConstant : boolean;
       function isBound : boolean;

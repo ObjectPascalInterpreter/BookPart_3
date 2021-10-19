@@ -225,6 +225,7 @@
         <DCCReference Include="..\VirtualMachine\uArrayObject.pas"/>
         <DCCReference Include="uBuiltInArray.pas"/>
         <DCCReference Include="uBuiltInMatrix.pas"/>
+        <DCCReference Include="uMath.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

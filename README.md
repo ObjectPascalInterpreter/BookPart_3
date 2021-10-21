@@ -13,6 +13,12 @@ The major outward change in this version includes library support, and a range o
 
 <img src="/Images/demo1.gif" width="609" height="345"/>
 
+## Build
+
+To build the code, load RhodusVersionThreeGroup.groupproj into your Delphi IDE and run. The only dependency if FAST44 for memory leak Debugging but it canbe last out by commenting out the line 35 in RhodusVersionThreeProject.dpr
+
+## Exmaples
+
 Example code:
 
     

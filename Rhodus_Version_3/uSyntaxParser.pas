@@ -429,7 +429,7 @@ procedure TSyntaxParser.term;
 begin
   power;
 
-  while tokenVector.token in [tMult, tDivide, tDivI, tMod] do
+  while tokenVector.token in [tMult, tDivide, tDivI, tMod, tDotproduct] do
     begin
     nextToken;
     power;

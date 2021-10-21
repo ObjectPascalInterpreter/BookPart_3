@@ -10,6 +10,7 @@ type
                 tPlus,
                 tMinus,
                 tMult,
+                tDotproduct,
                 tDivide,
                 tPower,
                 tDivI,

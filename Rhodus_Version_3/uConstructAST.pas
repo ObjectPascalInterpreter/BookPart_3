@@ -445,19 +445,10 @@ begin
       expect(tRightBracket);
       end;
 
+     // Reserve for maps
      tLeftCurleyBracket:
         begin
         sc.nextToken;
-        result := TASTArray.Create;
-        if sc.token <> tRightCurleyBracket then
-           begin
-           (result as TASTArray).list.Add(expression);
-           while sc.token = tComma do
-              begin
-              sc.nextToken;
-              (result as TASTArray).list.Add(expression);
-              end;
-           end;
         expect(tRightCurleyBracket);
         end;
 
@@ -556,7 +547,7 @@ begin
   if leftNode.nodeType = ntError then
      exit (leftNode);
 
-  while sc.token in [tMult, tDivide, tDivI, tMod] do
+  while sc.token in [tMult, tDivide, tDivI, tMod, tDotproduct] do
     begin
     op := sc.token; // remember the token
     sc.nextToken;
@@ -576,6 +567,8 @@ begin
         leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntMod);
       tDivI:
         leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntDivI);
+      tDotproduct:
+        leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntDotProduct);
     end;
     end;
   result := leftNode;

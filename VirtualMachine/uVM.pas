@@ -96,6 +96,7 @@ type
     procedure subOp;
     procedure multOp;
     procedure divOp;
+    procedure dotProductOp;
     procedure unaryMinusOp;
     procedure divideIntOp;
     procedure modOp;
@@ -220,7 +221,8 @@ Uses uOpCodes,
      uVMExceptions,
      Rtti,
      uRhodusEngine,
-     uBuiltInGlobal;
+     uBuiltInGlobal,
+     uBuiltInMatrix;
 
 var
   Stopwatch: TStopwatch;
@@ -991,6 +993,33 @@ begin
   else
     raise ERuntimeException.Create ('Data type not supported by multiplication operator')
   end
+end;
+
+
+procedure TVM.dotProductOp;
+var m1, m2 : TArrayObject;
+    sum : double;
+begin
+  m2 := popArray;
+  m1 := popArray;
+
+  if (m1.getNumDimensions() = 1) and (m2.getNumDimensions() = 1) then
+     begin
+     // Dot product of two vectors
+     if m1.dim[0] = m2.dim[0] then
+        begin
+        sum := 0;
+        for var i := 0 to m1.dim[0] - 1 do
+            sum := sum + m1.data[i] * m2.data[i];
+        push (sum);
+        exit;
+        end
+     else
+        raise ERuntimeException.Create('Dot product requires both vectros to be the same size');
+     end;
+
+  // Otherwise its matrix-matrix multiplication
+  push (TBuiltInMatrix.dotMatMatMult(m1, m2));
 end;
 
 
@@ -2384,6 +2413,7 @@ begin
             oMult:       multOp;
             oDivide:     divOp;
             oDivi:       divideIntOp;
+            oDotProduct: dotProductOp;
             oUmi:        unaryMinusOp;
             oMod:        modOp;
             oPower:      powerOp;

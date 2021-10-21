@@ -8,9 +8,9 @@ type
   TBuiltInMatrix = class (TModuleLib)
 
     private
-       procedure matrixGeneralMult (vm : TObject; m : TArrayObject; x : PMachineStackRecord);
-       class function matMatMult (m1, m2 : TArrayObject) : TArrayObject;
     public
+       class function dotMatMatMult (m1, m2 : TArrayObject) : TArrayObject;
+       procedure   matrixGeneralMult (vm : TObject; m : TArrayObject; x : PMachineStackRecord);
 
        procedure   getRndu(vm: TObject);
        procedure   getRndi (vm : TObject);
@@ -145,7 +145,7 @@ begin
 end;
 
 
-class function TBuiltInMatrix.matMatMult (m1, m2 : TArrayObject) : TArrayObject;
+class function TBuiltInMatrix.dotMatMatMult (m1, m2 : TArrayObject) : TArrayObject;
 begin
   result := TArrayObject.Create ([m1.dim[0], m2.dim[1]]);
   if (m1.dim[1] = m2.dim[0]) then  // if cols = row?
@@ -224,7 +224,7 @@ begin
                                      end;
                                  TVM (vm).push(ar);
                                  end;
-                             2 : TVM (vm).push (matMatMult (m, x.aValue));
+                             2 : TVM (vm).push (dotMatMatMult (m, x.aValue));
                           end;
                     else
                       raise ERuntimeException.Create('Error Message');

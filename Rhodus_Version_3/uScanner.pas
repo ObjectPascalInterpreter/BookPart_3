@@ -629,6 +629,7 @@ begin
      '-'  : FTokenRecord.Ftoken := tMinus;
      '/'  : FTokenRecord.Ftoken := tDivide;
      '*'  : FTokenRecord.Ftoken := tMult;
+     '@'  : FTokenRecord.FToken := tDotproduct;
   else
      begin
      FTokenRecord.FToken := tError;
@@ -707,6 +708,7 @@ begin
         tPlus         : result := 'character: ''+''';
         tMult         : result := 'character: ''*''';
         tDivide       : result := 'character: ''/''';
+        tDotproduct   : result := 'character: ''@''';
         tPower        : result := 'character: ''^''';
   tRightParenthesis   : result := 'character: '')''';
   tLeftParenthesis    : result := 'character: ''(''';
@@ -777,6 +779,7 @@ begin
        tMult         : result := '*';
        tDivide       : result := '/';
        tPower        : result := '^';
+       tDotproduct   : result := '@';
  tRightParenthesis   : result := ')';
  tLeftParenthesis    : result := '(';
  tRightBracket       : result := ']';

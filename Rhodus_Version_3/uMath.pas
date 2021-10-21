@@ -33,6 +33,8 @@ procedure GaussJordan(A            : TArrayObject;
 
 implementation
 
+Uses uVm;
+
 // Double precision epsilon
 const MachEp = 2.220446049250313e-16;
 
@@ -170,6 +172,72 @@ begin
           end;
     end;
 end;
+
+//procedure matrixMult (vm : TObject; m1, m2 : TArrayObject);
+//var nDim1, nDim2 :integer;
+//    i, j,  n : integer;
+//    sum : double;
+//    ar : TArrayObject;
+//begin
+//  nDim1 := m1.getNumDimensions();
+//  nDim2 := m2.getNumDimensions();
+//  case nDim1 of
+//     1 :
+//       case nDim2 of
+//          1 : begin
+//              if m1.dim[0] <> m2.dim[0] then
+//                 raise ERuntimeException.Create('Length of two arrays must be equal');
+//              sum := 0;
+//              for i := 0 to m1.dim[0] - 1 do
+//                 sum := sum + m1.data[i]*m2.data[i];
+//              TVM (vm).push(sum);
+//              end;
+//          2 : begin
+//              if m1.dim[0] <> m2.dim[0] then
+//                 raise ERuntimeException.Create('Length of vector and row dimension of matrix must be equal');
+//
+//              n := m2.dim[0];
+//              ar := TArrayObject.Create ([n]);
+//              for i := 0 to m1.dim[0] - 1 do
+//                 begin
+//                 sum := 0;
+//                 for j := 0 to m1.dim[0] - 1 do
+//                     begin
+//                     sum := sum + m1.getValue([j]) * m2.getValue([j,i]);
+//                     end;
+//                     ar.setValue([i], sum);
+//                     end;
+//                 TVM (vm).push(ar);
+//                 end;
+//              end;
+//
+//     2 :
+//       case nDim2 of
+//          1 : begin
+//              if m1.dim[0] <> x.aValue.dim[0] then
+//                 raise ERuntimeException.Create('Length of vector and row dimension of matrix must be equal');
+//
+//              n := m2.dim[0];
+//              ar := TArrayObject.Create ([n]);
+//              for i := 0 to m1.dim[0] - 1 do
+//                  begin
+//                  sum := 0;
+//                  for j := 0 to m1.dim[0] - 1 do
+//                      begin
+//                      sum := sum + m1.getValue([i,j]) * m2.getValue([j]);
+//                      end;
+//                  ar.setValue([i], sum);
+//                  end;
+//              TVM (vm).push(ar);
+//              end;
+//          2 : TVM (vm).push (matMatMult (m1, x.aValue));
+//          end;
+//       else
+//          raise ERuntimeException.Create('Error Message');
+//  end;
+//end;
+
+
 
 end.
 

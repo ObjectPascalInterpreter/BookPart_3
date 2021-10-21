@@ -22,12 +22,13 @@ const
    oDivi           = byte (5);   // Integer division
    oMod            = byte (6);   // Modulus of two integer values
    oDivide         = byte (7);
-   oUmi            = byte (8);
-   oPower          = byte (9);
-   oInc            = byte (10);  // Increment stack entry by arg
-   oLocalInc       = byte (11);
-   oDec            = byte (12);  // Decrement stack entry by arg
-   oLocalDec       = byte (13);
+   oDotProduct     = byte (8);
+   oUmi            = byte (9);
+   oPower          = byte (10);
+   oInc            = byte (11);  // Increment stack entry by arg
+   oLocalInc       = byte (12);
+   oDec            = byte (13);  // Decrement stack entry by arg
+   oLocalDec       = byte (14);
 
    // Load and store values to symbol table
    oLoadLocal      = byte (20);  // Load local symbol argument onto stack, operand contains index to the local symbol table

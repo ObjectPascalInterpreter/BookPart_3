@@ -49,7 +49,6 @@ type
     procedure compileAssignment(node: TASTAssignment);
     procedure compileUserFunction(node: TASTNode);
     procedure compileList(node: TASTCreatelist);
-    procedure compileArray (node : TASTNode);
     procedure compileGlobalVariable(node: TASTNode);
     procedure compileStatementList(node: TASTNode);
     procedure compilePowerOperator(node: TASTPowerOp);
@@ -517,41 +516,6 @@ begin
 end;
 
 
-//procedure TCompiler.compileRow (node : TASTArrayRow);
-//var i : integer;
-//begin
-//  for i := 0 to node.row.Count - 1 do
-//      compileCode (node.row[i]);
-//   code.addByteCode(oCreateMatRow, node.row.Count);
-//end;
-//
-//
-procedure TCompiler.compileArray (node : TASTNode);
-var i : integer;
-    _array : TASTArray;
-begin
-  _array := node as TASTArray;
-  if node <> nil then
-    begin
-      for i := 0 to _array.list.Count - 1 do
-        compileCode(_array.list[i]);
-      code.addByteCode(oCreateArray, _array.list.Count);
-    end
-  else
-    code.addByteCode(oCreateArray, 0); // empty list
-//  twoDArray := node as TAST2DArray;
-//  if node <> nil then
-//     begin
-//     compileRow (twoDArray.rows[0]);
-//     for i := 1 to twoDArray.rows.Count - 1 do
-//         begin
-//         compileRow (twoDArray.rows[i]);
-//         code.addByteCode (oMatAppendRow);
-//         end;
-//     end;
-end;
-
-
 procedure TCompiler.compileGlobalVariable(node: TASTNode);
 var
   symbolIndex: integer;
@@ -1006,8 +970,6 @@ begin
       compilePrimaryFunction (node as TASTPrimaryFunction);
     ntCreateList:
       compileList(node as TASTCreatelist);
-    ntArray:
-      compileArray (node);
     ntAssignment:
       compileAssignment (node as TASTAssignment);
     // An expression on its own, has to be dealt with separately
@@ -1058,6 +1020,8 @@ begin
       compileBinOperator(node as TASTBinOp, oMod);
     ntDivI:
       compileBinOperator(node as TASTBinOp, oDivI);
+   ntDotProduct:
+      compileBinOperator(node as TASTBinOp, oDotProduct);
     ntAND:
       compileBinOperator(node as TASTBinOp, oAnd);
     ntOR:

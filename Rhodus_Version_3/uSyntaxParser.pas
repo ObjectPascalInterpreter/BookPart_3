@@ -350,26 +350,18 @@ begin
            end;
        expect(tRightBracket);
        end;
-     tLeftCurleyBracket :
-       begin
-       nextToken;
-       if tokenVector.token <> tRightCurleyBracket then
-          begin
-          expression;
-          while tokenVector.token = tComma do
-             begin
-             nextToken;
-             expression;
-             end;
-          end;
-       expect(tRightCurleyBracket);
-       end;
+     // Reserved for maps
+     //tLeftCurleyBracket :
+     //  begin
+     //  nextToken;
+     //  expect(tRightCurleyBracket);
+     //  end;
     tError:
        begin
-       raise ESyntaxException.Create ('Expecting a factor [literal, identifier, or ''{''] but found ' + tokenVector.tokenRecord.FTokenCharacter, tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
+       raise ESyntaxException.Create ('Expecting a factor [literal, identifier, or ''[''] but found ' + tokenVector.tokenRecord.FTokenCharacter, tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
        end
    else
-      raise ESyntaxException.Create ('Expecting a factor [literal, identifier, or ''{''] but found ' + tokenVector.tokenToString (tokenVector.token), tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
+      raise ESyntaxException.Create ('Expecting a factor [literal, identifier, or ''[''] but found ' + tokenVector.tokenToString (tokenVector.token), tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
   end;
 end;
 

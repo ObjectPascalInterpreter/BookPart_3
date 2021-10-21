@@ -446,12 +446,11 @@ begin
       end;
 
      // Reserve for maps
-     tLeftCurleyBracket:
-        begin
-        sc.nextToken;
-        expect(tRightCurleyBracket);
-        end;
-
+//     tLeftCurleyBracket:
+//        begin
+//        sc.nextToken;
+//        expect(tRightCurleyBracket);
+//        end;
 
     tError:
        begin

@@ -271,10 +271,10 @@ begin
         oNop        : result := result + '  ' + opCodeNames[oNop]    + ' ' + sLineBreak;
         oHalt       : result := result + '  ' + opCodeNames[oHalt]   + sLineBreak;
 
-        oPushi      : result := result + '  ' + opCodeNames[oPushi] + ' ' + inttostr (aProgram.code[i].index1) + sLineBreak;
-        oPushb      : result := result + '  ' + opCodeNames[oPushb] + ' ' + inttostr (aProgram.code[i].index1) + sLineBreak;
-        oPushd      : result := result + '  ' + opCodeNames[oPushd] + ' ' + floattostr (module.code.constantValueTable[aProgram.code[i].index1].dValue) + sLineBreak;
-        oPushs      : result := result + '  ' + opCodeNames[oPushs] + ' "' + module.code.constantValueTable[aProgram.code[i].index1].sValue.value + '"' + sLineBreak;
+        oPushi      : result := result + '  ' + opCodeNames[oPushi] + ' ' + inttostr (aProgram.code[i].index) + sLineBreak;
+        oPushb      : result := result + '  ' + opCodeNames[oPushb] + ' ' + inttostr (aProgram.code[i].index) + sLineBreak;
+        oPushd      : result := result + '  ' + opCodeNames[oPushd] + ' ' + floattostr (module.code.constantValueTable[aProgram.code[i].index].dValue) + sLineBreak;
+        oPushs      : result := result + '  ' + opCodeNames[oPushs] + ' "' + module.code.constantValueTable[aProgram.code[i].index].sValue.value + '"' + sLineBreak;
         oPushNone   : result := result + '  ' + opCodeNames[oPushNone] + sLineBreak;
         oDup        : result := result + '  ' + opCodeNames[oDup] + sLineBreak;
 
@@ -287,7 +287,7 @@ begin
         oPower      : result := result + '  ' + opCodeNames[oPower]  + sLineBreak;
         oUmi        : result := result + '  ' + opCodeNames[oUmi]    + sLineBreak;
         oInc        : result := result + '  ' + opCodeNames[oInc]    + ' ' + floattostr (aProgram.code[i].float) + sLineBreak;
-        oDec        : result := result + '  ' + opCodeNames[oDec]    + ' ' + inttostr (aProgram.code[i].index1) + ', ' + inttostr (aProgram.code[i].index2) + sLineBreak;
+        oDec        : result := result + '  ' + opCodeNames[oDec]    + ' ' + inttostr (aProgram.code[i].index) + ', ' + floattostr (aProgram.code[i].float) + sLineBreak;
         oLocalInc   : result := result + '  ' + opCodeNames[oLocalInc] + sLineBreak;
         oLocalDec   : result := result + '  ' + opCodeNames[oLocalDec] + sLineBreak;
         oOr         : result := result + '  ' + opCodeNames[oOr]     + sLineBreak;
@@ -309,26 +309,26 @@ begin
         oAssertFalse: result := result + '  ' + opCodeNames[oAssertFalse]  + sLineBreak;
         oSetColor   : result := result + '  ' + opCodeNames[oSetColor]  + sLineBreak;
 
-        oJmp        : result := result + '  ' + opCodeNames[oJmp]   + ' ' + inttostr (aProgram.code[i].index1) + sLineBreak;
-        oJmpIfTrue  : result := result + '  ' + opCodeNames[ojmpIfTrue] + ' ' + inttostr (aProgram.code[i].index1) + sLineBreak;
-        oJmpIfFalse : result := result + '  ' + opCodeNames[oJmpIfFalse] + ' ' + inttostr (aProgram.code[i].index1) + sLineBreak;
+        oJmp        : result := result + '  ' + opCodeNames[oJmp]   + ' ' + inttostr (aProgram.code[i].index) + sLineBreak;
+        oJmpIfTrue  : result := result + '  ' + opCodeNames[ojmpIfTrue] + ' ' + inttostr (aProgram.code[i].index) + sLineBreak;
+        oJmpIfFalse : result := result + '  ' + opCodeNames[oJmpIfFalse] + ' ' + inttostr (aProgram.code[i].index) + sLineBreak;
 
         oStoreSymbol  : result := result + '  ' + opCodeNAmes[oStoreSymbol] + ' ' + aProgram.code[i].symbolName + sLineBreak;
          oLoadSymbol  : result := result + '  ' + opCodeNames[oLoadSymbol]  + ' ' + aProgram.code[i].symbolName + sLineBreak;
           oLoadAttr   : result := result + '  ' + opCodeNames[oLoadAttr] + ' ' + aProgram.code[i].symbolName + sLineBreak;
          oStoreAttr   : result := result + '  ' + opCodeNames[oStoreAttr] + ' ' + aProgram.code[i].symbolName + sLineBreak;
-        oStoreLocal   : result := result + '  ' + opCodeNAmes[oStoreLocal] + ' ' + inttostr (aProgram.code[i].index1) + sLineBreak;
-        oLoadLocal    : result := result + '  ' + opCodeNames[oLoadLocal]  + ' ' + inttostr (aProgram.code[i].index1) + sLineBreak;
+        oStoreLocal   : result := result + '  ' + opCodeNAmes[oStoreLocal] + ' ' + inttostr (aProgram.code[i].index) + sLineBreak;
+        oLoadLocal    : result := result + '  ' + opCodeNames[oLoadLocal]  + ' ' + inttostr (aProgram.code[i].index) + sLineBreak;
 
-        oCreateArray  : result := result + '  ' + opCodeNames[oCreateArray] + ' ' + inttostr (aProgram.code[i].index1) + sLineBreak;
+        oCreateArray  : result := result + '  ' + opCodeNames[oCreateArray] + ' ' + inttostr (aProgram.code[i].index) + sLineBreak;
         oCall       : result := result + '  ' + opCodeNames[oCall]  + sLineBreak;
-        oBuiltin    : result := result + '  ' + opCodeNames[oBuiltin] + ' ' + inttostr (aProgram.code[i].index1) + sLineBreak;
+        oBuiltin    : result := result + '  ' + opCodeNames[oBuiltin] + ' ' + inttostr (aProgram.code[i].index) + sLineBreak;
         oRet        : result := result + '  ' + opCodeNames[oRet]     + ' ' + sLineBreak;
         oLvecIdx    : result := result + '  ' + opCodeNames[oLvecIdx] + sLineBreak;
         oSvecIdx    : result := result + '  ' + opCodeNames[oSvecIdx] + sLineBreak;
-        oLocalLvecIdx    : result := result + '  ' + opCodeNames[oLocalLvecIdx] + ' ' + inttostr (aProgram.code[i].index1) + sLineBreak;
-        oLocalSvecIdx    : result := result + '  ' + opCodeNames[oLocalSvecIdx] + ' ' + inttostr (aProgram.code[i].index1) + sLineBreak;
-        oCreateList : result := result + '  ' + opCodeNames[oCreateList] + ' ' + inttostr (aProgram.code[i].index1) + sLineBreak;
+        oLocalLvecIdx    : result := result + '  ' + opCodeNames[oLocalLvecIdx] + ' ' + inttostr (aProgram.code[i].index) + sLineBreak;
+        oLocalSvecIdx    : result := result + '  ' + opCodeNames[oLocalSvecIdx] + ' ' + inttostr (aProgram.code[i].index) + sLineBreak;
+        oCreateList : result := result + '  ' + opCodeNames[oCreateList] + ' ' + inttostr (aProgram.code[i].index) + sLineBreak;
         oImportModule : result := result + '  ' + opCodeNames[oImportModule] + ' ' + aProgram.code[i].moduleName + sLineBreak;
       else
         writeln ('Unknown opcode during dissassembly: ', aProgram.code[i].opCode);

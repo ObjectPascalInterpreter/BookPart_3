@@ -15,8 +15,8 @@ Uses Classes, SysUtils, uOpCodes, uConstantTable;
 type
    TByteCode = packed record
          opCode : TOpCode;   // 1 byte
-         index1, index2 : integer;    // 2 * 4 bytes
-         float : double;   // This is currently only used by the inc and dec op codes
+         index : integer;    // 4 bytes
+         float : double;     // This is currently only used by the inc and dec op codes
          moduleName : string;
          symbolName : string;
    end;
@@ -40,7 +40,7 @@ type
            //procedure addByteCode (opCode : TOpCode; dValue : double); overload;
            procedure addByteCode (opCode : TOpCode; bValue : boolean); overload;
            //procedure addByteCode (opCode : TOpCode; sValue : string); overload;
-           procedure addByteCode (opCode : TOpCode; index1, index2 : integer); overload;
+           //procedure addByteCode (opCode : TOpCode; index1 : integer); overload;
            procedure addByteCode (opCode : TOpCode; const symbolName : string; increment : double);  overload;
            procedure addModuleByteCode (opCode : TOpCode; const moduleName : string);
            procedure addSymbolByteCode (opCode : TOpCode; const symbolName : string);
@@ -71,7 +71,7 @@ implementation
 function createByteCode (opCode : TOpCode; iValue : integer) : TByteCode;
 begin
   result.opCode := opCode;
-  result.index1 := iValue;
+  result.index := iValue;
 end;
 
 
@@ -85,14 +85,14 @@ end;
 function  createByteCode (opCode : TOpCode; bValue : boolean) : TByteCode;
 begin
   result.opCode := opCode;
-  result.index1 := integer (bValue);
+  result.index := integer (bValue);
 end;
 
 
 function createByteCode (opCode : TOpCode) : TByteCode;
 begin
   result.opCode := opCode;
-  result.index1 := 0;
+  result.index := 0;
 end;
 
 
@@ -164,7 +164,7 @@ end;
 // Set a gotolabel with the value 'value' at the location 'location'
 procedure TProgram.setGotoLabel (Location, value : integer);
 begin
-  code[Location].index1 := value;
+  code[Location].index := value;
 end;
 
 
@@ -266,15 +266,6 @@ begin
 end;
 
 
-procedure TProgram.addByteCode (opCode : TOpCode; index1, index2 : integer);
-begin
-  checkSpace;
-  code[actualLength] := createByteCode (opCode, index1);
-  code[actualLength].index2 := index2;
-  inc(actualLength);
-end;
-
-
 procedure TProgram.addFullSymbolByteCode (opCode : TOpCode; const moduleName, symbolName : string);
 begin
   checkSpace;
@@ -285,7 +276,6 @@ begin
 end;
 
 
-//procedure TProgram.addByteCode (opCode : TOpCode; const moduleName, symbolName : string; float : double);
 procedure TProgram.addByteCode (opCode : TOpCode; const symbolName : string; increment : double);
 begin
   checkSpace;
@@ -300,7 +290,7 @@ procedure TProgram.addLocalForByteCode (opCode : TOpCode; symbolIndex : integer;
 begin
   checkSpace;
   code[actualLength] := createByteCode (opCode, 0);
-  code[actualLength].index1 := symbolIndex;
+  code[actualLength].index := symbolIndex;
   code[actualLength].float := stepValue;
 
   inc(actualLength);

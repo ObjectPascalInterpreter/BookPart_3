@@ -825,7 +825,7 @@ begin
          // Check if its in the local space, if yes then emit the local load opecode
          // if not it could be in the module space
          if currentUserFunction.localSymbolTable.find(node.symbolName, localSymbolIndex) then
-            code.addByteCode(oLoadLocal, localSymbolIndex, -1)
+            code.addByteCode(oLoadLocal, localSymbolIndex)
          else
             begin
             if currentModule.symbolTable.find(node.symbolName, symbol) then
@@ -861,9 +861,9 @@ begin
          if not currentUserFunction.localSymbolTable.find(node.symbolName, localSymbolIndex) then
             localSymbolIndex := currentUserFunction.localSymbolTable.addSymbol (node.symbolName);
          if inAssignment_NextToEquals then
-            code.addByteCode (oStoreLocal, localSymbolIndex, -1)
+            code.addByteCode (oStoreLocal, localSymbolIndex)
          else
-            code.addByteCode (oLoadLocal, localSymbolIndex, -1)
+            code.addByteCode (oLoadLocal, localSymbolIndex)
          end
       end
    else

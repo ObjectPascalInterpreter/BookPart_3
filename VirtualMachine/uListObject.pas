@@ -86,6 +86,8 @@ type
     function getsize(): integer;
     function getScalar : double;
 
+    procedure setInteger (value : integer);
+
     constructor Create(iValue: integer); overload;
     constructor Create(bValue: boolean); overload;
     constructor Create(dValue: double); overload;
@@ -796,6 +798,13 @@ begin
   if itemType = liDouble then
      exit (dValue);
   exit (0);
+end;
+
+
+procedure TListItem.setInteger (value : integer);
+begin
+  iValue := value;
+  itemType := liInteger;
 end;
 
 

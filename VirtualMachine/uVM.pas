@@ -196,6 +196,7 @@ type
     function    popArray : TArrayObject;
     function    popString : TStringObject;
     function    popList : TListObject;
+    function    popUserFunction : TUserFunction;
     function    popModule: TModule;
 
     procedure   setRecursionLimit (rl : integer);
@@ -598,6 +599,22 @@ begin
  else
      raise ERuntimeException.Create ('Stack underflow error in popList');
  end;
+
+function TVM.popUserFunction : TUserFunction;
+var p: PMachineStackRecord;
+begin
+  if stackTop > -1 then
+     begin
+     p := @stack[stackTop];
+     dec(stackTop);
+     if p.stackType <> stFunction then
+        raise ERuntimeException.Create ('Expecting function type');
+     result := p.fValue;
+     end
+ else
+     raise ERuntimeException.Create ('Stack underflow error in popUserFunction');
+ end;
+
 
 
 function TVM.popModule: TModule;
@@ -1292,6 +1309,7 @@ var m : TModule;
     l : TListObject;
     s : TStringObject;
     a : TArrayObject;
+    func : TUserFunction;
     symbol : TSymbol;
     primary : PMachineStackRecord;
     f : TMethodDetails;
@@ -1338,8 +1356,22 @@ begin
                  raise ERuntimeException.Create('No method <' + symbolName + '> associated with object');
               exit;
               end;
+   stFunction :
+              begin
+              func := primary.fValue;
+              // Is symbol name a function name?
+              f := func.userFunctionMethods.methodList.find (symbolName);
+              if f <> nil then
+                 begin
+                 push (primary);
+                 push (f);
+                 end
+              else
+                 raise ERuntimeException.Create('No method <' + symbolName + '> associated with object');
+              exit;
+              end
   else
-     raise ERuntimeException.Create('Primary objects can only be modules, strings, arrays or lists');
+     raise ERuntimeException.Create('Primary objects can only be modules, functions, strings, arrays or lists');
   end;
 
   if not m.symbolTable.find (symbolName, symbol) then
@@ -2418,13 +2450,13 @@ begin
             oMod:        modOp;
             oPower:      powerOp;
             oInc:        incOp(c[ip].symbolName, c[ip].float);
-            oLocalInc:   localIncOp(c[ip].index1, c[ip].float);
+            oLocalInc:   localIncOp(c[ip].index, c[ip].float);
             oDec:        decOp(c[ip].symbolName, c[ip].float);
-            oLocalDec:   localDecOp(c[ip].index1, c[ip].float);
-            oPushi:      push (c[ip].index1);
-            oPushb:      push (boolean(c[ip].index1));
-            oPushd:      push (module.code.constantValueTable[c[ip].index1].dValue);
-            oPushs:      push (module.code.constantValueTable[c[ip].index1].sValue);
+            oLocalDec:   localDecOp(c[ip].index, c[ip].float);
+            oPushi:      push (c[ip].index);
+            oPushb:      push (boolean(c[ip].index));
+            oPushd:      push (module.code.constantValueTable[c[ip].index].dValue);
+            oPushs:      push (module.code.constantValueTable[c[ip].index].sValue);
             oPushNone:   push (@noneStackType);
             oPop:        begin
                          // If the next instrction is halt, we will leave the item
@@ -2457,11 +2489,11 @@ begin
             oHelp:        callHelp;
 
             // Branch opcodes
-            oJmp:        ip := ip + c[ip].index1 - 1;
+            oJmp:        ip := ip + c[ip].index - 1;
             oJmpIfTrue:  if pop().bValue then
-                            ip := ip + c[ip].index1 - 1;
+                            ip := ip + c[ip].index - 1;
             oJmpIfFalse: if not pop().bValue then
-                            ip := ip + c[ip].index1 - 1;
+                            ip := ip + c[ip].index - 1;
 
 
         // These two are used when we load and store synmbols within the current module
@@ -2479,16 +2511,16 @@ begin
 
        // These are used to load and store symbols in user functions
           oStoreLocal:  begin
-                        storeLocalSymbol(c[ip].index1);
+                        storeLocalSymbol(c[ip].index);
                         if getGarbageSize > 10 then
                            collectGarbage;
                         end;
-           oLoadLocal:  loadLocalSymbol(c[ip].index1);
+           oLoadLocal:  loadLocalSymbol(c[ip].index);
 
         oImportModule: importModule (c[ip].moduleName);
 
           // Method call opcodes
-            oCall :     callUserFunction (c[ip].index1);
+            oCall :     callUserFunction (c[ip].index);
             oRet :
               begin
               // Note that anything that is returned isn't bound to any symbol.
@@ -2509,9 +2541,9 @@ begin
               end;
 
             // list handling opcodes
-            oCreateList:   push(createList(c[ip].index1));
-            oLvecIdx:      loadIndexable (c[ip].index1);
-            oSvecIdx:      storeIndexable (c[ip].index1);
+            oCreateList:   push(createList(c[ip].index));
+            oLvecIdx:      loadIndexable (c[ip].index);
+            oSvecIdx:      storeIndexable (c[ip].index);
 
             oLocalLvecIdx: loadLocalIndexable;
             oLocalSvecIdx: storeLocalIndexable;

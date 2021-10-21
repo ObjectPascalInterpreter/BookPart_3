@@ -10,7 +10,8 @@ unit uSymbolTable;
 interface
 
 Uses Classes, SysUtils, Generics.Collections, uListObject, uStringObject, uArrayObject,
-     uOpCodes, uConstantTable, uVMExceptions, uProgramCode, uMemoryManager, uRhodusTypes;
+     uOpCodes, uConstantTable, uVMExceptions, uProgramCode, uMemoryManager, uRhodusTypes,
+     uObjectSupport;
 
 type
    // There are too many dependencies between these classes to separate them
@@ -37,6 +38,14 @@ type
        destructor  Destroy; override;
    end;
 
+     TUserFunctionMethods = class (TMethodsBase)
+      procedure getName (vm : TObject);
+      procedure getnArgs (vm : TObject);
+      procedure getCode (vm : TObject);
+      constructor Create;
+      destructor  Destroy; override;
+  end;
+
    TxBuiltInFunction = procedure (vm : TObject) of object;
    TUserFunction = class (TRhodusObject)
        name : string;
@@ -49,6 +58,8 @@ type
        helpStr : string;
        isbuiltInFunction : boolean;
        builtInPtr : TxBuiltInFunction;
+
+       userFunctionMethods : TUserFunctionMethods;
 
        function    clone : TUserFunction;
        function    getSize : integer;
@@ -157,9 +168,16 @@ var SysLibraryRef : TModule;
 
 implementation
 
-Uses uBuiltInGlobal, uBuiltinMath, uBuiltInList, uBuiltInRandom, uListOfBuiltIns,
-     uBuiltInOS, uBuiltInStr, uBuiltInFile, uBuiltInConfig, uBuiltInSys, uBuiltInTurtle;
+Uses uVM,
+     uBuiltInGlobal, 
+     uBuiltinMath, 
+     uBuiltInList, uBuiltInRandom, uListOfBuiltIns,
+     uBuiltInOS, 
+     uBuiltInStr, 
+     uBuiltInFile, uBuiltInConfig, uBuiltInSys, uBuiltInTurtle;
 
+var _userFunctionMethods : TUserFunctionMethods;
+     
 
 function addModule (module : TModule; lib : TModule) : TSymbol;
 begin
@@ -223,6 +241,77 @@ begin
       result := result + self.symbolTable.InstanceSize;
 end;
 
+// ------------------------------------------------------------------------------------------
+constructor TUserFunctionMethods.Create;
+begin
+  methodList := TMethodList.Create;
+
+  methodList.Add(TMethodDetails.Create ('name',     0, 'Return the name of the function: var.name ()', getName));
+  methodList.Add(TMethodDetails.Create ('nargs',    0, 'Return the numberof arguments the function expeects. Returns -1 if the number is variable', getnArgs));
+  methodList.Add(TMethodDetails.Create ('code',     0, 'Ruturn the byte code associated with the function: var.code ()', getCode));
+  //methodList.Add(TMethodDetails.Create ('sum',    0, 'Find the sum of values in a list. var.sum ()', getSum));
+  //methodList.Add(TMethodDetails.Create ('pop',    1, 'Remove the last element from a list: var.pop (list)', removeLastElement));
+  //methodList.Add(TMethodDetails.Create ('max',    1, 'Find the maximum value is a 1D list of values: var.max ({1,2,3})', getMin));
+  //methodList.Add(TMethodDetails.Create ('min',    1, 'Find the minimum value is a 1D list of values: var.min ({1,2,3})', getMin));
+  //methodList.Add(TMethodDetails.Create ('dims',   0, 'Get dims: var.min ({1,2,3})', getDims));
+
+  methodList.Add(TMethodDetails.Create ('dir',    0, 'dir of string object methods', dir));
+end;
+
+
+destructor TUserFunctionMethods.Destroy;
+begin
+  inherited;
+end;
+
+
+
+// ------------------------------------------------------------------------------------------
+procedure TUserFunctionMethods.getName (vm : TObject);
+var f : TUserFunction;
+begin
+  // No arguments for this method
+  TVM (vm).decStackTop; // Dump the object method
+  f := TVM (vm).popUserFunction;
+  TVM (vm).push(TStringObject.Create(f.name)); 
+end;
+
+procedure TUserFunctionMethods.getnArgs (vm : TObject);
+var f : TUserFunction;
+begin
+  // No arguments for this method
+  TVM (vm).decStackTop; // Dump the object method
+  f := TVM (vm).popUserFunction;
+  TVM (vm).push(f.nArgs);
+end;
+
+
+procedure TUserFunctionMethods.getCode (vm : TObject);
+var f : TUserFunction;
+    i : integer;
+    ls, tmpls: TListObject;
+    it : TListItem;
+begin
+  // No arguments for this method
+  TVM (vm).decStackTop; // Dump the object method
+  f := TVM (vm).popUserFunction;   
+  
+  ls := TListObject.Create (0);
+  for i := 0 to length (f.funcCode.code) - 1 do
+      begin
+      tmpls := TListObject.Create(0);
+      tmpls.append (f.funcCode.code[i].opCode);
+      tmpls.append (f.funcCode.code[i].index);
+      if f.funcCode.code[i].moduleName <> '' then  
+         tmpls.append (TStringObject.Create (f.funcCode.code[i].moduleName));
+      if f.funcCode.code[i].symbolName <> '' then  
+         tmpls.append (TStringObject.Create (f.funcCode.code[i].symbolName));
+      
+      ls.append(tmpls);
+      end;
+  TVM (vm).push(ls);      
+end;
+
 
 // ------------------------------------------------------------------------------------------
 // User functions like lists and strings are kept in the heap memory pool, see uMemoryManager
@@ -232,6 +321,7 @@ begin
   objectType := TSymbolElementType.symUserFunc;
   isbuiltInFunction := False;
   blockType := btBound;  // bound to the name of the user function
+  userFunctionMethods := _userFunctionMethods;
 end;
 
 
@@ -982,7 +1072,9 @@ initialization
    TSymbol.mainModuleId := '_main_';
    TSymbol.localModuleId := '_localScope_'; // inside functions
    TSymbol.globalId := 'globalSpace';
+   _userFunctionMethods := TUserFunctionMethods.Create;
 finalization
+  _userFunctionMethods.Free;
 end.
    
 

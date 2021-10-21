@@ -17,7 +17,7 @@ The major outward change in this version includes library support, and a range o
 
 To build the code, load RhodusVersionThreeGroup.groupproj into your Delphi IDE and run. 
 
-The only dependency is FastMM4 for memory leak Debugging but it can be last out by commenting out the line 35 in RhodusVersionThreeProject.dpr. 
+The only dependency is FastMM4 for memory leak debugging but it can be left out by commenting out the line 35 in RhodusVersionThreeProject.dpr. 
 
 ## Examples
 

@@ -141,7 +141,6 @@ type
     procedure setColor;
     procedure assertTrue;
     procedure assertFalse;
-    procedure callHelp;
 
     procedure isGt;
     procedure isGte;
@@ -402,34 +401,6 @@ begin
   inc(assertCounter);
 end;
 
-
-procedure TVM.callHelp;
-var st: PMachineStackRecord;
-begin
-  st := pop;
-  case st.stackType of
-     stInteger : push(TStringObject.Create('integer'));
-     stDouble  : push(TStringObject.Create('double'));
-     stBoolean : push(TStringObject.Create('boolean'));
-     stString  : push(TStringObject.Create('string'));
-     stList    : push(TStringObject.Create('list'));
-     stArray   : push(TStringObject.Create('array'));
-     stModule  : push(TStringObject.Create (st.module.helpStr));
-
-     stFunction :
-           begin
-           push(TStringObject.Create (st.fValue.helpStr));
-           end;
-     stObjectMethod :
-           begin
-           pop(); // dup object
-           push(TStringObject.Create (st.oValue.helpStr));
-           end;
-  else
-     raise ERuntimeException.Create('Unkown object type in help');
-  end;
-
-end;
 
 // ---------------------------------------------------------------------------------
 
@@ -2486,7 +2457,6 @@ begin
             oSetColor:    setColor;
             oAssertTrue:  assertTrue;
             oAssertFalse: assertFalse;
-            oHelp:        callHelp;
 
             // Branch opcodes
             oJmp:        ip := ip + c[ip].index - 1;

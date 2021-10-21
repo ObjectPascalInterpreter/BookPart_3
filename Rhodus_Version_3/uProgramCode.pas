@@ -40,7 +40,6 @@ type
            //procedure addByteCode (opCode : TOpCode; dValue : double); overload;
            procedure addByteCode (opCode : TOpCode; bValue : boolean); overload;
            //procedure addByteCode (opCode : TOpCode; sValue : string); overload;
-           //procedure addByteCode (opCode : TOpCode; index1 : integer); overload;
            procedure addByteCode (opCode : TOpCode; const symbolName : string; increment : double);  overload;
            procedure addModuleByteCode (opCode : TOpCode; const moduleName : string);
            procedure addSymbolByteCode (opCode : TOpCode; const symbolName : string);

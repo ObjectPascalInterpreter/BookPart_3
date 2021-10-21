@@ -53,7 +53,7 @@ type
                 tReadInteger,
                 tAssertTrue,
                 tAssertFalse,
-                tHelp,
+                //tHelp,
 
                 tIf,
                 tThen,

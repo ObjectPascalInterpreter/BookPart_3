@@ -57,6 +57,7 @@ type
        procedure myMain (vm : TObject);
        procedure dis (vm : TObject);
        procedure stackInfo (vm : TObject);
+       procedure getHelp (_vm : TObject);
 
        constructor Create;
        destructor  Destroy; override;
@@ -96,6 +97,7 @@ begin
   module.addMethod (builtInGlobal.stackInfo,      0, 'stackInfo',     'Get the current state of the VM stack');
   module.addMethod (builtInGlobal.getChar,        1, 'chr',           'Get the character equivalent of an integer value');
   module.addMethod (builtInGlobal.getAsc,         1, 'asc',           'Get the ascii equivalent of a single character');
+  module.addMethod (builtInGlobal.getHelp,        1, 'help',          'Get the help associated with the object');
 end;
 
 
@@ -682,6 +684,35 @@ begin
   vm1.push(vm1.getStackInfo().stacktop);
 end;
 
+
+procedure TBuiltInGlobal.getHelp (_vm : TObject);
+var st : PMachineStackRecord;
+    vm : TVM;
+begin
+  vm := TVM (_vm);
+  st := vm.pop;
+  case st.stackType of
+     stInteger : vm.push(TStringObject.Create('integer'));
+     stDouble  : vm.push(TStringObject.Create('double'));
+     stBoolean : vm.push(TStringObject.Create('boolean'));
+     stString  : vm.push(TStringObject.Create('string'));
+     stList    : vm.push(TStringObject.Create('list'));
+     stArray   : vm.push(TStringObject.Create('array'));
+     stModule  : vm.push(TStringObject.Create (st.module.helpStr));
+
+     stFunction :
+           begin
+           vm.push(TStringObject.Create (st.fValue.helpStr));
+           end;
+     stObjectMethod :
+           begin
+           vm.pop(); // dup object
+           vm.push(TStringObject.Create (st.oValue.helpStr));
+           end;
+  else
+     raise ERuntimeException.Create('Unkown object type in help');
+  end;
+end;
 
 
 initialization

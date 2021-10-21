@@ -252,7 +252,7 @@ begin
 
   FKeyWordList.AddObject ('assertTrue', TObject (tAssertTrue));
   FKeyWordList.AddObject ('assertFalse', TObject (tAssertFalse));
-  FKeyWordList.AddObject ('help', TObject (tHelp));
+  //FKeyWordList.AddObject ('help', TObject (tHelp));
 
   FKeyWordList.AddObject ('function', TObject (tFunction));
   FKeyWordList.AddObject ('return', TObject (tReturn));

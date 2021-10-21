@@ -510,8 +510,8 @@ begin
       AssertTrueStatement;
     tAssertFalse:
      AssertFalseStatement;
-    tHelp:
-     helpStatement;
+    //tHelp:
+    // helpStatement;
     tEnd:
       begin end;
     tUntil:

@@ -722,8 +722,8 @@ begin
       result := AssertTrueStatement;
     tAssertFalse:
       result := AssertFalseStatement;
-    tHelp:
-      result := helpStatement;
+    //tHelp:
+    //  result := helpStatement;
     tEnd:
       result := nil;
     tUntil:

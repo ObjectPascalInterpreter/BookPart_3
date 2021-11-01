@@ -49,7 +49,7 @@ unit uScanner;
 
 interface
 
-uses Windows, SysUtils, Classes, System.Character, Generics.Collections, uScannerTypes, uTokenVector;
+uses Windows, SysUtils, Classes, System.Character, Generics.Collections, uScannerTypes;
 
 type
   { ********************* Lexical scanner types etc *********************** }

@@ -1052,6 +1052,7 @@ begin
        result := False;
        end;
   end;
+  //writeln ('Number of tokens = ', tokenVector.count);
 end;
 
 end.

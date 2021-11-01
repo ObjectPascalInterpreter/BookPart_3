@@ -277,6 +277,7 @@ begin
         oPushs      : result := result + '  ' + opCodeNames[oPushs] + ' "' + module.code.constantValueTable[aProgram.code[i].index].sValue.value + '"' + sLineBreak;
         oPushNone   : result := result + '  ' + opCodeNames[oPushNone] + sLineBreak;
         oDup        : result := result + '  ' + opCodeNames[oDup] + sLineBreak;
+        oPopDup     : result := result + '  ' + opCodeNames[oPopDup] + sLineBreak;
 
         oAdd        : result := result + '  ' + opCodeNames[oAdd]    + sLineBreak;
         oSub        : result := result + '  ' + opCodeNames[oSub]    + sLineBreak;

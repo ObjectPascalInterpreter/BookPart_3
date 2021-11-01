@@ -357,7 +357,7 @@ begin
                 stArray   : writeln (st.aValue.arrayToString());
                 stModule  : writeln ('Module: ' + st.module.name + ' ' + st.module.helpStr);
                 stFunction: writeln ('Function: ' + st.fValue.moduleRef.name + '.' + st.fValue.name);
-                stObjectMethod : begin writeln ('Object: ' + st.oValue.name); vm.pop(); end;   // pop the operand
+                stObjectMethod : begin writeln ('Object Method: ' + st.oValue.helpStr); vm.pop(); end;   // pop the operand
                else
                  writeln ('Unrecognized type of value returned from virtual machine');
                end;

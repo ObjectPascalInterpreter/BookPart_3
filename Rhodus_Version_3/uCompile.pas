@@ -381,8 +381,8 @@ end;
 // This will be responsible for emiting code that either loads
 // a value if its on the right-hand side or stores a value if its
 // on the left-hand side. An added problem is that something like:
-// a[1] needs to emit a load first for a then a store for [1]. There
-// could be any number of layers like this. The item nearest the
+// a[1] needs to emit a load first for the symbol 'a' then a store for [1].
+// There could be any number of layers like this. The item nearest the
 // '=' sign needs an actual store bytecode.
 procedure TCompiler.compilePrimary (node : TASTPrimary);
 var pp : TASTPrimaryPeriod;
@@ -671,7 +671,7 @@ begin
   if node.elseStatement <> nil then
     compileCode(node.elseStatement);
 
-  code.addByteCode(oNop);
+  //code.addByteCode(oNop);
   code.setGotoLabel(elseJump, elseDestination - elseJump);
 
   lastInstruction := code.addByteCode(oPopDup); // pop the dup

@@ -312,6 +312,7 @@ begin
   node := expect(tRightParenthesis);
   if node = nil then // no error
      begin
+     // if nil then empty argument list in function call: ()
      if result = nil then
         result := TASTNodeList.Create (ntNodeList);
      exit (result);
@@ -1420,9 +1421,7 @@ var
 begin
   sc.nextToken;
   if sc.token = tIdentifier then
-     begin
-     functionName := sc.tokenString;
-     end
+     functionName := sc.tokenString
   else
      begin
      result := TASTErrorNode.Create ('expecting function name', sc.tokenRecord.lineNumber, sc.tokenRecord.columnNumber);

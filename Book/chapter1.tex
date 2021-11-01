@@ -149,30 +149,28 @@ main()
 Module: _main_
 \end{lstlisting}
 
-Like any other module you can see what's inside {\tt _main_} by using {\tt dir()}, for example:
+Like any other module you can see what's inside the symbolTable kept in {\tt _main_} by using {\tt dir()}, for example:
 
 \begin{lstlisting}
 >> main().dir()
-["array","a","dis","asc","stackInfo","help","assertTrueEx","assertFalseEx","lists",
-"dir","sys","float","main","readString","strings","math","getAttr","os","readNumber",
-"modules","int","symbols","mem","chr","type"]
+["array","a","dis","asc","stackInfo","help","assertTrueEx","assertFalseEx",
+"lists","dir","sys","float","main","readString","strings","math","getAttr",
+"os","readNumber","modules","int","symbols","mem","chr","type"]
 \end{lstlisting}
 
-What it lists in this case are the modules currently accessible from {\tt _main_} which is the same list when we just typed {\tt dir()} on its own. In fact, to access anything from {\tt _main_} you don't have to qualify the name with {\tt _main_}. For example, to access {\tt int} we don't need to type {\tt main().int (4.5)}, just {\tt int(4.5)} will do.
+What it lists in this case are the modules currently accessible from {\tt _main_}. You get the same list if we just type {\tt dir()} on its own. In fact, to access anything from {\tt _main_} you don't have to qualify the name with {\tt _main_}. For example, to access {\tt int} we don't need to type {\tt main().int (4.5)}, just {\tt int(4.5)} will do.
 
 Let's assign a variable and ask for the list again:
 
 \begin{lstlisting}
 >> astring = "This is a string"
 >> main().dir()
-["array","a","dis","asc","stackInfo","help","assertTrueEx","assertFalseEx","lists",
-"astring","dir","sys","float","main","readString","strings","math","getAttr",
-"os","readNumber","modules","int","symbols","mem","chr","type"]
+["array","a","dis","asc","stackInfo","help","assertTrueEx","assertFalseEx",
+"lists","astring","dir","sys","float","main","readString","strings","math",
+"getAttr","os","readNumber","modules","int","symbols","mem","chr","type"]
 \end{lstlisting}
 
-You'll noticed that a new symbol is now in the main module, called {\tt astring}.
-
-To summarise:
+You'll noticed that a new symbol is now in the main module, called {\tt astring}. To summarise:
 
 \begin{itemize}
 \item {\tt dir()} Every module gets a method {\tt dir()} that lists all the variables and functions in a given module, e.g {\tt math.dir()}
@@ -271,7 +269,7 @@ println (compute (cube, 4))
 
 \subsection{Lists and Strings as Objects}
 
-There has been change to the object model for things list lists and strings. Both lists and strings now behave more like objects. In particular, they now have methods associated with them. For example, we can get the length of a string using the {\tt len()} method:
+There has been change to the object model for things like lists and strings. Both lists and strings now behave more like objects. In particular, they now have methods associated with them. For example, we can get the length of a string using the {\tt len()} method:
 
 \begin{lstlisting}
 >> s = "hello"
@@ -294,13 +292,6 @@ Like modules, you can apply the {\tt dir()} method, for example:
 ["len","find","toUpper","toLower","left","right","mid","trim","split","dir"]
 \end{lstlisting}
 
-An to get help you'd do:
-
-\begin{lstlisting}
->> "hello".dir()
-["len","find","toUpper","toLower","left","right","mid","trim","split","dir"]
-\end{lstlisting}
-
 Method objects are not like user defined functions in they cannot be copied. Help for a given object method can be obtained by simply typing the object method without the calling brackets. For example:
 
 \begin{lstlisting}
@@ -312,7 +303,7 @@ If any operation returns an object then an object method can be applied to the r
 
 \begin{lstlisting}
 >> s = "hello"
->> s.toUpper().toUpper().toUpper().toUpper().toUpper().toUpper()
+>> s.toUpper().toLower().toUpper().toLower().toUpper()
 HELLO
 \end{lstlisting}
 
@@ -325,7 +316,7 @@ Lists are also full objects so that they too have a suite of methods associated 
 ["len","append","remove","sum","pop","max","min","dims","dir"]
 \end{lstlisting}
 
-The new array type ha a similar operation:
+The new array type has a similar method:
 
 \begin{lstlisting}
 >> array([1,2,3]).dir()
@@ -392,7 +383,7 @@ x = a[1,2]
 Here is an example of iterating through each element in an array, {\tt a}:
 
 \begin{lstlisting}
-a = array([[1,2,3,[4,5,6],[6,7,8]])
+a = array([[1,2,3],[4,5,6],[6,7,8]])
 for i = 0 to a.len(0) - 1 do
     for j = 0 to a.len(1) - 1 do
         print (a[i,j], " ")
@@ -420,13 +411,40 @@ or
 
 In the above case, it should be clear that the dimensions of the two arrays must match in order for the sum to be computed.
 
-What other functionality should the arrays package have? Two areas would need work, the ability to manipulate arrays, and secondly mathematical operations. The math operations can be divided into at least two groups, pair-wise element operations and matrix arithmetic. Pair-wise operation is straightforward, and can be easily applied to arrays of any dimension. The one constraints is that the arrays should be the same shape. For example pair-wise multiplication requires both arrays to be exactly the same shape, multiplication is then performed between each corresponding entry.
+The math operations can be divided into at least two groups, pair-wise element operations and matrix arithmetic as defined in linear algebra. Pair-wise operation is straightforward, and can be easily applied to arrays of any dimension. The one constraint is that the arrays should be the same shape. For example pair-wise multiplication requires both arrays to be exactly the same shape, multiplication is then performed between each corresponding entry.
 
 Not all matrix operations are easily transferred to higher dimensions. For example, the inverse of a matrix $A^{-1}$ is confined to two dimensional arrays. I am not personally aware that the inverse operation is defined for higher dimensions. Likewise many of the other more complex operations such as LU decomposition, QR factorisation, or finding eigenvalues is confined to two dimensional arrays. Finally matrix multiplication can be defined for higher dimensional arrays but it tends to be a rare requirement and its far more common to multiply two dimensional arrays.
 
 There therefore appears to be a clear difference in the kinds of operations one is likely to do with an array compared to a matrix. As a result, all matrix related operations will be confined to two dimensional arrays, while more general operations will be applicable to any n-dimensional array, which would include pair-wise arithmetical operations.
 
 We will have much more to say on this matter in a later chapter.
+
+\subsection{Built-in Libraries for lists, strings, arrays and matrices}
+
+A number of built-in libraries are provided to add additional support to lists, strings, arrays and 2D arrays we'll call matrices. These provide method that do not naturally belong to the objects themselves. The names for these built-in libraries are {\tt strings}, {\tt lists}, {\tt arrays} and {\tt matrix}. The contents of each of these can be obtained using {\tt dir()}, for example:
+
+\begin{lstlisting}
+>> import matrix
+>> matrix.dir()
+["ident","sub","dir","add","inv","rand","randi","mult"]
+\end{lstlisting}
+
+As with other module methods, help can be obtained using help:
+
+\begin{lstlisting}
+>> import matrix
+>> help(matrix.add)
+Add two 2D matrices: m = matrix.add (m1, m2)
+\end{lstlisting}
+
+{\tt inv} is the inverse matrix method. The following code shows an example of this in use:
+
+\begin{lstlisting}
+>> import matrix
+>> // Generate a 3 by 3 matrix with random entries, 0 to 1
+>> m = matrix.rand(3,3)
+>> minv = matrix.inv (m)
+\end{lstlisting}
 
 \section{Error Handling}
 
@@ -540,7 +558,13 @@ In words, this reads, in the module, string or list, {\tt m}, a function called 
 abc
 \end{lstlisting}
 
+<<<<<<< .mine
 We will describe how to deal with such expressions in Chapter~3.%\ref{chap:syntaxanalysis}.
+||||||| .r579
+A grammar that will satisfy such flexibility is given by:
+=======
+We will talk more about how this is handled at the syntax level in Chapter 3.
+>>>>>>> .r583
 
 \section{Useful Reading}
 

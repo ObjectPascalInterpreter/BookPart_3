@@ -1,0 +1,182 @@
+{\bfseries\slshape\sffamily\color{ChapterTitleColor} \chapter{Syntax Analysis}} \label{chap:syntaxanalysis}
+
+\section{Introduction}
+
+We discussed syntax analysis quite a bit in part II especially with respect to recursive descent parsers. Let's brief review them here. A recursive descent is a top-down parser where a method is created for each grammar rule. An example of simple grammar rule would be:
+
+\begin{lstlisting}
+expr = number '+' number
+\end{lstlisting}
+
+Given such a grammar rule we need to determine whether a given sentence is consistent with that grammar. In the case of our simple grammar, the following would be legal sentences:
+
+\begin{lstlisting}
+expr = 1 + 2
+expr = 89 + 43
+\end{lstlisting}
+
+Sentences that don't match the grammar would include:
+
+\begin{lstlisting}
+expr = 1 +
+expr = + 3
+expr = 4 5
+\end{lstlisting}
+
+With a recursive descent parser we'd take each grammar rule and convert it into a method. For our simple grammar we'd write a method like:
+
+\begin{lstlisting}
+procedure expr;
+begin
+  parseNumber;
+  expect ('+');
+  parseNumber
+end
+\end{lstlisting}
+
+A real grammar would have many such rules, with some rules being recursive, for example:
+
+\begin{lcverbatim}
+stmt =   name '=' expr
+expr =   expr '+' expr
+       | number
+\end{lcverbatim}
+
+where the `|' character translates to `or'. The expr rule would be translated to the following method
+
+\begin{lstlisting}
+procedure expr;
+begin
+  if token = number then
+     begin
+     nextToken;
+     exit
+     end
+  else
+     begin
+     expr;
+     expect ('+');
+     expr
+     end;
+end
+\end{lstlisting}
+
+Notice that the method calls itself because that's what the grammar requires. However, whenever there is recursion there always has to be a way get out of the recursion, in this case by detecting a number.
+
+One of the key features of a recursive descent parer is that it must be possible to decide which grammar rule to use based solely on the current token in hand. Left-recursive grammars do not satisfy this, for example here is a grammar rule that is left-recursive
+
+\begin{lstlisting}
+expr =  expr '+' expr
+\end{lstlisting}
+
+we would end up in an infinite loop since this would be translated into:
+
+\begin{lstlisting}
+procedure expr;
+begin
+  expr;
+  expect ('+');
+  expr;
+end
+\end{lstlisting}
+
+We covered this aspect and more in part I of the series. The point I wish to make here is that our grammar must be free of left-recursive rules. In the first chapter we described one problematic area in our grammar for Rhodus and how we removed the left-recursion. One of the requirements was that we should be able to parse something like:
+
+\begin{lstlisting}
+a = m.func ("abc")[5](math.pi)
+\end{lstlisting}
+
+This reads: call a function in a module, that returns a list which we index to get another function which we also call with an argument that accesses a variable in another module. One could imagine all sorts of convolutions. Whatever grammar we design, it must be able to accept such sentences as valid. Similar constructs can be found in Python, so why not look at the Python grammar specification for clues.  You'll find the latest Python grammar specification at \url{https://docs.python.org/3/reference/grammar.html}. The Python grammar is more complicated that the one we have and it takes a little study to figure out the portion that parsers expressions. If you look for the primary grammar rule you'll see part of what we need. With that in mind I came up with the following grammar that satisfies our needs and is modelled on the Python grammar. It is:
+
+%In Part 1 of the series we discussed LL(1) grammars, where LL stands Left-to-right, Leftmost derivation and the number in the brackets indicates the number of lookahead tokens. The really nice thing about LL(1) grammars is they can be parsed %using recursive descent which is what we are building in software.
+
+%Unfortunately this is left-recursive, where the {\tt E} symbol is the first symbol on the right-side of the rule in three locations. This will cause a number of problems. Assuming that we're not detecting a factor, its impossible to say which of the three subrules we should pick and even if we did pick one, we end up in an infinite loop, repeatedly picking {\tt E}. As it stands this is impossible to parse with a single lookahead recursive descent parser. This problem was resolved by using an online tool called left_rec that remove the left-recursion, giving on instead the following grammar, which we can parse with a single lookahead recursive descent parser.
+
+\begin{lcverbatim}
+E       = E '.' identifier
+        | E '()'
+        | E '[]'
+        | factor
+factor  = identifier
+        | Number
+\end{lcverbatim}
+
+Sure are some simple examples of the expressions that are legal in this grammar. {\tt a()}, would satisfy {\tt E \textquotesingle()\textquotesingle} where {\tt E} would then be replaced by the {\tt identifier} in {\tt factor}. For a more complicated expression such as: {\tt a.b[]()} we would use the second subrule {\tt E \textquotesingle()\textquotesingle}, then substitute the {\tt E} for {\tt E \textquotesingle[]\textquotesingle}, followed by another substitution of {\tt E} with {\tt E \textquotesingle.\textquotesingle identifier}. Finally the last {\tt E} would be replaced by {\tt factor}. Since we resolved to all terminals {\tt a.b[]()} is a legal sentence.
+
+Unfortunately this grammar is left-recursive, where the {\tt E} symbol is the first symbol on the right-side of the rule in three locations. This will cause a number of problems. Assuming that we're not detecting a factor, its impossible to say which of the three subrules we should pick and even if we did pick one, we end up in an infinite loop, repeatedly picking {\tt E}. As it stands this is impossible to parse with a single lookahead recursive descent parser. This problem was resolved by using an online tool called left_rec that remove the left-recursion, giving on instead the following grammar, which we can parse with a single lookahead recursive descent parser.
+
+For example, the sentence {\tt a()}, would satisfy {\tt E \textquotesingle()\textquotesingle} where {\tt E} would then be replaced by the {\tt identifier} in {\tt factor}. For a more complicated expression such as: {\tt a.b[]()} we would use the second subrule {\tt E \textquotesingle()\textquotesingle}, then substitute the {\tt E} for {\tt E \textquotesingle[]\textquotesingle}, followed by another substitution of {\tt E} with {\tt E \textquotesingle.\textquotesingle identifier}. Finally the last {\tt E} would be replaced by {\tt factor}. Since we resolved to all terminals {\tt a.b[]()} is a legal sentence.
+
+If you exercise this grammar by doing more examples you'll realize it's quite straightforward even though perhaps initially, it looks a little scary.  The big problem with it is that it's not friendly for our recursive descent parser. The grammar shown above is what's called left-recursive (see Part 1). We can see this because the {\tt E} symbol, in three cases, is the first symbol in the production. to illustrate the problem consider the following:
+%
+
+If you exercise this grammar by doing more examples you'll realize it's quite straight forward even though perhaps initially, it looks a little scary.  The big problem with it is that it's not friendly for our recursive decent parser. The grammar shown above is what's called left-recursive (see Part 1). We can see this because the {\tt E} symbol, in three cases, is the first symbol in the production.  As a reminder here is a simple grammar that is left-recursive:
+
+\begin{lcverbatim}
+E = E 'a'
+\end{lcverbatim}
+%
+is left-recursive because the first symbol on the right of the equals sign is {\tt E} and {\tt E} is not a terminal. If you think about it, applying this production rule, will result in a recursive loop, continually recognizing {\tt E}. When a grammar is left-recursive we almost always have to lookahead more than one token in order to decide which production to use. However, we only do a single lookahead in Rhodus so that a left-recursive grammar is going to be trouble for us. Another example that shows the problem with left-recursions is that with multiple alternative options such as:
+%
+\begin{lcverbatim}
+E  = E 'a'
+   | E 'b'
+\end{lcverbatim}
+%
+it's also impossible to decide which one to pick unless we lookahead further into the token stream to identify the {\tt 'a'} and {\tt 'b'} but we don't want to do that. With out further lookahead, the parser will go into an infinite loop. The solution is to remove the left-recursion. What this essentially does is move the terminals into the front of the production and the offending left-recursive terms towards the end, resulting is a right-recursive rule which can be parsed using a single lookahead recursive decent parser. The method to do the transformation was described in Part 1 but here I will cheat by using a tool to do it for me. The site~\url{https://cyberzhg.github.io/toolbox/left_rec} has an on-line tool to remove left-recursion. The tool has two panels, in the upper panel you paste your left-recursive grammar, hit the convert button and your new well-behaved grammar will appear in the bottom panel.
+
+I took the following generic left-recursive grammar and entered it into the tool:
+
+{\tt  E = E a | E b | E c | d}
+
+After conversion it looked like:
+%
+\begin{verbatim}
+E = E 'a'
+\end{verbatim} }
+
+
+This grammar is left-recursive because the first symbol on the right of the equals sign is {\tt E} and {\tt E} is not a terminal. If you think about it, applying this production rule, will result in a recursive loop, continually recognizing {\tt E}. When a grammar is left-recursive we almost always have to lookahead more than one token in order to decide which production to use. However, we only do a single lookahead in Rhodus so that a left-recursive grammar is going to be trouble for us. Another example that shows the problem with left-recursions is what we have multiple alternative options such as:
+%
+\begin{lcverbatim}
+E  = E 'a'
+   | E 'b'
+\end{lcverbatim}
+%
+In this case it is impossible to decide which subrule to pick unless we lookahead further into the token stream to identify the {\tt 'a'} and {\tt 'b'} but we don't want to do that. With out further lookahead, the parser will go into an infinite loop.
+
+Returning to the grammar we'd like to implement, assuming that we're not detecting a factor, its impossible to say which of the three subrules we should pick and even if we did pick one, we end up in an infinite loop, repeatedly picking {\tt E}. As it stands the grammar we'd like to use cannot be implemented in a single lookahead recursive decent parser.
+
+The solution is to remove the left-recursion. What this essentially does is move the terminals into the front of the production and the offending left-recursive terms towards the end, resulting is a right-recursive rule which can be parsed using a single lookahead recursive decent parser. The method to do the transformation was described in Part 1 but here I will cheat by using a tool to do it for me. The site~\url{https://cyberzhg.github.io/toolbox/left_rec} has an on-line tool to remove left-recursion. The tool has two panels, in the upper panel you paste your left-recursive grammar, hit the convert button and your new well-behaved grammar will appear in the bottom panel.
+
+I took the following generic left-recursive grammar and entered it into the tool:
+
+{\tt  E = E a | E b | E c | d}
+
+After conversion it looked like:
+%
+\begin{lcverbatim}
+E   = d E'
+E'  = a E'
+    | b E'
+    | c E'
+    | empty
+\end{lcverbatim}
+%
+Notice how all the terminals, {\tt a, b, c} and {\tt d} have been moved to the front. This grammar can be recognized with a single token look-ahead, that is it's LL(1) friendly, which is what we're after. Notice also the empty option, that is {\tt E'} can be {\tt a, b, c} or none of them. {\tt d} has been moved to it's own production and represents {\tt factor} in the grammar we had previously. If we translate the symbols into more meaningful words we get:
+%
+\begin{lcverbatim}
+factor               = Identifier
+primary              =  factor primaryPlus
+primaryPlus          = '.' identifier primaryPlus
+                     | '(' exp ')' primaryPlus
+                     | '[' exp ']' primaryPlus
+                     | empty
+\end{lcverbatim}
+%
+where {\tt d} is {\tt factor}, {\tt E'} is {\tt primaryPlus} and {\tt priamry} is {\tt E}.  In the final grammar the individual options in the {\tt primaryPlus} production are separated out for convenience into {\tt primaryPeriod}, {\tt primaryIndex} and {\tt primaryFunction} respectively. {\tt factor} we will include all the literals as well as expressions with parentheses and the {\tt not} operator. We will use this grammar in Rhodus version 3.
+
+
+\begin{center}
+\pgfornament[width = 8cm, color = cardinal]{83}
+\end{center} 

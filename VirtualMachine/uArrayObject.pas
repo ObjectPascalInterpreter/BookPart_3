@@ -46,7 +46,7 @@ type
      procedure       setNumberOfElements (newSize : integer);
      function        getNthDimension (i : integer) : integer;
      property        numDimensions : integer read getNumDimensions;
-     property        Item[index1, index2: Integer]: double read getValue2D write setValue2D; default;
+     property        item[index1, index2: Integer]: double read getValue2D write setValue2D; default;
 
      procedure       appendx (mat : TArrayObject);
      class function  isEqualTo (a1, a2 : TArrayObject) : boolean;
@@ -61,6 +61,8 @@ type
   TArrayMethods = class (TMethodsBase)
      procedure   getLength (vm : TObject);
      procedure   getShape (vm : TObject);
+     procedure   getNumRows (vm: TObject);
+     procedure   getNumCols (vm: TObject);
      procedure   getNumDim (vm : TObject);
      procedure   getSqr (vm : TObject);
      procedure   add (vm : TObject);
@@ -93,6 +95,10 @@ begin
   methodList.Add(TMethodDetails.Create ('len',   -1, 'get the length of an array: var.len ()', getLength));
   methodList.Add(TMethodDetails.Create ('shape',  0, 'get the dimensions of the array: var.shape ()', getShape));
   methodList.Add(TMethodDetails.Create ('ndim',   0, 'get the number of dimensions of the array: var.ndim ()', getNumDim));
+  methodList.Add(TMethodDetails.Create ('rows',   0, 'get the number of rows of a matrix: var.rows()', getNumRows));
+  methodList.Add(TMethodDetails.Create ('cols',   0, 'getthe number of columns of a matrix: var.cols()', getNumCols));
+
+
   methodList.Add(TMethodDetails.Create ('sqr',    0, 'square each element in the array: var.sqr ()', getSqr));
   methodList.Add(TMethodDetails.Create ('add',    1, 'add an array argument ot the array: c = a.add (b)', add));
   methodList.Add(TMethodDetails.Create ('sub',    1, 'subtract an array argument from the array: c = a.sub (b)', sub));
@@ -178,6 +184,32 @@ begin
   s := TVM (vm).popArray;
 
   TVM (vm).push (length (s.dim));
+end;
+
+
+procedure TArrayMethods.getNumRows (vm: TObject);
+var s :TArrayObject;
+begin
+  TVM (vm).decStackTop; // Dump the object method
+  s := TVM (vm).popArray;
+
+  if s.getNumDimensions() <= 2 then
+     TVM (vm).push (s.dim[0])
+  else
+     raise ERuntimeException.Create('Method <rows> only applies to 2D arrays (matrices)');
+end;
+
+
+procedure TArrayMethods.getNumCols (vm: TObject);
+var s :TArrayObject;
+begin
+  TVM (vm).decStackTop; // Dump the object method
+  s := TVM (vm).popArray;
+
+  if s.getNumDimensions() = 2 then
+     TVM (vm).push (s.dim[1])
+  else
+     raise ERuntimeException.Create('Method <cols> only applies to 2D arrays (matrices)');
 end;
 
 

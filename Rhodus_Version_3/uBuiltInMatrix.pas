@@ -39,7 +39,7 @@ const outOfRangeMsg = 'Index out of range while accessing array element';
 
 constructor TBuiltInMatrix.Create;
 begin
-  inherited Create ('matrix', 'Matrix Module, deals with 2-dimensional arrays');
+  inherited Create ('mat', 'Matrix Module, deals with 2-dimensional arrays');
 
   addMethod(getIdent,          1, 'ident', 'Create an identity matrix: m = matrix.ident (4)');
   addMethod(getMult,           2, 'mult',  'Multiply two 2D matrices: m = matrix.mult (m1, m2)');

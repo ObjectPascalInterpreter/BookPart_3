@@ -248,9 +248,7 @@ end;
 procedure TSyntaxParser.parseFunctionCall;
 begin
   if tokenVector.token <> tRightParenthesis then
-     begin
      expressionList;
-     end;
   expect(tRightParenthesis);
 end;
 
@@ -545,17 +543,15 @@ procedure TSyntaxParser.printlnStatement;
 begin
   nextToken;
   if tokenVector.token = tLeftParenthesis then
-  begin
-    nextToken;
-    // It could be an empty function call
-    if tokenVector.token <> tRightParenthesis then
-      expressionList;
-    expect(tRightParenthesis);
-  end
-  else
-    begin
-    raise ESyntaxException.Create ('Expecting opening bracket to println call',  tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber)
-    end;
+     begin
+     nextToken;
+     // It could be an empty function call
+     if tokenVector.token <> tRightParenthesis then
+        expressionList;
+     expect(tRightParenthesis);
+     end
+ else
+     raise ESyntaxException.Create ('Expecting opening bracket to println call',  tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber)
 end;
 
 
@@ -572,11 +568,7 @@ begin
      expect(tRightParenthesis);
      end
   else
-    begin
     raise ESyntaxException.Create ('Expecting opening bracket to print call', tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
-    exit;
-    end;
-
 end;
 
 
@@ -590,10 +582,7 @@ begin
      expect(tRightParenthesis);
      end
   else
-    begin
     raise ESyntaxException.Create ('Expecting opening bracket to setColor call', tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
-    exit;
-    end;
 end;
 
 
@@ -604,7 +593,6 @@ begin
      begin
      nextToken;
      expression;
-
      expect(tRightParenthesis);
      end;
 end;
@@ -725,7 +713,6 @@ begin
      end
   else
      expect(tEnd);
-  nextToken;
 end;
 
 
@@ -804,10 +791,10 @@ end;
 procedure TSyntaxParser.parseRepeatStatement;
 var
   breakJump: integer;
-  breakStack1: TStack<integer>;
+  breakStack: TStack<integer>;
 begin
-  breakStack1 := TStack<integer>.Create;
-  stackOfBreakStacks.Push(breakStack1);
+  breakStack := TStack<integer>.Create;
+  stackOfBreakStacks.Push(breakStack);
   try
     expect(tRepeat);   // Guaranteed to be true
 
@@ -817,11 +804,11 @@ begin
 
     expression;
 
-    while breakStack1.Count > 0 do
-        breakJump := breakStack1.Pop;
+    while breakStack.Count > 0 do
+        breakJump := breakStack.Pop;
   finally
-    breakStack1 := stackOfBreakStacks.Pop;
-    breakStack1.Free;
+    breakStack := stackOfBreakStacks.Pop;
+    breakStack.Free;
   end;
 end;
 
@@ -862,14 +849,12 @@ begin
 
     // Deal with any step keyword
     if tokenVector.token = tStep then
-    begin
-      nextToken;
-      if (tokenVector.token = tInteger) or (tokenVector.token = tFloat) then
-         begin
-          nextToken;
-         end
-      else
-         raise ESyntaxException.Create ('step value must be an integer ro float value', tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
+       begin
+       nextToken;
+       if (tokenVector.token = tInteger) or (tokenVector.token = tFloat) then
+           nextToken
+       else
+          raise ESyntaxException.Create ('step value must be an integer ro float value', tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
     end;
 
     expect(tDo);

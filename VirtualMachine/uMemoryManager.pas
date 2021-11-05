@@ -9,25 +9,26 @@ unit uMemoryManager;
 
 interface
 
-Uses Classes, SysUtils, uRhodusTypes, uObjectSupport;
+Uses Classes, SysUtils, uRhodusTypes, uObjectSupport, uRhodusObject;
 
 type
    // btTemporary is only used if a function is called
    // with a literal list, eg callme ({1,2,3})
-   TBlockType = (btGarbage, btBound, btOwned, btConstant, btTemporary);
-   TRhodusObject = class (TObject)
-      blockType : TBlockType;
-      objectType : TSymbolElementType;
 
-      function isConstant : boolean;
-      function isBound : boolean;
-      function isOwned : boolean;
-      function isGarbage : boolean;
-
-      function    getRhodusObjectSize : integer;
-      constructor Create;
-      destructor  Destroy; override;
-   end;
+//   TRhodusObject = class (TObject)
+//      blockType : TBlockType;
+//      objectType : TSymbolElementType;
+//      methods : TMethodsBase;
+//
+//      function isConstant : boolean;
+//      function isBound : boolean;
+//      function isOwned : boolean;
+//      function isGarbage : boolean;
+//
+//      function    getRhodusObjectSize : integer;
+//      constructor Create;
+//      destructor  Destroy; override;
+//   end;
 
    // Allocated nodes are stored using a linked list
    PMemoryNodePtr = ^TMemoryNode;
@@ -74,45 +75,45 @@ Uses uStringObject, uListObject, uSymbolTable;
 
 // -------------------------------------------------------------------------------
 
-constructor TRhodusObject.Create;
-begin
-  inherited;
-  blockType := btGarbage;
-end;
-
-destructor TRhodusObject.destroy;
-begin
-  inherited
-end;
-
-function TRhodusObject.getRhodusObjectSize : integer;
-begin
-  result := sizeof (blockType);
-end;
-
-
-function TRhodusObject.isConstant : boolean;
-begin
-  result := (blockType = btConstant);
-end;
-
-
-function TRhodusObject.isBound : boolean;
-begin
-  result := (blockType = btBound);
-end;
-
-
-function TRhodusObject.isOwned : boolean;
-begin
-  result := (blockType = btOwned);
-end;
-
-
-function TRhodusObject.isGarbage : boolean;
-begin
-  result := (blockType = btGarbage);
-end;
+//constructor TRhodusObject.Create;
+//begin
+//  inherited;
+//  blockType := btGarbage;
+//end;
+//
+//destructor TRhodusObject.destroy;
+//begin
+//  inherited
+//end;
+//
+//function TRhodusObject.getRhodusObjectSize : integer;
+//begin
+//  result := sizeof (blockType);
+//end;
+//
+//
+//function TRhodusObject.isConstant : boolean;
+//begin
+//  result := (blockType = btConstant);
+//end;
+//
+//
+//function TRhodusObject.isBound : boolean;
+//begin
+//  result := (blockType = btBound);
+//end;
+//
+//
+//function TRhodusObject.isOwned : boolean;
+//begin
+//  result := (blockType = btOwned);
+//end;
+//
+//
+//function TRhodusObject.isGarbage : boolean;
+//begin
+//  result := (blockType = btGarbage);
+//end;
 
 // --------------------------------------------------------------------------------------------
 

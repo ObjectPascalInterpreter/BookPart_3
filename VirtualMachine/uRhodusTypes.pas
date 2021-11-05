@@ -19,6 +19,8 @@ type
    TIndexArray = array of integer;
    TDoubleArray = array of double;
 
-implementation
+   TBlockType = (btGarbage, btBound, btOwned, btConstant, btTemporary);
+
+   implementation
 
 end.

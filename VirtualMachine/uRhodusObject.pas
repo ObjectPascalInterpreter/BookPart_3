@@ -10,47 +10,65 @@ unit uRhodusObject;
 
 interface
 
-Uses Classes, SysUtils;
+Uses Classes, SysUtils, uRhodusTypes, uObjectSupport;
 
 type
-  TObjectType = (otList);
+   TRhodusObject = class (TObject)
+      blockType : TBlockType;
+      objectType : TSymbolElementType;
+      methods : TMethodsBase;
 
-  TRhodusObject = class (TObject)
-      objectType : TObjectType;
-      value : TObject;
+      function isConstant : boolean;
+      function isBound : boolean;
+      function isOwned : boolean;
+      function isGarbage : boolean;
 
-      function isList : boolean;
-      function getString : string;
-
+      function    getRhodusObjectSize : integer;
       constructor Create;
-  end;
+      destructor  Destroy; override;
+   end;
 
 implementation
 
-Uses uListObject;
-
 constructor TRhodusObject.Create;
 begin
-  inherited Create;
+  inherited;
+  blockType := btGarbage;
 end;
 
-function TRhodusObject.isList : boolean;
+destructor TRhodusObject.destroy;
 begin
-  if objectType = otList then
-     result := True
-  else
-     result := False;
+  inherited
 end;
 
-
-function TRhodusObject.getString : string;
+function TRhodusObject.getRhodusObjectSize : integer;
 begin
-  case objectType of
-    otList: result := TListObject (value).listToString;
-  else
-     raise Exception.Create('Unknown object type in rhodusobject toString');
-
-  end;
+  result := sizeof (blockType);
 end;
+
+
+function TRhodusObject.isConstant : boolean;
+begin
+  result := (blockType = btConstant);
+end;
+
+
+function TRhodusObject.isBound : boolean;
+begin
+  result := (blockType = btBound);
+end;
+
+
+function TRhodusObject.isOwned : boolean;
+begin
+  result := (blockType = btOwned);
+end;
+
+
+function TRhodusObject.isGarbage : boolean;
+begin
+  result := (blockType = btGarbage);
+end;
+
 
 end.

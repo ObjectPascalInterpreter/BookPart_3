@@ -9,7 +9,7 @@ unit uArrayObject;
 
 interface
 
-uses Classes, uMemoryManager, uObjectSupport, Generics.Collections, uRhodusTypes;
+uses Classes, uMemoryManager, uObjectSupport, uRhodusObject, Generics.Collections, uRhodusTypes;
 
 type
   TArrayMethods = class;
@@ -21,13 +21,13 @@ type
     public
      data : T1DArray;
      dim  : TIndexArray;
-     arrayMethods : TArrayMethods;
 
      class function arrayIntMult (m1 : TArrayObject; alpha : integer) : TArrayObject;
      class function arrayDoubleMult (m1 : TArrayObject; alpha : double) : TArrayObject;
 
      function        getNumDimensions : integer;
      function        getIndex (const dim, idx : array of integer) : integer;
+
      function        getValue (idx : array of integer) : double;
      function        getValue1D (i : integer) : double;
      function        getValue2D (i, j : integer) : double;
@@ -38,14 +38,16 @@ type
 
      function        getRow (index : integer) : TArrayObject;
      function        getDim : TIndexArray;
-     function        clone : TArrayObject;
+     function        getNumberOfElements : integer;
+     function        getNthDimension (i : integer) : integer;
+
      function        arrayToString () : string;
      function        getMemorySize() : integer;
-     function        getNumberOfElements : integer;
-     // Only use this method if you intend to set the dims as well.
-     procedure       setNumberOfElements (newSize : integer);
-     function        getNthDimension (i : integer) : integer;
-     property        numDimensions : integer read getNumDimensions;
+
+     function        clone : TArrayObject;
+     procedure       resize2D (n, m : integer);
+
+     property        ndims : integer read getNumDimensions;
      property        item[index1, index2: Integer]: double read getValue2D write setValue2D; default;
 
      procedure       appendx (mat : TArrayObject);
@@ -64,6 +66,9 @@ type
      procedure   getNumRows (vm: TObject);
      procedure   getNumCols (vm: TObject);
      procedure   getNumDim (vm : TObject);
+     procedure   appendRow (vm : TObject);
+     procedure   appendCol (vm : TObject);
+     procedure   getTranspose (vm : TObject);
      procedure   getSqr (vm : TObject);
      procedure   add (vm : TObject);
      procedure   sub (vm : TObject);
@@ -85,20 +90,22 @@ Uses SysUtils,
 const outOfRangeMsg = 'Index out of range while accessing array element';
       sameDimensionsMsg = 'Arrays must have the same dimensions';
 
-var _arrayMethods : TArrayMethods;
-
+var arrayMethods : TArrayMethods;
 
 constructor TArrayMethods.Create;
 begin
   methodList := TMethodList.Create;
 
+  // -1 means variable arguments
   methodList.Add(TMethodDetails.Create ('len',   -1, 'get the length of an array: var.len ()', getLength));
   methodList.Add(TMethodDetails.Create ('shape',  0, 'get the dimensions of the array: var.shape ()', getShape));
   methodList.Add(TMethodDetails.Create ('ndim',   0, 'get the number of dimensions of the array: var.ndim ()', getNumDim));
   methodList.Add(TMethodDetails.Create ('rows',   0, 'get the number of rows of a matrix: var.rows()', getNumRows));
-  methodList.Add(TMethodDetails.Create ('cols',   0, 'getthe number of columns of a matrix: var.cols()', getNumCols));
+  methodList.Add(TMethodDetails.Create ('cols',   0, 'get the number of columns of a matrix: var.cols()', getNumCols));
 
+  methodList.Add(TMethodDetails.Create('append',  1, 'append row', appendRow));
 
+  methodList.Add(TMethodDetails.Create ('tr',     0, 'Transpose the matrix: var.tr ()', getTranspose));
   methodList.Add(TMethodDetails.Create ('sqr',    0, 'square each element in the array: var.sqr ()', getSqr));
   methodList.Add(TMethodDetails.Create ('add',    1, 'add an array argument ot the array: c = a.add (b)', add));
   methodList.Add(TMethodDetails.Create ('sub',    1, 'subtract an array argument from the array: c = a.sub (b)', sub));
@@ -112,6 +119,7 @@ begin
   inherited;
 end;
 
+// ---------------------------------------------------------------------------------------
 
 function sameDimensions (m1, m2 : TArrayObject) : boolean;
 var i : integer;
@@ -149,10 +157,10 @@ begin
       begin
       if nArgs = 1 then
          begin
-         if (d <= s.numDimensions - 1) and (d > -1) then
+         if (d <= s.ndims - 1) and (d > -1) then
             TVM (vm).push(s.dim[d])
          else
-            raise ERuntimeException.Create('Array only has: ' + inttostr (s.numDimensions) + ' dimensions');
+            raise ERuntimeException.Create('Array only has: ' + inttostr (s.ndims) + ' dimensions');
          end;
       end;
 end;
@@ -212,6 +220,65 @@ begin
      raise ERuntimeException.Create('Method <cols> only applies to 2D arrays (matrices)');
 end;
 
+
+// m1.append (m2)
+procedure TArrayMethods.appendRow (vm : TObject);
+var s, appendee : TArrayObject;
+    target : TArrayObject;
+    i, j : integer;
+    sRows: integer;
+begin
+  appendee := TVM (vm).popArray;
+
+  TVM (vm).decStackTop; // Dump the object method
+  s := TVM (vm).popArray;
+
+  if (s.getNumDimensions() = 2) and (appendee.getNumDimensions() = 2) then
+     begin
+     if s.dim[1] = appendee.dim[1] then
+        begin
+        target := s.clone;
+        sRows := s.dim[0];
+        target.resize2D (sRows + appendee.dim[0], s.dim[1]);
+
+        for i := 0 to appendee.dim[0] - 1 do
+            for j := 0 to appendee.dim[1] - 1 do
+                target.setValue2D (sRows + i, j, appendee.getValue2D (i, j));
+        end
+     else
+        raise ERuntimeException.Create('method <appendRow> column sizes don''t match');
+     end
+  else
+     raise ERuntimeException.Create('The method <appendRow> only applies to 2D matrices');
+  TVM (vm).push (target);
+end;
+
+
+procedure TArrayMethods.appendCol (vm : TObject);
+var s :TArrayObject;
+begin
+
+end;
+
+
+procedure TArrayMethods.getTranspose (vm : TObject);
+var s, tmp :TArrayObject;
+    i, j : integer;
+    r, c : integer;
+begin
+  TVM (vm).decStackTop; // Dump the object method
+  s := TVM (vm).popArray;  // Object itself
+  r := s.dim[0];
+  c := s.dim[1];
+
+  tmp := TArrayObject.Create ([c, r]);
+  tmp.blockType := btTemporary;  // protect from garbage collector
+  for i := 0 to r - 1 do
+      for j := 0 to c - 1 do
+          tmp[j,i] := s[i,j];
+  tmp.blockType := btGarbage;
+  TVM (vm).push (tmp);
+end;
 
 procedure TArrayMethods.getSqr (vm : TObject);
 var i : integer;
@@ -278,7 +345,7 @@ constructor TArrayObject.Create;
 begin
   blockType := btGarbage;
   objectType := symArray;
-  self.arrayMethods := _arrayMethods;
+  self.methods := arrayMethods;
   memoryList.addNode (self);
 end;
 
@@ -417,11 +484,12 @@ begin
 end;
 
 
-procedure TArrayObject.setNumberOfElements (newSize: Integer);
+procedure TArrayObject.resize2D (n, m : integer);
 begin
-  setLength (data, newSize);
+  setlength (data, n*m);
+  dim[0] := n;
+  dim[1] := m;
 end;
-
 
 function TArrayObject.getNumberOfElements : integer;
 var i : integer;
@@ -471,14 +539,14 @@ begin
                 result := result + ', ';
             end;
         if i < self.getNthDimension(0) - 1 then
-           result := result + ']], ' + sLineBreak;
+           result := result + '], ' + sLineBreak;
         end;
      result := result + ']]';
      exit;
      end;
 
 
-  // tempoary affair for n-dim arrays
+  // tempoeary affair for n-dim arrays
   n := getNumberOfElements();
   result := '[';
   for i := 0 to n - 1 do
@@ -659,9 +727,9 @@ end;
 // -----------------------------------------------------------------------
 
 initialization
-   _arrayMethods := TArrayMethods.Create;
+   arrayMethods := TArrayMethods.Create;
 finalization
-   _arrayMethods.Free;
+   arrayMethods.Free;
 end.
 
 

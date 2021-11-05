@@ -12,7 +12,7 @@ unit uListObject;
 interface
 
 Uses System.SysUtils, uUtils, System.generics.Collections, uObjectSupport,
-     uMemoryManager, uStringObject, uArrayObject;
+     uMemoryManager, uStringObject, uArrayObject, uRhodusObject;
 
 type
   TListItemType = (liInteger, liBoolean, liDouble, liString, liList, liArray, liFunction, liModule);
@@ -40,7 +40,6 @@ type
   private
   public
     list: TListContainer;          // Contains the data
-    listMethods : TListMethods;
 
     class function addLists(list1, list2: TListObject): TListObject;
     class function multiply(value: integer; aList: TListObject): TListObject;
@@ -116,7 +115,7 @@ type
   TIntArray = array of integer;
   TDoubleArray = array of double;
 
-var _listMethods : TListMethods;
+var listMethods : TListMethods;
 
 
 constructor TListMethods.Create;
@@ -420,7 +419,7 @@ begin
 
   objectType := symList;
   list := TListContainer.Create;
-  listMethods := _listMethods;
+  methods := listMethods;
   for i := 0 to count - 1 do
     list.add(TListItem.Create(0));
   memoryList.addNode(self); // Add a reference to the memory manager
@@ -877,8 +876,8 @@ end;
 // -----------------------------------------------------------------------
 
 initialization
-   _listMethods := TListMethods.Create;
+   listMethods := TListMethods.Create;
 finalization
-   _listMethods.Free;
+   listMethods.Free;
 end.
 

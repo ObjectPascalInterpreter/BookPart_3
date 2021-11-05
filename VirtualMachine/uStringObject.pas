@@ -9,7 +9,7 @@ unit uStringObject;
 
 interface
 
-uses Classes, uMemoryManager, uObjectSupport;
+uses Classes, uMemoryManager, uObjectSupport, uRhodusObject;
 
 type
   TStringMethods = class (TMethodsBase)
@@ -29,7 +29,6 @@ type
   TStringObject = class (TRhodusObject)
 
      value : string;
-     stringMethods : TStringMethods;
 
      function        isEqualTo (str1 : TStringObject) : boolean;
      class function  add (str1, str2 : TStringObject) : TStringObject;
@@ -52,7 +51,7 @@ Uses SysUtils,
      uListObject,
      uVMExceptions;
 
-var _stringMethods : TStringMethods;
+var stringMethods : TStringMethods;
 
 constructor TStringMethods.Create;
 begin
@@ -193,7 +192,7 @@ constructor TStringObject.createConstantObj (value : string);
 begin
   blockType := btConstant;
   self.value := value;
-  stringMethods := _stringMethods;
+  methods := stringMethods;
 end;
 
 
@@ -202,7 +201,7 @@ begin
   blockType := btGarbage;
   objectType := symString;
   self.value := value;
-  stringMethods := _stringMethods;
+  methods := stringMethods;
   memoryList.addNode (self);
 end;
 
@@ -242,9 +241,9 @@ end;
 // -----------------------------------------------------------------------
 
 initialization
-   _stringMethods := TStringMethods.Create;
+   stringMethods := TStringMethods.Create;
 finalization
-  _stringMethods.Free;
+  stringMethods.Free;
 end.
 
 

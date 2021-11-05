@@ -11,7 +11,7 @@ interface
 
 Uses Classes, SysUtils, Generics.Collections, uListObject, uStringObject, uArrayObject,
      uOpCodes, uConstantTable, uVMExceptions, uProgramCode, uMemoryManager, uRhodusTypes,
-     uObjectSupport;
+     uObjectSupport, uRhodusObject;
 
 type
    // There are too many dependencies between these classes to separate them

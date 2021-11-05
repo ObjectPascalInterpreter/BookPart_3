@@ -7,3 +7,6 @@ a2 = arrays.rndu (4,4)
 a3 = a1 - a2
 
 println (a3+a2-a1)
+
+m = mat.rand (3,2)
+m.tr().append (array([[1,2,3]])).tr()

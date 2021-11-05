@@ -710,9 +710,8 @@ begin
      begin
      nextToken;
      statementList;;
-     end
-  else
-     expect(tEnd);
+     end;
+  expect(tEnd);
 end;
 
 

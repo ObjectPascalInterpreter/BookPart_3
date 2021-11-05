@@ -34,7 +34,7 @@ type
 implementation
 
 Uses Math, uSymbolTable, uVM, uStringObject, uListObject, uMachineStack,
-     uMemoryManager, uVMExceptions;
+     uMemoryManager, uVMExceptions, uRhodusTypes;
 
 
 constructor TBuiltInList.Create;

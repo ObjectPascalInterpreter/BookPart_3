@@ -34,6 +34,7 @@ Uses Windows,
      uStringObject,
      uListObject,
      uMemoryManager,
+     uRhodusTypes,
      uBuiltInConfig;
 
 // --------------------------------------------------------------------------------------------

@@ -66,7 +66,7 @@ initialization
   listOfBuiltIns.Add (TBuiltIn.Create ('config', 'uBuiltInConfig.' + TBuiltInConfig.ClassName));
   listofBuiltIns.Add (TBuiltIn.Create ('random', 'uBuiltInRandom.' + TBuiltInRandom.ClassName));
   listofBuiltIns.Add (TBuiltIn.Create ('arrays', 'uBuiltInArray.'  + TBuiltInArray.ClassName));
-  listofBuiltIns.Add (TBuiltIn.Create ('matrix', 'uBuiltInMatrix.' + TBuiltInMatrix.ClassName));
+  listofBuiltIns.Add (TBuiltIn.Create ('mat',    'uBuiltInMatrix.' + TBuiltInMatrix.ClassName));
   listofBuiltIns.Add (TBuiltIn.Create ('file',   'uBuiltInFile.'   + TBuiltInFile.ClassName));
   listofBuiltIns.Add (TBuiltIn.Create ('time',   'uBuiltInOS.'     + TBuiltInTime.ClassName));
   listofBuiltIns.Add (TBuiltIn.Create ('strings','uBuiltInStrings.' + TBuiltInStr.ClassName));

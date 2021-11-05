@@ -1,0 +1,128 @@
+
+--------------------------------2021/11/4 17:35:53--------------------------------
+FastMM has detected an attempt to call a virtual method on a freed object. An access violation will now be raised in order to abort the current operation.
+
+Virtual method: Destroy
+
+The allocation number was: 6718
+
+The object was allocated by thread 0x13C18, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40C17B [System.pas][System][@NewUnicodeString$qqri][25652]
+40C3BC [System.pas][System][@UStrFromPWCharLen$qqrr20System.UnicodeStringpbi][26264]
+40C493 [System.pas][System][InternalUStrFromPCharLen$qqrr20System.UnicodeStringpcii][26441]
+59D054 
+779B579E [Unknown function at RtlAllocateHeap]
+779B7FCF [Unknown function at RtlAllocateHeap]
+779B7FE9 [Unknown function at RtlAllocateHeap]
+779E6CF0 [bsearch]
+779B427C [Unknown function at RtlFindActivationContextSectionString]
+779B3CBA [RtlFindActivationContextSectionString]
+
+The object was subsequently freed by thread 0x13C18, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40C235 [System.pas][System][@UStrClr$qqrpv][25872]
+592AAF [uRepl][Finalization$qqrv]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+59D054 
+59D054 
+59D0CE 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+The current thread ID is 0x13C18, and the stack trace (return addresses) leading to this error is:
+40A47F [System.pas][System][TObject.Free][18023]
+4FA9A9 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeList][351]
+4FA0F5 [uMemoryManager.pas][uMemoryManager][TMemoryList.Destroy][130]
+40A47F [System.pas][System][TObject.Free][18023]
+4FA9F5 [uMemoryManager.pas][uMemoryManager][Finalization$qqrv][364]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+59D054 
+59D054 
+59D0CE 
+7788F989 [BaseThreadInitThunk]
+
+Current memory dump of 256 bytes starting at pointer address 7F7DA3E0:
+84 AC 5A 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 C1 C4 4C 48 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 00 00 00 00 81 9C 7D 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+06 16 00 00 12 73 40 00 7B C1 40 00 B2 D0 40 00 B9 4F 47 00 54 D0 59 00 D6 50 47 00 E0 4B 47 00
+C3 48 46 00 54 D0 59 00 54 D0 59 00 90 70 46 00 18 3C 01 00 18 3C 01 00 2E 73 40 00 35 C2 40 00
+D9 DA 40 00 13 DF 40 00 2F F5 40 00 7C C0 47 00 7F A4 40 00 B3 4B 47 00 7F A4 40 00 32 40 46 00
+7F A4 40 00 22 00 00 00 B0 04 02 00 71 71 8F 85 84 AC 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 8E 8E 70 7A 80 80 00 00 00 00 41 9F 7D 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 20 16 00 00 12 73 40 00 7B C1 40 00 B2 D0 40 00
+Ñ  ¨  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  ¡  ƒ  L  H  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  Å  ú  }    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+.  .  .  .  .  s  @  .  {  ¡  @  .  ≤  –  @  .  π  O  G  .  T  –  Y  .  ÷  P  G  .  ‡  K  G  .
+√  H  F  .  T  –  Y  .  T  –  Y  .  ê  p  F  .  .  <  .  .  .  <  .  .  .  s  @  .  5  ¬  @  .
+Ÿ  ⁄  @  .  .  ﬂ  @  .  /  ı  @  .  |  ¿  G  .    §  @  .  ≥  K  G  .    §  @  .  2  @  F  .
+  §  @  .  "  .  .  .  ∞  .  .  .  q  q  è  Ö  Ñ  ¨  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  é  é  p  z  Ä  Ä  .  .  .  .  A  ü  }  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .     .  .  .  .  s  @  .  {  ¡  @  .  ≤  –  @  .
+
+--------------------------------2021/11/4 17:36:54--------------------------------
+FastMM has detected an attempt to call a virtual method on a freed object. An access violation will now be raised in order to abort the current operation.
+
+Virtual method: Destroy
+
+The allocation number was: 6204
+
+The object was allocated by thread 0x1798C, and the stack trace (return addresses) at the time was:
+407312 [System.pas][System][@GetMem$qqri][4928]
+40C17B [System.pas][System][@NewUnicodeString$qqri][25652]
+40C3BC [System.pas][System][@UStrFromPWCharLen$qqrr20System.UnicodeStringpbi][26264]
+40C493 [System.pas][System][InternalUStrFromPCharLen$qqrr20System.UnicodeStringpcii][26441]
+59D054 
+779B579E [Unknown function at RtlAllocateHeap]
+779B7FCF [Unknown function at RtlAllocateHeap]
+779B7FE9 [Unknown function at RtlAllocateHeap]
+779E6CF0 [bsearch]
+779B427C [Unknown function at RtlFindActivationContextSectionString]
+779B3CBA [RtlFindActivationContextSectionString]
+
+The object was subsequently freed by thread 0x1798C, and the stack trace (return addresses) at the time was:
+40732E [System.pas][System][@FreeMem$qqrpv][4976]
+40C235 [System.pas][System][@UStrClr$qqrpv][25872]
+592AB7 [uRepl][Finalization$qqrv]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+59D054 
+59D054 
+59D0CE 
+7788F989 [BaseThreadInitThunk]
+779D74A4 [RtlGetAppContainerNamedObjectPath]
+779D7474 [RtlGetAppContainerNamedObjectPath]
+
+The current thread ID is 0x1798C, and the stack trace (return addresses) leading to this error is:
+40A47F [System.pas][System][TObject.Free][18023]
+4FA9A9 [uMemoryManager.pas][uMemoryManager][TMemoryList.freeList][351]
+4FA0F5 [uMemoryManager.pas][uMemoryManager][TMemoryList.Destroy][130]
+40A47F [System.pas][System][TObject.Free][18023]
+4FA9F5 [uMemoryManager.pas][uMemoryManager][Finalization$qqrv][364]
+40BBE0 [System.pas][System][FinalizeUnits$qqrv][23711]
+40BFF5 [System.pas][System][@Halt0$qqrv][25198]
+59D054 
+59D054 
+59D0CE 
+7788F989 [BaseThreadInitThunk]
+
+Current memory dump of 256 bytes starting at pointer address 7F7D9F10:
+84 AC 5A 00 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 A3 50 4C 48 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 00 00 00 00 31 9D 7D 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+8A 12 00 00 12 73 40 00 7B C1 40 00 B2 D0 40 00 B9 4F 47 00 54 D0 59 00 D6 50 47 00 E0 4B 47 00
+C3 48 46 00 54 D0 59 00 54 D0 59 00 90 70 46 00 8C 79 01 00 8C 79 01 00 2E 73 40 00 35 C2 40 00
+D9 DA 40 00 13 DF 40 00 2F F5 40 00 7C C0 47 00 7F A4 40 00 B3 4B 47 00 7F A4 40 00 32 40 46 00
+7F A4 40 00 24 00 00 00 B0 04 02 00 0F E4 8F 85 84 AC 5A 00 80 80 80 80 80 80 80 80 80 80 80 80
+80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 80 F0 1B 70 7A 00 00 00 00 21 9B 7D 7F
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 48 18 00 00 BC C1 40 00 13 CB 40 00 D0 C5 40 00
+Ñ  ¨  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  £  P  L  H  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  .  .  .  .  1  ù  }    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ä  .  .  .  .  s  @  .  {  ¡  @  .  ≤  –  @  .  π  O  G  .  T  –  Y  .  ÷  P  G  .  ‡  K  G  .
+√  H  F  .  T  –  Y  .  T  –  Y  .  ê  p  F  .  å  y  .  .  å  y  .  .  .  s  @  .  5  ¬  @  .
+Ÿ  ⁄  @  .  .  ﬂ  @  .  /  ı  @  .  |  ¿  G  .    §  @  .  ≥  K  G  .    §  @  .  2  @  F  .
+  §  @  .  $  .  .  .  ∞  .  .  .  .  ‰  è  Ö  Ñ  ¨  Z  .  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä
+Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä  Ä    .  p  z  .  .  .  .  !  õ  }  
+.  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  H  .  .  .  º  ¡  @  .  .  À  @  .  –  ≈  @  .

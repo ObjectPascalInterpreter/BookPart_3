@@ -19,6 +19,7 @@ type
        procedure   getSub (vm : TObject);
        procedure   getMult (vm : TObject);
        procedure   getInverse (vm : TObject);
+       procedure   getTranspose (vm : TObject);
 
        constructor Create;
        destructor  Destroy; override;
@@ -46,6 +47,7 @@ begin
   addMethod(getAdd,            2, 'add',   'Add two 2D matrices: m = matrix.add (m1, m2)');
   addMethod(getSub,            2, 'sub',   'Subtract two 2D matrices: m = matrix.sub (m1, m2)');
   addmethod(getInverse,        1, 'inv',   'Compute inverse of matrix: m = matrix.inv (m)');
+  addmethod(getTranspose,      1, 'tr',    'Get the transpose of the matrix: m = matrix.tr (m)');
 
   addMethod(getRndu,           2, 'rand',  'Create an array of uniformly random numbers: m = matrix.rand (4,4)');
   addMethod(getRndi,           4, 'randi', 'Create a matrix of uniformly random integers: m = matrix.randi (3, 2, lower, upper)');
@@ -77,10 +79,10 @@ var upper, lower : integer;
     ar : TArrayObject;
     i : integer;
 begin
-  m := TVM (vm).popInteger;
-  n := TVM (vm).popInteger;
   upper := TVM (vm).popInteger;
   lower := TVM (vm).popInteger;
+  m := TVM (vm).popInteger;
+  n := TVM (vm).popInteger;
   ar := TArrayObject.Create ([n,m]);
   for i := 0 to (n*m) - 1 do
       begin
@@ -121,6 +123,27 @@ begin
      raise ERuntimeException.Create ('Incompatible matrix operands to multiply');
 end;
 
+procedure TBuiltInMatrix.getTranspose (vm : TObject);
+var m1, m2 : TArrayObject;
+    r, c : integer;
+    i, j : integer;
+begin
+  m1 := TVM (vm).popArray;
+
+  if m1.getNumDimensions () <> 2 then
+     raise ERuntimeException.Create ('Matrices must be 2D in function transpose');
+
+  r := m1.dim[0];
+  c := m1.dim[1];
+
+  m2 := TArrayObject.Create ([c, r]);
+  for i := 0 to r - 1 do
+      for j := 0 to c - 1 do
+          m2[j,i] := m1[i,j];
+
+  TVM (vm).push (m2);
+end;
+
 
 procedure TBuiltInMatrix.getAdd (vm : TObject);
 var m1, m2, ar : TArrayObject;
@@ -132,6 +155,7 @@ begin
      raise ERuntimeException.Create ('Matrices must be 2D in function add');
   TVM (vm).push (TArrayObject.add(m1, m2));
 end;
+
 
 procedure TBuiltInMatrix.getSub (vm : TObject);
 var m1, m2, ar : TArrayObject;

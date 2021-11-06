@@ -247,14 +247,10 @@ constructor TUserFunctionMethods.Create;
 begin
   methodList := TMethodList.Create;
 
-  methodList.Add(TMethodDetails.Create ('name',     0, 'Return the name of the function: var.name ()', getName));
-  methodList.Add(TMethodDetails.Create ('nargs',    0, 'Return the numberof arguments the function expeects. Returns -1 if the number is variable', getnArgs));
-  methodList.Add(TMethodDetails.Create ('code',     0, 'Ruturn the byte code associated with the function: var.code ()', getCode));
-  methodList.Add(TMethodDetails.Create ('help',     0, 'Return the help string associated wth the function. var.help ()', getHelp));
-  //methodList.Add(TMethodDetails.Create ('pop',    1, 'Remove the last element from a list: var.pop (list)', removeLastElement));
-  //methodList.Add(TMethodDetails.Create ('max',    1, 'Find the maximum value is a 1D list of values: var.max ({1,2,3})', getMin));
-  //methodList.Add(TMethodDetails.Create ('min',    1, 'Find the minimum value is a 1D list of values: var.min ({1,2,3})', getMin));
-  //methodList.Add(TMethodDetails.Create ('dims',   0, 'Get dims: var.min ({1,2,3})', getDims));
+  methodList.Add(TMethodDetails.Create ('name',   0, 'Returns the name of the function: var.name ()', getName));
+  methodList.Add(TMethodDetails.Create ('nargs',  0, 'Returns the number of arguments the function expects. Returns -1 if the number is variable', getnArgs));
+  methodList.Add(TMethodDetails.Create ('code',   0, 'Returns the byte code associated with the function: var.code ()', getCode));
+  methodList.Add(TMethodDetails.Create ('help',   0, 'Returns the help string associated wth the function. var.help ()', getHelp));
 
   methodList.Add(TMethodDetails.Create ('dir',    0, 'dir of string object methods', dir));
 end;

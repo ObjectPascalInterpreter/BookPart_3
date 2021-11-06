@@ -25,7 +25,7 @@ procedure setUpConsole;
 procedure shutDownConsole;
 procedure clearConsoleScreen;
 procedure registerRuntimeWithConsole (runtime : TRhodus);
-function  getRunTime : TRhodus;
+function  getRhodus : TRhodus;
 procedure SetExtendedConsoleMode;
 procedure writeText (str :string);
 procedure setCurrentColors;
@@ -63,7 +63,7 @@ function GetCurrentConsoleFontEx(ConsoleOutput: THandle; MaximumWindow: BOOL;
 var
    BufInfo: TConsoleScreenBufferInfo;
    conOut : THandle;
-   refRuntime : TRhodus;
+   refRhodus : TRhodus;
 
    // RGB
    currentColor : array[0..2] of byte;
@@ -79,7 +79,7 @@ end;
 
 procedure registerRuntimeWithConsole (runtime : TRhodus);
 begin
-  refRuntime := runtime;
+  refRhodus := runtime;
 end;
 
 function getRGB (r, g, b : byte) : string;
@@ -100,9 +100,9 @@ begin
 end;
 
 
-function getRunTime : TRhodus;
+function getRhodus : TRhodus;
 begin
-  result := refRuntime;
+  result := refRhodus;
 end;
 
 
@@ -219,7 +219,7 @@ procedure displayWelcome;
 begin
   uTerminal.setWhite;
   clearConsoleScreen;
-  writeln ('Welcome to Rhodus Language III Console, Version ', getRunTime().getVersion());
+  writeln ('Welcome to Rhodus Language III Console, Version ', getRhodus().getVersion());
   writeln ('Data and Time: ', dateToStr (Date), ', ', timeToStr (Time));
   displayHelp;
 end;
@@ -262,8 +262,8 @@ begin
   // Avoid terminating with Ctrl+C
   if (CTRL_C_EVENT = dwCtrlType) then
     begin
-    if refRuntime <> nil then
-       refRuntime.getVM().stopVm();
+    if refRhodus <> nil then
+       refRhodus.getVM().stopVm();
     result := TRUE
     end
   else

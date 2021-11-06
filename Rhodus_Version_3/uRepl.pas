@@ -21,7 +21,7 @@ Uses StrUtils,
      uMachineStack;
  
 
-var runFramework : TRhodus;
+var rhodus : TRhodus;
     sourceCode : string;
     syntaxError : TSyntaxError;
     compilerError : TCompilerError;
@@ -220,13 +220,13 @@ end;
 
 procedure executeCode (const sourceCode : string);
 begin
-  if runFramework.compileToAST (sourceCode, syntaxError) then
+  if rhodus.compileToAST (sourceCode, syntaxError) then
      begin
-     if runFramework.generateByteCode (True, compilerError) then
+     if rhodus.generateByteCode (True, compilerError) then
         begin
         if TRhodus.bolShowByteCode then
-           runFramework.showByteCodeMethod (mainModule);
-        runFrameWork.runCode (mainModule, True, print);
+           rhodus.showByteCodeMethod (mainModule);
+        rhodus.runCode (mainModule, True, print);
         end
      else
        begin
@@ -242,13 +242,13 @@ end;
 
 procedure startRepl;
 begin
-  runFramework := TRhodus.Create;
+  rhodus := TRhodus.Create;
 
-  registerRuntimeWithConsole (runFramework);
+  registerRuntimeWithConsole (rhodus);
 
-  runFramework.setPrintCallBack(print);
-  runFramework.setPrintLnCallBack(println);
-  runFramework.setSetColorCallBack (setColor);
+  rhodus.setPrintCallBack(print);
+  rhodus.setPrintLnCallBack(println);
+  rhodus.setSetColorCallBack (setColor);
 
   try
     displayWelcome;
@@ -277,7 +277,7 @@ begin
      end;
 
   finally
-    runFramework.Free;
+    rhodus.Free;
 
     writeln ('Current Memory Map:'#13#10, '[', memoryList.mapMemory, ']');
     writeln ('Press any key to exit');

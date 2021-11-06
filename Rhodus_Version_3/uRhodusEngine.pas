@@ -396,9 +396,6 @@ begin
         vm.registerSetColorcallBack (setColorCallBack);
 
         try
-         // if bolShowByteCode then
-        //     showByteCodeMethod(mainModule);
-
           vm.runModule (mainModule);
 
           while vm.stackHasEntry do

@@ -22,6 +22,7 @@ type
     procedure   addListValue  (name : string; value : TListObject; helpStr : string; locked : boolean);
 
     procedure   callDir (vmObj : TObject);
+    procedure   callContains (vmObj : TObject);
     constructor Create (name : string; helpStr : string);
     destructor  Destroy; override;
   end;
@@ -42,6 +43,10 @@ begin
   f := TUserFunction.Create('dir', 0, callDir);
   f.helpStr := 'Get a list of the supported methods and values';
   self.symbolTable.addSymbol (f, True); // // locked = True
+
+  f := TUserFunction.Create ('contains', 1, callContains);
+  f.helpStr := 'Returns true if the module contains is the given symbol: mod.contains ("cos")';
+  self.symbolTable.addSymbol (f, True); // // locked = True
 end;
 
 
@@ -49,6 +54,7 @@ destructor TModuleLib.Destroy;
 begin
   inherited;
 end;
+
 
 procedure TModuleLib.callDir (vmObj : TObject);
 var l : TListObject;
@@ -72,6 +78,39 @@ begin
          end;
      end;
   vm.push (l);
+end;
+
+
+procedure TModuleLib.callContains (vmObj : TObject);
+var vm : TVM;
+    key, arg : string;
+begin
+  vm := TVM (vmObj);
+  arg := vm.popString.value;
+  if name = TSymbol.globalId then
+     begin
+     for key in self.symbolTable.keys do
+         if key = arg then
+            begin
+            vm.push(True);
+            exit;
+            end;
+     vm.push(False);
+     exit;
+     end
+  else
+     begin
+     for key in self.symbolTable.keys do
+         begin
+         if key = arg then
+            begin
+            vm.push(True);
+            exit;
+            end;
+         end;
+     vm.push (False);
+     exit;
+     end;
 end;
 
 

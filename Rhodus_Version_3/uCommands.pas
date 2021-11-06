@@ -298,8 +298,8 @@ end;
 
 function symbolsCommnd (argument : string) : boolean;
 begin
-  if getRunTime <> nil then
-     getRunTime.getAllocatedSymbols (argument);
+  if getRhodus() <> nil then
+     getRhodus.getAllocatedSymbols (argument);
   exit (True);
 end;
 
@@ -328,7 +328,7 @@ begin
       setWhite;
 
       TRhodus.bolShowByteCode := False;
-      getRuntime().compileAndRun (TFile.ReadAllText(fileName), False);  // false = not interactive
+      getRhodus().compileAndRun (TFile.ReadAllText(fileName), False);  // false = not interactive
       writeln;
       end;
   writeln;
@@ -345,8 +345,8 @@ begin
   cwd := getCurrentDir();
   if TFile.Exists (cwd + '\' + fileName) then
      begin
-     if getRuntime() <> nil then
-        getRuntime().compileAndRun (TFile.ReadAllText(cwd + '\' + fileName), False) // True = interactive
+     if getRhodus() <> nil then
+        getRhodus().compileAndRun (TFile.ReadAllText(cwd + '\' + fileName), False) // True = interactive
      else
         begin
         writeln ('Internal Error: Runtime system not available');

@@ -123,6 +123,7 @@ begin
      raise ERuntimeException.Create ('Incompatible matrix operands to multiply');
 end;
 
+
 procedure TBuiltInMatrix.getTranspose (vm : TObject);
 var m1, m2 : TArrayObject;
     r, c : integer;

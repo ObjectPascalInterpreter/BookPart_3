@@ -10,8 +10,14 @@ unit uCompile;
 
 interface
 
-Uses Classes, SysUtils, uAST, uASTNodeType, uSymbolTable, uOpCodes,
-  Generics.Collections, uProgramCode;
+Uses Classes,
+     SysUtils,
+     uAST,
+     uASTNodeType,
+     uSymbolTable,
+     uOpCodes,
+     Generics.Collections,
+     uProgramCode;
 
 type
   TBreakStack = TStack<integer>;
@@ -747,45 +753,50 @@ begin
   else
      path := paths.list[found].sValue.value + '\\' + node.importName + '.rh';
 
+  // If a module of that name has already been loaded we just get out.
+  if currentModule.symbolTable.find(node.importName, symbol) then
+     if symbol.symbolType = symModule then
+        exit;
 
-   // If a module of that name has already been loaded we just get out.
-   if currentModule.symbolTable.find(node.importName, symbol) then
-      if symbol.symbolType = symModule then
-         exit;
+  // Check if we're trying to load the same module into itself
+  if currentModule.name = node.importName then
+     raise ECompilerException.Create('Warning: Attempted import module <' + node.importName + '> into itself.', 0, 0);
 
-   // Otherwise lets read it in
-   scanner := TScanner.Create;
-   syntaxParser := TSyntaxParser.Create (scanner);
-   sym := TConstructAST.Create(syntaxParser.tokenVector);
+  // Otherwise lets read it in
+  scanner := TScanner.Create;
+  syntaxParser := TSyntaxParser.Create (scanner);
+  sym := TConstructAST.Create(syntaxParser.tokenVector);
 
-   try
-      src := TFile.ReadAllText(path);
-      scanner.scanString(src);
-      if syntaxParser.syntaxCheck(syntaxError) then
-         begin
-         module := sym.buildModuleAST(node.importName, root);
+  try
+     src := TFile.ReadAllText(path);
+     scanner.scanString(src);
+     if syntaxParser.syntaxCheck(syntaxError) then
+        begin
+        module := sym.buildModuleAST(node.importName, root);
 
-         addGlobalMethodsToModule (module);
-         addAllBuiltInLibraries(module);
-
-         compiler := TCompiler.Create(module);
-         try
-           compiler.startCompilation(module, root, compilerError);
-           module.code.addByteCode(oHalt);
-         finally
-           root.Free;
-           compiler.Free;
-         end;
+        addGlobalMethodsToModule (module);
+        addAllBuiltInLibraries(module);
 
         // Add the name of the module to the current module's
         // symbol table, because user functions might need it for globals
         currentModule.symbolTable.addModule(module);
+
+        compiler := TCompiler.Create(module);
+        try
+          if not compiler.startCompilation(module, root, compilerError) then
+             raise ECompilerException.Create (compilerError.errorMsg, compilerError.lineNumber, compilerError.columnNumber);
+
+          module.code.addByteCode(oHalt);
+        finally
+          root.Free;
+          compiler.Free;
+        end;
+
         // import the module
         currentModule.code.addModuleByteCode(oImportModule, node.importName);
-         end
-      else
-         raise ECompilerException.Create('In module: ' + node.importName + ' ' + syntaxError.errorMsg, syntaxError.lineNumber, syntaxError.columnNumber);
-
+        end
+     else
+        raise ECompilerException.Create('In module: ' + node.importName + ' ' + syntaxError.errorMsg, syntaxError.lineNumber, syntaxError.columnNumber);
    finally
       scanner.Free;
       syntaxParser.Free;

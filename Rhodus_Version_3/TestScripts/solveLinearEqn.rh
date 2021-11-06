@@ -5,3 +5,6 @@ y = array([[3],[4]])
 
 sol = mat.inv (A)@y
 sol = mat.mult (mat.inv (A), y)
+
+println ("Solution = ")
+println (sol)

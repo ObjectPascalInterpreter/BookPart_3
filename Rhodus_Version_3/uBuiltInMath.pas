@@ -33,6 +33,7 @@ type
      procedure   getRound (vm : TObject);
      procedure   getCeil (vm : TObject);
      procedure   getFloor (vm : TObject);
+     procedure   getTrunc (vm : TObject);
      procedure   getMax (vm : TObject);
      procedure   getMin (vm : TObject);
 
@@ -73,7 +74,8 @@ begin
   addMethod (getAbs,   1, 'abs',   'Returns the absolute value of a number:: abs (-1.2)');
   addMethod (getRound, 1, 'round', 'Returns a value to the nearest whole number: round (3.4)');
   addMethod (getCeil,  1, 'ceil',  'Rounds variables up toward positive infinity: ceil (-1.2)');
-  addMethod (getFloor, 1, 'floor', 'Returns the largest integer less than or equal to a given number; floor (2.3');
+  addMethod (getFloor, 1, 'floor', 'Returns the largest integer less than or equal to a given number: floor (2.3');
+  addMethod (getTrunc, 1, 'trunc', 'Returns the integer part of floating point number: trunc (3.13)');
   addMethod (getMax,   2, 'max',   'Returns the maximunm of two numbers: max (3, 5)');
   addMethod (getMin,   2, 'min',   'Returns the minimum of two numbers: min (3, 5)');
 
@@ -192,6 +194,14 @@ var d : double;
 begin
    d := TVM (vm).popScalar;
    TVM (vm).push (floor (d));
+end;
+
+
+procedure TBuiltInMath.getTrunc (vm : TObject);
+var d : double;
+begin
+   d := TVM (vm).popScalar;
+   TVM (vm).push (trunc (d));
 end;
 
 

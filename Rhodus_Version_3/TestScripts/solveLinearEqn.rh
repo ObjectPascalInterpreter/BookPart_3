@@ -1,0 +1,7 @@
+
+import mat
+A = array([[1,2],[6,7]])
+y = array([[3],[4]])
+
+sol = mat.inv (A)@y
+sol = mat.mult (mat.inv (A), y)

@@ -72,6 +72,7 @@ type
      procedure   getSqr (vm : TObject);
      procedure   add (vm : TObject);
      procedure   sub (vm : TObject);
+     procedure   getTrunc (vm : TObject);
      constructor Create;
      destructor  Destroy; override;
   end;
@@ -109,6 +110,7 @@ begin
   methodList.Add(TMethodDetails.Create ('sqr',    0, 'square each element in the array: var.sqr ()', getSqr));
   methodList.Add(TMethodDetails.Create ('add',    1, 'add an array argument ot the array: c = a.add (b)', add));
   methodList.Add(TMethodDetails.Create ('sub',    1, 'subtract an array argument from the array: c = a.sub (b)', sub));
+  methodList.Add(TMethodDetails.Create ('trunc',  0, 'runcate all entries to whole numbersy: c = a.trunc ()', getTrunc));
 
   methodList.Add(TMethodDetails.Create ('dir',    0, 'dir of array object methods', dir));
 end;
@@ -335,8 +337,23 @@ begin
          s2.setValue(i, s1.getValue(i)-+ s1.getValue(i));
      end
   else
-     raise ERuntimeException.Create('Arrays must have the same dimension when summing');
+     raise ERuntimeException.Create('Arrays must have the same dimensions when summing');
   TVM (vm).push (s2);
+end;
+
+
+procedure TArrayMethods.getTrunc (vm : TObject);
+var s, target : TArrayObject;
+    i : integer;
+begin
+  TVM (vm).decStackTop; // Dump the object method
+  s := TVM (vm).popArray;
+  target := s.clone;
+
+  for i := 0 to s.getNumberOfElements() - 1 do
+      target.data[i] := trunc (s.data[i]);
+
+  TVM (vm).push(target);
 end;
 
 

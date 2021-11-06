@@ -42,15 +42,15 @@ constructor TBuiltInMatrix.Create;
 begin
   inherited Create ('mat', 'Matrix Module, deals with 2-dimensional arrays');
 
-  addMethod(getIdent,          1, 'ident', 'Create an identity matrix: m = matrix.ident (4)');
-  addMethod(getMult,           2, 'mult',  'Multiply two 2D matrices: m = matrix.mult (m1, m2)');
-  addMethod(getAdd,            2, 'add',   'Add two 2D matrices: m = matrix.add (m1, m2)');
-  addMethod(getSub,            2, 'sub',   'Subtract two 2D matrices: m = matrix.sub (m1, m2)');
-  addmethod(getInverse,        1, 'inv',   'Compute inverse of matrix: m = matrix.inv (m)');
-  addmethod(getTranspose,      1, 'tr',    'Get the transpose of the matrix: m = matrix.tr (m)');
+  addMethod(getIdent,          1, 'ident', 'Create an identity matrix: m = mat.ident (4)');
+  addMethod(getMult,           2, 'mult',  'Multiply two 2D matrices: m = mat.mult (m1, m2)');
+  addMethod(getAdd,            2, 'add',   'Add two 2D matrices: m = mat.add (m1, m2)');
+  addMethod(getSub,            2, 'sub',   'Subtract two 2D matrices: m = mat.sub (m1, m2)');
+  addmethod(getInverse,        1, 'inv',   'Compute inverse of matrix: m = mat.inv (m)');
+  addmethod(getTranspose,      1, 'tr',    'Get the transpose of the matrix: m = mat.tr (m)');
 
-  addMethod(getRndu,           2, 'rand',  'Create an array of uniformly random numbers: m = matrix.rand (4,4)');
-  addMethod(getRndi,           4, 'randi', 'Create a matrix of uniformly random integers: m = matrix.randi (3, 2, lower, upper)');
+  addMethod(getRndu,           2, 'rand',  'Create an array of uniformly random numbers: m = mat.rand (4,4)');
+  addMethod(getRndi,           4, 'randi', 'Create a matrix of uniformly random integers: m = mat.randi (3, 2, lower, upper)');
 end;
 
 
@@ -170,15 +170,18 @@ end;
 
 
 class function TBuiltInMatrix.dotMatMatMult (m1, m2 : TArrayObject) : TArrayObject;
+var sum : double;
 begin
   result := TArrayObject.Create ([m1.dim[0], m2.dim[1]]);
   if (m1.dim[1] = m2.dim[0]) then  // if cols = row?
      begin
-	   for var i := 0 to m1.dim[1] - 1 do
-		     for var j := 0 to m2.dim[0] - 1 do
+	   for var i := 0 to m1.dim[0] - 1 do
+		     for var j := 0 to m2.dim[1] - 1 do
            begin
+           sum := 0;
            for var k := 0 to m1.dim[1] - 1 do
-					      result.setValue([i,j], result.getValue([i,j]) + m1.getValue([i,k]) * m2.getValue([k,j]));
+					      sum := sum + m1.getValue([i,k]) * m2.getValue([k,j]);
+           result.setValue([i,j], sum);
 					end;
 		end
   else

@@ -11,7 +11,7 @@ function ode (x, df)
 end
 
 hstep = 0.1
-x = {0, 0}; df = {0, 0}
+x = [0, 0]; df = [0, 0]
 t = 0
 for i = 0 to 80 do
     ode (x, df)

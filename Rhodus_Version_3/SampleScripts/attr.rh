@@ -1,9 +1,9 @@
 
 // Use of getAttr function
 
-println ("Prints out all the functions in themath lib")
+println ("Prints out all the functions in the math lib")
 x = math.dir()
-fx = {}
+fx = []
 for i = 0 to x.len () - 1 do
     y = getAttr (math, x[i])
     if type (y) == "function" then

@@ -10,12 +10,12 @@ function mean (x)
   return sum/x.len ()
 end
 
-x = {}
+x = []
 for i = 1 to 10 do
     x = x + i
 end
 
-y = {0}*10
+y = [0]*10
 for i = 0 to 9 do
     y[i] = x[1]*1.2 + 2.3 + random.gauss (0, 0.2)
 end

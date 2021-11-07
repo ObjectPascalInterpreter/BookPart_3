@@ -20,9 +20,9 @@ function insertionSort(arr)
 end
 
 // Driver code to test above   
-arr = {12, 7, 13, 5, 6}
+arr = [12, 7, 13, 5, 6]
 insertionSort(arr) 
-res = assertTrueEx (arr == {5, 6, 7, 12, 13})
+res = assertTrueEx (arr == [5, 6, 7, 12, 13])
 if res == "." then
    println("----PASS----")
 else

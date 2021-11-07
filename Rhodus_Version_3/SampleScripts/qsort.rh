@@ -41,9 +41,9 @@ function QSort (numbers, left, right)
 end
 
 // Driver code to test above   
-numbers = {12, 7, 13, 5, 6}
+numbers = [12, 7, 13, 5, 6]
 QSort(numbers, 0, numbers.len () - 1) 
-res = assertTrueEx (numbers == {5, 6, 7, 12, 13})
+res = assertTrueEx (numbers == [5, 6, 7, 12, 13])
 if res == "." then
    println("----PASS----")
 else

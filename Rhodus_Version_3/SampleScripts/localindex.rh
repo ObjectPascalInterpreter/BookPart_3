@@ -1,6 +1,6 @@
 
 function xtest (a)
-    x = {1,2,3};
+    x = [1,2,3];
     y = x[1];
     println (y);
     x[1] = 77;

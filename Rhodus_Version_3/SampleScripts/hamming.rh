@@ -1,5 +1,5 @@
 
-h = {}*1000000
+h = []*1000000
 
 function hamming (limit)
    global h

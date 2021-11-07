@@ -1,4 +1,4 @@
-colors = {"Snow", "FloralWhite", "LavenderBlush", "OldLace",
+colors = ["Snow", "FloralWhite", "LavenderBlush", "OldLace",
 "Ivory", "CornSilk", "Beige", "AntiqueWhite",
 "Wheat", "AliceBlue", "GhostWhite", "Lavender",
 "Seashell", "LightYellow", "PapayaWhip", "NavajoWhite",
@@ -32,7 +32,7 @@ colors = {"Snow", "FloralWhite", "LavenderBlush", "OldLace",
 "Lightgrey", "Gray", "SteelBlue", "SlateBlue",
 "SlateGray", "WhiteSmoke", "Silver", "DimGray",
 "MistyRose", "DarkSlateBlue", "DarkSlategray", "Gainsboro",
-"DarkGray", "Black"}   
+"DarkGray", "Black"]   
 
 l = colors.len ()
 for i = 1 to l do

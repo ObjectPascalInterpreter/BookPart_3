@@ -1,5 +1,5 @@
 
-//data = {5, 3, 9, 12, 6, 8, 17, 5, 23, 19, 8};
+//data = [5, 3, 9, 12, 6, 8, 17, 5, 23, 19, 8];
 //n = 10;
 
 //for i = 0 to n - 1 do
@@ -10,7 +10,7 @@
 //end;
 
 
-data = {}; deg = 0;
+data = []; deg = 0;
 while deg < 360 do
     x = 1 + math.sin (deg*3.1415926/180);
     data = data + int (x*20);   

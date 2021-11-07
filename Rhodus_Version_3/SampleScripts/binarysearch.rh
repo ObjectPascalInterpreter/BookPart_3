@@ -16,4 +16,4 @@ function doBinarySearch(list, length, value)
     return -1;
 end;
 
-print (doBinarySearch ({3,5,2,8}, 4, 8))
+print (doBinarySearch ([3,5,2,8], 4, 8))

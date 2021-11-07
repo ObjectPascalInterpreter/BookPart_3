@@ -9,6 +9,7 @@ function  rhodus_initialize (var config : TRhodusConfig) : THandle;  stdcall;
 function  rhodus_run (handle : THandle; code : AnsiString) : integer; stdcall;
 procedure rhodus_terminate (handle : THandle); stdcall;
 function  rhodus_getLastError (handle : THandle) : PAnsiChar; stdcall;
+function  rhodus_getSettings (handle : THandle) : PRhodusSettings; stdcall;
 
 implementation
 
@@ -29,6 +30,14 @@ begin
 
   rhodus.setPrintCallBack(config.printPtr);
   rhodus.setPrintLnCallBack(config.printlnPtr);
+end;
+
+
+function rhodus_getSettings (handle : THandle) : PRhodusSettings; stdcall;
+var rhodus : TRhodus;
+begin
+  rhodus := TRhodus (handle);
+  result.versionStr := PansiChar (AnsiString (rhodus.getVersion()));
 end;
 
 

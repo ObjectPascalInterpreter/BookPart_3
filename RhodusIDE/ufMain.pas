@@ -17,6 +17,7 @@ type
     editor: TMemo;
     btnLoad: TButton;
     OpenDialog: TOpenDialog;
+    lblVersion: TLabel;
     procedure btnRunClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure btnLoadClick(Sender: TObject);
@@ -41,12 +42,14 @@ type
   TRhodusRun = function  (handle : THandle; code : AnsiString) : integer; stdcall;
   TRhodusTerminate = procedure (handle : THandle); stdcall;
   TRhodusGetLastError = function (handle : THandle) : PAnsiChar; stdcall;
+  TRhodusGetSettings = function (handle : THandle) : PRhodusSettings; stdcall;
 
 var config : TRhodusConfig;
     rhodus_initialize : TRhodusInitialise;
     rhodus_run : TRhodusRun;
     rhodus_terminate : TRhodusTerminate;
     rhodus_getLastError : TRhodusGetLastError;
+    rhodus_getSettings : TRhodusGetSettings;
     rhodus : THandle;
 
 
@@ -93,11 +96,13 @@ begin
   @rhodus_run := GetProcAddress(Handle, 'rhodus_run');
   @rhodus_terminate := GetProcAddress(Handle, 'rhodus_terminate');
   @rhodus_getLastError := GetProcAddress(Handle, 'rhodus_getLastError');
+  @rhodus_getSettings := GetProcAddress(Handle, 'rhodus_getSettings');
 
   config.printPtr := rhodus_print;
   config.printlnPtr := rhodus_println;
 
   rhodus := rhodus_initialize (config);
+  lblVersion.caption := AnsiString (rhodus_getSettings(rhodus).versionStr);
 end;
 
 end.

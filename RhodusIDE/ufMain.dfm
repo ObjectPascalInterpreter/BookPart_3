@@ -22,6 +22,13 @@ object frmMain: TfrmMain
     Align = alTop
     TabOrder = 0
     ExplicitWidth = 777
+    object lblVersion: TLabel
+      Left = 296
+      Top = 21
+      Width = 51
+      Height = 15
+      Caption = 'lblVersion'
+    end
     object btnRun: TButton
       Left = 152
       Top = 12
@@ -110,7 +117,7 @@ object frmMain: TfrmMain
     FileName = 'akt.rh'
     Filter = 'Any files|*.*|Rhodus Scripts|*.rh'
     Title = 'Load Rhodus Script'
-    Left = 534
-    Top = 25
+    Left = 694
+    Top = 425
   end
 end

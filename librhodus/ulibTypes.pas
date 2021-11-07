@@ -10,6 +10,11 @@ type
       printlnPtr : TPrint;
   end;
 
+  TRhodusSettings = record
+      versionStr : PAnsiChar;
+  end;
+  PRhodusSettings = ^TRhodusSettings;
+
 implementation
 
 end.

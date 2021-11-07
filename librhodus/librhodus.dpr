@@ -72,7 +72,8 @@ exports
     rhodus_initialize,
     rhodus_terminate,
     rhodus_run,
-    rhodus_getLastError;
+    rhodus_getLastError,
+    rhodus_getSettings;
 
 begin
 end.

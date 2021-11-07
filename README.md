@@ -1,5 +1,9 @@
 # BookPart 3
 
+Update (11/6/2021): More updates to the book. Added array type, plus a lot of minor changes and bug fixes elsewhere. First version of the embeddable version of the interpreter in folder librhodus. This generates a dll which 
+can be imported into another application. At the moment only four methods are exported from the dll, rhodus_initialise, rhodus_run, rhodus_terminate, and rhodus_getlastError. Example usage in RhodusIDE. The 
+rhodus group project file will load all subprojects. 
+
 Update (10/14/2021): I uploaded the beginning of the book that will accompany the project. You'll find the text in the folder Book. I've not decided how to receive corrections etc, but we could use pull requests. At the moment I've just included the first draft of Chapter 1 and a corresponding pdf
 
 Update (10/13/2021): Updated to 3.0.1.2. This includes the beginnings of array support. Also the repl was updated with new commands such as showtree and showcode. showtree lets you view the generated AST and showcode the byte code. The accompanying textbook has been started and the first chapter will be released sometime in the next few weeks. One big change is that after much thought and a number of attempts at designing array support I decided to switch from curley brackets to square brackets for lists. This matches python. Curely brackets will likely be reserved for maps/dictionaries. The same code below has been updated to reflect this change. Note that gif video

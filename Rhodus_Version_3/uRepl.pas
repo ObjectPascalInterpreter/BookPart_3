@@ -26,63 +26,29 @@ var rhodus : TRhodus;
     syntaxError : TSyntaxError;
     compilerError : TCompilerError;
     currentColor : string;
-    
+
+
 // Print methods to support output from the VM
 // -------------------------------------------------------------------------------
-procedure print (st : PMachineStackRecord);
-var fmt : string;
+procedure print (astr : AnsiString);
 begin
   uTerminal.setColor (currentColor);
-
-  if st <> nil then
-     case st.stackType of
-          stNone    : begin end; //write ('undefined value'); end;
-          stInteger : begin
-                      fmt := SysLibraryRef.find ('integerFormat').sValue.value;
-                      write (Format(fmt, [st.iValue]));
-                      end;
-           stDouble : begin
-                      fmt := SysLibraryRef.find ('doubleFormat').sValue.value;
-                      write (Format(fmt, [st.dValue]));
-                      end;
-          stString  : write (st.sValue.value);
-          stBoolean : if st.bValue = True then
-                         write ('True')
-                      else
-                         write ('False');
-          stList    : begin
-                      write (st.lValue.listToString);
-                      end;
-          stArray   : write (st.aValue.arrayToString());
-
-          stModule  : begin
-                      write (st.module.name);
-                      end;
-          stFunction: begin
-                      write (st.fValue.name);
-                      end
-     else
-        writeln ('Unrecognized value from print');
-     end;
+  write (astr);
 end;
 
 
-procedure println (st : PMachineStackRecord);
+procedure println (astr: AnsiString);
 begin
-  print (st);
+  print (astr);
   writeln;
 end;
 
 
-procedure setColor (st : PMachineStackRecord);
+procedure setColor (acolor : AnsiString);
 begin
-  if st.stackType <> stString then
-     writeln ('Expecting a string in setColor: white, red, green, blue, yellow, purple, aqua')
-  else
-     currentColor := st.sValue.value;
+  currentColor := acolor;
   uTerminal.setColor(currentColor);
 end;
-
 
 
 function searchHelp (const helpStr : string) : string;
@@ -226,7 +192,7 @@ begin
         begin
         if TRhodus.bolShowByteCode then
            rhodus.showByteCodeMethod (mainModule);
-        rhodus.runCode (mainModule, True, print);
+        rhodus.runCode (mainModule, True);
         end
      else
        begin

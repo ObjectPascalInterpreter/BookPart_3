@@ -6,6 +6,12 @@
         <Projects Include="RhodusVersionThreeProject.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="..\librhodus\librhodus.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\RhodusIDE\rhodusIDE.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -23,14 +29,32 @@
     <Target Name="RhodusVersionThreeProject:Make">
         <MSBuild Projects="RhodusVersionThreeProject.dproj" Targets="Make"/>
     </Target>
+    <Target Name="librhodus">
+        <MSBuild Projects="..\librhodus\librhodus.dproj"/>
+    </Target>
+    <Target Name="librhodus:Clean">
+        <MSBuild Projects="..\librhodus\librhodus.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="librhodus:Make">
+        <MSBuild Projects="..\librhodus\librhodus.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="rhodusIDE">
+        <MSBuild Projects="..\RhodusIDE\rhodusIDE.dproj"/>
+    </Target>
+    <Target Name="rhodusIDE:Clean">
+        <MSBuild Projects="..\RhodusIDE\rhodusIDE.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="rhodusIDE:Make">
+        <MSBuild Projects="..\RhodusIDE\rhodusIDE.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="RhodusVersionThreeProject"/>
+        <CallTarget Targets="RhodusVersionThreeProject;librhodus;rhodusIDE"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="RhodusVersionThreeProject:Clean"/>
+        <CallTarget Targets="RhodusVersionThreeProject:Clean;librhodus:Clean;rhodusIDE:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="RhodusVersionThreeProject:Make"/>
+        <CallTarget Targets="RhodusVersionThreeProject:Make;librhodus:Make;rhodusIDE:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

@@ -65,6 +65,8 @@ var
    conOut : THandle;
    refRhodus : TRhodus;
 
+   consoleMode : boolean;
+
    // RGB
    currentColor : array[0..2] of byte;
 
@@ -90,13 +92,15 @@ end;
 
 procedure setForeGround (r, g, b : byte);
 begin
-  write (#27'[38;2;' + getRGB (r, g, b) + 'm');
+  if consoleMode then
+     write (#27'[38;2;' + getRGB (r, g, b) + 'm');
 end;
 
 
 procedure setBackGround (r, g, b : byte);
 begin
-  write (#27'[48;2;' + getRGB (r, g, b) + 'm');
+  if consoleMode then
+     write (#27'[48;2;' + getRGB (r, g, b) + 'm');
 end;
 
 
@@ -136,14 +140,18 @@ end;
 
 procedure setCurrentColors;
 begin
-  setForeGround (currentColor[0], currentColor[1], currentColor[2]);
-  write (#27'[48;2;' + '1' + ';' + '43' + ';' + '54' + 'm');
+  if consoleMode then
+     begin
+     setForeGround (currentColor[0], currentColor[1], currentColor[2]);
+     write (#27'[48;2;' + '1' + ';' + '43' + ';' + '54' + 'm');
+     end;
 end;
 
 
 procedure writeText (str :string);
 begin
-  setCurrentColors;
+  if consoleMode then
+     setCurrentColors;
   write (str);
 end;
 
@@ -334,6 +342,7 @@ begin
   currentColor[0] := 204;
   currentColor[1] := 204;
   currentColor[2] := 204;
+  consoleMode := True;
 end;
 
 
@@ -343,5 +352,6 @@ begin
 end;
 
 
-
+initialization
+  consoleMode := False;
 end.

@@ -20,6 +20,8 @@ procedure addGlobalMethodsToModule (module : TModuleLib);
 var mainModule : TModuleLib;
     baseLineMemoryAllocated : integer;
 
+    procedure createGlobalBuiltIns;
+
 implementation
 
 Uses Math,
@@ -65,7 +67,6 @@ type
 
   TArrayConstructor = class (TObject)
        elementCount : integer;
-       //arrayObject : TArrayObject;
        function  convertToStr (alist : TListObject; arrayObj : TArrayObject) : string;
        function  getDimensionsFromList (alist : TListObject; arrayObj : TArrayObject) : TIndexArray;
        function  countElements (alist : TListObject) : integer;
@@ -714,8 +715,12 @@ begin
 end;
 
 
-initialization
+procedure createGlobalBuiltIns;
+begin
   builtInGlobal := TBuiltInGlobal.Create;
+end;
+
+initialization
 finalization
   builtInGlobal.Free;
 end.

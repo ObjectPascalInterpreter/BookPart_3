@@ -33,7 +33,7 @@ Uses Generics.Collections,
      uSyntaxParser;
 
 type
-  TCallBackFunction = procedure (st : PMachineStackRecord);
+  TCallBackFunction = function (st : PMachineStackRecord) : AnsiString;
   TIntCallBackFunction = procedure (x : integer);
 
   TRhodus = class (TObject)
@@ -44,17 +44,17 @@ type
       ast : TConstructAST;
       root : TASTNode;
       vm : TVM;
-      printCallBack : TCallBackFunction;
-      printLnCallBack : TCallBackFunction;
-      setColorCallBack : TCallBackFunction;
+      printCallBack : TVMCaptureStringCallBack;
+      printLnCallBack : TVMCaptureStringCallBack;
+      setColorCallBack : TVMCaptureStringCallBack;
       function memAllocatedByVm : integer;
     public
       class var bolShowTree : boolean;
       class var bolShowByteCode : boolean;
 
-      procedure setPrintCallBack (printcallBack : TCallBackFunction);
-      procedure setPrintLnCallBack (printLnCallBack : TCallBackFunction);
-      procedure setSetColorCallBack (setColorCallBack : TCallBackFunction);
+      procedure setPrintCallBack (printcallBack : TVMCaptureStringCallBack);
+      procedure setPrintLnCallBack (printLnCallBack : TVMCaptureStringCallBack);
+      procedure setSetColorCallBack (setColorCallBack : TVMCaptureStringCallBack);
 
       function  getVM : TVM;
       function  getVersion : string;
@@ -64,7 +64,7 @@ type
       procedure compileAndRun (const src : string; interactive : boolean);
       procedure getAllocatedSymbols (argument : string);
       procedure showByteCodeMethod (module : TModule);
-      function  runCode (module : TModule; interactive : boolean; printcallBack : TCallBackFunction) : boolean;
+      function  runCode (module : TModule; interactive : boolean) : boolean;
 
       constructor Create;
       destructor  Destroy; override;
@@ -92,6 +92,8 @@ uses uCommands,
 constructor TRhodus.Create;
 var astr : string;
 begin
+  createGlobalBuiltIns;
+
   mainModule := TModuleLib.Create (TSymbol.mainModuleId, 'Main Module');  // mainModule is declared in uModule
 
   addGlobalMethodsToModule (mainModule);
@@ -110,15 +112,13 @@ begin
      try
        if not compileCode(astr, mainModule, False) then
           begin
-          writeln ('Errors while compiling startup script, startup.rh (correct the startup script). Type any key to continue.');
-          readln;
+          printLnCallBack ('Errors while compiling startup script, startup.rh (correct the startup script). Type any key to continue.');
           end
        else
           begin
-          if not runCode(mainModule, False, nil) then
+          if not runCode(mainModule, False) then
              begin
-             writeln ('Error when executing startup script, startup.rh. Correct the startup script. Type any key to continue.');
-             readln;
+             printLnCallBack ('Error when executing startup script, startup.rh. Correct the startup script. Type any key to continue.');
              end;
           end;
      except
@@ -137,6 +137,7 @@ begin
   memoryList.freeGarbage;
   inherited;
 end;
+
 
 
 function  TRhodus.getVersion : string;
@@ -160,10 +161,10 @@ begin
        begin
        root := ast.constructAST ();
        if bolShowTree then
-          writeln (displayAST (root));
+          printLnCallBack (displayAST (root));
        end
     else
-      result := False;
+       result := False;
   except
     on e: exception do
        begin
@@ -232,20 +233,20 @@ begin
       try
           if not syntaxParser.syntaxCheck (error) then
              begin
-             writeln ('ERROR ' + '[line ' + inttostr (error.lineNumber) + ', column: ' + inttostr (error.columnNumber) + '] ' + error.errorMsg);
+             printLnCallBack ('ERROR ' + '[line ' + inttostr (error.lineNumber) + ', column: ' + inttostr (error.columnNumber) + '] ' + error.errorMsg);
              result := False;
              exit;
              end;
         root := ast.constructAST;
 
         if bolShowByteCode  then
-           writeln (displayAST (root));
+           printLnCallBack (displayAST (root));
         try
           if not compiler.startCompilation (module, root, compilerError) then
              begin
-             setGreen;
-             writeln ('ERROR ' + '[line ' + inttostr (compilerError.lineNumber) + ', column: ' + inttostr (compilerError.columnNumber) + '] ' + compilerError.errorMsg);
-             setWhite;
+             //setGreen;
+             printLnCallBack ('ERROR ' + '[line ' + inttostr (compilerError.lineNumber) + ', column: ' + inttostr (compilerError.columnNumber) + '] ' + compilerError.errorMsg);
+             //setWhite;
              result := False;
              exit;
              end;
@@ -254,9 +255,9 @@ begin
         except
           on e: ERuntimeException do
              begin
-             setGreen;
-             writeln ('ERROR: ' + e.Message);
-             setWhite;
+             //setGreen;
+             printLnCallBack ('ERROR: ' + e.Message);
+             //setWhite;
              result := False;
              end;
         end;
@@ -269,9 +270,9 @@ begin
   except
     on e:exception do
        begin
-       setGreen;
-       writeln ('ERROR ' + '[line ' + inttostr (sc.tokenElement.lineNumber) + ', column: ' + inttostr (sc.tokenElement.columnNumber) + '] ' + e.Message);
-       setWhite;
+       //setGreen;
+       printLnCallBack ('ERROR ' + '[line ' + inttostr (sc.tokenElement.lineNumber) + ', column: ' + inttostr (sc.tokenElement.columnNumber) + '] ' + e.Message);
+       //setWhite;
        result := False;
        end;
   end;
@@ -297,29 +298,29 @@ begin
          if mainModule.symbolTable.Items[key].symbolType = symUserFunc then
             begin
             if not mainModule.symbolTable.items[key].fValue.isbuiltInFunction then
-               writeln (dissassemble(mainModule, mainModule.symbolTable.items[key].fValue.funcCode));
+               printLnCallBack (dissassemble(mainModule, mainModule.symbolTable.items[key].fValue.funcCode));
             end;
-  writeln (dissassemble(mainModule, mainModule.code));
+  printLnCallBack (dissassemble(mainModule, mainModule.code));
 end;
 
 
-procedure TRhodus.setPrintCallBack (printCallBack : TCallBackFunction);
+procedure TRhodus.setPrintCallBack (printCallBack : TVMCaptureStringCallBack);
 begin
   self.printCallBack := printCallBack;
 end;
 
-procedure TRhodus.setPrintLnCallBack (printLnCallBack : TCallBackFunction);
+procedure TRhodus.setPrintLnCallBack (printLnCallBack : TVMCaptureStringCallBack);
 begin
   self.printLnCallBack := printLnCallBack;
 end;
 
-procedure TRhodus.setSetColorCallBack (setColorCallBack : TCallBackFunction);
+procedure TRhodus.setSetColorCallBack (setColorCallBack : TVMCaptureStringCallBack);
 begin
   self.setColorCallBack := setColorCallBack;
 end;
 
 
-function TRhodus.runCode (module : TModule; interactive : boolean; printcallBack : TCallBackFunction) : boolean;
+function TRhodus.runCode (module : TModule; interactive : boolean) : boolean;
 var st :PMachineStackRecord;
     fmt : string;
 begin
@@ -330,10 +331,9 @@ begin
 
         registerRuntimeWithConsole (self);
 
-        vm.registerPrintCallBack(printcallBack);
-        vm.registerPrintlnCallBack(printlnCallBack);
+        vm.registerPrintCallBack (printcallBack);
+        vm.registerPrintlnCallBack (printlnCallBack);
         vm.registerSetColorcallBack (setColorCallBack);
-
 
         try
           vm.runModule (module);
@@ -345,29 +345,29 @@ begin
                 stNone    : begin end;
                 stInteger : begin
                             fmt := SysLibraryRef.find ('integerFormat').sValue.value;
-                            writeln (Format (fmt,  [st.iValue]));
+                            printLnCallBack (Format (fmt,  [st.iValue]));
                             end;
-                stBoolean : writeln (BoolToStr(st.bValue, True));
+                stBoolean : printLnCallBack (BoolToStr(st.bValue, True));
                 stDouble  : begin
                             fmt := SysLibraryRef.find ('doubleFormat').sValue.value;
-                            writeln (Format(fmt, [st.dValue]));
+                            printLnCallBack (Format(fmt, [st.dValue]));
                             end;
-                stString  : writeln (st.sValue.value);
-                stList    : writeln (st.lValue.listToString());
-                stArray   : writeln (st.aValue.arrayToString());
-                stModule  : writeln ('Module: ' + st.module.name + ' ' + st.module.helpStr);
-                stFunction: writeln ('Function: ' + st.fValue.moduleRef.name + '.' + st.fValue.name);
-                stObjectMethod : begin writeln ('Object Method: ' + st.oValue.helpStr); vm.pop(); end;   // pop the operand
+                stString  : printLnCallBack (st.sValue.value);
+                stList    : printLnCallBack (st.lValue.listToString());
+                stArray   : printLnCallBack (st.aValue.arrayToString());
+                stModule  : printLnCallBack ('Module: ' + st.module.name + ' ' + st.module.helpStr);
+                stFunction: printLnCallBack ('Function: ' + st.fValue.moduleRef.name + '.' + st.fValue.name);
+                stObjectMethod : begin printLnCallBack ('Object Method: ' + st.oValue.helpStr); vm.pop(); end;   // pop the operand
                else
-                 writeln ('Unrecognized type of value returned from virtual machine');
+                 printLnCallBack ('Unrecognized type of value returned from virtual machine');
                end;
                end;
           except
           on e:exception do
              begin
-              setGreen;
-              writeln ('ERROR: ' + e.Message);
-              setWhite;
+              //setGreen;
+              printLnCallBack ('ERROR: ' + e.Message);
+              //setWhite;
               result := False;
               end;
         end;
@@ -391,8 +391,8 @@ begin
 
         registerRuntimeWithConsole (self);
  
-        vm.registerPrintCallBack(printcallBack);
-        vm.registerPrintlnCallBack(printlnCallBack);
+        vm.registerPrintCallBack (printCallBack); //printcallBack);
+        vm.registerPrintlnCallBack (printLnCallBack); //printlnCallBack);
         vm.registerSetColorcallBack (setColorCallBack);
 
         try
@@ -403,16 +403,16 @@ begin
                st := vm.pop;
                case st.stackType of
                 stNone    : begin end;
-                stInteger : writeln (st.iValue);
-                stBoolean : writeln (BoolToStr(st.bValue, True));
-                stDouble  : writeln (Format('%g', [st.dValue]));
-                stString  : writeln (st.sValue.value);
-                stList    : writeln (st.lValue.listToString());
-                stArray   : writeln (st.aValue.arrayToString());
-                stModule  : writeln ('Module: ' + st.module.name + ' ' + st.module.helpStr);
-                stFunction: writeln ('Function: ' + st.fValue.moduleRef.name + '.' + st.fValue.name);
+                stInteger : printLnCallBack (Format ('%d', [st.iValue]));
+                stBoolean : printLnCallBack (BoolToStr(st.bValue, True));
+                stDouble  : printLnCallBack (Format('%g', [st.dValue]));
+                stString  : printLnCallBack (st.sValue.value);
+                stList    : printLnCallBack (st.lValue.listToString());
+                stArray   : printLnCallBack (st.aValue.arrayToString());
+                stModule  : printLnCallBack ('Module: ' + st.module.name + ' ' + st.module.helpStr);
+                stFunction: printLnCallBack ('Function: ' + st.fValue.moduleRef.name + '.' + st.fValue.name);
                else
-                 writeln ('Unrecognized type of value returned from virtual machine');
+                 printLnCallBack ('Unrecognized type of value returned from virtual machine');
                end;
                end;
           if bolShowByteCode then
@@ -422,18 +422,18 @@ begin
                      if mainModule.symbolTable.Items[key].symbolType = symUserFunc then
                         begin
                         if mainModule.symbolTable.items[key].fValue.isbuiltInFunction then
-                           writeln ('No code for builtin function')
+                           printLnCallBack ('No code for builtin function')
                         else
-                           writeln (dissassemble(mainModule, mainModule.symbolTable.items[key].fValue.funcCode));
+                           printLnCallBack (dissassemble(mainModule, mainModule.symbolTable.items[key].fValue.funcCode));
                         end;
-              writeln (dissassemble(mainModule, mainModule.code));
+              printLnCallBack (dissassemble(mainModule, mainModule.code));
              end;
 
         except
           on e:exception do
              begin
               setGreen;
-              writeln ('ERROR: ' + e.Message);
+              printLnCallBack ('ERROR: ' + e.Message);
               setWhite;
               end;
         end;

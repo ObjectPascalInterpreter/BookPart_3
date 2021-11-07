@@ -89,14 +89,11 @@ uses
   uSyntaxParser in 'uSyntaxParser.pas',
   uTokenVector in 'uTokenVector.pas',
   uScannerTypes in 'uScannerTypes.pas',
-  uEmbeddAPI in 'uEmbeddAPI.pas',
   uRepl in 'uRepl.pas',
   uArrayObject in '..\VirtualMachine\uArrayObject.pas',
   uBuiltInArray in 'uBuiltInArray.pas',
   uBuiltInMatrix in 'uBuiltInMatrix.pas',
   uMath in 'uMath.pas';
-
-var config : TRhodusConfig;
 
 
 begin
@@ -104,9 +101,6 @@ begin
   setUpConsole;
   setExtendedConsoleMode; // To get more colors
   setUpEnvironment (ParamStr (0));
-
-  // Doesn't do anything as yet.
-  rhodus_initialize(config);
 
   startRepl();
 end.

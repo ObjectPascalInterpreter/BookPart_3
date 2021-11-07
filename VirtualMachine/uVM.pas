@@ -39,10 +39,12 @@ type
   TFrameStack = array of TFrame;
 
   // Debugging callbacks
+  TVMCaptureStringCallBack = procedure (astr : AnsiString);
+
   TVMCallBack = procedure(st: PMachineStackRecord) of object;
-  TVMPrintCallBack = procedure(st: PMachineStackRecord);
-  TVMPrintlnCallBack = procedure(st: PMachineStackRecord);
-  TVMSetColorCallBack = procedure (st: PMachineStackRecord);
+  TVMPrintCallBack = function : AnsiString;
+  TVMPrintlnCallBack = function : AnsiString;
+  TVMSetColorCallBack = function (st: PMachineStackRecord) : AnsiString;
 
   // Use to preseve the state of the virtual machine between calls.
   TVMState = record
@@ -85,6 +87,7 @@ type
     procedure checkStackOverflow;
     //function  stackEmpty: boolean;  // Not used so commented out.
     procedure callBack(st: PMachineStackRecord);
+    function  toStr (st : PMachineStackRecord) : AnsiString;
 
     //procedure stackInc; inline;  // Not yet implemnted
     //procedure stackDec; inline;  // Not yet implemnted
@@ -156,18 +159,18 @@ type
     procedure  collectGarbage;
     function   getGarbageSize : integer;
   public
-    printCallbackPtr: TVMPrintCallBack;
-    printlnCallbackPtr: TVMPrintlnCallBack;
-    setColorCallBackPtr : TVMSetColorCallBack;
+    printCallbackPtr: TVMCaptureStringCallBack;
+    printlnCallbackPtr: TVMCaptureStringCallBack;
+    setColorCallBackPtr : TVMCaptureStringCallBack;
 
     recursionLimit : integer;
 
     interactive : boolean;
     constructor Create;
     destructor  Destroy; override;
-    procedure   registerPrintCallBack(fcn: TVMPrintCallBack);
-    procedure   registerPrintlnCallBack(fcn: TVMPrintlnCallBack);
-    procedure   registerSetColorCallBack (fcn : TVMSetColorCallBack);
+    procedure   registerPrintCallBack(fcn: TVMCaptureStringCallBack);
+    procedure   registerPrintlnCallBack(fcn: TVMCaptureStringCallBack);
+    procedure   registerSetColorCallBack (fcn : TVMCaptureStringCallBack);
 
     procedure   push(value: PMachineStackRecord); overload;
     procedure   push(iValue: integer); overload; inline;
@@ -260,19 +263,19 @@ begin
 end;
 
 
-procedure TVM.registerSetColorCallback (fcn : TVMSetColorCallBack);
+procedure TVM.registerSetColorCallback (fcn : TVMCaptureStringCallBack);
 begin
  setColorCallBackPtr := fcn;
 end;
 
 
-procedure TVM.registerPrintCallBack(fcn: TVMPrintCallBack);
+procedure TVM.registerPrintCallBack(fcn: TVMCaptureStringCallBack);
 begin
   printCallbackPtr := fcn;
 end;
 
 
-procedure TVM.registerPrintlnCallBack(fcn: TVMPrintlnCallBack);
+procedure TVM.registerPrintlnCallBack(fcn: TVMCaptureStringCallBack);
 begin
   printlnCallbackPtr := fcn;
 end;
@@ -317,6 +320,41 @@ begin
   setLength(frameStack, 0);
 end;
 
+function TVM.toStr (st : PMachineStackRecord) : AnsiString;
+var fmt : string;
+begin
+  if st <> nil then
+     case st.stackType of
+          stNone    : begin end; //write ('undefined value'); end;
+          stInteger : begin
+                      fmt := SysLibraryRef.find ('integerFormat').sValue.value;
+                      result := Format(fmt, [st.iValue]);
+                      end;
+           stDouble : begin
+                      fmt := SysLibraryRef.find ('doubleFormat').sValue.value;
+                      result := Format(fmt, [st.dValue]);
+                      end;
+          stString  : result := st.sValue.value;
+          stBoolean : if st.bValue = True then
+                         result := 'True'
+                      else
+                         result := 'False';
+          stList    : begin
+                      result := st.lValue.listToString;
+                      end;
+          stArray   : result := st.aValue.arrayToString();
+
+          stModule  : begin
+                      result := st.module.name;
+                      end;
+          stFunction: begin
+                      result := st.fValue.name;
+                      end
+     else
+        result := 'Unrecognized value from print' + sLineBreak;
+     end;
+end;
+
 
 // -----------------------------------------------------------------------------------
 // Debugging Routines
@@ -336,7 +374,7 @@ begin
   for i := nArgs - 1 downto 0 do
       begin
       if Assigned(printCallbackPtr) then
-         printCallbackPtr (printStack[i]);
+         printCallbackPtr (toStr (printStack[i]));
       end;
 end;
 
@@ -348,7 +386,7 @@ begin
   stRecord.sValue := TStringObject.Create(sLineBreak);  // Don't free, garbage collector will handle it.
   stRecord.stackType := stString;
   if Assigned(printCallbackPtr) then
-    printCallbackPtr(@stRecord);
+    printCallbackPtr(sLineBreak);
 end;
 
 
@@ -357,7 +395,7 @@ var color : PMachineStackRecord;
 begin
   color := pop;
   if Assigned (setColorCallbackPtr) then
-     setColorCallbackPtr (color);
+     setColorCallbackPtr (color.sValue.value);
 end;
 
 

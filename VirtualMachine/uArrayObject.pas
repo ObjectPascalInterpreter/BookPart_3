@@ -299,7 +299,7 @@ end;
 
 
 procedure TArrayMethods.add (vm : TObject);
-var i, j, n : integer;
+var i, n : integer;
     s1, s2 : TArrayObject;
     argument : TArrayObject;
 begin
@@ -321,7 +321,7 @@ end;
 
 
 procedure TArrayMethods.sub (vm : TObject);
-var i, j, n : integer;
+var i, n : integer;
     s1, s2 : TArrayObject;
     argument : TArrayObject;
 begin

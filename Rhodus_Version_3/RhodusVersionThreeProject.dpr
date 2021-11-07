@@ -32,7 +32,7 @@
 uses
   {$IFDEF DEBUG}
   {$ENDIF }
-  FastMM4 in '..\..\Library\FastMM\FastMM4.pas',
+  //FastMM4 in '..\..\Library\FastMM\FastMM4.pas',
   Windows,
   ShellAPI,
   System.SysUtils,

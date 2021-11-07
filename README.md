@@ -1,5 +1,7 @@
 # BookPart 3
 
+Update (11/6/2021): Added new binary release (3.0.2.0). Includes console, dll library and GUI app in binary form. 
+
 Update (11/6/2021): More updates to the book. Added array type, plus a lot of minor changes and bug fixes elsewhere. First version of the embeddable version of the interpreter in folder librhodus. This generates a dll which 
 can be imported into another application. At the moment only four methods are exported from the dll, rhodus_initialise, rhodus_run, rhodus_terminate, and rhodus_getlastError. Example usage in RhodusIDE. The 
 rhodus group project file will load all subprojects. 

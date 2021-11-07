@@ -70,6 +70,7 @@ begin
   rhodus.free;
 end;
 
+
 function rhodus_getLastError (handle : THandle) : PAnsiChar; stdcall;
 begin
   result := PAnsiChar (lastErrorStr);

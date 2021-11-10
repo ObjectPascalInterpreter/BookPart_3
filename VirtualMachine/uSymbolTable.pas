@@ -26,7 +26,7 @@ type
    // use the derived class TLibModule
    TModule = class (TObject)
        name : string;
-       code : TProgram;      // Module level code
+       moduleProgram : TProgram;      // Module level code
        symbolTable : TSymbolTable;
        helpStr : string;
        compiled : boolean;   // Not currently used
@@ -38,7 +38,8 @@ type
        destructor  Destroy; override;
    end;
 
-     TUserFunctionMethods = class (TMethodsBase)
+   // Methods attached to the user function object
+   TUserFunctionMethods = class (TMethodsBase)
       procedure getName (vm : TObject);
       procedure getnArgs (vm : TObject);
       procedure getCode (vm : TObject);
@@ -203,7 +204,7 @@ end;
 constructor TModule.Create (name : string);
 begin
   self.name := name;
-  code := TProgram.Create;
+  moduleProgram := TProgram.Create;
   symbolTable := TSymbolTable.Create;
   symbolTable.id := name;
   helpStr := 'No help available on this module';
@@ -213,7 +214,7 @@ end;
 
 destructor  TModule.Destroy;
 begin
-  code.Free;
+  moduleProgram.Free;
   symbolTable.Free;
   inherited;
 end;
@@ -221,7 +222,7 @@ end;
 
 procedure TModule.clearCode;
 begin
-  code.clearCode;
+  moduleProgram.clearCode;
   compiled := False;
 end;
 
@@ -235,8 +236,8 @@ end;
 function TModule.getSize : integer;
 begin
    result := self.InstanceSize;
-   if self.code <> nil then
-      result := result + length (self.code.code);
+   if self.moduleProgram <> nil then
+      result := result + length (self.moduleProgram.code);
 
    if self.symbolTable <> nil then
       result := result + self.symbolTable.InstanceSize;

@@ -1325,7 +1325,30 @@ var m : TModule;
 begin
   primary := pop();
   case primary.stackType of
-     stModule : m := primary.module;
+   stModule : begin
+              m := primary.module;
+
+              if not m.symbolTable.find (symbolName, symbol) then
+                 raise ERuntimeException.Create ('Undefined symbol: ' + symbolName);
+
+              case symbol.symbolType of
+                symUndefined: raise ERuntimeException.Create ('Variable has no assigned value: ' + symbol.symbolName);
+                symInteger:   push(symbol.iValue);
+                symDouble:    push(symbol.dValue);
+                symBoolean:   push(symbol.bValue);
+                symString:    push(symbol.sValue);
+                symList:      push(symbol.lValue);
+                symArray:     push(symbol.aValue);
+                symUserFunc:  begin
+                              symbol.fValue.moduleRef := m;
+                              push(symbol.fValue);
+                              end;
+                symModule:    pushModule(TModule (symbol.mValue));
+              else
+                raise ERuntimeException.Create('Unknown symbol type in loadAttr: ' +  inttostr(integer(symbol.symbolType)));
+              end;
+              end;
+
      stList : begin
               l := primary.lValue;
               // Is symbol name a function name?
@@ -1337,8 +1360,8 @@ begin
                  end
               else
                  raise ERuntimeException.Create('No method <' + symbolName + '> associated with object');
-              exit;
               end;
+
      stString : begin
               s := primary.sValue;
               // Is symbol name a function name?
@@ -1350,8 +1373,8 @@ begin
                  end
               else
                  raise ERuntimeException.Create('No method <' + symbolName + '> associated with object');
-              exit;
               end;
+
      stArray : begin
               a := primary.aValue;
               // Is symbol name a function name?
@@ -1363,8 +1386,8 @@ begin
                  end
               else
                  raise ERuntimeException.Create('No method <' + symbolName + '> associated with object');
-              exit;
               end;
+
    stFunction :
               begin
               func := primary.fValue;
@@ -1377,30 +1400,9 @@ begin
                  end
               else
                  raise ERuntimeException.Create('No method <' + symbolName + '> associated with object');
-              exit;
               end
   else
      raise ERuntimeException.Create('Primary objects can only be modules, functions, strings, arrays or lists');
-  end;
-
-  if not m.symbolTable.find (symbolName, symbol) then
-     raise ERuntimeException.Create ('Undefined symbol: ' + symbolName);
-
- case symbol.symbolType of
-    symUndefined: raise ERuntimeException.Create ('Variable has no assigned value: ' + symbol.symbolName);
-    symInteger:   push(symbol.iValue);
-    symDouble:    push(symbol.dValue);
-    symBoolean:   push(symbol.bValue);
-    symString:    push(symbol.sValue);
-    symList:      push(symbol.lValue);
-    symArray:     push(symbol.aValue);
-    symUserFunc:  begin
-                  symbol.fValue.moduleRef := m;
-                  push(symbol.fValue);
-                  end;
-    symModule:    pushModule(TModule (symbol.mValue));
-  else
-    raise ERuntimeException.Create('Unknown symbol type in loadAttr: ' +  inttostr(integer(symbol.symbolType)));
   end;
 end;
 
@@ -2415,7 +2417,7 @@ begin
 
   self.module := module;
 
-  run(module.code, module.symbolTable);
+  run(module.moduleProgram, module.symbolTable);
 
   vmstate := VMStateStack.Pop;
   self.module := vmstate.module;
@@ -2464,8 +2466,8 @@ begin
             oLocalDec:   localDecOp(c[ip].index, c[ip].float);
             oPushi:      push (c[ip].index);
             oPushb:      push (boolean(c[ip].index));
-            oPushd:      push (module.code.constantValueTable[c[ip].index].dValue);
-            oPushs:      push (module.code.constantValueTable[c[ip].index].sValue);
+            oPushd:      push (module.moduleProgram.constantValueTable[c[ip].index].dValue);
+            oPushs:      push (module.moduleProgram.constantValueTable[c[ip].index].sValue);
             oPushNone:   push (@noneStackType);
             oPop:        begin
                          // If the next instrction is halt, we will leave the item

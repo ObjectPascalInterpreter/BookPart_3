@@ -178,7 +178,7 @@ begin
      writeln ('Memory Map: ' + sLineBreak + mstr);
   writeln ('Memory allocated: ', getMemoryAllocated - baseLineMemoryAllocated);
   writeln ('Instance size for main module: ', mainModule.getSize());
-  writeln ('Constant table size : ', mainModule.code.constantValueTable.getSize);
+  writeln ('Constant table size : ', mainModule.moduleProgram.constantValueTable.getSize);
   result := true;
 end;
 

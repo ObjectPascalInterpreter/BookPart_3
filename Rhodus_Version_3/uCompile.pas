@@ -123,7 +123,7 @@ constructor TCompiler.Create(module: TModule);
 begin
   inherited Create;
   self.currentModule := module;
-  code := module.code;
+  code := module.moduleProgram;
   stackOfBreakStacks := TStack<TBreakStack>.Create;
   compilingFunction := False;
   interactive := False;
@@ -786,14 +786,14 @@ begin
           if not compiler.startCompilation(module, root, compilerError) then
              raise ECompilerException.Create (compilerError.errorMsg, compilerError.lineNumber, compilerError.columnNumber);
 
-          module.code.addByteCode(oHalt);
+          module.moduleProgram.addByteCode(oHalt);
         finally
           root.Free;
           compiler.Free;
         end;
 
         // import the module
-        currentModule.code.addModuleByteCode(oImportModule, node.importName);
+        currentModule.moduleProgram.addModuleByteCode(oImportModule, node.importName);
         end
      else
         raise ECompilerException.Create('In module: ' + node.importName + ' ' + syntaxError.errorMsg, syntaxError.lineNumber, syntaxError.columnNumber);
@@ -1063,12 +1063,12 @@ begin
       code.addByteCode(oPushi, (node as TASTInteger).iValue);
     ntFloat:
       begin
-      index := currentModule.code.constantValueTable.Add (TConstantValueElement.Create((node as TASTFloat).dValue));
+      index := currentModule.moduleProgram.constantValueTable.Add (TConstantValueElement.Create((node as TASTFloat).dValue));
       code.addByteCode(oPushd, index);
       end;
     ntString :
       begin
-      index := currentmodule.code.constantValueTable.Add (TConstantValueElement.Create ((node as TASTString).sValue));
+      index := currentmodule.moduleProgram.constantValueTable.Add (TConstantValueElement.Create ((node as TASTString).sValue));
       code.addByteCode(oPushs, index);
       end;
     ntBreak:

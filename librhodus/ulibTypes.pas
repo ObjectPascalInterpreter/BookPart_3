@@ -15,6 +15,12 @@ type
   end;
   PRhodusSettings = ^TRhodusSettings;
 
+  TRhodusError  = record
+      errorCode : integer;
+      errorMsg : PAnsiChar;
+  end;
+  PRhodusError = ^TRhodusError;
+
 implementation
 
 end.

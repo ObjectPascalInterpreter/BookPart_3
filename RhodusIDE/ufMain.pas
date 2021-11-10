@@ -41,7 +41,7 @@ type
   TRhodusInitialise = function (var config : TRhodusConfig) : THandle; stdcall;
   TRhodusRun = function  (handle : THandle; code : AnsiString) : integer; stdcall;
   TRhodusTerminate = procedure (handle : THandle); stdcall;
-  TRhodusGetLastError = function (handle : THandle) : PAnsiChar; stdcall;
+  TRhodusGetLastError = function (handle : THandle) : PRhodusError; stdcall;
   TRhodusGetSettings = function (handle : THandle) : PRhodusSettings; stdcall;
 
 var config : TRhodusConfig;
@@ -78,13 +78,13 @@ end;
 
 procedure TfrmMain.btnRunClick(Sender: TObject);
 var errorId : integer;
-    pt : PAnsiChar;
+    pt : PRhodusError;
 begin
   errorId := rhodus_run (rhodus, editor.text);
   if errorId < 0 then
      begin
      pt := rhodus_getLastError (rhodus);
-     moutput.Lines.Add(AnsiString (pt));
+     moutput.Lines.Add(AnsiString (pt.errorMsg));
      end;
 end;
 
@@ -102,7 +102,7 @@ begin
   config.printlnPtr := rhodus_println;
 
   rhodus := rhodus_initialize (config);
-  lblVersion.caption := AnsiString (rhodus_getSettings(rhodus).versionStr);
+  lblVersion.caption := 'Running Version: ' + AnsiString (rhodus_getSettings(rhodus).versionStr);
 end;
 
 end.

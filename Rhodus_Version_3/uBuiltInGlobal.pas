@@ -543,7 +543,7 @@ var x : PMachineStackRecord;
 begin
   x := TVM (vm).pop;
   case x.stackType of
-    stModule : TVM (vm).push (TStringObject.create (dissassemble (x.module, x.module.code)));
+    stModule : TVM (vm).push (TStringObject.create (dissassemble (x.module, x.module.moduleProgram)));
     stFunction :
       begin
       if x.fValue.isbuiltInFunction then

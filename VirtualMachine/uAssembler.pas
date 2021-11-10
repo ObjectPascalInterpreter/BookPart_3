@@ -273,8 +273,8 @@ begin
 
         oPushi      : result := result + '  ' + opCodeNames[oPushi] + ' ' + inttostr (aProgram.code[i].index) + sLineBreak;
         oPushb      : result := result + '  ' + opCodeNames[oPushb] + ' ' + inttostr (aProgram.code[i].index) + sLineBreak;
-        oPushd      : result := result + '  ' + opCodeNames[oPushd] + ' ' + floattostr (module.code.constantValueTable[aProgram.code[i].index].dValue) + sLineBreak;
-        oPushs      : result := result + '  ' + opCodeNames[oPushs] + ' "' + module.code.constantValueTable[aProgram.code[i].index].sValue.value + '"' + sLineBreak;
+        oPushd      : result := result + '  ' + opCodeNames[oPushd] + ' ' + floattostr (module.moduleProgram.constantValueTable[aProgram.code[i].index].dValue) + sLineBreak;
+        oPushs      : result := result + '  ' + opCodeNames[oPushs] + ' "' + module.moduleProgram.constantValueTable[aProgram.code[i].index].sValue.value + '"' + sLineBreak;
         oPushNone   : result := result + '  ' + opCodeNames[oPushNone] + sLineBreak;
         oDup        : result := result + '  ' + opCodeNames[oDup] + sLineBreak;
         oPopDup     : result := result + '  ' + opCodeNames[oPopDup] + sLineBreak;

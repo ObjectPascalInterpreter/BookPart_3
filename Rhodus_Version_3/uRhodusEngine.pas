@@ -189,7 +189,7 @@ begin
      try
         compiler.interactive := interactive;
         if compiler.startCompilation (mainModule, root, compileError) then
-           mainModule.code.addByteCode(oHalt)
+           mainModule.moduleProgram.addByteCode(oHalt)
         else
           result := False;
      finally
@@ -251,7 +251,7 @@ begin
              exit;
              end;
 
-          mainModule.code.addByteCode(oHalt);
+          mainModule.moduleProgram.addByteCode(oHalt);
         except
           on e: ERuntimeException do
              begin
@@ -300,7 +300,7 @@ begin
             if not mainModule.symbolTable.items[key].fValue.isbuiltInFunction then
                printLnCallBack (dissassemble(mainModule, mainModule.symbolTable.items[key].fValue.funcCode));
             end;
-  printLnCallBack (dissassemble(mainModule, mainModule.code));
+  printLnCallBack (dissassemble(mainModule, mainModule.moduleProgram));
 end;
 
 
@@ -426,7 +426,7 @@ begin
                         else
                            printLnCallBack (dissassemble(mainModule, mainModule.symbolTable.items[key].fValue.funcCode));
                         end;
-              printLnCallBack (dissassemble(mainModule, mainModule.code));
+              printLnCallBack (dissassemble(mainModule, mainModule.moduleProgram));
              end;
 
         except

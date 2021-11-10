@@ -421,29 +421,29 @@ We will have much more to say on this matter in a later chapter.
 
 \subsection{Built-in Libraries for lists, strings, arrays and matrices}
 
-A number of built-in libraries are provided to add additional support to lists, strings, arrays and 2D arrays we'll call matrices. These provide method that do not naturally belong to the objects themselves. The names for these built-in libraries are {\tt strings}, {\tt lists}, {\tt arrays} and {\tt matrix}. The contents of each of these can be obtained using {\tt dir()}, for example:
+A number of built-in libraries are provided to add additional support to lists, strings, arrays and 2D arrays we'll call matrices. These provide method that do not naturally belong to the objects themselves. The names for these built-in libraries are {\tt strings}, {\tt lists}, {\tt arrays} and {\tt mat}. The contents of each of these can be obtained using {\tt dir()}, for example:
 
 \begin{lstlisting}
->> import matrix
->> matrix.dir()
+>> import mat
+>> mat.dir()
 ["ident","sub","dir","add","inv","rand","randi","mult"]
 \end{lstlisting}
 
 As with other module methods, help can be obtained using help:
 
 \begin{lstlisting}
->> import matrix
->> help(matrix.add)
-Add two 2D matrices: m = matrix.add (m1, m2)
+>> import mat
+>> help(mat.add)
+Add two 2D matrices: m = mat.add (m1, m2)
 \end{lstlisting}
 
 {\tt inv} is the inverse matrix method. The following code shows an example of this in use:
 
 \begin{lstlisting}
->> import matrix
+>> import mat
 >> // Generate a 3 by 3 matrix with random entries, 0 to 1
->> m = matrix.rand(3,3)
->> minv = matrix.inv (m)
+>> m = mat.rand(3,3)
+>> minv = mat.inv (m)
 \end{lstlisting}
 
 \section{Error Handling}

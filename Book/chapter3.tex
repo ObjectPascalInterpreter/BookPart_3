@@ -36,11 +36,13 @@ end
 
 A real grammar would have many such rules, with some rules being recursive, for example:
 
-\begin{lcverbatim}
+\begin{small}
+\begin{code}
 stmt =   name '=' expr
 expr =   expr '+' expr
        | number
-\end{lcverbatim}
+\end{code}
+\end{small}
 
 where the `|' character translates to `or'. The expr rule would be translated to the following method:
 
@@ -59,7 +61,7 @@ end
 \end{lstlisting}
 
 Notice that the method calls itself because that's what the grammar requires. However, whenever there is recursion there always has to be a way get out of the recursion, in this case by detecting a number. Here is a grammar rule that is left-recursive:
-%One of the key features of a recursive descent parer is that it must be possible to decide which grammar rule to use based solely on the current token in hand. 
+%One of the key features of a recursive descent parer is that it must be possible to decide which grammar rule to use based solely on the current token in hand.
 
 \begin{lstlisting}
 expr =  expr '+' expr
@@ -88,29 +90,35 @@ This reads: call a function in a module, that returns a list which we index to g
 
 %Unfortunately this is left-recursive, where the {\tt E} symbol is the first symbol on the right-side of the rule in three locations. This will cause a number of problems. Assuming that we're not detecting a factor, its impossible to say which of the three subrules we should pick and even if we did pick one, we end up in an infinite loop, repeatedly picking {\tt E}. As it stands this is impossible to parse with a single lookahead recursive descent parser. This problem was resolved by using an online tool called left_rec that remove the left-recursion, giving on instead the following grammar, which we can parse with a single lookahead recursive descent parser.
 
-\begin{lcverbatim}
+\begin{small}
+\begin{code}
 E       = E '.' identifier
         | E '()'
         | E '[]'
         | factor
 factor  = identifier
         | Number
-\end{lcverbatim}
+\end{code}
+\end{small}
 
 Here are some simple examples of the expressions that are legal in this grammar. {\tt a()}, would satisfy {\tt E \textquotesingle()\textquotesingle} where {\tt E} would then be replaced by the {\tt identifier} in {\tt factor}. For a more complicated expression such as: {\tt a.b[]()} we would use the second subrule {\tt E \textquotesingle()\textquotesingle}, then substitute the {\tt E} for {\tt E \textquotesingle[]\textquotesingle}, followed by another substitution of {\tt E} with {\tt E \textquotesingle.\textquotesingle identifier}. Finally the last {\tt E} would be replaced by {\tt factor}. Since we resolved to all terminals {\tt a.b[]()} is a legal sentence.
 
 If you exercise this grammar by doing more examples you'll realize it's quite straight forward even though perhaps initially, it looks a little scary.  The big problem with it is that it's not friendly for our recursive decent parser. The grammar shown above is what's called left-recursive (see Part 1). We can see this because the {\tt E} symbol, in three cases, is the first symbol in the production.  As a reminder here is a simple grammar that is left-recursive:
 
-\begin{lcverbatim}
+\begin{small}
+\begin{code}
 E = E 'a'
-\end{lcverbatim}
+\end{code}
+\end{small}
 %
 This is left-recursive because the first symbol on the right of the equals sign is {\tt E} and {\tt E} is not a terminal. If you think about it, this will result in a recursive loop, continually recognizing {\tt E}. When a grammar is left-recursive we almost always have to lookahead more than one token in order to decide which production to use. However, we only do a single lookahead in Rhodus so that a left-recursive grammar is going to be trouble for us. Another example that shows the problem with left-recursions is that with multiple alternative options such as:
 %
-\begin{lcverbatim}
+\begin{small}
+\begin{code}
 E  = E 'a'
    | E 'b'
-\end{lcverbatim}
+\end{code}
+\end{small}
 %
 it's also impossible to decide which one to pick unless we lookahead further into the token stream to identify the {\tt `a'} and {\tt `b'} but we don't want to do that. With out further lookahead, the parser will go into an infinite loop. The solution is to remove the left-recursion. What this essentially does is move the terminals into the front of the production and the offending left-recursive terms towards the end, resulting is a right-recursive rule which can be parsed using a single lookahead recursive decent parser. The method to do the transformation was described in Part 1 but here I will cheat by using a tool to do it for me. The site~\url{https://cyberzhg.github.io/toolbox/left_rec} has an on-line tool to remove left-recursion. The tool has two panels, in the upper panel you paste your left-recursive grammar, hit the convert button and your new well-behaved grammar will appear in the bottom panel.
 
@@ -128,27 +136,199 @@ I took the following generic left-recursive grammar and entered it into the tool
 
 After conversion it looked like:
 %
-\begin{lcverbatim}
+\begin{small}
+\begin{code}
 E   = d E'
 E'  = a E'
     | b E'
     | c E'
     | empty
-\end{lcverbatim}
+\end{code}
+\end{small}
 %
 Notice how all the terminals, {\tt a, b, c} and {\tt d} have been moved to the front. This grammar can be recognized with a single token look-ahead, that is it's LL(1) friendly, which is what we're after. Notice also the empty option, that is {\tt E'} can be {\tt a, b, c} or none of them. {\tt d} has been moved to it's own production and represents {\tt factor} in the grammar we had previously. If we translate the symbols into more meaningful words we get:
 %
-\begin{lcverbatim}
-factor               = Identifier
-primary              =  factor primaryPlus
-primaryPlus          = '.' identifier primaryPlus
-                     | '(' exp ')' primaryPlus
-                     | '[' exp ']' primaryPlus
-                     | empty
-\end{lcverbatim}
+\begin{small}
+\begin{code}
+factor           = Identifier
+primary          =  factor primaryPlus
+primaryPlus      = '.' identifier primaryPlus
+                   | '(' exp ')' primaryPlus
+                   | '[' exp ']' primaryPlus
+                   | empty
+\end{code}
+\end{small}
 %
 where {\tt d} is {\tt factor}, {\tt E'} is {\tt primaryPlus} and {\tt priamry} is {\tt E}.  In the final grammar the individual options in the {\tt primaryPlus} production are separated out for convenience into {\tt primaryPeriod}, {\tt primaryIndex} and {\tt primaryFunction} respectively. {\tt factor} we will include all the literals as well as expressions with parentheses and the {\tt not} operator. We will use this grammar in Rhodus version 3.
 
+\section{Syntax Parsing}
+
+We saw a lot of syntax parsing code in the previous parts of this book series. Here we will remind ourselves what such code would looks like and also focus on the new grammar rules for primary non-terminals.
+
+We'll first look at something we already seen and then move on to new language elements. The simplest non-trivial language element to look at is the {\tt if} statement. The two grammar rules for this are shown below.
+
+\begin{small}
+\begin{code}
+ifStatement    = IF expression THEN statementList ifEnd
+ifEnd          = END
+                 | ELSE statementList END
+\end{code}
+\end{small}
+
+The reason we have two rules is to take care of the optional {\tt else statement}.  This grammar is very easily expressed in Object Pascal as follows:
+
+\begin{lstlisting}
+procedure TSyntaxParser.ifStatement;
+begin
+  expect(tIf);
+  expression;
+  expect(tThen);
+  statementList;
+
+  if tokenVector.token = tElse then
+     begin
+     nextToken;
+     statementList;
+     end;
+  expect(tEnd);
+end;
+\end{lstlisting}
+
+This is the actual the code in the interpreter, there is nothing else to add, it's that simple. Our error handling is a bit primitive at the moment and if there is any error, e.g {\tt expect(tThen)} doesn't find the {\tt then} keyword, then we drop out completely. Ideally we would issue the error message, then try to synchronize with a token we do understand and continue from there. Personally I'm not a fan of reams of errors coming out especially for an interpreter where one tends to work interactively. For a compiler, it makes more sense where one usually works in batch mode. However, interpreters tend to be used by people who aren't computer scientists but who are using it as a tool. A torrent of errors messages is more likely to confuse compared to having to deal with one problem at a time. 
+
+\subsubsection*{Switch Statement}
+
+Let's next look at the switch statement which we never had in part II. Switch statements can come in a variety of forms, but in general they can be thought of as glorified multiple if/then/else statements where depending on the value of the switch expression, a particular block within the switch statement is executed. For example:
+
+\begin{lstlisting}
+switch index
+  case 1 : a = 1
+  case 2 : a = 2
+  case 3 : b = math.sqr (9)
+           a = 10 + b
+else
+  a = 99
+end
+\end{lstlisting}
+
+If {\tt index} has the value 2, then {\tt a = 2} will be executed. If no value matches then the else clause if executed. If there is no match and no else clause then nothing happens. Many languages permit the case values to be a range of values and some even allow case values to be strings. Some languages, such as C require a break statement at the end of each case otherwise the execution will `fall through' to the next case statement. Object Pascal for example doesn't allow `fallthrough' as do many other languages such as modern FORTRAN, Modula and many BASICs. We will do the same.
+
+The grammar specification for the switch statement is show below. Notice I'm using \verb|{}| to indication repetition. We're also indicting that the case specifier must be an integer. The switch expression can syntactically be any expression but at runtime it must resolve to an integer otherwise a runtime error is issued.
+
+\begin{lstlisting}
+switchStatement   = SWITCH simpleExpression switchList END
+switchList        = { CASE INTEGER ':' statementList } ELSE statementList
+\end{lstlisting}
+
+The Object Pascal that implements this grammar is shown below. The only thing to note is the {\tt while} loop that will let us pick up multiple case options. We also check that the case option is an integer, and issue an error if its not.
+
+\begin{lstlisting}
+procedure TSyntaxParser.switchStatement;
+begin
+  expect(tSwitch);
+  simpleExpression;
+
+  while tokenVector.token = tCase do
+      begin
+      expect(tCase);
+
+      if tokenVector.token <> tInteger then
+         raise ESyntaxException.Create ('Expecting integer in case value',
+              tokenVector.tokenRecord.lineNumber,
+              tokenVector.tokenRecord.columnNumber);
+
+      nextToken;
+      expect(tColon);
+      statementList;
+      end;
+
+  if tokenVector.token = tElse then
+     begin
+     nextToken;
+     statementList;;
+     end;
+  expect(tEnd);
+end;
+\end{lstlisting}
+
+One thing you should notice is how straight-forward the code is. The reason for this is that we're not building the AST at this point, just checking syntax. If we added the AST building code it would result in a lot more clutter; the main problem being unwinding the AST if we come across an error. I think keeping syntax analysis away from AST construction greatly improves maintainability. We'll return to this point in the next chapter.
+
+\subsubsection*{Primary Rules}
+
+Finally let's look at the code that will parse the primary production rule. As a reminder here are the grammar rules again:
+
+\begin{small}
+\begin{code}
+primary           =  factor primaryPlus
+
+primaryPeriod     = '.' identifier primaryPlus
+primaryFunction   = ( exp ) primaryPlus
+primaryIndex      = [ exp ] primaryPlus
+
+primaryPlus       = primaryPeriod
+                    | primaryFunction
+                    | primaryIndex
+                    | empty
+\end{code}
+\end{small}
+
+The {\tt factor} is given by:
+
+\begin{small}
+\begin{code}
+factor = '(' expression ')'
+          | identifier
+          | integer | float | string
+          | NOT expression
+          | TRUE | FALSE
+          | list
+\end{code}
+\end{small}
+
+This grammar can be used to parse complex expressions like {\tt m.abc(1,2,3)[a+b]()}. This is a straightforward grammar to implement. For example, the rule:
+
+{\tt primary = factor primaryPlus},
+
+just translates to:
+
+\begin{lstlisting}
+procedure TSyntaxParser.primary;
+begin
+  factor;
+  primaryPlus;
+end;
+\end{lstlisting}
+
+{\tt primaryPlus} translates to the following.
+
+\begin{lstlisting}
+procedure TSyntaxParser.primaryPlus;
+begin
+  case tokenVector.token of
+     tPeriod :
+         begin
+         nextToken;
+         expect (tIdentifier);
+         primaryPlus;
+         end;
+     tLeftParenthesis:  // '(' expression list ')'
+         begin
+         nextToken;
+         parseFunctionCall;
+         primaryPlus
+         end;
+    tLeftBracket: // '[' expression list ']'
+         begin
+         parseIndexedVariable;
+         primaryPlus;
+         end;
+  end;
+end;
+\end{lstlisting}
+
+We use a case statement check to figure out which option to pick. Notice that {\tt primaryPlus} also has an empty option. The empty option is anything but the first three. In code, we just ignore it; and that's about it.
+
+The take home message for this chapter, is that once you have a recursive descent friendly grammar in place its very straightforward to code. The formality of grammars makes it possible to write automated systems such as yacc or ANTLR that will generate all the syntax code for you. Unless you have a very weird syntax, writing a recursive parser is not that difficult.  The one chief advantage of building your own recursive descent parser over automated systems like yacc is you have more control over the error handling.
 
 \begin{center}
 \pgfornament[width = 8cm, color = cardinal]{83}

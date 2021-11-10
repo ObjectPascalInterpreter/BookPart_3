@@ -4,7 +4,7 @@
 
 Before we embark on building the new parser, we should first talk about the internal structure of the new modules.
 
-In order to deal with modules, allowing user functions to be first class and having a very basic object model for lists and strings, quite a few internal changes were made to the code compared to version 2. In the new version the basic unit is the module. The structure of a module is shown in Figure~\ref{fig:StructureModule1}. Every module has a name which can be assigned by the user. The only modules that have fixed names is the main module, called {\tt _main_}, and a series of built-in modules such as {\tt math, os}, etc.
+In order to deal with modules, allowing user functions to be first class and having a very basic object model for lists and strings, quite a few internal changes were made to the code compared to version 2. In the new version the basic unit is the module. Every module has a name which can be assigned by the user. The only modules that have fixed names is the main module, called {\tt _main_}, and a series of built-in modules such as {\tt math, os}, etc.
 
 \begin{figure}[htpb]
 \centering
@@ -13,7 +13,7 @@ In order to deal with modules, allowing user functions to be first class and hav
 \label{fig:StructureModule1}
 \end{figure}
 
-The internal structure of a module is given in Figure~\ref{fig:StructureModule1}. The three important components are the code block, the constant table and the symbol table. User functions have a similar structure. The code block is where bytecode is stored, the constant table is where literal constants such as doubles, lists and strings are stored, and finally the symbol table which stores any variables that the user might have introduced, including user functions.
+The internal structure of a module is given in Figure~\ref{fig:StructureModule1}. The three important components are the code block, the constant table and the symbol table. User functions have a similar structure but without a constants table (They use the module level constants table). The code block is where bytecode is stored, the constant table is where literal constants such as doubles, lists and strings are stored, and finally the symbol table stores any variables that the user might have introduced, including user functions.
 
 %At startup, a main module, called {\tt _main_}, is created. At the interactive console, users are sitting within this module.
 %
@@ -47,17 +47,28 @@ When you start up the Rhodus repl (i.e the interactive console), Rhodus first cr
 
 The constant factor in all this are the symbol and constant values tables, more precisely the module level symbol and constants table which we can see in Figure~\ref{fig:StructureModule1}. Whenever we type something like {\tt a = 1.2}, its first gets converted into code, the code is run which causes the symbol {\tt a} to appear in the symbol table along with the value {\tt 1.2} in the constants value table. In essence, what code does is manipulate the symbol table. This makes the symbol table a very important structure in an interpreter.
 
-The final thing left to mention in Figure~\ref{fig:StructureModule1} are the user functions. The figure only shows one but there could be many of these in a single module. User functions are almost little modules within the big module. They have their own symbol table, constant table and code block. The big difference is how the user function stores its local symbols and the fact that a user function can accept inputs and of course return values. The module level and user function symbol tables operate in quite different ways. The module level symbol table retrieves symbols by name. Thus with the code {\tt a = 1.2}, a new symbol is created with the name {\tt a} and the number {\tt 1.2}. If we ever want to reference that symbol we locate it using its name {\tt a}. In Rhodus we store the module level symbol tables using a dictionary which makes it reasonable fast to locate a given symbol.
+The final thing left to mention in Figure~\ref{fig:StructureModule1} are the user functions. The figure only shows one but there could be many of these in a single module. User functions are almost little modules within the big module. They have their own symbol table and code block. The big difference is how the user function stores its local symbols and the fact that a user function can accept inputs and of course return values. The module level and user function symbol tables operate in quite different ways. The module level symbol table retrieves symbols by name. Thus with the code {\tt a = 1.2}, a new symbol is created with the name {\tt a} and the number {\tt 1.2}. If we ever want to reference that symbol we locate it using its name {\tt a}. In Rhodus we store the module level symbol tables using a dictionary which makes it reasonably fast to locate a given symbol.
 
-The user function symbol tables are different. Symbols in a user function are stored by way of an integer index that references locations on the runtime stack. One would imagine that this would make accessing symbols in a user function faster compared but in practice it appears not to be the case, suggesting that the dictionary lookup at the module level is quite fast.
+The user function symbol tables are different. Symbols in a user function are stored using an integer index that references locations on the runtime stack. One would imagine that this would make accessing symbols in a user function faster compared but in practice it appears not to be the case, suggesting that the dictionary lookup at the module level is quite fast.
 
-\begin{figure}[htpb]
-\centering
-\includegraphics[scale=0.45]{structureModule_1.pdf}
-\caption{Simplified flow from source code to output in version 2 of the Rhodus interpreter.}
-\label{fig:StructureModule2}
-\end{figure}
+The class below shows the module structure in code:
 
+\begin{lstlisting}
+   // Base module class. 
+   TModule = class (TObject)
+       name : string;
+       moduleProgram : TProgram;  // Contains code block and constants table
+       symbolTable : TSymbolTable;
+       helpStr : string;
+
+       function    getSize : integer;
+       function    find (name : string) : TSymbol;
+       procedure   clearCode;
+       constructor Create (name : string);
+       destructor  Destroy; override;
+   end;
+\end{lstlisting}   
+   
 \section{Updates to the Byte Codes}
 
 There are some updates to the byte codes to accommodate the new changes. The load and store opCodes are changed and expanded to those shown in Table~\ref{tbl:loadstore}. One pair, the load and save symbols, are used when the symbols are in the currently running module. The second pair, the load and save attr opCodes are used when a module needs to access symbols in a different module. For example, the following code:
@@ -96,7 +107,9 @@ The only other new opCode is {\tt importModule} and this is called when the comp
 
 I think the best way to describe the operation of the interpreter is to look at some bytecode programs. The first thing to note is that the Rhodus virtual machine is a stack based machine. That is all operations occur around a stack. For example, to add two numbers, $2 + 3$, we first push the operands 2 and 3 onto the stack, then apply the addition operator and push the result back onto the stack. What's left on the stack is the sum. The stack is used as a temporary place to hold data to which operations are applied. As simple as it is, the stack turns out to be an incredible versatile structure. So versatile that we can build a general purchase computer around one. Interestingly, real hardware based computers such as the ARM or Intel microprocessors are not stack based but register based. The reason for the dominance of register based machines is a combination of historical accident and better performance.
 
-Let's start with some simple examples such as assigning a value to a variable. The following Table~\ref{code:simpleExpressions}, shows four such examples. One key instruction is {\tt store a}. This takes whatever is on the stack and saves it to a variable called {\tt a}. The other key instruction is {\tt load a}. This pushes onto the stack whatever value is stored in variable {\tt b}. The variables {\tt a} and {\tt b} along with the values associated with them are kept in the symbol table. We already see at this simple stage, an active interaction between the virtual machine and the symbol table. Most operations in the virtual machine either involve the stack or the symbol table with data moving back and forth between the two as a program executes. Some instructions will manipulate the stack while others will involve moving data between the stack and the symbol table. For example, arithmetic operations will only involve operations on the stack. A few instructions just manipulate the symbol table, for example {\tt inc} and {\tt dec}.
+Let's start with some simple examples such as assigning a value to a variable. The following Table~\ref{code:simpleExpressions}, shows four such examples. One key instruction is {\tt store a}. This takes whatever is on the stack and saves it to a variable called {\tt a}. The other key instruction is {\tt load b}. This pushes onto the stack whatever value is stored in variable {\tt b}. The variables {\tt a} and {\tt b} along with the values associated with them are kept in the symbol table. The other opcode we've seen before is {\tt pushi} which pushes a literal integer onto the stack. 
+
+We already see at this simple stage, an active interaction between the virtual machine and the symbol table. Most operations in the virtual machine either involve the stack or the symbol table with data moving back and forth between the two as a program executes. Some instructions will manipulate the stack while others will move data between the stack and the symbol table. For example, arithmetic operations only involve operations on the stack. A few instructions just manipulate the symbol table, for example {\tt inc} and {\tt dec}.
 
 \begin{table}
 \centering
@@ -136,7 +149,7 @@ With this set of bytecodes we could probably do almost everything. All higher le
 
 Let's first consider the repeat/until loop as its probably the simplest. We'll really make it simple by just considering the statement: {\tt repeat until True}, that is no content to the loop itself. The bytecode for this is surprisingly simple, just two instructions, Table~\ref{code:repeatempty}.
 
-The first instruction {\tt push True} pushes True onto the stack. The second instruction is a relative jump instruction. It pops the value off the stack and checks to see if the value is False. If False it jumps -1 instructions. The minus means it jumps back which takes it back to the {\tt push True} instruction, and we start again. Luckily the until statement expression is {\tt True}, so that it will not jump back and essentially get use out of the loop. If we'd set the expression to {\tt False} we would have gone into an infinite loop.
+The first instruction {\tt push True} pushes True onto the stack. The second instruction is a relative jump instruction. It pops the value off the stack and checks to see if the value is False. If False it jumps -1 instructions. The minus means it jumps back which takes it back to the {\tt push True} instruction, and we start again. Luckily the until statement expression is {\tt True}, so that it will not jump back and get us out of the loop. If we'd set the expression to {\tt False} we would have gone into an infinite loop.
 
 
 \begin{table}
@@ -198,7 +211,7 @@ end \linebreak} & {\tt
 \label{code:for}
 \end{table}
 
-It doesn't take many instructions to implement a while loop, just three. We start by pushing False from {\tt while False do} onto the stack. The next instruction, {\tt jmpIfFalse}, is used to check for the result of while expression. If false it jumps forward two instructions. If it does this its jumps right out of the while loop. In the process it jumps over the last instruction which is an unconditional {\tt jmp} which jumps us two instructions back to the beginning and so we start again. The initial instruction that pushes {\tt False} onto the stack would in practice be the result of evaluating a while expression such as {\tt a > 4} which would evaluate to {\tt True} or {\tt False}. If we add actual statements inside the while loop, these will generate bytecode between line 0 and line 1 with a corresponding change to the jump distances. As an example, Table~\ref{code:whilePractical}, shows a while loop with an assignment in the body of the loop. The first three instructions concern themselves with evaluating {\tt a > 5}. After than its the same as before except we have a different body statement: {\tt a = a - 1}.
+It doesn't take many instructions to implement a while loop, just three. We start by pushing False from {\tt while False do} onto the stack. The next instruction, {\tt jmpIfFalse}, is used to check for the result of the while expression. If false it jumps forward two instructions. If it does this its jumps right out of the while loop. In the process it jumps over the last instruction which is an unconditional {\tt jmp} which jumps us two instructions back to the beginning and so we start again. The initial instruction that pushes {\tt False} onto the stack would in practice be the result of evaluating a while expression such as {\tt a > 4} which would evaluate to {\tt True} or {\tt False}. If we add actual statements inside the while loop, these will generate bytecode between line 0 and line 1 with a corresponding change to the jump distances. As an example, Table~\ref{code:whilePractical}, shows a while loop with an assignment in the body of the loop. The first three instructions concern themselves with evaluating {\tt a > 5}. After than its the same as before except we have a different body statement: {\tt a = a - 1}.
 
 
 \begin{table}
@@ -221,7 +234,7 @@ end \linebreak} & {\tt
   8  jmp -8
 }  \\ \bottomrule
 \end{tabular}}\endgroup
-\caption{Code generated for a {\tt while} loop}.
+\caption{Code generated for a non-empty {\tt while} loop}.
 \label{code:whilePractical}
 \end{table}
 
@@ -251,13 +264,13 @@ end \linebreak} & {\tt
 \label{code:for}
 \end{table}
 
-The {\tt for} loop requires nine instructions to implement which will make the {\tt for} loop slow to execute. This is a situation where adding specialist bytecode might improve performance. For example, we could introduce a special {\tt doFor} bytecode that would handle some of the incrementing and testing. For now we'll look at the code above and at a later time consider a more efficient looping structure.
+The {\tt for} loop requires nine instructions to implement which will make the {\tt for} loop slow to execute. This is a situation where adding specialist bytecode might improve performance. For example, we could introduce a special {\tt doFor} bytecode that would handle some of the incrementing and testing. 
 
-The first thing the code does, Table~\ref{code:for} is initialize the loop variable {\tt i}. It never executes this again. The loop proper stats at line 2 where it loads the value of the loop variable and the upper limit value, 5. It compares the two using {\tt isGT}, standing for isGreaterThan, and pushes the boolean result onto the stack. In line 5 we use a {\tt jmpIfTrue} to pop off the boolean result and if True we jump forward three instructions which essentially jumps us completely out of the loop. However, if the result if False we move to the next instruction which increments the {\tt i} variable by one. Note that the {\tt inc} instruction modifies the variable in the symbol table and neither pops or pushes anything to and from the stack. Finally, on line 7 we jump back five instructions to line 2 and start the process again. One obvious place we could optimize the code is in line 4 and 5. We could easily replace these two instructions with a single {\tt jmpIfGt}. We'll consider such optimizations in a later chapter.
+The first thing the code does, Table~\ref{code:for}, is initialize the loop variable {\tt i}. It never executes this again. The loop proper stats at line 2 where it loads the value of the loop variable and the upper limit value, 5. It compares the two using {\tt isGT}, standing for isGreaterThan, and pushes the boolean result onto the stack. In line 5 we use a {\tt jmpIfTrue} to pop off the boolean result and if True we jump forward three instructions which essentially jumps us completely out of the loop. However, if the result is False we move to the next instruction which increments the {\tt i} variable by one. Note that the {\tt inc} instruction modifies the variable in the symbol table and neither pops or pushes anything to and from the stack. Finally, on line 7 we jump back five instructions to line 2 and start the process again. One obvious place we could optimize the code is in line 4 and 5. We could easily replace these two instructions with a single {\tt jmpIfGt}. We'll consider such optimizations in a later chapter.
 
 \subsection*{If Statement}
 
-The {\tt if} statement is reasonably straightforward. Without the {\tt else} clause, Table~\ref{code:if}, the code initially pushes the result of the {\tt if} evaluation onto the stack. If the value is false we jump three instructions on which gets us out the {\tt if} statement. If not, we continue, which results in the body of the {\tt} statement being executed.
+The {\tt if} statement is reasonably straightforward. Without the {\tt else} clause, Table~\ref{code:if}, the code initially pushes the result of the {\tt if} evaluation onto the stack. If the value is false we jump three instructions which gets us out the {\tt if} statement. If not, we continue, which results in the body of the {\tt} statement being executed.
 
 \begin{table}
 \centering
@@ -307,7 +320,9 @@ end \linebreak} & {\tt
 
 \subsubsection*{Switch Statement}
 
-By far the most complex construct to consider is the switch statement which involves thirteen core instructions for a switch with two case options, Table~\ref{code:Switch}. Two new instructions have been introduced to deal with the switch statement, {\tt dup} and {\tt popdup}. {\tt dup} duplicates the current top entry on the stack. For example, if the top of the stack has an integer value 3, after dup we will have two stack entries with value 3. The second new bytecode, {\tt popdup} just pops the stack entry. This is to remove the duplicated stack entry that was introduced by {\tt dup}. We could have just used {\tt pop} but I used {\tt popdup} to help remind me what was going on in the code. The switch statement itself is implemented as a series of tests to compare the switch value with each case value. One could be more sophisticated by creating a jump table of sorts which would be more efficient. Imagine you have 100 case statements, and the switch value is 100, the current method would have to do 99 comparisons before it reached 100. Clearly not the most efficient way to do things but it will do for now. In the example in Table~\ref{code:Switch} you'll see two case options and the corresponding two {\tt jmpIftrue} instructions
+By far the most complex construct to consider is the switch statement which involves thirteen core instructions for a switch with two case options, Table~\ref{code:Switch}. Two new instructions have been introduced to deal with the switch statement, {\tt dup} and {\tt popdup}. {\tt dup} duplicates the current top entry on the stack. For example, if the top of the stack has an integer value 3, after dup we will have two stack entries with value 3. The second new bytecode, {\tt popdup} just pops the stack entry. This is to remove the duplicated stack entry that was introduced by {\tt dup}. We could have just used {\tt pop} but I used {\tt popdup} to help remind me what was going on in the code. The switch statement itself is implemented as a series of tests to compare the switch value with each case value. This is not a very efficient approach. For example, imagine you have 100 case statements, and the switch value is 100, the current method would have to do 99 comparisons before it reached 100. From a practical point of view this isn't the way to implement a switch statement but its advantage is that it's not difficult to implement. A better approach is to use a jump table. We'll consider this in a later chapter.
+
+Considering the example in Table~\ref{code:Switch}, you'll see two case options and the corresponding two {\tt jmpIftrue} instructions
 
 \begin{table}
 \centering
@@ -342,7 +357,7 @@ end \linebreak} & {\tt
 \label{code:Switch}
 \end{table}
 
-If we add an else clause to the switch construct, Table~\ref{code:SwitchfElse} we see in the code below a final section that supports {\tt else} where we set {\tt a = 45}.
+If we add an else clause to the switch construct, Table~\ref{code:SwitchfElse}, we see a final section to the code that supports {\tt else}, where we set {\tt a = 45}.
 
 \begin{table}
 \centering
@@ -377,7 +392,7 @@ In summary, the minimal number of bytecodes we introduced previously together wi
 
 \subsubsection*{Indexing Support}
 
-Arrays and lists are always an important part of any programming language. The most common operation is indexing. For example if we had a list such as:
+Arrays and lists are always an important part of any programming language where a common operation is indexing. For example if we had a list such as:
 
 \begin{lstlisting}
 >> a = [1,2,3,4]
@@ -399,7 +414,7 @@ The same applies to arrays. We only have to introduce two new bytecodes to suppo
 
 These were introduced in part II of the series and were described there in some detail. As a reminder {\tt lvecIdx} expect two items to be on the stack, the index followed by the object itself. In part II the object could be either a list or a string. In part III we extend this to include arrays. The store bytecode, {\tt svecIdx}  expects three items to be on the stack, the index, the object itself (array, list or string), and finally the value to store at the indexth position.
 
-One thing we've not mentioned so far are user functions. Because user functions access variables differently, we need a parallel set of bytecodes for user functions. In this case we have {\tt localLvecIdx} and {\tt localSvecIdx}, the former for accessing and the later for storing. The same applies to the load and store bytecode we talked about in the last section. For user functions we'll need {\tt loadLocal} and {\tt storeLocal}. Semantically these parallel bytecodes do the same thing but under the hood, one set accesses variables by name and the other, the local ones, access variables by index. This is because all variables (other than global) that are part of a user function are stored on the stack and can therefore be indexed directly via the stack.
+One thing we've not mentioned so far is what happens to user functions? Because user functions access variables differently, we need a parallel set of bytecodes for user functions. In this case we have {\tt localLvecIdx} and {\tt localSvecIdx}, the former for accessing and the later for storing. The same applies to the load and store bytecode we talked about in the last section. For user functions we'll need {\tt loadLocal} and {\tt storeLocal}. Semantically these parallel bytecodes do the same thing but under the hood, one set accesses variables by name and the other, the local ones, access variables by index. This is because all variables (other than global) that are part of a user function are stored on the stack and can therefore be indexed directly via the stack.
 
 One last bytecode we need for lists, is {\tt createList}, this was also discussed in part II and is used to construct a list at runtime. All the elements of the list are expected to be on the stack. The number of items in the list is stored in the {\tt createList} operand field. Let's see some examples of bytecode that uses lists.
 
@@ -458,17 +473,6 @@ If you've ever disassembled Python bytecode in relation to lists, you'll see it 
 
 The only difference is in the names of the bytecodes, {\tt LOAD\_CONST} for {\tt pushi}, {\tt BUILD\_LIST} for {\tt createList} and {\tt STORE\_NAME} for {\tt store}. I should mention that the Rhodus bytecode wasn't modelled on Python's bytecode but similar solutions popup repeatedly in different interpreters.
 
-\subsubsection*{User Functions}
-
-With the bytecodes so far, we can deal with loops, conditionals, indexing and local variables in user functions. User functions have very modest requires for bytecode support. In fact user functions only need two bytecodes:
-
-\begin{lstlisting}
-call
-ret
-\end{lstlisting}
-
-User functions were discussed in detail in part II but its worth summarising some elements of their implementation. {\tt call} is used to call a user function and expects the user function object to be on the stack followed by any user function arguments it needs. {\tt call} also includes the number of expected arguments in the bytecode operand, so that something like {\tt call 2}, means that this call was called with 2 arguments. The function object itself stores the number of argument it actually expects. Since we have the actual and expected number of arguments we can check if there are enough arguments in the first place to satisfy the function object and secondly it allows us to implement a simple form of variable argument support.
-
 If we used the {\tt array} method to create an array from a list, such as:
 
 \begin{lstlisting}
@@ -490,11 +494,27 @@ we'd have the following bytecode program:
   9  store a
 \end{lstlisting}
 
+\subsubsection*{User Functions}
+
+With the bytecodes so far, we can deal with loops, conditionals, indexing and local variables in user functions. User functions have very modest requires for bytecode support. In fact user functions only need two bytecodes:
+
+\begin{lstlisting}
+call
+ret
+\end{lstlisting}
+
+User functions were discussed in detail in part II but its worth summarising some elements of their implementation. {\tt call} is used to call a user function and expects the user function object to be on the stack followed by any user function arguments it needs. {\tt call} also includes the number of expected arguments in the bytecode operand, so that something like {\tt call 2}, means that this call was called with 2 arguments. The function object itself stores the number of argument it actually expects. Since we have the actual and expected number of arguments we can check if there are enough arguments in the first place to satisfy the function object and secondly it allows us to implement a simple form of variable argument support.
+
 \subsubsection*{Module Support}
 
-The final topic to discuss is module support. Modules include user defined modules or the built-in modules. When the console starts up a special module is created, called {\tt _main_}. All interaction at the console is with this module. When a new module is loaded, its name is loaded into the {\tt _main_} symbolTable. If the new module itself loads in another module, the name of the second module will be added to the new module's symbol table. Any number of modules can be loaded this way. The virtual machine also has the notion of a current module. Whenever code is executed by the virtual machine it is run within the context of the module it exists in. This gives the code access to the symbol tables of the module it resides in.
+The final topic to discuss is module support. Modules include user defined modules or the built-in modules. When the console starts up a special module is created, called {\tt _main_}. All interaction at the console is with this module. When a new module is loaded, its name is loaded into the {\tt _main_} symbolTable. If the new module itself loads in another module, the name of the second module will be added to the new module's symbol table. Any number of modules can be loaded this way, Figure~\ref{{fig:ImportingModule1}}. The virtual machine also has the notion of a current module. Whenever code is executed by the virtual machine it is run within the context of the module it exists in. This gives the code access to the symbol tables of the module it resides in.
 
-ADD FIGURE OF MODULES
+\begin{figure}[htpb]
+\centering
+\includegraphics[scale=0.65]{importmodules.pdf}
+\caption{Modules importing other modules. Module references go into the symbol table.}
+\label{fig:ImportingModule1}
+\end{figure}
 
 User defined modules are in practice just another file containing Rhodus code. The key difference is the ability to import modules so that all the variables and user functions are put into their own user space determined by the name of the module file. Access at the Rhodus language level is achieved using the period (or full stop) notation. For example, if we create a file called, {\tt bankDetails.rh} that contains the variable, {\tt bankBalance}, we would import the file using import:
 
@@ -502,7 +522,7 @@ User defined modules are in practice just another file containing Rhodus code. T
 import bankDetails
 \end{lstlisting}
 
-After that we can access the {\tt bankBalance} using the period syntax as follows:
+After that we can access {\tt bankBalance} using the period syntax as follows:
 
 \begin{lstlisting}
 bankDetails.bankBalance
@@ -530,7 +550,7 @@ loadAttr
 storeAttr
 \end{lstlisting}
 
-The {\tt import} bytecode is used, unsurprisingly, by the import statement. It's used to make sure that whatever is imported gets it own module and that any code in the module is compiled into bytecode. It also adds the name of the module to the currently accessible symbol table. Thus using import from the console will insert the module into the {\tt _main_} symbolTable.
+The {\tt import} bytecode is used, unsurprisingly, by the import statement. It's used to make sure that whatever is imported gets it own module and that any code in the module is compiled into bytecode. It also adds the name of the module to the currently accessible symbol table. Thus using import from the console will insert a references to the module into the {\tt _main_} symbolTable.
 
 The two other instructions, {\tt loadAttr} and {\tt storeAttr}, are used to deal with the period syntax. You may be asking why not reuse {\tt store} and {\tt load}? The {\tt load} instruction takes a single operand, the name of the symbol and attempts to access that symbol in the symbolTable that belongs to current module. When using something like {\tt bankDetails.bankBalance}, we will have the module object, {\tt bankDetails} on the stack and {\tt loadAttr} is expected to pop that value off the stack and use that to reference the symbol {\tt bankBalance}. Let's look at some examples.
 
@@ -548,7 +568,7 @@ we would generate the following bytecode:
   2  store a
 \end{lstlisting}
 
-The actually access to pi involves two instructions, push the math object onto the stack using {\tt load} and calling {\tt loadAttr}. {\tt loadAttr} expects the stack to hold the module object. It will pop off the module object and use that module to access the symbol pi. Once it accesses the symbol {\tt pi} it pushes whatever value it find onto the stack. {\tt store a} just pops off the value on the stack and stores it to symbol {\tt a}, this time however in the current module.
+The actually access to {\tt pi} involves two instructions, push the math object onto the stack using {\tt load} and calling {\tt loadAttr}. {\tt loadAttr} expects the stack to hold the module object. It will pop off the module object and use that module to access the symbol {\tt pi}. Once it accesses the symbol {\tt pi} it pushes whatever value it find onto the stack. {\tt store a} just pops off the value on the stack and stores it to symbol {\tt a}, this time however in the current module.
 
 For a user defined module, let's say called {\tt lib}, the code is exactly the same. For example, assume the module {\tt lib} contains a variable {\tt a}. If we were to access the variable using:
 
@@ -589,7 +609,7 @@ a = [math.sin]
 x = a[0](3.14)
 \end{lstlisting}
 
-this gets turned into the following byte code. I've split the code in two, one for each line:
+This code gets turned into the following byte code. I've split the code in two, one for each line:
 
 \begin{lstlisting}
   // a = [math.sin]
@@ -607,9 +627,9 @@ this gets turned into the following byte code. I've split the code in two, one f
   5  store x
 \end{lstlisting}
 
-Knowing what we already know the code shouldn't be difficult to understand. The first part loads the math module and pushes the function object associated with {\tt sin} onto the stack. {\tt createList} then pops of one item from the stack (it doesn't care what kind of object it is), creates the list which is then stores to a variable {\tt a} via {\tt store}. The second half does the indexing and function calling. It first loads the list which is stored in {\tt a} onto the stack. It then pushing what will be the index, {\tt 0} onto the stack. The first big event is the {\tt lvecIdx} instruction. This pops off the index and the list object, and pushes whatever it finds at {\tt [0]} onto the stack. Finally, {\tt call} is executed which takes the current value on the stack (which will be the function object) and executes it. Lastly we store whatever the {\tt call} left on the stack into symbol {\tt a}.
+Knowing what we already know, the code shouldn't be difficult to understand. The first part loads the math module and pushes the function object associated with {\tt sin} onto the stack. {\tt createList} then pops of one item from the stack (it doesn't care what kind of object it is), creates the list which is then stores to a variable {\tt a} via {\tt store}. The second half does the indexing and function calling. It first loads the list which is stored in {\tt a} onto the stack. It then pushes, what will be the index, {\tt 0} onto the stack. The first big event is the {\tt lvecIdx} instruction. This pops off the index and the list object, and pushes whatever it finds at {\tt [0]} onto the stack. Finally, {\tt call} is executed which takes the current value on the stack (which will be the function object) and executes it. Lastly we store whatever the {\tt call} left on the stack into symbol {\tt a}.
 
-What's happening here is that whenever the compiler comes across an indexing operation is emits a {\tt lvecIdx}, and whenever it comes across a {\tt ()} it emits a {\tt call}. This means we can creates some crazy expressions such as the following:
+What's happening here is that whenever the compiler comes across an indexing operation is emits a {\tt lvecIdx}, and whenever it comes across a {\tt ()} it emits a {\tt call}. This means we can create some crazy expressions such as the following:
 
 \begin{lstlisting}
 x = modules[2].func(1,2)[2,2](True)
@@ -622,20 +642,20 @@ If the object stored at {\tt [2,2]} is not a function then the call {\tt (True)}
 >> a()
 \end{lstlisting}
 
-Clearly {\tt a} doesn't hold a function object we can call, the second line therefore results in:
+Clearly variable {\tt a} doesn't hold a function object we can call, the second line therefore results in:
 
-{\tt ERROR: integer is not something that can be called as a function}
+{\tt\small ERROR: integer is not something that can be called as a function}
 
 The same happens is we try this: {\tt a[0]} giving the message:
 
-{\tt ERROR: integer variable is not indexable}
+{\tt\small ERROR: integer variable is not indexable}
 
-The full list of bytecodes is given in an appendix but you'll notice that many of them are related to arithmetic or boolean operations and that there are only a few that do specialist things like calling functions etc.
+In conclusion there are not that many specialist opcodes. The majority are related to arithmetic or boolean operations. The full list of bytecodes is given in an appendix.
 
 
 \section{Compiling Code}
 
-Now that we've seen examples of bytecode we would generate for various Rhodus constructs, how do we generate such bytecode sequences? This topic returns us to the parsing stage. Figure~\ref{fig:simpleInterpreter2} shows a birds-eye view of the interpreter.  Here I want to say a little bit about the syntax analysis and generation of the abstract syntax tree, Figure~\ref{fig:Syntax_AST_Interaction}. The figure shows that syntax analysis and the abstract syntax tree phase have been separated into two blocks. It's possible to combine these into one block where syntax analysis and AST generation occur simultaneously and originally this is what I had. However I was confronted with a messy problem. An AST is as it says a tree structure, with nodes and leaves and a root. Each node and leaf requires an allocation of memory to store the details pertinent to the node or leaf. ASTs vary in size depending on the size of the source code we parse, hence the AST has to be dynamically built on a need basis. Traditionally this is done by requesting memory from the heap. Once we've built the AST and eventually no long need it the memory must be released. This is straightforward and involves traversing the tree and freeing the nodes and leaves.
+Now that we've seen examples of bytecode we would generate for various Rhodus constructs, how do we generate such bytecode sequences? This topic returns us to the parsing stage. Here I want to say a little bit about the syntax analysis and generation of the abstract syntax tree, Figure~\ref{fig:Syntax_AST_Interaction}. The figure shows that syntax analysis and the abstract syntax tree phase have been separated into two blocks. It's possible to combine these into one block where syntax analysis and AST generation occur simultaneously and originally this is what I had. However I was confronted with a messy problem. An AST is a tree structure, with nodes and leaves and a root. Each node and leaf requires an allocation of memory to store the details pertinent to the node or leaf. ASTs vary in size depending on the size of the source code we parse, hence the AST has to be dynamically built on a need basis. Traditionally this is done by requesting memory from the heap. Once we've built the AST and eventually no long need it, the memory must be released. This is straightforward and involves traversing the tree and freeing the nodes and leaves one at a time.
 
 \begin{figure}[htpb]
 \centering
@@ -644,7 +664,7 @@ Now that we've seen examples of bytecode we would generate for various Rhodus co
 \label{fig:Syntax_AST_Interaction}
 \end{figure}
 
-A problem arises however if we do syntax analysis and AST construction at the same time. That is, as we recognize syntactically correct pieces of source code we allocate memory to create nodes and leaves. What however, there is a syntax error? We are now a position where we have a partially constructed tree with most likely incomplete nodes. In this situation we have to report the error to the user and dismantle the current state of the AST. The solution I came up with to dismantling the tree was to populate the AST with error nodes when a syntax error ever arose. However, this involved multiple checks at every stage and the code because unnecessarily messy and likely difficult to maintain. The solution to this was to separate syntax analysis from AST construction. In the syntax stage, the only thing that is done is to check syntax, no memory allocation is involved and if an error is detected we can get out without having to worry about unwinding complex data structures. If the syntax analysis passes with out incident we then ask the AST phase to parse the source code again knowing that there will be no errors forthcoming. We don't have to worry about unwinding any data structures in the event of an error. Obviously there could be errors such as out of memory errors but if these happen, we're toast anyway, and at that point we would exist the interpreter completely.
+A problem arises however if we do syntax analysis and AST construction at the same time. That is, as we recognize syntactically correct pieces of source code we allocate memory to create nodes and leaves. What however, if there is a syntax error? We are now in a position where we have a partially constructed tree with most likely incomplete nodes. In this situation we have to report the error to the user and dismantle the current state of the AST. The solution I came up was  when are error occurred I would populate the AST at that point with error node. This meant I no longer had an incomplete tree and instead had error nodes which I could deal with later. However, this involved multiple checks at every stage and the code because unnecessarily messy and likely difficult to maintain. The solution to this was to separate syntax analysis from AST construction. In the syntax stage, the only thing that is done is to check syntax, no memory allocation is involved and if an error is detected we can get out without having to worry about unwinding complex data structures. If the syntax analysis passes without incident we then ask the AST phase to parse the source code again knowing that there will be no errors forthcoming. We don't have to worry about unwinding any data structures in the event of an error. Obviously there could be errors such as out of memory errors but if these happen, we're toast anyway, and at that point we should exit the interpreter completely.
 
 Another advantage of separating syntax analysis from AST construction is that we can start to think about doing more sophisticated error handling at the syntax stage. At the moment, if we detect any error we just return immediately to the user. I'm not sure what this way of handling errors is called but we could call it the `I give up' approach. An alternative, which sounds equally bad is called `panic mode'. In panic model if the parser comes across something it doesn't understand it will try to lookahead to find something it does understand, and then continue from there. This allows to parser to report multiple errors if they exist in the source code, rather than a single error message as we do now. One disadvantage is that we run the risk of overwhelming the human operator with multiple, possibly conflicting, error messages all at once.
 
@@ -660,11 +680,13 @@ begin
 end;
 \end{lstlisting}
 
-This method calls the scanner {\tt nextToken()} method but also appends the new token to a token cache held in a variable called {\tt tokenVector}. Other than this method, the syntax analysis has no other interaction with the lexical scanner. Instead it uses the {\tt tokenVector}. At the end of the syntax analysis, {\tt tokenVector} will contain a complete record of token stream. The AST construction code in kept in {\tt uConstruutAST.pas} and the constructor for the AST construction object takes as an argument the tokenVector. When parsing the source code to build the AST, it will use the cached tokens in tokenVector rather than parse the source code from scratch again. Although I've not compared timings, this should improve performance.
+This method calls the scanner {\tt nextToken()} method but also appends the new token to a token cache held in a variable called {\tt tokenVector}. Other than this method, the syntax analysis has no other interaction with the lexical scanner. Instead it uses the {\tt tokenVector}. At the end of the syntax analysis, {\tt tokenVector} will contain a complete record of the token stream.
+
+The AST construction code in kept in {\tt uConstruutAST.pas} and the constructor for the AST construction object takes as an argument the tokenVector. When parsing the source code to build the AST, it will use the cached tokens in tokenVector rather than parse the source code from scratch again. Although I've not compared timings, this should improve performance.
 
 One issue that some of you might be wondering is how much space will the token cache take up? Each token requires at minimum 32 byte. Any extra space will be required to store literal strings. Let's assume for argument sake that on average each token will occupy 40 bytes. The biggest file in the test suite (arith1), can be translated into 1390 token, that requires 56K of storage. By today's standards that's a very modest file size. Even if we had a file that translated into 10,000 tokens that's 400K. Given that this memory requirement is temporary, the memory burden doesn't seem significant.
 
-In the remaining chapters we will cover in more detail, the various stages of the interpreter starting with syntax analysis.
+In the remaining chapters we will cover in more detail the various stages of the interpreter starting with syntax analysis.
 
 %\section{Useful Reading}
 %

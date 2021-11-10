@@ -1,0 +1,237 @@
+{\bfseries\slshape\sffamily\color{ChapterTitleColor} \chapter{Abstract Syntax Tree}} \label{chap:AST}
+
+\section{Introduction}
+
+The biggest internal change in Part III is by far the introduction of an additional phase between syntax analysis and code generation. See Figure~\ref{fig:simpleInterpreter2} from Chapter 1. In the new phase we construct the abstract syntax tree or AST for short.
+
+The AST is so-called because it represents a very terse view of the source code. For example, bracketing is absent because the grouping of elements is implicit in the structure of the tree. But what is the purpose of the AST stage? There are several, the first is that we get a clean separation of syntax analysis from code generation and that the AST structure can be analysed for semantic correctness and even some basic code optimization can be carried out. For languages that are statically typed (such as Object Pascal or C), where variables have strict immutable types, semantic analysis can be very useful to eliminate errors.
+
+In part II of this series we talked about tree structures and mentioned the different ways in which such a tree can be traversed. I am therefore going to assume that the reader knows something about tree structures but not necessarily a lot.
+
+The source file that constructs the AST is called {\tt uConstructAST.pas}. There is also a separate file called {\tt uAST.pas} that contains all the support code to aid with construction and {\tt uASTNodeTypes} which lists the types of node we can have. 
+
+The easiest example to consider is the binary operator such as {\tt 2 + 5}. A very simple parser for this statement would be:
+
+\begin{lstlisting}
+procedure TConstructAST.parseBinaryOperator;
+begin
+  parseNumber;
+  nextToken;
+  if token = tPlus then
+     begin
+     nextToken;
+     parseNumber;
+     end
+  else
+     error
+end;
+\end{lstlisting}
+
+We need to modify this code so that we can turn {\tt 2 + 3} into a little tree. The first change is that the procedure must return the root to the mini-tree we construct. For that reason lets create a class called {\tt TASTNode} that the function will return. We'll have more to stay about this class later on. {\tt parseNumber} should return a node that represents a number and we need to record the plus symbol we find. The method needs to return a tree that looks like the one shown in Figure~\ref{fig:TwoPlusThreeTree}. I've marked the plus node as the root of this tree.
+
+\begin{figure}[htpb]
+\centering
+\includegraphics[scale=0.55]{TwoPlusThreeTree.pdf}
+\caption{A little tree formed from {\tt 2 + 3}.}
+\label{fig:TwoPlusThreeTree}
+\end{figure}
+
+Let's update the function to collect any nodes we create:
+
+\begin{lstlisting}
+function TConstructAST.parseBinaryOperator : TASTNode;
+var : operand1, operand2 : TASTNode;
+      operand : TASTNodeType;
+begin
+  operand1 := parseNumber;
+  nextToken;
+  if token = tPlus then
+     begin
+     operand := ntPlus;
+     nextToken;
+     operand2 := parseNumber;
+     end
+  else
+     error
+end;
+\end{lstlisting}
+
+We need a method that will knit the three components, {\tt operand1}, {\tt operand2} and {\tt operator} into a little tree. Let's pretend we have a method that does that, called {\tt TASTBinOp}. We might use it like this:
+
+\begin{lstlisting}
+function TConstructAST.parseBinaryOperator : TASTNode;
+var : operand1, operand2 : TASTNode;
+      operator : TASTNodeType;
+begin
+  operand1 := parseNumber;
+  nextToken;
+  if token = tPlus then
+     begin
+     operator := ntPlus;
+     nextToken;
+     operand2 := parseNumber;
+     end
+  else
+     error
+  result := TASTBinOp.Create (operand1, operand2, operator);
+end;
+\end{lstlisting}
+
+You can probably guess from the syntax of {\tt TASTBinOp} that the first two arguments are the leaves of tree and the third argument is the node type we use to make the root node.
+
+One problem we need to deal with is what to do with errors?. For example, what if there is no second operand? The problem is that we've already constructed the first leaf, {\tt operand1}. An easy way out would be to just raise an exception and get out quick. The problem with that strategy is we'll end up with memory leaks since we're leaving behind tree components we no longer need. We have to somehow gracefully exit if there is an error. I came up with a number of possible solutions to this:
+
+\begin{itemize}
+  \item Create two parsers, one parser only checks for syntax errors and generates no output other than success or failure and in the case of a failure the line number and nature of the error. If the first parse is successful we run the second parser which does create the AST. Since we're guaranteed there won't any errors, there won't be any chance to create a partial tree that needs cleaning up.
+  \item Build the AST using a data structure, perhaps a table, that doesn't require any memory to be allocated as the parser runs. If there is syntax error we can get out and free the table.
+  \item Monitor for errors as we build the tree, take care to free any partially constructed tree components in the event of an error. When an error occurs, clean up any partial tree components and return a special error node that includes information on the nature of the error including any line number information. When we come to generate the bytecode from the AST, we would need to watch out for any error nodes and respond with the error message kept in the error node.
+\end{itemize}
+
+All three solutions are viable. The first one results in a two pass system that could slow things down. The second seems a bit complicated as we'd have to use indices to represent links between nodes and tree traversals won't be as simple to implement. In the third solution, we clean up any dangling tree components if an error occurs and insert a special error node into the tree to indicate a problem. How might this translate into parsing {\tt 2 + 3} example? I am going to assume that {\tt parseNumber} and {\tt expect} will return an AST error node in the event of an error. We can check for this error node as we do the parsing.  The listing below shows what I mean.
+
+\begin{lstlisting}
+function TConstructAST.parseBinaryOperator : TASTNode;
+var : operand1, operand2, operator : TASTNode;
+begin
+  operand1 := parseNumber;
+  if operand1 = error then
+     exit (operand1)
+
+  operator := expect(plus)
+  if operator = error then
+     begin
+     operand1.free;
+     exit (operator)
+     end;
+
+  operand2 := expect(number)
+  if operand2 = error then
+     begin
+     operand1.free;
+     operator.free
+     exit (operand2)
+     end
+
+  // No errors, so lets build the minitree and return it.
+  result := TASTBinOp.Create (operand1, operand2, operator);
+end;
+\end{lstlisting}
+
+If there is an error, {\tt parseBinaryOperator} returns an AST node that represents an error. Let me show you what the {\tt TASTError} node might looks like:
+
+\begin{lstlisting}
+TASTErrorNode = class (TASTNode)
+   lineNumber, columnNumber : integer;
+   errorMsg : string;
+   constructor Create (errMsg : string; lineNumber, columnNumber : integer);
+end;
+\end{lstlisting}
+
+Notice that the error node will store the current line number and column number in the text that is being parsed. This is important, because once the tree is built there won't be another opportunity to collect this information. The error node also has an {\tt errorMsg} field that we use to store a suitable message for the user.
+
+Let's look at another example, this time parsing the repeat/until construct. The grammar for this is simple:
+
+{\tt\small repeatStatement = REPEAT statementList UNTIL expression}
+
+The AST that we'll get from this is equally simple, its just like the {\tt 2 + 3} minitree, except the root is labelled {\tt repeat} and the leaves are {\tt statementList} and {\tt condition}.
+
+{\tt\small (repeat) -> (statementList) and (condition)}
+
+In the following code I've left out the {\tt break} statements to make it easier to understand. Also there is no error checking at the moment. Hopefully the code that is left is self-explanatory. We first expect the {\tt repeat} keyword, then a list of statements, followed by the {\tt until} keyword, and finally the until condition. With that we construct the minitree, using {\tt TASTRepeat} and splice together the {\tt condition} and {\tt statementList} and return the repeat node to the caller. One thing you may have realized is that the left-hand side of each grammar statement will have its own AST node. This is so that during compilation we can recognise particular nodes.
+
+\begin{lstlisting}
+function TConstructAST.parseRepeatStatement: TASTNode;
+begin
+  expect(tRepeat);
+  listOfStatements := statementList;
+  expect(tUntil);
+  condition := expression;
+
+  result := TASTRepeat.Create(listOfStatements, condition);
+end;
+\end{lstlisting}
+
+You might start to get the feeling that we will have quite a few different nodes representing different aspects of the Rhodus language, and you'll be right. {\tt TASTNode} will be the parent node for a wide range of descendent nodes.
+
+Let's now add the error detection. For the first line, {\tt expect (tRepeat)}, there won't be an error because in order to have got here we must already have seen the keyword repeat.  However, errors can occur when we parse the {\tt statementList}, {\tt condition} and the {\tt tUntil}. In particular if there is an error at the condition state we must make sure to free up the partial tree we get from statementList. You'll noticed I also check for an error from {\tt expect (tUntil)}. This is in case we read the {\tt endOfStream} token. The method {\tt freeAST} is part of the AST class and can be used to free any complete or partially constructed tree.
+
+\begin{lstlisting}
+function TConstructAST.parseRepeatStatement: TASTNode;
+var node : TASTNode;
+begin
+  expect(tRepeat);
+  listOfStatements := statementList;
+  if listOfStatements = error then
+     exit (listofStatements);
+
+  node := expect(tUntil);
+  if node == error then
+     begin
+     listOfStatements.freeAST;
+     exit (node);
+     end;
+
+  condition := expression;
+  if condition = error then
+     begin
+     listOfStatements.freeAST;
+     exit (condition)
+     end;
+
+  result := TASTRepeat.Create(listOfStatements, condition);
+end;
+\end{lstlisting}
+
+You can imagine having to do this at every stage in the syntax analysis. I did in fact implement it this way at one point but realised that maintaining the code could be problematic. It was too easy to forget to free something and cause a memory leak and it took some time to fully debug the code. In the end I decided this was not the way to do it and ultimately I discarded the work and reverted to the first solution which involved doing two passes. One pass to check syntax and a second to construct the AST.
+
+\begin{lstlisting}
+// Base AST Node
+TASTNode = class (TObject)
+   nodeType : TASTNodeType;
+
+   procedure   freeAST;
+   constructor Create(nodeType: TASTNodeType);
+   destructor  Destroy; override;
+end;
+\end{lstlisting}
+
+%
+%\section{Useful Reading}
+%
+%\subsection{Introductory Books}
+%
+%{\bf 1.} Ball, Thorsten. Writing A Compiler In Go. Thorsten Ball, 2018.
+%
+%{\bf 2.} Kernighan, Brian W.; Pike, Rob (1984). The Unix Programming Environment. Prentice-Hall. ISBN 0-13-937681-X.
+%
+%{\bf 3.} Nisan, Noam, and Shimon Schocken. The elements of computing systems: building a modern computer from first principles. MIT press, 2005.
+%
+%{\bf 4.} Parr, Terence. Language implementation patterns: create your own domain-specific and general programming languages. Pragmatic Bookshelf, 2009.
+%
+%\subsection{More Advanced Books}
+%
+%{\bf 1.} Jim Smith, Ravi Nair, Virtual Machines: Versatile Platforms for Systems and Processes, Morgan Kauffmann, June 2005
+%
+%{\bf 2.} Aho, Alfred V., Ravi Sethi, and Jeffrey D. Ullman. Compilers: Principles, Techniques and Tools (also known as The Red Dragon Book), 1986.
+%
+%\subsection{Source Code}
+%
+%{\bf 1.} Mak, Ronald. Writing compilers and interpreters: an applied approach/by Ronald Mark. 1991
+%
+%Note, this is the first edition, 1991. The code is in C, which I found to be understandable. The later editions that use C++ are not as clear. The issue I found is that the object orientated approach that's used tends to obscure the design principles of the interpreter and requires much study to decipher, The C version is much more straightforward.
+%
+%{\bf 2.} Wren: \url{https://github.com/wren-lang/wren}.\index{wren}
+%
+%Of the open source interpreters on GitHub, I found this to be the easiest to read. It's written by Bob Nystrom in C, the same person who is writing the web book: Crafting Interpreters \url{https://craftinginterpreters.com/}.
+%
+%{\bf 3.} Gravity: \index{Gravity} Another open source interpreter worth looking at is Gravity (\url{https://github.com/marcobambini/gravity}). Gravity, like Wren, is also written in C.
+%
+%{\bf 4.}  If you prefer Go,\index{Go} then the source code to look at is the interpreter written by Thorsten Ball (see book reference above).
+%
+%There are umpteen BASIC interpreters\index{BASIC} and other languages that can be studied.
+%
+%\bigskip\medskip
+
+\begin{center}
+\pgfornament[width = 8cm, color = cardinal]{83}
+\end{center} 

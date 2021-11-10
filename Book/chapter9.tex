@@ -1,0 +1,398 @@
+{\bfseries\slshape\sffamily\color{ChapterTitleColor} \chapter{Reference to Libraries}} \label{chap:libraries}
+
+\section{Introduction}
+
+This chapter is a reference chapter for the current set of built-in modules.
+
+\section{Lists Module and List Object Methods}
+
+The list module is called {\tt lists}. If you type {\tt lists} at the console you'll get:
+
+\begin{lstlisting}
+>>lists
+Module: lists List Module
+\end{lstlisting}
+
+We can use {\tt dir()} to see the current set of supported methods in the list module:
+
+\begin{lstlisting}
+>>lists.dir()
+["rndu","range","dir","rndi"]
+\end{lstlisting}
+
+These methods are described below:
+
+\colorbox{blue!10}{\bf range(start, end, step):} This method returns (end-start)/step values in a list between the values of start and end.
+
+\begin{lstlisting}
+>> lists.range (0, 10, 2)
+[0,2,4,6,8]
+\end{lstlisting}
+
+
+\colorbox{blue!10}{\bf rndi(lower, upper, n):} This method returns a list random integer such that lower $\leq n \leq$ upper. The random numbers will include the upper and lower bounds.
+
+\begin{lstlisting}
+>>println (lists.rndi (5, 10, 3)
+[10,6,7}
+\end{lstlisting}
+
+
+\colorbox{blue!10}{\bf rndu (n):} This method returns $n$ random floating point number in the range [0.0, 1.0).
+
+\begin{lstlisting}
+>>println (lists.rndu (4))
+[0.651631591841578,0.56693290756084,0.532966091763228,0.318821681430563]
+\end{lstlisting}
+
+
+\subsection*{List Object Methods}
+
+As well as methods from the list module, a list object itself has associated with it a number of methods. This list of methods can be obtained by using {\tt dir()} on a list object. For example:
+
+\begin{lstlisting}
+>> a = [1,2]
+>> a.dir()
+["len","find","toUpper","toLower","left","right","mid","trim","split","dir"]
+\end{lstlisting}
+
+
+\colorbox{blue!10}{\bf min ():} This returns the smallest value it can find in a list. The one restriction is the list must only contain numerical values. An error is reported if it is found to contain
+a string, another list etc.
+
+
+\begin{lstlisting}
+>>a = [5,4,6,7,8]
+>>a.min ()
+5
+\end{lstlisting}
+
+
+\colorbox{blue!10}{\bf max ():} This returns the largest value it can find in a list. The one restriction is the list must only contain numerical values. An error is reported if it is found to contain
+a string, another list etc.
+
+\begin{lstlisting}
+>>a = [5,4,6,7,8]
+>>a.max ()
+8
+\end{lstlisting}
+
+
+\colorbox{blue!10}{\bf append (value):} This method takes one argument, a value and will append the list. The method does not return anything but the associated list is modified in the process.
+\begin{lstlisting}
+>>a = [5,4,6,7,8]
+>>a.append (23)
+>>println (a)
+[,4,6,7,8,23]
+\end{lstlisting}
+
+Note that if you want to preserve the original list, then make a copy first as in:
+
+\begin{lstlisting}
+>>a = [5,4,6,7,8]
+>>b = a
+>>a.append (23)
+>>println (a)
+[5,4,6,7,8,23]
+>>println (b)
+[5,4,6,7,8]
+\end{lstlisting}
+
+
+\colorbox{blue!10}{\bf pop ():} This removes the last item from the list and returns the item to the caller.
+
+\begin{lstlisting}
+>>a = [5,4,6,7,8]
+>>a.remove ()
+>>println (a)
+[5,4,6,7]
+\end{lstlisting}
+
+
+\colorbox{blue!10}{\bf len ():} This returns length of the list.
+
+\begin{lstlisting}
+>>a = [5,4,6,[7,8], True]
+>>println (a.len ())
+5
+\end{lstlisting}
+
+
+\colorbox{blue!10}{\bf insert(value, insertIndex):} This is a method that will insert a new item before the indexth-position. Indexing starts at zero.
+\begin{lstlisting}
+>>a = [5,4,6,[7,8]]
+>>a.insert (True, 2)
+>>a
+[5,4,6,True,[7,8]]
+\end{lstlisting}
+
+
+%\colorbox{blue!10}{\bf sum (list):} This returns the sum of the numeric values. If the list contains even a single item that is not a numerical value (integer or float) an error is issued.
+%
+%\begin{lstlisting}
+%>>a = [5,4,6]
+%>>println (a.sum ())
+%15
+%\end{lstlisting}
+
+
+% --------------------------------------------------------------------------------------
+\section{Strings Module and String Object Methods}
+
+
+The string module is called {\tt strings}. If you type {\tt strings} at the console you'll get:
+
+
+\begin{lstlisting}
+>>strings
+Module: strings String Module
+\end{lstlisting}
+
+Use {\tt dir()} we can see the current set of supported strings methods:
+
+\begin{lstlisting}
+>>strings.dir()
+["format","str","dir","val"]
+\end{lstlisting}
+
+
+\colorbox{blue!10}{\bf format (str, format):} This method will format a string according to a format specification. This follows the format specification used by Delphi, see~\url{https://docwiki.embarcadero.com/Libraries/Sydney/en/System.SysUtils.Format}.
+
+\begin{lstlisting}
+>>>strings.format (1.23, "%4.1f")
+ 1.2
+\end{lstlisting}
+
+
+\colorbox{blue!10}{\bf val (value):} This method will convert an integer or float into a string,
+\begin{lstlisting}
+>>>strings.val (2.356)
+2.356
+\end{lstlisting}
+
+
+\colorbox{blue!10}{\bf str (str):} This method will convert a string into an integer or float depending on the string.
+
+\begin{lstlisting}
+>>>strings.str ("0.23")
+0.23
+\end{lstlisting}
+
+
+\subsection*{String Object Methods}
+
+
+\colorbox{blue!10}{\bf left (n):} This method returns the $n$ left-most characters of the string.
+
+\begin{lstlisting}
+>>"12345".left (3)
+123
+\end{lstlisting}
+
+
+\colorbox{blue!10}{\bf right (n):} This method returns the $n$ right-most characters of the string.
+
+\begin{lstlisting}
+>>"12345".right (3)
+345
+\end{lstlisting}
+
+
+\colorbox{blue!10}{\bf mid (n, length):} This method returns a string of specified length, length, and starting point, $n$ from the given string. Note that $n$ indexes from zero.
+
+\begin{lstlisting}
+>>"123456789".mid (3, 5)
+45678
+\end{lstlisting}
+
+
+\colorbox{blue!10}{\bf len ():} This method returns a string of specified length, length, and starting point, $n$ from the given string. Note that $n$ indexes from zero.
+
+\begin{lstlisting}
+>>"123456789".len ()
+9
+\end{lstlisting}
+
+
+\colorbox{blue!10}{\bf trim ():} This method returns a string where any spaces on the left or right of the string have been removed.
+
+\begin{lstlisting}
+>>" 123456789 6  ".trim ()
+123456789 6
+\end{lstlisting}
+
+
+\colorbox{blue!10}{\bf toUpper ():}  This method returns a string where any lowercase characters have been made uppercase.
+
+\begin{lstlisting}
+>>"aBcD".toUpper ()
+ABCD
+\end{lstlisting}
+%
+
+\colorbox{blue!10}{\bf toLower ():} This method returns a string where any uppercase characters have been made lowercase case.
+
+\begin{lstlisting}
+>>"aBcD".toLower ()
+abcd
+\end{lstlisting}
+
+
+\colorbox{blue!10}{\bf var.find (substr):} This method finds a substring in string. It returns -1 if it fails or the indexth position if it succeeds. Note indexing starts at zero.
+
+\begin{lstlisting}
+>>"ABCDEFG".find ("CD")
+2
+\end{lstlisting}
+
+
+\colorbox{blue!10}{\bf var.split (character):} This method will splits the string argument at a given character into a list of strings. Note the split character is not included in the split strings.
+
+\begin{lstlisting}
+>>>"AB CD DE".split (" ")
+["AB","CD","DE"]
+\end{lstlisting}
+
+
+\section{Arrays Module and Array Object Methods}
+
+
+
+\section{Math Library: math}
+
+The math module is called {\tt math}. If you type {\tt math} at the console you'll get:
+
+\begin{lstlisting}
+>>math
+Module: math Math Module
+\end{lstlisting}
+
+Using {\tt dir()} we can see the current set of supported strings methods:
+
+\begin{lstlisting}
+["min","e","cos","dir","toRadians","tan","round","exp","toDegrees","abs",
+"ceil","atan","sin","log","max","pi","ln","asin","sqrt","acos","floor"]
+\end{lstlisting}
+
+Some of these should be self-explanatory such as {\tt sqrt} for computing the square root, and {\tt sin, cos} and {\tt tan} for computing the elementary trigonometric functions (arguments should be in radians). Akmost all of them appear with the same name in other programming languages
+
+The {\tt acos, asin} and {\tt atan} are the inverse trigonometric functions.
+
+{\tt toDegree} and {\tt toRadians} will convert radians and degrees to degrees and radians respectively.
+
+\begin{lstlisting}
+>>math.toDegrees (math.pi/2)
+90
+>>math.toRadians (180)
+3.14159265358979
+\end{lstlisting}
+
+{\tt log} computes the logarithm to the based 10 and {\tt ln} the log to the base $e$. {\tt exp} will compute the exponential $e^x$.
+
+The two constants {\tt pi} and {\tt e} return $\pi$ and Napier's constant, $e$ respectively.
+
+
+{\tt min} will return the minimum of two numbers and {\tt max} the maximum of two numbers.
+
+\begin{lstlisting}
+>>math.min (4, 2)
+2
+>>math.max (7, 3.4)
+7
+\end{lstlisting}
+
+{\tt abs} will return the absolute value.
+
+
+\begin{lstlisting}
+>>math.abs (-5.6)
+5.6
+\end{lstlisting}
+
+{\tt round} will returns the value rounded to the nearest integer number.
+
+\begin{lstlisting}
+>>math.round (-5.6)
+6
+>>math.round (-5.1)
+5
+>>math.round (5.6)
+6
+>>math.round (5.1)
+5
+\end{lstlisting}
+
+
+{\tt floor} will round down the nearest integer. That means $-3.4$ goes to $-3$ and $3.4$ goes to 2.
+
+\begin{lstlisting}
+>>math.floor (-5.1)
+6
+>>math.floor (5.9)
+5
+\end{lstlisting}
+
+{\tt ceil}, short for ceiling, will round up to the nearest integer. That means $-3.9$ goes to $-3$ and $3.4$ goes to 3.
+
+\begin{lstlisting}
+>>math.ceil (-5.1)
+5
+>>math.ceil (5.9)
+6
+\end{lstlisting}
+
+
+\section{Random Module: random}
+
+The random module is called {\tt random} and provides access to random number generation. If you type {\tt random} at the console you'll get:
+
+\begin{lstlisting}
+>>random
+Module: random Random Module
+\end{lstlisting}
+
+Use {\tt dir()} we can see the current set of supported strings methods:
+
+\begin{lstlisting}
+["randint","gauss","seed","dir","random"]
+\end{lstlisting}
+
+\colorbox{blue!10}{\bf random ():} Returns a pseudo-random floating point number between $0$ and $1$ (but not including 1). In this version the random number generator uses the Delphi random function which itself uses a simple linear congruential generator, that is a recursive equation of the form: $ X_{x+1} = (a X_n + c) \mod m$. According to Wikipedia (\url{https://en.wikipedia.org/wiki/Linear_congruential_generator}), Delphi {\tt random} uses a modulus, $m$ of $2^{23}$, a multiplier $a$ of $134775813$ and an increment $c$ of 1.
+
+\begin{lstlisting}
+>>random.random ()
+0.49627447151579
+\end{lstlisting}
+
+
+\colorbox{blue!10}{\bf randint (number):} Returns an integer pseudo-random number between $0$ and $number - 1$
+
+\begin{lstlisting}
+>>random.randint (5)
+2
+\end{lstlisting}
+
+
+\colorbox{blue!10}{\bf gauss (mean, stdev):} This method returns a pseudo-random number drawn from a normal distribution with mean $mean$ and standard deviation, $stdev$.
+
+\begin{lstlisting}
+>>random.gauss (1, 0.4)
+0.532361312210798
+\end{lstlisting}
+
+
+\colorbox{blue!10}{\bf seed (number):} Use this method to set the seed for the random number generator. This allows stochastic studies to be erectly repeatable.  A convenient `random' seed can be provided by {\tt time.getTickCount()}.
+\begin{lstlisting}
+>>random.randint (5)
+2
+\end{lstlisting}
+
+
+%\section{Useful Reading}
+%
+%\subsection{Introductory Books}
+%
+
+\begin{center}
+\pgfornament[width = 8cm, color = cardinal]{83}
+\end{center} 

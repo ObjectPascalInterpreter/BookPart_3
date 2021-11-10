@@ -1,0 +1,386 @@
+{\bfseries\slshape\sffamily\color{ChapterTitleColor} \chapter{Array Support}} \label{chap:arrys}
+
+\section{Introduction}
+
+In most programming languages, the word array usually refers to a data structure that stores identically sized elements in a sequential and continuous block of memory. Lists on the other hand are used to stored non-identically sized elements that might be located anywhere in memory. Arrays are therefore referred to as homogenous collections whereas lists are heterogeneous collections. The advantage of arrays is that they can be used to process information very efficiently. Arrays are often used to store numerical data which require efficient numerical processing. The simplest array is a one dimensional collection of numbers, such as:
+
+\begin{lstlisting}
+[1.3, 5.6, 7.8, 4.5, 2.3, 1.2]
+\end{lstlisting}
+
+This array has six elements. Since the data in an array is guaranteed to be laid out sequentially in memory, accessing individual elements can be efficiently done by using indexing to the appropriate element. Object Pascal has a variety of ways for declaring arrays. For example an array with a fixed number of elements (a static array) can be declared using:
+
+\begin{lstlisting}
+TMyArray = array[1..100] of double;
+\end{lstlisting}
+
+It is also possible to declare so-called dynamic arrays which are allocated a size at runtime, and makes them more flexible:
+
+\begin{lstlisting}
+var
+   myArray : array of double;
+
+setLength (myArray, 100);
+\end{lstlisting}
+
+Arrays need not be only one-dimensional but in principle can be any dimension. A common array structure used in mathematics is the two-dimensional matrix:
+
+$$
+\setlength{\delimitershortfall}{0pt}
+\begin{bmatrix}
+3.4 & 6.7 &  8.9\\
+1.2 & 4.5 & 3.1 \\
+5.6 & 7.7 & 2.5
+\end{bmatrix}
+$$
+
+Such matrices have very widespread applications in science, engineering, statistics and machine learning. Matrices can easily represented using 2D arrays.
+
+\subsection*{Rhodus Array Syntax}
+
+We've already encountered the basic syntax used with arrays. Rhodus follows to some degree the model used by Python. In particular we repurpose the list syntax to define literal arrays and use a global method, {\tt array} to convert lists into the array data model. For example:
+
+\begin{lstlisting}
+>> a = array([[1,2],[3,4]])
+>> println (a)
+[ 1, 4;
+  9, 16]
+>> type (a)
+array
+\end{lstlisting}
+
+The {\tt array} method also can be used to specify the size of a new array, for example:
+
+\begin{lstlisting}
+>> a = array(3,4)
+>> b = array(5,5,5)
+\end{lstlisting}
+
+The first array, {\tt a} is a 3 by 4 array while the second array, {\tt b}, is a three-dimensional array of size 5 in each dimension. By default all elements in a new array are initialized to zero.
+For now arrays will only be able to contain floating point values.
+
+Like lists, arrays can be in indexed using the usual indexing syntax, for example:
+
+\begin{lstlisting}
+>> a = array(5,5,5)
+>> a[1,1,2]
+0.0
+>> a[1,1,2] = 3.14
+>> a[1,1,2]
+3.14
+\end{lstlisting}
+
+Like lists, indexing starts at zero.
+
+Rhodus has two variants of arrays. The first is an n-dimensional array and the second, derived from arrays, is the 2-dimensional matrix. The two types only differ is what operations can be applied to them. These operations are governed by two built-in libraries, {\tt arrays} and {\tt mat}. Arithmetic operations on arrays are element-wise whereas the operations provided by the matrix library correspond to the classic matrix operations found in linear algebra. For example, multiplying two arrays together is done by multiplying each corresponding element to form a new array of products, for example:
+
+\begin{lstlisting}
+>> import arrays
+>> a = array([[1,2],[3,4]])
+>> println (arrays.mult (a, a))
+[ 1, 4;
+  9, 16]
+\end{lstlisting}
+
+In contrast, multiplication using the {\tt mat} library yields a different result:
+
+\begin{lstlisting}
+>> import mat
+>> a = array([[1,2],[3,4]])
+>> println (mat.mult (a, a))
+[   7, 10;
+   15  22]
+\end{lstlisting}
+
+We will cover more of this topic shortly.
+
+\section{Implementing Arrays}
+
+How do we implement array support? In considering this question, the main point to keep in mind is that access to arrays are meant to be fast and operations on arrays should be as efficient as possible. This requirement will dictate how an array, and in particular a multidimensional arrays is stored. To keep thing simple, let's first consider arrays up to two dimensions. Since we don't know how big arrays will be we need to use dynamic arrays at the Object Pascal level. Secondly, our arrays will be objects that can be garbage collected, this means an array must be derived from the same parent as strings and lists. We begin with a simple array object class:
+
+\begin{lstlisting}
+TArrayObject = class (TRhodusObject)
+end;
+\end{lstlisting}
+
+The parent {\tt TRhodusObject} class includes a number of fields:
+
+\begin{lstlisting}
+   blockType : TBlockType;
+   objectType : TSymbolElementType;
+   methodList : TMethodList;
+\end{lstlisting}
+
+The {\tt blockType} is for the garbage collector to know what to do with the object during garbage collection. The {\tt objectType} just tells us what kind of object it is, string, list, user function or array. Finally, the {\tt methodlist} is a new field for version 3 of Rhodus and points to a list of methods that can be applied to the object. This is what lets us do things like:
+
+\begin{lstlisting}
+a = "String"
+l = a.len()
+
+println ("How long am I".len())
+\end{lstlisting}
+
+The first thing to add to the {\tt TArrayObject} is the field that will hold the array data. For now, we will only support arrays that hold floating point numbers.
+
+\begin{lstlisting}
+T1DArray = array of double;
+TArrayObject = class (TRhodusObject)
+   data : T1DArray;
+end;
+\end{lstlisting}
+
+You may be thinking, ok this will store a 1D array, but what about a 2D array? The best way to handle n-dimensional arrays is to map then into a 1-dimensional array. If we didn't do this we'd have to have special cases for all the possible dimensions, e.g {\tt T1DArray, T2DArray, T3DArray}, etc. I don't think we want to do that.
+
+Figure~\ref{fig:rowMajor} shows how we can map a one-dimensional array to an dimensions. All we do is slice the 1D-array into segments represents the rows, in this case a 2D-array. We can slice at many times as we like to model n-dimensional arrays.
+
+\begin{figure}[htpb]
+\centering
+\includegraphics[scale=0.55]{rowMajor.pdf}
+\caption{Using a 1D-array to represent a 2D-array.}
+\label{fig:rowMajor}
+\end{figure}
+
+With a bit of simple arithmetic we can convert any 2D-index, such as $(i, j)$, into a single index along the 1D-array. To do this we must know the intended column width of the 2D-array. In the example the column width is 4. By convention, in a 2D index such as $(i, j)$, the $i$ represents the row number and $j$ the column number. Let's say we had a coordinate of $(2,3)$, that represents the second row and third column. One thing we have to be careful of is what is the index of the first element in the array? As with lists, we will always index from zero. this means that the coordinate $(2,3)$ actually means the 3rd row and 4th column. Given a coordinate $(i,j)$, the index along the 1D-array that corresponds to this coordinate will be:
+%
+$$ \mbox{index} = j + (i \times \mbox{width}) $$
+%
+If we plug $(2,3)$ into this formula we get: $3 + 2 \cdot 4 = 11$. Hence we would pull the value out of index 11 in the 1D-array. If you look at Figure~\ref{fig:rowMajor} you can confirm this by eye. We can rewrite the above formula is a more general way:
+%
+$$ \mbox{index} = i \cdot d_j + j $$
+%
+where $d_j$ is the width or dimension (number of elements) in the $j$th direction. This approach can be extended to any number of dimensions. For example, for a 3D array, with coordinate, $i, j, k$, the formula for computing the index in a linear array can be extended to give:
+%
+$$ \mbox{index} = i \cdot d_j \cdot d_k + j \cdot d_k + k $$
+%
+where $d_j$ is the dimension of the $j$th coordinate, and $d_k$ the dimension of the $k$th coordinate. By induction the formula for a 4D array with correlates $i, j, k, l$, would be:
+%
+$$ \mbox{index} = i \cdot d_j \cdot d_k \cdot d_l + j \cdot d_k \cdot d_l + k \cdot d_l + l $$
+%
+This can be turned into a function for computing the index of any array with any dimension as follows\footnote{Modified from Heffernan's answer in \url{https://stackoverflow.com/questions/28569850/}}:
+%
+
+\begin{lstlisting}
+// Given the dimension of the array in the array dimensions
+// and the coordinates in the array index, this routine
+// will return the index assuming the array is stored
+// in a 1D block of memory.
+function getIndex (const dimensions, index: array of Integer): integer;
+var i: Integer;
+begin
+  result := idx[0];
+  for i := 1 to high(dimensions) do
+    result := result*dimensions[i] + index[i];
+end;
+\end{lstlisting}
+
+For example, if we have a 6 dimensional array of dimensions $5,5,5,5,5,5$, which is 15,625 elements, the index at coordinate $1,2,3,3,0,4$ will be position 4829 in the 1D storage array.
+
+We can create two helper methods for getting and setting a value in an n-dimensional array. The methods will take a dynamic array containing the indices to use.
+
+\begin{lstlisting}
+function TArrayObject.getValue (idx : array of integer) : double;
+var index : integer;
+begin
+  for var i := 0 to length (dim) - 1 do
+      if idx[i] >= dim[i] then
+         raise ERuntimeException.Create(outOfRangeMsg);
+
+  index := getIndex (dim, idx);
+  result := data[index];
+end;
+\end{lstlisting}
+
+For example in the {\tt getValue} method we can use the new open array syntax introduced in XE7.
+
+\begin{lstlisting}
+  value := getValue ([1,3,2])
+\end{lstlisting}
+
+Likewise we have a {\tt setValue} method that also takes an dynamic array argument for specifying the indices.
+
+\begin{lstlisting}
+procedure TArrayObject.setValue (idx : array of integer; value : double);
+var index : integer;
+    i : integer;
+begin
+  for i := 0 to length (dim) - 1 do
+      if idx[i] >= dim[i] then
+         raise ERuntimeException.Create(outOfRangeMsg);
+
+  index := getIndex (dim, idx);
+  data[index] := value;
+end;
+\end{lstlisting}
+
+For example:
+
+\begin{lstlisting}
+  setValue ([6,2,7], value)
+\end{lstlisting}
+
+In both methods we need to check for index out of bounds errors. The bounds will be stored in a object variable called dim. We can expand the {\tt TArrayObject} to:
+
+\begin{lstlisting}
+  TArrayObject = class (TRhodusObject)
+    private
+    public
+     data : T1DArray;
+     dim  : TIndexArray;  // Of type array of integer;
+
+     function     getValue (idx : array of integer) : double;
+     procedure    setValue (idx : array of integer; value : double);
+
+     function     clone : TArrayObject;
+
+     constructor  Create; overload;
+     constructor  Create (dim : TIndexArray); overload;
+     destructor   Destroy; override;
+\end{lstlisting}
+
+We'll add a bunch of extra methods. One in particular is the ability to clone an array. This is implemented in the clone method:
+
+\begin{lstlisting}
+function TArrayObject.clone : TArrayObject;
+begin
+  result := TArrayObject.Create (dim);
+  result.data := copy (self.data);
+end;
+\end{lstlisting}
+
+There are also a bunch of other methods to make like easier, as well as some arithmetic functions such as {\tt add}, {\tt subtract}, and {\tt multiply}. These are all pair-wise operations.
+That is addition of two arrays is archived by summing up pair-wise values in each array.  For this work, both arrays must have the same dimensions. For a 2 by 2 array addition is defined as:
+
+$$
+\begin{bmatrix}
+  a_1 & a_2 \\
+  a_3 & a_4
+\end{bmatrix}
++
+\begin{bmatrix}
+  b_1 & b_2 \\
+  b_3 & b_4
+\end{bmatrix}
+=
+\begin{bmatrix}
+  a_1+b_1 & a_2+b_2 \\
+  a_3 + b_3 & a_4 + b_4
+\end{bmatrix}
+$$
+
+This idea can be extended to n-dimensional arrays. Subtraction is defined in a similar way except we take the difference between each pair. When we come to multiplication we are confronted with two common multiplication approaches. This includes the simple pair-wise multiplication and, arguably, the more common matrix multiplication. For arrays we will provide pair-wise multiplication. This will be specified using the usual multiply operator {\tt `*'}.
+
+For 2D-arrays, i.e matrices, we need a way to specify matrix multiplication. Python uses {\tt `@'}, so we might as well use that too. We'll have to update the lexical scanner, syntax analysis and AST constructions but that is simple to do. For example, let's compare pair-wise and matrix multiplication:
+
+\begin{lstlisting}
+>> a = array([[1,2],[3,4]])
+>> println (a*a)
+[[   1.0000,     4.0000]],
+[    9.0000,    16.0000]]
+>> println (a@a)
+[[   7.0000,    10.0000]],
+[   15.0000,    22.0000]]
+\end{lstlisting}
+
+Multiply arrays
+
+[[0]*4]*3
+[[0,0,0,0],[0,0,0,0],[0,0,0,0]]
+
+or
+
+\begin{lstlisting}
+>>println (a.sqr())
+\end{lstlisting}
+
+This squares each element in the array {\tt a}. $n$-dimensional arrays can be created using the {\tt array} method:
+
+
+There are at least two classes of operations we can apply to arrays, these include manipulating the contents of an array, for example extracting rows and columns, or adding rows and columns, and secondly carrying out arithmetic on arrays. Let's first focus on arithmetic operations.
+
+\section{Matrices}
+
+There isn't much to say about matrices other than they are strictly 2-dimensional arrays. There is nothing intrinsically different between an array and a matrix other than its dimensions. The key difference is that matrix operations are different from the equivalent array operations. This is particularly the case for multiplication which is dot-product based for matrices. This is handled by the {\tt mat} library which also offers other classical matrix operations such as computing the inverse and determinant.
+
+All operations on arrays can also be applied to matrices, but not vice versa, since matrices are strictly 2-dimensional.
+
+As mention in the last section, matrix multiplication comes in two forms, pair-wise and dot product. Pair-wise multiplication can be easily extended to arrays of any dimension. In Rhodus there are two ways to specify pair-wise multiplication, using the normal multiplication operator, {\tt *}:
+
+\begin{lstlisting}
+>> a = array([[1,2],[3,4]])
+>> b = array([[5,6],[7,8]])
+>> x = a*b
+>>println (x)
+[[   5.0000,    12.0000]],
+[   21.0000,    32.0000]]
+\end{lstlisting}
+
+Matrix multiplication, as defined in linear algebra, is the generated by taking the dot-product of corresponding rows and columns.  Unlike array multiplication, where the two arrays must be the same size, in matrix multiplication this need not be the case. Moreover, matrix multiplication generally applies to 2-dimensional matrices. When applying matrix multiplication, the number of columns of the first matrix must equal the number of rows in the second matrix. The outer rows and columns can be of any size. In Rhodus there are two ways to specify matrix multiplication, either using the {\tt mult} method from the matrix library or using he special matrix multiplication operator symbol {\tt @}|. For example:
+
+\begin{lstlisting}
+>> a = array([[1,2],[3,4]])
+>> b = array([[5,6],[7,8]])
+>> x = a@b
+>> x = mat.mult (a, b)
+>>println (x)
+[[  19.0000,    22.0000]],
+[   43.0000,    50.0000]]
+>>
+\end{lstlisting}
+
+Application
+
+[m1, m2]
+
+combine (m1, m2)
+
+[m1; m2]
+
+mat.appendRow ([m1, m2])
+mat.appendCol ([m1, m2])
+
+m1.appendRow (m2)
+m1.appendCol (m2)
+
+m1.hstack (m2)
+m1.vstack (m2)
+
+%
+%\section{Useful Reading}
+%
+%\subsection{Introductory Books}
+%
+%{\bf 1.} Ball, Thorsten. Writing A Compiler In Go. Thorsten Ball, 2018.
+%
+%{\bf 2.} Kernighan, Brian W.; Pike, Rob (1984). The Unix Programming Environment. Prentice-Hall. ISBN 0-13-937681-X.
+%
+%{\bf 3.} Nisan, Noam, and Shimon Schocken. The elements of computing systems: building a modern computer from first principles. MIT press, 2005.
+%
+%{\bf 4.} Parr, Terence. Language implementation patterns: create your own domain-specific and general programming languages. Pragmatic Bookshelf, 2009.
+%
+%\subsection{More Advanced Books}
+%
+%{\bf 1.} Jim Smith, Ravi Nair, Virtual Machines: Versatile Platforms for Systems and Processes, Morgan Kauffmann, June 2005
+%
+%{\bf 2.} Aho, Alfred V., Ravi Sethi, and Jeffrey D. Ullman. Compilers: Principles, Techniques and Tools (also known as The Red Dragon Book), 1986.
+%
+%\subsection{Source Code}
+%
+%{\bf 1.} Mak, Ronald. Writing compilers and interpreters: an applied approach/by Ronald Mark. 1991
+%
+%Note, this is the first edition, 1991. The code is in C, which I found to be understandable. The later editions that use C++ are not as clear. The issue I found is that the object orientated approach that's used tends to obscure the design principles of the interpreter and requires much study to decipher, The C version is much more straightforward.
+%
+%{\bf 2.} Wren: \url{https://github.com/wren-lang/wren}.\index{wren}
+%
+%Of the open source interpreters on GitHub, I found this to be the easiest to read. It's written by Bob Nystrom in C, the same person who is writing the web book: Crafting Interpreters \url{https://craftinginterpreters.com/}.
+%
+%{\bf 3.} Gravity: \index{Gravity} Another open source interpreter worth looking at is Gravity (\url{https://github.com/marcobambini/gravity}). Gravity, like Wren, is also written in C.
+%
+%{\bf 4.}  If you prefer Go,\index{Go} then the source code to look at is the interpreter written by Thorsten Ball (see book reference above).
+%
+%There are umpteen BASIC interpreters\index{BASIC} and other languages that can be studied.
+%
+%\bigskip\medskip
+
+\begin{center}
+\pgfornament[width = 8cm, color = cardinal]{83}
+\end{center} 

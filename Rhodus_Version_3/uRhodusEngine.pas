@@ -47,6 +47,7 @@ type
       printCallBack : TVMCaptureStringCallBack;
       printLnCallBack : TVMCaptureStringCallBack;
       setColorCallBack : TVMCaptureStringCallBack;
+      readStringCallBack : TVMReadStringCallBack;
       function memAllocatedByVm : integer;
     public
       class var bolShowTree : boolean;
@@ -54,6 +55,7 @@ type
 
       procedure setPrintCallBack (printcallBack : TVMCaptureStringCallBack);
       procedure setPrintLnCallBack (printLnCallBack : TVMCaptureStringCallBack);
+      procedure setReadStringCallBack (readStringCallBack : TVMReadStringCallBack);
       procedure setSetColorCallBack (setColorCallBack : TVMCaptureStringCallBack);
 
       function  getVM : TVM;
@@ -309,10 +311,18 @@ begin
   self.printCallBack := printCallBack;
 end;
 
+
 procedure TRhodus.setPrintLnCallBack (printLnCallBack : TVMCaptureStringCallBack);
 begin
   self.printLnCallBack := printLnCallBack;
 end;
+
+
+procedure TRhodus.setReadStringCallBack (readStringCallBack : TVMReadStringCallBack);
+begin
+  self.readStringCallBack := readStringCallBack;
+end;
+
 
 procedure TRhodus.setSetColorCallBack (setColorCallBack : TVMCaptureStringCallBack);
 begin
@@ -334,6 +344,7 @@ begin
         vm.registerPrintCallBack (printcallBack);
         vm.registerPrintlnCallBack (printlnCallBack);
         vm.registerSetColorcallBack (setColorCallBack);
+        vm.registerReadStringCallBack (readStringCallBack);
 
         try
           vm.runModule (module);
@@ -394,6 +405,7 @@ begin
         vm.registerPrintCallBack (printCallBack); //printcallBack);
         vm.registerPrintlnCallBack (printLnCallBack); //printlnCallBack);
         vm.registerSetColorcallBack (setColorCallBack);
+        vm.registerReadStringCallBack (readStringCallBack);
 
         try
           vm.runModule (mainModule);

@@ -31,8 +31,6 @@ type
 var
   frmMain: TfrmMain;
 
-//function rhodus_initialize (var config : TRhodusConfig) : THandle; stdcall; external 'librhodus.dll';
-
 implementation
 
 {$R *.dfm}
@@ -68,6 +66,12 @@ begin
 end;
 
 
+function rhodus_readString (const prompt : AnsiString) : AnsiString;
+begin
+  result := InputBox('Read String:', prompt, '');
+end;
+
+
 procedure TfrmMain.btnLoadClick(Sender: TObject);
 begin
   if OpenDialog.Execute then
@@ -100,6 +104,7 @@ begin
 
   config.printPtr := rhodus_print;
   config.printlnPtr := rhodus_println;
+  config.readStringPtr := rhodus_readString;
 
   rhodus := rhodus_initialize (config);
   lblVersion.caption := 'Running Version: ' + AnsiString (rhodus_getSettings(rhodus).versionStr);

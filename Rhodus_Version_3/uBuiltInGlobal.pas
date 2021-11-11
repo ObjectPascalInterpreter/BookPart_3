@@ -40,6 +40,7 @@ Uses Math,
 type
   TBuiltInGlobal = class (TModuleLib)
      private
+        //readCallback : TVMReadStringCallBack;
      public
        procedure createArray (vm : TObject);
        procedure myInt (vm : TObject);
@@ -73,7 +74,6 @@ type
   end;
 
 
-
 var  builtInGlobal : TBuiltInGlobal;
 
 // -------------------------------------------------------------------------------------
@@ -83,8 +83,8 @@ begin
   module.addMethod (builtInGlobal.createArray,   -1, 'array',         'Create an array: x = array (3, 4)');
   module.addMethod (builtInGlobal.myInt,          1, 'int',           'Convert float to integer: int (3.4)');
   module.addMethod (builtInGlobal.myFloat,        1, 'float',         'Convert and integer to a float: float (3)');
-  module.addMethod (builtInGlobal.readNumber,     0, 'readNumber',    'Read an integer from the console');
-  module.addMethod (builtInGlobal.readString,     0, 'readString',    'Rread a string from the console');
+  module.addMethod (builtInGlobal.readNumber,    -1, 'readNumber',    'Read an integer from the input channel: : str = readNumber ("Enter answer: ")');
+  module.addMethod (builtInGlobal.readString,    -1, 'readString',    'Read a string from the input channel: str = readString ("Enter name")');
   module.addMethod (builtInGlobal.listSymbols,    1, 'symbols',       'Returns list of symbols in the specified module: symbols(math). Use main() as the argument to get the symbols for the main module');
   module.addMethod (builtInGlobal.getType,        1, 'type',          'Returns the type of a given variable: type (x)');
   module.addMethod (builtInGlobal.getAttr,        2, 'getAttr',       'Returns the value attached to the symbol attribute: getAttr (mylib, "x")');
@@ -481,8 +481,19 @@ end;
 procedure TBuiltInGlobal.readString (vm : TObject);
 var s : string;
     sObj : TStringObject;
+    prompt : AnsiString;
+    nArgs : integer;
 begin
-  readln(s);
+  nArgs := TVM (vm).popInteger;
+  case nArgs of
+    0 : prompt := '';
+    1 : prompt := TVM (vm).popString ().value;
+  else
+    raise ERuntimeException.Create('readString takes a single string argument or none at all');
+  end;
+
+  if Assigned (TVM (vm).readStringCallbackPtr) then
+     s := TVM (vm).readStringCallbackPtr(prompt);
   sobj := TStringObject.create (s);
   TVM (vm).push (sObj);
 end;
@@ -492,12 +503,26 @@ procedure TBuiltInGlobal.readNumber (vm : TObject);
 var s : string;
     iValue : integer;
     dValue : double;
+    prompt : AnsiString;
+    nArgs : integer;
 begin
-  readln(s);
+  nArgs := TVM (vm).popInteger;
+  case nArgs of
+    0 : prompt := '';
+    1 : prompt := TVM (vm).popString ().value;
+  else
+    raise ERuntimeException.Create('readString takes a single string argument or none at all');
+  end;
+
+  if Assigned (TVM (vm).readStringCallbackPtr) then
+     s := TVM (vm).readStringCallbackPtr(prompt);
+
   while (not TryStrToInt(s, iValue)) and (not TryStrToFloat(s, dValue)) do
       begin
-      writeln ('Number error: ' + s + ' is not a number, try again');
-      readln (s);
+      if assigned (TVM (vm).printlnCallbackPtr) then
+         TVM (vm).printlnCallbackPtr ('Number error: ' + s + ' is not a number, try again');
+      if Assigned (TVM (vm).readStringCallbackPtr) then
+         s := TVM (vm).readStringCallbackPtr(prompt);
       end;
   if TryStrToInt(s, iValue) then
      TVM (vm).push (iValue)

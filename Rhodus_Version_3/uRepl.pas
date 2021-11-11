@@ -44,6 +44,13 @@ begin
 end;
 
 
+function myRead (const prompt : AnsiString) : AnsiString;
+begin
+  write (prompt);
+  readln (result);
+end;
+
+
 procedure setColor (acolor : AnsiString);
 begin
   currentColor := acolor;
@@ -214,7 +221,9 @@ begin
 
   rhodus.setPrintCallBack(print);
   rhodus.setPrintLnCallBack(println);
+  rhodus.setReadStringCallBack(myRead);
   rhodus.setSetColorCallBack (setColor);
+
 
   try
     displayWelcome;

@@ -31,6 +31,7 @@ begin
 
     rhodus.setPrintCallBack(config.printPtr);
     rhodus.setPrintLnCallBack(config.printlnPtr);
+    rhodus.setReadStringCallBack(config.readStringPtr);
   except
     on e: Exception do
       begin

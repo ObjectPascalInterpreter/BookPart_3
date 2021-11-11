@@ -38,12 +38,11 @@ type
 
   TFrameStack = array of TFrame;
 
-  // Debugging callbacks
   TVMCaptureStringCallBack = procedure (astr : AnsiString);
+  TVMReadStringCallBack  = function (const prompt : AnsiString) : AnsiString;
 
-  TVMCallBack = procedure(st: PMachineStackRecord) of object;
-  TVMPrintCallBack = function : AnsiString;
-  TVMPrintlnCallBack = function : AnsiString;
+  TVMCallBack         = procedure(st: PMachineStackRecord) of object;
+  TVMPrintCallBack    = procedure (astr : AnsiString);
   TVMSetColorCallBack = function (st: PMachineStackRecord) : AnsiString;
 
   // Use to preseve the state of the virtual machine between calls.
@@ -159,9 +158,10 @@ type
     procedure  collectGarbage;
     function   getGarbageSize : integer;
   public
-    printCallbackPtr: TVMCaptureStringCallBack;
-    printlnCallbackPtr: TVMCaptureStringCallBack;
+    printCallbackPtr    : TVMPrintCallBack;
+    printlnCallbackPtr  : TVMPrintCallBack;
     setColorCallBackPtr : TVMCaptureStringCallBack;
+    readStringCallbackPtr   : TVMReadStringCallBack;
 
     recursionLimit : integer;
 
@@ -171,6 +171,7 @@ type
     procedure   registerPrintCallBack(fcn: TVMCaptureStringCallBack);
     procedure   registerPrintlnCallBack(fcn: TVMCaptureStringCallBack);
     procedure   registerSetColorCallBack (fcn : TVMCaptureStringCallBack);
+    procedure   registerReadStringCallBack (fcn : TVMReadStringCallBack);
 
     procedure   push(value: PMachineStackRecord); overload;
     procedure   push(iValue: integer); overload; inline;
@@ -278,6 +279,12 @@ end;
 procedure TVM.registerPrintlnCallBack(fcn: TVMCaptureStringCallBack);
 begin
   printlnCallbackPtr := fcn;
+end;
+
+
+procedure TVM.registerReadStringCallBack (fcn : TVMReadStringCallBack);
+begin
+  readStringCallbackPtr := fcn;
 end;
 
 

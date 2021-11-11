@@ -549,7 +549,7 @@ begin
       if x.fValue.isbuiltInFunction then
          TVM (vm).push (TStringObject.create (x.fValue.name + ' is a builtin function'))
       else
-         TVM (vm).push (TStringObject.create (dissassemble (x.fValue.moduleRef, x.fValue.funccode)));
+         TVM (vm).push (TStringObject.create (dissassemble (x.fValue.moduleRef, x.fValue.codeBlock)));
       end;
   else
      raise ERuntimeException.Create('dis argument can only be a module or a function');

@@ -1870,7 +1870,7 @@ begin
   // This is to make sure the user function knows what module its in.
   oldModule := module;
   module := functionObject.moduleRef;
-  run(functionObject.funcCode, module.symbolTable);
+  run(functionObject.codeBlock, module.symbolTable);
 
   // deal with the special case where a user has passed aliteral list whch
   // is not owned by anyone. Such arguments come in as btTemporary inorder

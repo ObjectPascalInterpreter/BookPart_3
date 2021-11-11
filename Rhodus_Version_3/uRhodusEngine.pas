@@ -298,7 +298,7 @@ begin
          if mainModule.symbolTable.Items[key].symbolType = symUserFunc then
             begin
             if not mainModule.symbolTable.items[key].fValue.isbuiltInFunction then
-               printLnCallBack (dissassemble(mainModule, mainModule.symbolTable.items[key].fValue.funcCode));
+               printLnCallBack (dissassemble(mainModule, mainModule.symbolTable.items[key].fValue.codeBlock));
             end;
   printLnCallBack (dissassemble(mainModule, mainModule.moduleProgram));
 end;
@@ -424,7 +424,7 @@ begin
                         if mainModule.symbolTable.items[key].fValue.isbuiltInFunction then
                            printLnCallBack ('No code for builtin function')
                         else
-                           printLnCallBack (dissassemble(mainModule, mainModule.symbolTable.items[key].fValue.funcCode));
+                           printLnCallBack (dissassemble(mainModule, mainModule.symbolTable.items[key].fValue.codeBlock));
                         end;
               printLnCallBack (dissassemble(mainModule, mainModule.moduleProgram));
              end;

@@ -492,7 +492,7 @@ begin
     else
        currentModule.symbolTable.addSymbol(currentUserFunction, false);
 
-    code := currentUserFunction.funcCode;
+    code := currentUserFunction.codeBlock;
 
     globalStmt := nil;
     compilingFunction := True;

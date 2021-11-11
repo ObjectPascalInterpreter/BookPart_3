@@ -400,6 +400,8 @@ begin
     case tokenVector.token of
       tMinus:
         inc(unaryMinus_count);
+    else
+        raise ESyntaxException.Create ('Too many plus symbols',  tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber)
     end;
     nextToken;
   end;

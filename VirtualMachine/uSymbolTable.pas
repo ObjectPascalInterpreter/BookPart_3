@@ -53,11 +53,12 @@ type
        name : string;
        nArgs : integer;
        localSymbolTable : TLocalSymbolTable;  // The local symbol table is accessed by index not name
-       moduleName : string;   // Not actually used at the moment
+       moduleName : string;   // Not actually used at the moment, probabhyl will be removed
        moduleRef : TModule;
        globalVariableList : TStringList;
-       funcCode : TProgram;
+       codeBlock : TProgram;
        helpStr : string;
+
        isbuiltInFunction : boolean;
        builtInPtr : TxBuiltInFunction;
 
@@ -300,15 +301,15 @@ begin
      end;
   
   ls := TListObject.Create (0);
-  for i := 0 to length (f.funcCode.code) - 1 do
+  for i := 0 to length (f.codeBlock.code) - 1 do
       begin
       tmpls := TListObject.Create(0);
-      tmpls.append (f.funcCode.code[i].opCode);
-      tmpls.append (f.funcCode.code[i].index);
-      if f.funcCode.code[i].moduleName <> '' then  
-         tmpls.append (TStringObject.Create (f.funcCode.code[i].moduleName));
-      if f.funcCode.code[i].symbolName <> '' then  
-         tmpls.append (TStringObject.Create (f.funcCode.code[i].symbolName));
+      tmpls.append (f.codeBlock.code[i].opCode);
+      tmpls.append (f.codeBlock.code[i].index);
+      if f.codeBlock.code[i].moduleName <> '' then
+         tmpls.append (TStringObject.Create (f.codeBlock.code[i].moduleName));
+      if f.codeBlock.code[i].symbolName <> '' then
+         tmpls.append (TStringObject.Create (f.codeBlock.code[i].symbolName));
       
       ls.append(tmpls);
       end;
@@ -344,7 +345,7 @@ begin
   Create;
   nArgs := 0;
   name := functionName;
-  funcCode := TProgram.Create;
+  codeBlock := TProgram.Create;
   localSymbolTable := TLocalSymbolTable.Create;
   globalVariableList := TStringList.Create;
   globalVariableList.Sorted := True;
@@ -369,7 +370,7 @@ end;
 
 destructor TUserFunction.Destroy;
 begin
-  funcCode.Free;
+  codeBlock.Free;
   localSymbolTable.Free;
   globalVariableList.Free;
   inherited;
@@ -397,7 +398,7 @@ begin
      result.localSymbolTable := self.localSymbolTable.clone;
      result.globalVariableList := TStringList.Create;
      result.globalVariableList.Assign (self.globalVariableList);
-     result.funcCode := self.funcCode.Clone;
+     result.codeBlock := self.codeBlock.Clone;
    end;
    // Don't forget to add the clone to the heap memory pool
    memoryList.addNode (result);
@@ -408,10 +409,10 @@ end;
 function TUserFunction.getSize : integer;
 begin
    result := self.InstanceSize;
-   if self.funcCode <> nil then
+   if self.codeBlock <> nil then
       begin
-      result := result + self.funcCode.InstanceSize;
-      result := result + length (self.funcCode.code);
+      result := result + self.codeBlock.InstanceSize;
+      result := result + length (self.codeBlock.code);
       end;
    if self.localSymbolTable <> nil then
       result := result + self.localSymbolTable.InstanceSize;
@@ -445,9 +446,7 @@ begin
     symModule      : mValue.Free;
     symUserFunc    : begin
                      if fValue.isbuiltInFunction then
-                        begin
-                        fValue.blockType := btGarbage;
-                        end
+                        fValue.blockType := btGarbage
                      else
                         fValue.blockType := btGarbage;
                      end

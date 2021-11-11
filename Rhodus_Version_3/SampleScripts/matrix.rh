@@ -1,8 +1,9 @@
 
 import arrays
+import mat
 
-a1 = arrays.rndu (4,4)
-a2 = arrays.rndu (4,4)
+a1 = arrays.rand ([4,4])
+a2 = arrays.rand ([4,4])
 
 a3 = a1 - a2
 

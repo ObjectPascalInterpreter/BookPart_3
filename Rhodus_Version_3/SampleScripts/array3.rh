@@ -1,8 +1,8 @@
 
-import matrix
+import mat
 
 a = array ([[1,2],[3,4]])
-x = matrix.inv (a)
+x = mat.inv (a)
 if x == array([[-2,1],[1.5,-0.5]]) then
    println ("Pass")
 else
@@ -10,7 +10,7 @@ else
 end
 
 a = array ([[3,2,-1],[1,6,3], [2,-4,0]])
-x = matrix.inv (a)
+x = mat.inv (a)
 
 if x == array ([[0.1875, 0.0625, 0.1875],
                 [0.0938, 0.0313, -0.1563],

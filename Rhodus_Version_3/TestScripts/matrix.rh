@@ -1,13 +1,13 @@
 
-import matrix
+import mat
 
 //a = array([1,2])
 //b = array ([[1,2],[3,4]])
 
 // Vec * Mat
-//println (matrix.mult (a,b))
+//println (mat.mult (a,b))
 // Vec * Mat
-//println (matrix.mult (b,a))
+//println (mat.mult (b,a))
 
 //a = array([5, 2])
 //b = array([[45, 67],

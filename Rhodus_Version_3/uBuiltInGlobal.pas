@@ -66,14 +66,6 @@ type
        destructor  Destroy; override;
   end;
 
-  TArrayConstructor = class (TObject)
-       elementCount : integer;
-       function  convertToStr (alist : TListObject; arrayObj : TArrayObject) : string;
-       function  getDimensionsFromList (alist : TListObject; arrayObj : TArrayObject) : TIndexArray;
-       function  countElements (alist : TListObject) : integer;
-  end;
-
-
 var  builtInGlobal : TBuiltInGlobal;
 
 // -------------------------------------------------------------------------------------
@@ -220,156 +212,69 @@ begin
 end;
 
 
-function determineDimensions (argument : string) : TIndexarray;
-var i : integer;
-    depth : integer;
-    dimensions : integer;
-    upOrdown : integer;
-    c : Char;
-begin
-  setLength (result, 0);
-  upOrDown := 0;
-  dimensions := 0;
-  depth := 0;
-  for i := 0 to length (argument) - 1 do
-      begin
-      upOrDown := 0;
-      c := argument[i+1];
-      if (c = '[') then
-         begin
-         upOrDown := 1;  // determine if we're going down in depth
-         end
-      else
-         begin
-         if (c = ']')  then
-            upOrDown := -1;
-         end;
-
-      depth := depth + upOrDown;
-
-      if upOrDown = 1 then
-         begin
-         if depth > dimensions then
-            begin
-            dimensions := depth;
-            setLength (result, dimensions);
-            end;
-         result[depth - 1] := 0;
-         end;
-
-      if not ((c = '[') or (c = ']')) then
-         begin
-         if c = ',' then
-            begin
-            if result[depth-1] = 0 then
-               result[depth-1] := 2
-            else
-               result[depth-1] := result[depth-1] + 1;
-            end
-         else
-            begin
-            if result[depth-1] = 0 then
-               result[depth - 1] := 1;
-            end;
-         end;
-       end;
-end;
-
-
-function TArrayConstructor.countElements (alist : TListObject) : integer;
+function countElements (alist : TListObject) : integer;
 begin
   result := 0;
+
   for var i := 0 to alist.list.Count - 1 do
       if alist.list[i].itemType <> liList then
-         inc (result)
+         begin
+          inc (result);
+         end
       else
          result := result + countElements (alist.list[i].lValue);
 end;
 
 
-function TArrayConstructor.convertToStr (alist : TListObject; arrayObj : TArrayObject) : string;
+function getDimensions (alist : TListObject; count : integer) : TIndexArray;
+var firstdim : integer;
+    i, n, dimIndex : integer;
+    aitem : TListItem;
+begin
+  firstdim := alist.list.Count;
+  if firstdim = 0 then
+     begin
+     setLength (result, 0);
+     exit;
+     end;
+
+  if alist.list[0].itemType <> lilist  then
+     begin
+     setLength (result, 1);
+     result[0] := firstdim;
+     exit;
+     end;
+
+  dimIndex := 1;
+  setLength (result, dimIndex);
+  result[dimIndex-1] := firstdim;
+
+  aitem := alist.list[0];
+  while aitem.itemType = lilist do
+      begin
+      n := aitem.lValue.list.Count;
+      dimIndex := dimIndex + 1;
+      setLength (result, dimIndex);
+      result[dimIndex-1] := n;
+      aitem := aitem.lValue.list[0];
+      end;
+end;
+
+
+var elementCount : integer;
+procedure collectData (alist : TListObject; arrayObj : TArrayObject);
 var i : integer;
 begin
-  result := '[';
   for i := 0 to alist.list.Count - 1 do
       if alist.list[i].itemType = liList then
          begin
-         if result[length(result)] = ']' then
-            result := result + ',';
-         result := result + convertToStr (alist.list[i].lValue, arrayObj);
+         collectData (alist.list[i].lValue, arrayObj);
          end
       else
          begin
-         if result[length(result)] = ']' then
-            result := result + ',';
-
-         if i < alist.list.Count - 1  then
-            result := result + '0' + ','
-         else
-            result := result + '0';
          arrayObj.data[elementCount] := alist.list[i].getScalar();
          inc (elementCount);
          end;
-  result := result + ']';
-end;
-
-
-function isRectangular (astr : string) : boolean;
-var i : integer;
-    count : integer;
-    dimCount : integer;
-    dims : TIndexArray;
-    check : integer;
-begin
-  result := False;
-  i := 1; dimCount := 0;
-  while i < length (astr) do
-      begin
-      if astr[i] = '[' then
-         begin
-         if astr[i+1] = '0' then
-            begin
-            inc (i);
-            count := 0;
-            while (astr[i] = '0') or (astr[i] = ',') do
-                  begin
-                  if astr[i] = '0' then
-                     inc (count);
-                  inc (i);
-                  end;
-            setlength (dims, dimCount+1);
-            dims[dimCount] := count;
-            inc (dimCount);
-            end;
-         end
-      else if astr[i] = '0' then
-              exit (False);
-      inc (i);
-      end;
-  if length (dims) = 0 then
-     exit (True);
-
-  if length (dims) = 1 then
-     exit (True);
-  check := dims[0];
-  for i := 1 to length (dims) - 1 do
-      if dims[i] <> check then
-         exit (False);
-  exit (True);
-end;
-
-
-function TArrayConstructor.getDimensionsFromList (alist : TListObject; arrayObj : TArrayObject) : TIndexArray;
-var astr : string;
-begin
-  elementCount := 0;
-  astr := convertToStr (alist, arrayObj); // This also collects the data
-  if not isRectangular (astr) then
-     raise ERuntimeException.Create('An array must be rectangular, the current array is jagged');
-
-  result := determineDimensions (astr);
-  if result[0] = 0 then   // Takes care of [[1,2,3]] situation
-     result[0] := 1;
 end;
 
 
@@ -384,22 +289,31 @@ end;
 //      Find the dimensions
 //   Return the array object
 function convertListToArray (alist : TListObject) :TArrayObject;
-var count : integer;
+var total, count : integer;
     dims : TIndexArray;
-    ac : TArrayConstructor;
     arrayObject : TArrayObject;
+    i : integer;
 begin
-   ac := TArrayConstructor.Create;
    try
-     count := ac.countElements (alist);
-
      arrayObject := TArrayObject.Create();
+     count := countElements (alist);
      setLength (arrayObject.data, count);
-     dims := ac.getDimensionsFromList (alist, arrayObject);
+     elementCount := 0;
+     collectData (alist, arrayObject);
+
+     dims := getDimensions (alist, count);
+
+     // Check that the array is rectangular by comparing
+     // size predicted from dims with number of elements found
+     total := 1;
+     for i := 0 to length (dims) - 1 do
+         total := total*dims[i];
+     if total <> count then
+        raise ERuntimeException.Create('Array must be rectanglar');
+
      arrayObject.dim := copy (dims);
      result := arrayObject;
    finally
-     ac.Free;
    end;
 end;
 

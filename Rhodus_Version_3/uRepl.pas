@@ -44,10 +44,12 @@ begin
 end;
 
 
-function myRead (const prompt : AnsiString) : AnsiString;
+function myRead (const prompt : AnsiString) : PAnsiChar;
+var astr : string;
 begin
   write (prompt);
-  readln (result);
+  readln (astr);
+  result := PAnsiChar (AnsiString (astr));
 end;
 
 

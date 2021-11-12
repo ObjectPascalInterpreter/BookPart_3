@@ -224,10 +224,6 @@ object frmMain: TfrmMain
       ScrollBars = ssBoth
       TabOrder = 1
       StyleElements = [seClient, seBorder]
-      ExplicitLeft = 2
-      ExplicitTop = 2
-      ExplicitWidth = 961
-      ExplicitHeight = 432
     end
   end
   object OpenDialog: TOpenDialog

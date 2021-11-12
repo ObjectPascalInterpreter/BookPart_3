@@ -39,7 +39,7 @@ type
   TFrameStack = array of TFrame;
 
   TVMCaptureStringCallBack = procedure (astr : AnsiString);
-  TVMReadStringCallBack  = function (const prompt : AnsiString) : AnsiString;
+  TVMReadStringCallBack  = function (const prompt : AnsiString) : PAnsiChar;
 
   TVMCallBack         = procedure(st: PMachineStackRecord) of object;
   TVMPrintCallBack    = procedure (astr : AnsiString);

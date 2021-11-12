@@ -80,9 +80,9 @@ begin
 end;
 
 
-function rhodus_readString (const prompt : AnsiString) : AnsiString;
+function rhodus_readString (const prompt : AnsiString) : PAnsiChar;
 begin
-  result := InputBox('Read String:', prompt, '');
+  result := PAnsiChar (AnsiString (InputBox('Read String:', prompt, '')));
 end;
 
 

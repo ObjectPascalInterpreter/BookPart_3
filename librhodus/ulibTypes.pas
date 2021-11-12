@@ -4,7 +4,7 @@ interface
 
 type
   TPrint = procedure (astr : AnsiString);
-  TReadString = function (const prompt : AnsiString) : AnsiString;
+  TReadString = function (const prompt : AnsiString) : PAnsiChar;
 
   TRhodusConfig = record
       printPtr : TPrint;

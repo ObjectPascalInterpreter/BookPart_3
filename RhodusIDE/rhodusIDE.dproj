@@ -114,6 +114,7 @@
         <DCCReference Include="..\librhodus\ulibTypes.pas">
             <Form>$R *.res</Form>
         </DCCReference>
+        <DCCReference Include="uExamples.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

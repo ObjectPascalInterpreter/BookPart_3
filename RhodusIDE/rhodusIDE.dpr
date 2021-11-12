@@ -5,7 +5,8 @@ uses
   ufMain in 'ufMain.pas' {frmMain},
   ulibTypes in '..\librhodus\ulibTypes.pas' {$R *.res},
   Vcl.Themes,
-  Vcl.Styles;
+  Vcl.Styles,
+  uExamples in 'uExamples.pas';
 
 {$R *.res}
 

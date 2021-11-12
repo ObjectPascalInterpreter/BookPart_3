@@ -3,7 +3,7 @@ object frmMain: TfrmMain
   Top = 0
   Caption = 'Rhodus IDE'
   ClientHeight = 534
-  ClientWidth = 827
+  ClientWidth = 828
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -17,16 +17,17 @@ object frmMain: TfrmMain
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 827
+    Width = 828
     Height = 57
     Align = alTop
     TabOrder = 0
-    ExplicitWidth = 819
+    ExplicitLeft = 1
+    ExplicitTop = -5
     DesignSize = (
-      827
+      828
       57)
     object lblVersion: TLabel
-      Left = 683
+      Left = 684
       Top = 12
       Width = 51
       Height = 15
@@ -34,11 +35,18 @@ object frmMain: TfrmMain
       Caption = 'lblVersion'
       ExplicitLeft = 691
     end
+    object Label1: TLabel
+      Left = 230
+      Top = 8
+      Width = 80
+      Height = 15
+      Caption = 'Sample Scripts:'
+    end
     object btnRun: TButton
-      Left = 152
-      Top = 12
-      Width = 113
-      Height = 37
+      Left = 83
+      Top = 10
+      Width = 65
+      Height = 36
       Margins.Left = 5
       Margins.Top = 5
       Margins.Right = 5
@@ -49,9 +57,9 @@ object frmMain: TfrmMain
     end
     object btnLoad: TButton
       Left = 8
-      Top = 12
-      Width = 113
-      Height = 37
+      Top = 10
+      Width = 65
+      Height = 36
       Margins.Left = 5
       Margins.Top = 5
       Margins.Right = 5
@@ -60,29 +68,72 @@ object frmMain: TfrmMain
       TabOrder = 1
       OnClick = btnLoadClick
     end
+    object btnClear: TButton
+      Left = 157
+      Top = 10
+      Width = 65
+      Height = 36
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
+      Caption = 'Clear'
+      TabOrder = 2
+      OnClick = btnClearClick
+    end
+    object cboExamples: TComboBox
+      Left = 229
+      Top = 26
+      Width = 145
+      Height = 23
+      DropDownCount = 16
+      TabOrder = 3
+      Text = 'Examples'
+      OnChange = cboExamplesChange
+    end
   end
   object Panel2: TPanel
     Left = 0
     Top = 57
-    Width = 86
+    Width = 185
     Height = 477
     Align = alLeft
     TabOrder = 1
     ExplicitHeight = 472
+    object DirectoryListBox1: TDirectoryListBox
+      Left = 1
+      Top = 1
+      Width = 183
+      Height = 232
+      Align = alTop
+      TabOrder = 0
+      OnChange = DirectoryListBox1Change
+    end
+    object FileListBox1: TFileListBox
+      Left = 1
+      Top = 233
+      Width = 183
+      Height = 243
+      Align = alClient
+      ItemHeight = 15
+      TabOrder = 1
+      OnClick = FileListBox1Click
+      ExplicitHeight = 238
+    end
   end
   object Panel3: TPanel
-    Left = 86
+    Left = 185
     Top = 57
-    Width = 741
+    Width = 643
     Height = 477
     Align = alClient
     TabOrder = 2
-    ExplicitWidth = 733
+    ExplicitWidth = 634
     ExplicitHeight = 472
     object Splitter1: TSplitter
       Left = 1
       Top = 304
-      Width = 739
+      Width = 641
       Height = 3
       Cursor = crVSplit
       Align = alBottom
@@ -91,24 +142,32 @@ object frmMain: TfrmMain
     object moutput: TMemo
       Left = 1
       Top = 307
-      Width = 739
+      Width = 641
       Height = 169
       Align = alBottom
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clCream
+      Font.Height = -15
+      Font.Name = 'Fira Code'
+      Font.Style = []
+      ParentFont = False
       ScrollBars = ssBoth
       TabOrder = 0
+      StyleElements = [seClient, seBorder]
       ExplicitTop = 302
-      ExplicitWidth = 731
+      ExplicitWidth = 632
     end
     object editor: TMemo
       Left = 1
       Top = 1
-      Width = 739
+      Width = 641
       Height = 303
       Align = alClient
+      Color = clWhite
       Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
+      Font.Color = clCream
       Font.Height = -16
-      Font.Name = 'Segoe UI'
+      Font.Name = 'Fira Code Medium'
       Font.Style = []
       Lines.Strings = (
         'a = 3; b = 6; println ("sum = ", a + b)'
@@ -118,7 +177,8 @@ object frmMain: TfrmMain
       ParentFont = False
       ScrollBars = ssBoth
       TabOrder = 1
-      ExplicitWidth = 731
+      StyleElements = [seClient, seBorder]
+      ExplicitWidth = 632
       ExplicitHeight = 298
     end
   end

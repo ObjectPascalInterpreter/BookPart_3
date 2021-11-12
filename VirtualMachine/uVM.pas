@@ -2215,7 +2215,10 @@ begin
      begin
      if nSubscripts = 1 then
         begin
-        push (st.aValue.getRow(index));
+        // This needs to be relaxed so that users can extract portions of an array
+        if st.aValue.getNumDimensions > 1 then
+           raise ERuntimeException.Create('Array has more dimensions that specified in indexing');
+        push (st.aValue.getValue(index));
         exit;
         end;
 

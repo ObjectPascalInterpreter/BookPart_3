@@ -295,12 +295,24 @@ var total, count : integer;
     i : integer;
 begin
    try
+     // Note: if there is a problem we don't have to free
+     // arrayObject, because it's managed by the garbage collector.
      arrayObject := TArrayObject.Create();
+     // Count the number of elements in the array
      count := countElements (alist);
+
+     // reserve some space for the data base on count
      setLength (arrayObject.data, count);
+
+     // Collect the data and insert into arrayObject
+     // elementCount is a global variable since
+     // collectData is recusrive and elementCount
+     // is used to track the data array as it
+     // traverses the list
      elementCount := 0;
      collectData (alist, arrayObject);
 
+     // From the structure of the list, detemrine the dimensions of the array
      dims := getDimensions (alist, count);
 
      // Check that the array is rectangular by comparing

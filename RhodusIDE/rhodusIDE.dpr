@@ -2,11 +2,12 @@ program rhodusIDE;
 
 uses
   Vcl.Forms,
-  ufMain in 'ufMain.pas' {frmMain},
-  ulibTypes in '..\librhodus\ulibTypes.pas' {$R *.res},
   Vcl.Themes,
   Vcl.Styles,
-  uExamples in 'uExamples.pas';
+  ulibTypes in '..\librhodus\ulibTypes.pas',
+  ufMain in 'ufMain.pas' {frmMain},
+  uExamples in 'uExamples.pas',
+  ufAbout in 'ufAbout.pas' {frmAbout};
 
 {$R *.res}
 
@@ -15,5 +16,6 @@ begin
   Application.MainFormOnTaskbar := True;
   TStyleManager.TrySetStyle('Calypso SE');
   Application.CreateForm(TfrmMain, frmMain);
+  Application.CreateForm(TfrmAbout, frmAbout);
   Application.Run;
 end.

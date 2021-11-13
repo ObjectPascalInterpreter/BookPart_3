@@ -61,16 +61,12 @@ begin
      begin
      if rhodus.generateByteCode (True, compilerError) then
         begin
-        //if TRhodus.bolShowByteCode then
-        //   rhodus.showByteCodeMethod (mainModule);
         rhodus.runCode (mainModule, True);
         end
      else
        begin
-       //setGreen;
        lastError.errorMsg := PAnsiChar (AnsiString('ERROR ' + '[line ' + inttostr (compilerError.lineNumber) + ', column: ' + inttostr (compilerError.columnNumber) + '] ' + compilerError.errorMsg));
        result := -1;
-       //setWhite;
        end;
      end
   else

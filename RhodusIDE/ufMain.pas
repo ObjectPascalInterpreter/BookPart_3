@@ -6,7 +6,9 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, ulibTypes,
   Vcl.ExtCtrls, Vcl.FileCtrl, Vcl.ComCtrls,
-  uExamples;
+  uExamples, Vcl.Menus;
+
+const RHODUS_VERSION = 0.5;
 
 type
   TfrmMain = class(TForm)
@@ -25,6 +27,14 @@ type
     btnClear: TButton;
     cboExamples: TComboBox;
     Label1: TLabel;
+    MainMenu: TMainMenu;
+    File1: TMenuItem;
+    File2: TMenuItem;
+    Run1: TMenuItem;
+    Quit1: TMenuItem;
+    N1: TMenuItem;
+    N2: TMenuItem;
+    About1: TMenuItem;
     procedure btnRunClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure btnLoadClick(Sender: TObject);
@@ -32,12 +42,16 @@ type
     procedure FileListBox1Click(Sender: TObject);
     procedure btnClearClick(Sender: TObject);
     procedure cboExamplesChange(Sender: TObject);
+    procedure About1Click(Sender: TObject);
+    procedure N2Click(Sender: TObject);
+    procedure Quit1Click(Sender: TObject);
   private
     { Private declarations }
     examples : TExamples;
   public
     { Public declarations }
     handle: THandle;
+    procedure loadScript;
   end;
 
 var
@@ -47,7 +61,7 @@ implementation
 
 {$R *.dfm}
 
-Uses IOUtils;
+Uses IOUtils, ufAbout;
 
 type
   TRhodusInitialise = function (var config : TRhodusConfig) : THandle; stdcall;
@@ -86,17 +100,35 @@ begin
 end;
 
 
+procedure TfrmMain.About1Click(Sender: TObject);
+var frm : TfrmAbout;
+begin
+  try
+    frm := TfrmAbout.Create (nil);
+    frm.lblMessage.Caption := 'Rhodus IDE Version: ' + floattostr (RHODUS_VERSION);
+    frm.ShowModal;
+  finally
+    frm.free;
+  end;
+end;
+
 procedure TfrmMain.btnClearClick(Sender: TObject);
 begin
   moutput.Clear;
 end;
 
-procedure TfrmMain.btnLoadClick(Sender: TObject);
+procedure TfrmMain.loadScript;
 begin
-  if OpenDialog.Execute then
+ if OpenDialog.Execute then
      begin
      editor.Lines.LoadFromFile(opendialog.FileName);
      end;
+end;
+
+
+procedure TfrmMain.btnLoadClick(Sender: TObject);
+begin
+  loadScript;
 end;
 
 procedure TfrmMain.btnRunClick(Sender: TObject);
@@ -154,6 +186,16 @@ begin
   for i := 0 to examples.Count - 1 do
       cboExamples.AddItem(examples[i].name, examples[i]);
   cboExamples.ItemIndex := -1;
+end;
+
+procedure TfrmMain.N2Click(Sender: TObject);
+begin
+  Application.Terminate;
+end;
+
+procedure TfrmMain.Quit1Click(Sender: TObject);
+begin
+  loadScript;
 end;
 
 end.

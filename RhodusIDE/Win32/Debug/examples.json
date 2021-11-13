@@ -98,6 +98,7 @@ println (a)
 "src":
 "a = array([1,2,3,4])
 b = array([0]*20)
+
 println (a.len())
 println (b.len())
 println (b)

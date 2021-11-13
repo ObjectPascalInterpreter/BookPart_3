@@ -3,13 +3,14 @@ object frmMain: TfrmMain
   Top = 0
   Caption = 'Rhodus IDE'
   ClientHeight = 779
-  ClientWidth = 1242
+  ClientWidth = 1428
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -18
   Font.Name = 'Segoe UI'
   Font.Style = []
+  Menu = MainMenu
   Position = poScreenCenter
   OnCreate = FormCreate
   PixelsPerInch = 144
@@ -17,7 +18,7 @@ object frmMain: TfrmMain
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 1242
+    Width = 1428
     Height = 86
     Margins.Left = 5
     Margins.Top = 5
@@ -25,11 +26,12 @@ object frmMain: TfrmMain
     Margins.Bottom = 5
     Align = alTop
     TabOrder = 0
+    ExplicitWidth = 1228
     DesignSize = (
-      1242
+      1428
       86)
     object lblVersion: TLabel
-      Left = 1026
+      Left = 1212
       Top = 18
       Width = 77
       Height = 25
@@ -39,6 +41,7 @@ object frmMain: TfrmMain
       Margins.Bottom = 5
       Anchors = [akTop, akRight]
       Caption = 'lblVersion'
+      ExplicitLeft = 1026
     end
     object Label1: TLabel
       Left = 345
@@ -94,7 +97,7 @@ object frmMain: TfrmMain
       Left = 344
       Top = 39
       Width = 217
-      Height = 23
+      Height = 33
       Margins.Left = 5
       Margins.Top = 5
       Margins.Right = 5
@@ -116,6 +119,7 @@ object frmMain: TfrmMain
     Margins.Bottom = 5
     Align = alLeft
     TabOrder = 1
+    ExplicitHeight = 686
     object DirectoryListBox1: TDirectoryListBox
       Left = 1
       Top = 1
@@ -129,9 +133,6 @@ object frmMain: TfrmMain
       ItemHeight = 25
       TabOrder = 0
       OnChange = DirectoryListBox1Change
-      ExplicitLeft = 2
-      ExplicitTop = 2
-      ExplicitWidth = 274
     end
     object FileListBox1: TFileListBox
       Left = 1
@@ -146,16 +147,13 @@ object frmMain: TfrmMain
       ItemHeight = 25
       TabOrder = 1
       OnClick = FileListBox1Click
-      ExplicitLeft = 2
-      ExplicitTop = 350
-      ExplicitWidth = 274
-      ExplicitHeight = 342
+      ExplicitHeight = 336
     end
   end
   object Panel3: TPanel
     Left = 278
     Top = 86
-    Width = 964
+    Width = 1150
     Height = 693
     Margins.Left = 5
     Margins.Top = 5
@@ -163,10 +161,12 @@ object frmMain: TfrmMain
     Margins.Bottom = 5
     Align = alClient
     TabOrder = 2
+    ExplicitWidth = 950
+    ExplicitHeight = 686
     object Splitter1: TSplitter
       Left = 1
       Top = 434
-      Width = 962
+      Width = 1148
       Height = 4
       Cursor = crVSplit
       Margins.Left = 5
@@ -180,7 +180,7 @@ object frmMain: TfrmMain
     object moutput: TMemo
       Left = 1
       Top = 438
-      Width = 962
+      Width = 1148
       Height = 254
       Margins.Left = 5
       Margins.Top = 5
@@ -196,13 +196,13 @@ object frmMain: TfrmMain
       ScrollBars = ssBoth
       TabOrder = 0
       StyleElements = [seClient, seBorder]
-      ExplicitLeft = 2
-      ExplicitWidth = 961
+      ExplicitTop = 431
+      ExplicitWidth = 948
     end
     object editor: TMemo
       Left = 1
       Top = 1
-      Width = 962
+      Width = 1148
       Height = 433
       Margins.Left = 5
       Margins.Top = 5
@@ -224,6 +224,8 @@ object frmMain: TfrmMain
       ScrollBars = ssBoth
       TabOrder = 1
       StyleElements = [seClient, seBorder]
+      ExplicitWidth = 948
+      ExplicitHeight = 426
     end
   end
   object OpenDialog: TOpenDialog
@@ -233,5 +235,33 @@ object frmMain: TfrmMain
     Title = 'Load Rhodus Script'
     Left = 694
     Top = 425
+  end
+  object MainMenu: TMainMenu
+    Left = 848
+    Top = 24
+    object File1: TMenuItem
+      Caption = 'File'
+      object Quit1: TMenuItem
+        Caption = 'Open'
+        OnClick = Quit1Click
+      end
+      object N1: TMenuItem
+        Caption = '-'
+      end
+      object N2: TMenuItem
+        Caption = 'Quit'
+        OnClick = N2Click
+      end
+    end
+    object File2: TMenuItem
+      Caption = 'Edit'
+    end
+    object Run1: TMenuItem
+      Caption = 'Help'
+      object About1: TMenuItem
+        Caption = 'About'
+        OnClick = About1Click
+      end
+    end
   end
 end

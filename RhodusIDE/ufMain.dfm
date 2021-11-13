@@ -2,8 +2,8 @@ object frmMain: TfrmMain
   Left = 0
   Top = 0
   Caption = 'Rhodus IDE'
-  ClientHeight = 779
-  ClientWidth = 1428
+  ClientHeight = 874
+  ClientWidth = 1496
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,7 +18,7 @@ object frmMain: TfrmMain
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 1428
+    Width = 1496
     Height = 86
     Margins.Left = 5
     Margins.Top = 5
@@ -28,10 +28,10 @@ object frmMain: TfrmMain
     TabOrder = 0
     ExplicitWidth = 1228
     DesignSize = (
-      1428
+      1496
       86)
     object lblVersion: TLabel
-      Left = 1212
+      Left = 1280
       Top = 18
       Width = 77
       Height = 25
@@ -112,7 +112,7 @@ object frmMain: TfrmMain
     Left = 0
     Top = 86
     Width = 278
-    Height = 693
+    Height = 788
     Margins.Left = 5
     Margins.Top = 5
     Margins.Right = 5
@@ -138,7 +138,7 @@ object frmMain: TfrmMain
       Left = 1
       Top = 349
       Width = 276
-      Height = 343
+      Height = 438
       Margins.Left = 5
       Margins.Top = 5
       Margins.Right = 5
@@ -153,8 +153,8 @@ object frmMain: TfrmMain
   object Panel3: TPanel
     Left = 278
     Top = 86
-    Width = 1150
-    Height = 693
+    Width = 1218
+    Height = 788
     Margins.Left = 5
     Margins.Top = 5
     Margins.Right = 5
@@ -165,8 +165,8 @@ object frmMain: TfrmMain
     ExplicitHeight = 686
     object Splitter1: TSplitter
       Left = 1
-      Top = 434
-      Width = 1148
+      Top = 492
+      Width = 1216
       Height = 4
       Cursor = crVSplit
       Margins.Left = 5
@@ -175,13 +175,14 @@ object frmMain: TfrmMain
       Margins.Bottom = 5
       Align = alBottom
       ExplicitLeft = 2
+      ExplicitTop = 434
       ExplicitWidth = 961
     end
     object moutput: TMemo
       Left = 1
-      Top = 438
-      Width = 1148
-      Height = 254
+      Top = 496
+      Width = 1216
+      Height = 291
       Margins.Left = 5
       Margins.Top = 5
       Margins.Right = 5
@@ -196,14 +197,12 @@ object frmMain: TfrmMain
       ScrollBars = ssBoth
       TabOrder = 0
       StyleElements = [seClient, seBorder]
-      ExplicitTop = 431
-      ExplicitWidth = 948
     end
     object editor: TMemo
       Left = 1
       Top = 1
-      Width = 1148
-      Height = 433
+      Width = 1216
+      Height = 491
       Margins.Left = 5
       Margins.Top = 5
       Margins.Right = 5
@@ -217,15 +216,16 @@ object frmMain: TfrmMain
       Font.Style = []
       Lines.Strings = (
         'a = 3; b = 6; println ("sum = ", a + b)'
+        'print (1)'
         'for x = 1 to 10 do'
-        '    print (x * x, ", ")'
-        'end')
+        '    print (", ", x * x)'
+        'end'
+        'println()')
       ParentFont = False
       ScrollBars = ssBoth
       TabOrder = 1
       StyleElements = [seClient, seBorder]
-      ExplicitWidth = 948
-      ExplicitHeight = 426
+      ExplicitHeight = 480
     end
   end
   object OpenDialog: TOpenDialog

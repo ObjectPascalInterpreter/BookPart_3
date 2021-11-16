@@ -13,7 +13,7 @@ Uses Classes, SysUtils, uListObject, uStringObject, uArrayObject, uSymbolTable, 
 
 type
   TStackType = (stNone, stInteger, stDouble, stBoolean, stString, stArray, stSymbol,
-                stLocalSymbol, stList, stModule, stFunction, stObjectMethod);
+                stLocalSymbol, stList, stModule, stFunction, stObjectMethod, stObject);
   TMachineStackRecord = record
      stackType : TStackType;  // 1 byte
      module : TModule;
@@ -28,6 +28,8 @@ type
 
        stFunction    : (fValue : TUserFunction);
        stObjectMethod: (oValue : TMethodDetails);
+
+       stObject : (objValue : TObject);
      end;
 
   PMachineStackRecord = ^TMachineStackRecord;

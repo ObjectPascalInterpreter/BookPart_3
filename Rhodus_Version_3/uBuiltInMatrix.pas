@@ -67,8 +67,8 @@ begin
    n := TVM (vm).popInteger;
 
    ar := TArrayObject.Create([n,m]);
-   for var i := 0 to length (ar.data) - 1 do
-       ar.data[i] := random ();
+   for var i := 0 to length (ar.dataf) - 1 do
+       ar.dataf[i] := random ();
    TVM (vm).push (ar);
 end;
 
@@ -86,7 +86,7 @@ begin
   ar := TArrayObject.Create ([n,m]);
   for i := 0 to (n*m) - 1 do
       begin
-      ar.data[i] := RandomRange(lower, upper);
+      ar.dataf[i] := RandomRange(lower, upper);
       end;
   TVM (vm).push (ar);
 end;
@@ -212,7 +212,7 @@ begin
                                    raise ERuntimeException.Create('Length of two arrays must be equal');
                                 sum := 0;
                                 for i := 0 to m.dim[0] - 1 do
-                                     sum := sum + m.data[i]*x.aValue.data[i];
+                                     sum := sum + m.dataf[i]*x.aValue.dataf[i];
                                 TVM (vm).push(sum);
                                 end;
                             2 : begin

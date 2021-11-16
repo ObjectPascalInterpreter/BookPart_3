@@ -50,7 +50,6 @@ type
        procedure getChar (vm : TObject);  // Convert int into character
        procedure getAsc (vm : TObject);   // Convert char in to ascii
        procedure listSymbols (vm : TObject);
-       procedure myHelp (vm : TObject);
        procedure getType (vm : TObject);
        procedure getAttr (vm : TObject);
        procedure myAssertTrueEx (vm : TObject);
@@ -272,21 +271,19 @@ begin
          end
       else
          begin
-         arrayObj.data[elementCount] := alist.list[i].getScalar();
+         arrayObj.dataf[elementCount] := alist.list[i].getScalar();
          inc (elementCount);
          end;
 end;
 
 
-// This is a bit hacky but its the best I came up with
 // The strategy is:
 //   Count the number of elements to workout how much memory we need
+//   Allocate memory to the data component of an array
+//   Collect the data from the list and store in teh data component
 //   Get the dimensions of the array
-//      Convert the list to string form eg "[[0,0],[0,0]]", also collect data
-//      The string forms makes it easier to work out the dimensions
-//      and whether its rectangular or not
-//      Check the list if rectangular, if not error
-//      Find the dimensions
+//   Work out the dimensions from the list
+//   Check if the list if rectangular, if not error
 //   Return the array object
 function convertListToArray (alist : TListObject) :TArrayObject;
 var total, count : integer;
@@ -302,7 +299,7 @@ begin
      count := countElements (alist);
 
      // reserve some space for the data base on count
-     setLength (arrayObject.data, count);
+     setLength (arrayObject.dataf, count);
 
      // Collect the data and insert into arrayObject
      // elementCount is a global variable since
@@ -315,8 +312,8 @@ begin
      // From the structure of the list, detemrine the dimensions of the array
      dims := getDimensions (alist, count);
 
-     // Check that the array is rectangular by comparing
-     // size predicted from dims with number of elements found
+     // Check that the array is rectangular by comparing the
+     // size predicted from dims with number of actual elements found
      total := 1;
      for i := 0 to length (dims) - 1 do
          total := total*dims[i];
@@ -386,22 +383,22 @@ begin
 end;
 
 
-procedure TBuiltInGlobal.myHelp (vm : TObject);
-var x : PMachineStackRecord;
-begin
-  x := TVM (vm).pop;
-  case x.stackType of
-    stInteger  : TVM (vm).push (TStringObject.create ('Integer Value'));
-    stBoolean  : TVM (vm).push (TStringObject.create ('Boolean Value'));
-    stDouble   : TVM (vm).push (TStringObject.create ('Double value: ' + floattostr (x.dValue)));
-    stString   : TVM (vm).push (TStringObject.create ('String Value'));
-    stList     : TVM (vm).push (TStringObject.create ('List Value'));
-    stModule   : TVM (vm).push (TStringObject.create (getModuleHelp (x.module)));
-    stFunction : TVM (vm).push (TStringObject.create ('User Function: ' + x.fvalue.helpStr));
-  else
-    TVM (vm).push (TStringObject.create ('Undefined Value'));
-  end;
-end;
+//procedure TBuiltInGlobal.myHelp (vm : TObject);
+//var x : PMachineStackRecord;
+//begin
+//  x := TVM (vm).pop;
+//  case x.stackType of
+//    stInteger  : TVM (vm).push (TStringObject.create ('Integer Value'));
+//    stBoolean  : TVM (vm).push (TStringObject.create ('Boolean Value'));
+//    stDouble   : TVM (vm).push (TStringObject.create ('Double value: ' + floattostr (x.dValue)));
+//    stString   : TVM (vm).push (TStringObject.create ('String Value'));
+//    stList     : TVM (vm).push (TStringObject.create ('List Value'));
+//    stModule   : TVM (vm).push (TStringObject.create (getModuleHelp (x.module)));
+//    stFunction : TVM (vm).push (TStringObject.create ('User Function: ' + x.fvalue.helpStr));
+//  else
+//    TVM (vm).push (TStringObject.create ('Undefined Value'));
+//  end;
+//end;
 
 
 procedure TBuiltInGlobal.readString (vm : TObject);

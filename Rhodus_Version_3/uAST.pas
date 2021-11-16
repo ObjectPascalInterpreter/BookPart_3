@@ -111,6 +111,24 @@ type
       destructor  Destroy; override;
    end;
 
+   TASTSlice = class (TASTNode)
+      lower : TASTNode;
+      upper : TASTNode;
+      id : integer;
+      constructor Create (lower, upper : TASTNode);
+      destructor  Destroy; override;
+   end;
+
+   TASTSliceAll = class (TASTNode)
+       constructor Create;
+       destructor  Destroy; override;
+   end;
+
+   TASTSliceEqual = class (TASTNode)
+       constructor Create;
+       destructor  Destroy; override;
+   end;
+
    TASTNull = class (TASTNode)
        constructor Create;
        destructor  Destroy; override;
@@ -381,19 +399,6 @@ begin
 end;
 
 
-//constructor TASTPeriod.Create (name :string);
-//begin
-//  inherited Create (ntPeriod);
-//  self.name := name;
-//end;
-
-
-//destructor TASTPeriod.Destroy;
-//begin
-//  inherited;
-//end;
-
-
 constructor TASTPrimaryPeriod.Create (identifier : TASTIdentifier; primaryPlus : TASTNode);
 begin
   inherited Create (ntPrimaryPeriod);
@@ -455,6 +460,58 @@ begin
      primaryPlus.freeAST;
      end;
   argumentList.free;
+  inherited;
+end;
+
+
+constructor TASTSlice.Create (lower, upper : TASTNode);
+begin
+  inherited Create (ntSlice);
+  self.lower := lower;
+  self.upper := upper;
+  id := trunc (Random()*100000);
+end;
+
+
+destructor TASTSlice.Destroy;
+begin
+  // ntSlideEqual if both nodes point to the same ASTNode
+  // Therefore only free one of them
+  //if upper.nodeType = ntSliceEqual then
+  //   begin
+  //   lower.Free;
+  //   exit;
+  //   end
+  //else
+  //   begin
+  //   lower.free;
+  //   upper.free;
+  //   end;
+  lower.free;
+  upper.free;
+  inherited;
+end;
+
+
+constructor TASTSliceAll.Create;
+begin
+  inherited Create (ntSliceAll);
+end;
+
+destructor TASTSliceAll.Destroy;
+begin
+  inherited;
+end;
+
+
+constructor TASTSliceEqual.Create;
+begin
+  inherited Create (ntSliceEqual);
+end;
+
+
+destructor TASTSliceEqual.Destroy;
+begin
   inherited;
 end;
 
@@ -1148,6 +1205,12 @@ begin
         (node as TASTPrimaryIndex).free;
     ntPrimaryFunction:
         (node as TASTPrimaryFunction).free;
+    ntSlice:
+        (node as TASTSlice).free;
+    ntSliceAll:
+        (node as TASTSliceAll).free;
+    ntSliceEqual :
+        (node as TASTSliceEqual).free;
     ntIdentifier:
         (node as TASTIdentifier).free;
     ntSubscript :
@@ -1236,6 +1299,8 @@ begin
      ntNull : result := 'null';
      ntPrimary : result := 'primary';
      ntPrimaryPeriod : result := 'primaryPeriod';
+     ntSliceAll : result := 'sliceAll';
+     ntSliceEqual : result := 'sliceEqual';
   else
      result := nodeTypeToString  (node.nodeType);
   end;
@@ -1292,6 +1357,11 @@ begin
            begin
            for i := 0 to (node as TASTSubscript).subscripts.list.Count - 1 do
                result := result + print ((node as TASTSubscript).subscripts.list[i], prefix + '|  ');
+           end;
+       ntSlice :
+           begin
+           result := result + print ((node as TASTSlice).lower, prefix + '|  ');
+           result := result + print ((node as TASTSlice).upper, prefix + '|  ');
            end;
        ntExpression :
            begin

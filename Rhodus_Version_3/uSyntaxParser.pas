@@ -70,6 +70,7 @@ type
     function  parseArrayRow : integer;
     procedure parseLiteralArray;
     procedure parseList;
+    procedure parseIndexOrSlice;
     procedure parseIndexedVariable;
     procedure parseFunctionCall;
 
@@ -221,9 +222,34 @@ begin
     end;
 end;
 
+// Parse: x:y  :y  x:  :  x
+procedure TSyntaxParser.parseIndexOrSlice;
+begin
+ // check for :x and :
+ if tokenVector.token = tColon then
+     begin
+     nextToken;
+     if not (tokenVector.token in [tComma, tRightBracket]) then
+        expression();
+     end
+  else
+     begin
+     // check for x: x:y  x
+     expression();
+     if tokenVector.token = tColon then
+        begin
+        nextToken;
+        if not (tokenVector.token in [tComma, tRightBracket]) then
+           expression();
+        end
+     end;
+end;
 
 // Parse something of the form variable '[' expressionList ']'
 // Such indexing applies to lists and strings
+// Slicing:
+// [1:4], [1:5,5:6,2:10]
+// [:,4], [1,:]
 procedure TSyntaxParser.parseIndexedVariable;
 begin
   nextToken;
@@ -234,12 +260,12 @@ begin
      exit;
      end;
 
-  expression();
+  parseIndexOrSlice();
 
   while tokenVector.token = tComma do
     begin
     nextToken;
-    expression;
+    parseIndexOrSlice();
     end;
   expect(tRightBracket);
 end;

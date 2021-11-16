@@ -320,6 +320,8 @@ begin
          oStoreAttr   : result := result + '  ' + opCodeNames[oStoreAttr] + ' ' + aProgram.code[i].symbolName + sLineBreak;
         oStoreLocal   : result := result + '  ' + opCodeNAmes[oStoreLocal] + ' ' + inttostr (aProgram.code[i].index) + sLineBreak;
         oLoadLocal    : result := result + '  ' + opCodeNames[oLoadLocal]  + ' ' + inttostr (aProgram.code[i].index) + sLineBreak;
+        oBuildSlice   : result := result + '  ' + opCodeNames[oBuildSlice] + sLineBreak;
+        oSliceAll     : result := result + '  ' + opCodeNames[oSliceAll] + sLineBreak;
 
         oCreateArray  : result := result + '  ' + opCodeNames[oCreateArray] + ' ' + inttostr (aProgram.code[i].index) + sLineBreak;
         oCall       : result := result + '  ' + opCodeNames[oCall]  + sLineBreak;

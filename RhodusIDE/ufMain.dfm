@@ -2,8 +2,8 @@ object frmMain: TfrmMain
   Left = 0
   Top = 0
   Caption = 'Rhodus IDE'
-  ClientHeight = 874
-  ClientWidth = 1496
+  ClientHeight = 494
+  ClientWidth = 1242
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,7 +18,7 @@ object frmMain: TfrmMain
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 1496
+    Width = 1242
     Height = 86
     Margins.Left = 5
     Margins.Top = 5
@@ -26,12 +26,12 @@ object frmMain: TfrmMain
     Margins.Bottom = 5
     Align = alTop
     TabOrder = 0
-    ExplicitWidth = 1228
+    ExplicitWidth = 1863
     DesignSize = (
-      1496
+      1242
       86)
     object lblVersion: TLabel
-      Left = 1280
+      Left = 1026
       Top = 18
       Width = 77
       Height = 25
@@ -41,7 +41,6 @@ object frmMain: TfrmMain
       Margins.Bottom = 5
       Anchors = [akTop, akRight]
       Caption = 'lblVersion'
-      ExplicitLeft = 1026
     end
     object Label1: TLabel
       Left = 345
@@ -97,7 +96,7 @@ object frmMain: TfrmMain
       Left = 344
       Top = 39
       Width = 217
-      Height = 33
+      Height = 23
       Margins.Left = 5
       Margins.Top = 5
       Margins.Right = 5
@@ -112,14 +111,14 @@ object frmMain: TfrmMain
     Left = 0
     Top = 86
     Width = 278
-    Height = 788
+    Height = 408
     Margins.Left = 5
     Margins.Top = 5
     Margins.Right = 5
     Margins.Bottom = 5
     Align = alLeft
     TabOrder = 1
-    ExplicitHeight = 686
+    ExplicitHeight = 655
     object DirectoryListBox1: TDirectoryListBox
       Left = 1
       Top = 1
@@ -133,12 +132,15 @@ object frmMain: TfrmMain
       ItemHeight = 25
       TabOrder = 0
       OnChange = DirectoryListBox1Change
+      ExplicitLeft = 2
+      ExplicitTop = 2
+      ExplicitWidth = 274
     end
     object FileListBox1: TFileListBox
       Left = 1
       Top = 349
       Width = 276
-      Height = 438
+      Height = 58
       Margins.Left = 5
       Margins.Top = 5
       Margins.Right = 5
@@ -147,26 +149,29 @@ object frmMain: TfrmMain
       ItemHeight = 25
       TabOrder = 1
       OnClick = FileListBox1Click
-      ExplicitHeight = 336
+      ExplicitLeft = 2
+      ExplicitTop = 350
+      ExplicitWidth = 274
+      ExplicitHeight = 304
     end
   end
   object Panel3: TPanel
     Left = 278
     Top = 86
-    Width = 1218
-    Height = 788
+    Width = 964
+    Height = 408
     Margins.Left = 5
     Margins.Top = 5
     Margins.Right = 5
     Margins.Bottom = 5
     Align = alClient
     TabOrder = 2
-    ExplicitWidth = 950
-    ExplicitHeight = 686
+    ExplicitWidth = 1585
+    ExplicitHeight = 655
     object Splitter1: TSplitter
       Left = 1
-      Top = 492
-      Width = 1216
+      Top = 43
+      Width = 962
       Height = 4
       Cursor = crVSplit
       Margins.Left = 5
@@ -175,14 +180,14 @@ object frmMain: TfrmMain
       Margins.Bottom = 5
       Align = alBottom
       ExplicitLeft = 2
-      ExplicitTop = 434
-      ExplicitWidth = 961
+      ExplicitTop = 290
+      ExplicitWidth = 1582
     end
     object moutput: TMemo
       Left = 1
-      Top = 496
-      Width = 1216
-      Height = 291
+      Top = 47
+      Width = 962
+      Height = 360
       Margins.Left = 5
       Margins.Top = 5
       Margins.Right = 5
@@ -197,12 +202,15 @@ object frmMain: TfrmMain
       ScrollBars = ssBoth
       TabOrder = 0
       StyleElements = [seClient, seBorder]
+      ExplicitLeft = 2
+      ExplicitTop = 294
+      ExplicitWidth = 1582
     end
     object editor: TMemo
       Left = 1
       Top = 1
-      Width = 1216
-      Height = 491
+      Width = 962
+      Height = 42
       Margins.Left = 5
       Margins.Top = 5
       Margins.Right = 5
@@ -225,7 +233,10 @@ object frmMain: TfrmMain
       ScrollBars = ssBoth
       TabOrder = 1
       StyleElements = [seClient, seBorder]
-      ExplicitHeight = 480
+      ExplicitLeft = 2
+      ExplicitTop = 2
+      ExplicitWidth = 1582
+      ExplicitHeight = 288
     end
   end
   object OpenDialog: TOpenDialog

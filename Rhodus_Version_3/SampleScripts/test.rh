@@ -1,7 +1,6 @@
 
-function callme()
-   a = array ([1,2,3])
-   return a[0]
-end
+import arrays
 
-callme()
+a = arrays.rand ([4,4])
+
+x = a[:,1]

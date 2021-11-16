@@ -29,6 +29,7 @@ type
      procedure   getLog10 (vm : TObject);
      procedure   getExp (vm : TObject);
      procedure   getSqrt (vm : TObject);
+     procedure   getSqr (vm : TObject);
      procedure   getAbs (vm : TObject);
      procedure   getRound (vm : TObject);
      procedure   getCeil (vm : TObject);
@@ -50,7 +51,15 @@ Uses Math,
      uVM,
      uStringObject,
      uListObject,
+     uMachineStack,
+     uVMExceptions,
      uMemoryManager;
+
+
+procedure raiseMathError (functionName : string);
+begin
+  raise ERuntimeException.Create('Argument to math function <' + functionName + '> can only be an integer, double or an array');
+end;
 
 
 constructor TBuiltInMath.Create;
@@ -67,7 +76,8 @@ begin
   addmethod (getDegrees, 1, 'toDegrees',  'Converts radians to degrees: toDegrees(radians)');
   addmethod (getRadians, 1, 'toRadians',  'Converts degrees to radians: toRadians(degrees)');
 
-  addMethod (getSqrt,  1, 'sqrt',  'Computes the square rootof a number. Negative values are not supported: sqrt (9)');
+  addMethod (getSqrt,  1, 'sqr',   'Computes the square number or array: sqr (5)');
+  addMethod (getSqrt,  1, 'sqrt',  'Computes the square root of a number or array. Negative values are not supported: sqrt (9)');
   addMethod (getExp,   1, 'exp',   'Computes e raised to the power of a value: exp (10)');
   addMethod (getLn,    1, 'ln',    'Computes the natural logarithm of a value: ln (123)');
   addMethod (getLog10, 1, 'log',   'Computes the logarithm to base 10 of a value: log (1000)');
@@ -87,121 +97,295 @@ end;
 
 
 procedure TBuiltInMath.getSin (vm : TObject);
-var d : double;
+var st : PMachineStackRecord;
 begin
-   d := TVM (vm).popScalar;
-   TVM (vm).push(sin (d));
+   st := TVM (vm).pop;
+   case st.stackType of
+       stInteger : TVM (vm).push(sin (st.iValue));
+       stDouble : TVM (vm).push (sin (st.dValue));
+       stArray : begin
+                 TVM (vm).push(st.aValue.applyUniFunction(sin));
+                 end
+  else
+      raiseMathError ('sin');
+  end;
 end;
 
 
 procedure TBuiltInMath.getCos (vm : TObject);
-var d : double;
+var st : PMachineStackRecord;
 begin
-   d := TVM (vm).popScalar;
-   TVM (vm).push (cos (d));
+   st := TVM (vm).pop;
+   case st.stackType of
+       stInteger : TVM (vm).push(cos (st.iValue));
+       stDouble : TVM (vm).push (cos (st.dValue));
+       stArray : begin
+                 TVM (vm).push(st.aValue.applyUniFunction(cos));
+                 end
+  else
+      raiseMathError ('cos');
+  end;
 end;
 
 
 procedure TBuiltInMath.getTan (vm : TObject);
-var d : double;
+var st : PMachineStackRecord;
 begin
-   d := TVM (vm).popScalar;
-   TVM (vm).push (tan (d));
+   st := TVM (vm).pop;
+   case st.stackType of
+       stInteger : TVM (vm).push(tan (st.iValue));
+       stDouble : TVM (vm).push (tan (st.dValue));
+       stArray : begin
+                 TVM (vm).push(st.aValue.applyUniFunction(tan));
+                 end
+  else
+      raiseMathError ('tan');
+  end;
 end;
 
 
 procedure TBuiltInMath.getASin (vm : TObject);
-var d : double;
+var st : PMachineStackRecord;
 begin
-   d := TVM (vm).popScalar;
-   TVM (vm).push(arcsin (d));
+   st := TVM (vm).pop;
+   case st.stackType of
+       stInteger : TVM (vm).push(arcsin (st.iValue));
+       stDouble : TVM (vm).push (arcsin (st.dValue));
+       stArray : begin
+                 TVM (vm).push(st.aValue.applyUniFunction(arcsin));
+                 end
+  else
+      raiseMathError ('arcsin');
+  end;
 end;
 
 
 procedure TBuiltInMath.getACos (vm : TObject);
-var d : double;
+var st : PMachineStackRecord;
 begin
-   d := TVM (vm).popScalar;
-   TVM (vm).push (arccos (d));
+   st := TVM (vm).pop;
+   case st.stackType of
+       stInteger : TVM (vm).push(arccos (st.iValue));
+       stDouble : TVM (vm).push (arccos (st.dValue));
+       stArray : begin
+                 TVM (vm).push(st.aValue.applyUniFunction(arccos));
+                 end
+  else
+      raiseMathError ('arccos');
+  end;
 end;
 
 
 procedure TBuiltInMath.getATan (vm : TObject);
-var d : double;
+var st : PMachineStackRecord;
 begin
-   d := TVM (vm).popScalar;
-   TVM (vm).push (arctan (d));
+   st := TVM (vm).pop;
+   case st.stackType of
+       stInteger : TVM (vm).push(arctan (st.iValue));
+       stDouble : TVM (vm).push (arctan (st.dValue));
+       stArray : begin
+                 TVM (vm).push(st.aValue.applyUniFunction(arctan));
+                 end
+  else
+      raiseMathError ('arctan');
+  end;
 end;
 
 
 procedure TBuiltInMath.getSqrt (vm : TObject);
-var d : double;
+var st : PMachineStackRecord;
 begin
-   d := TVM (vm).popScalar;
-   TVM (vm).push (sqrt (d));
+   st := TVM (vm).pop;
+   case st.stackType of
+       stInteger : TVM (vm).push(sqrt (st.iValue));
+       stDouble : TVM (vm).push (sqrt (st.dValue));
+       stArray : begin
+                 TVM (vm).push(st.aValue.applyUniFunction(sqrt));
+                 end
+  else
+      raiseMathError ('sqrt');
+  end;
+end;
+
+
+function dSqr (const value : extended) : extended;
+begin
+  result := sqr (value);
+end;
+
+procedure TBuiltInMath.getSqr (vm : TObject);
+var st : PMachineStackRecord;
+begin
+   st := TVM (vm).pop;
+   case st.stackType of
+       stInteger : TVM (vm).push(sqr (st.iValue));
+       stDouble : TVM (vm).push (sqr (st.dValue));
+       stArray : begin
+                 TVM (vm).push(st.aValue.applyUniFunction(dSqr));
+                 end
+  else
+      raiseMathError ('sqr');
+  end;
 end;
 
 
 procedure TBuiltInMath.getExp (vm : TObject);
-var d : double;
+var st : PMachineStackRecord;
 begin
-   d := TVM (vm).popScalar;
-   TVM (vm).push (exp (d));
+   st := TVM (vm).pop;
+   case st.stackType of
+       stInteger : TVM (vm).push(exp (st.iValue));
+       stDouble : TVM (vm).push (exp (st.dValue));
+       stArray : begin
+                 TVM (vm).push(st.aValue.applyUniFunction(exp));
+                 end
+  else
+      raiseMathError ('exp');
+  end;
 end;
 
 
 procedure TBuiltInMath.getLn (vm : TObject);
-var d : double;
+var st : PMachineStackRecord;
 begin
-   d := TVM (vm).popScalar;
-   TVM (vm).push (ln (d));
+   st := TVM (vm).pop;
+   case st.stackType of
+       stInteger : TVM (vm).push(ln (st.iValue));
+       stDouble : TVM (vm).push (ln (st.dValue));
+       stArray : begin
+                 TVM (vm).push(st.aValue.applyUniFunction(ln));
+                 end
+  else
+      raiseMathError ('ln');
+  end;
 end;
 
 
 procedure TBuiltInMath.getLog10 (vm : TObject);
-var d : double;
+var st : PMachineStackRecord;
 begin
-   d := TVM (vm).popScalar;
-   TVM (vm).push (Log10 (d));
+   st := TVM (vm).pop;
+   case st.stackType of
+       stInteger : TVM (vm).push(log10 (st.iValue));
+       stDouble : TVM (vm).push (log10 (st.dValue));
+       stArray : begin
+                 TVM (vm).push(st.aValue.applyUniFunction(log10));
+                 end
+  else
+      raiseMathError ('log10');
+  end;
 end;
 
+
+function iAbs (value : integer) : integer;
+begin
+  result := abs (value);
+end;
+
+function dAbs (const value : extended) : extended;
+begin
+  result := abs (value);
+end;
 
 procedure TBuiltInMath.getAbs (vm : TObject);
-var d : double;
+var st : PMachineStackRecord;
 begin
-   d := TVM (vm).popScalar;
-   TVM (vm).push (Abs (d));
+   st := TVM (vm).pop;
+   case st.stackType of
+       stInteger : TVM (vm).push(iabs (st.iValue));
+       stDouble : TVM (vm).push (dAbs (st.dValue));
+       stArray : begin
+                 TVM (vm).push(st.aValue.applyUniFunction(dabs));
+                 end
+  else
+      raiseMathError ('abs');
+  end;
 end;
 
+
+function dRound (const value : extended) : extended;
+begin
+  result := round (value);
+end;
 
 procedure TBuiltInMath.getRound (vm : TObject);
-var d : double;
+var st : PMachineStackRecord;
 begin
-   d := TVM (vm).popScalar;
-   TVM (vm).push (Round (d));
+   st := TVM (vm).pop;
+   case st.stackType of
+       stInteger : TVM (vm).push(round (st.iValue));
+       stDouble : TVM (vm).push (round (st.dValue));
+       stArray : begin
+                 TVM (vm).push(st.aValue.applyUniFunction(dRound));
+                 end
+  else
+      raiseMathError ('round');
+  end;
 end;
 
+
+function dCeil (const value : extended) : extended;
+begin
+  result := ceil (value);
+end;
 
 procedure TBuiltInMath.getCeil (vm : TObject);
-var d : double;
+var st : PMachineStackRecord;
 begin
-   d := TVM (vm).popScalar;
-   TVM (vm).push (Ceil (d))
+   st := TVM (vm).pop;
+   case st.stackType of
+       stInteger : TVM (vm).push(ceil (st.iValue));
+       stDouble : TVM (vm).push (ceil (st.dValue));
+       stArray : begin
+                 TVM (vm).push(st.aValue.applyUniFunction(dCeil));
+                 end
+  else
+      raiseMathError ('ceil');
+  end;
 end;
+
+
+function dFloor (const value : extended) : extended;
+begin
+  result := ceil (value);
+end;
+
 
 procedure TBuiltInMath.getFloor (vm : TObject);
-var d : double;
+var st : PMachineStackRecord;
 begin
-   d := TVM (vm).popScalar;
-   TVM (vm).push (floor (d));
+   st := TVM (vm).pop;
+   case st.stackType of
+       stInteger : TVM (vm).push(floor (st.iValue));
+       stDouble : TVM (vm).push (floor (st.dValue));
+       stArray : begin
+                 TVM (vm).push(st.aValue.applyUniFunction(dFloor));
+                 end
+  else
+      raiseMathError ('floor');
+  end;
 end;
 
 
-procedure TBuiltInMath.getTrunc (vm : TObject);
-var d : double;
+
+function dTrunc (const value : extended) : extended;
 begin
-   d := TVM (vm).popScalar;
-   TVM (vm).push (trunc (d));
+  result := trunc (value);
+end;
+
+procedure TBuiltInMath.getTrunc (vm : TObject);
+var st : PMachineStackRecord;
+begin
+   st := TVM (vm).pop;
+   case st.stackType of
+       stInteger : TVM (vm).push(trunc (st.iValue));
+       stDouble : TVM (vm).push (trunc (st.dValue));
+       stArray : begin
+                 TVM (vm).push(st.aValue.applyUniFunction(dTrunc));
+                 end
+  else
+      raiseMathError ('trun');
+  end;
 end;
 
 
@@ -212,6 +396,7 @@ begin
    d2 := TVM (vm).popScalar;
    TVM (vm).push (Max (d1, d2));
 end;
+
 
 procedure TBuiltInMath.getMin (vm : TObject);
 var d1, d2 : double;

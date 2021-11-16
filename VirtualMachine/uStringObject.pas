@@ -35,6 +35,7 @@ type
      function        clone : TStringObject;
      constructor     createConstantObj (value : string);
      function        getSize() : integer;
+     function        slice (lower, upper : integer) : TStringObject;
      constructor     Create (value : string);
      destructor      Destroy; override;
   end;
@@ -223,6 +224,26 @@ function TStringObject.getSize() : integer;
 begin
   result := self.InstanceSize;
   result := result + Length (value);
+end;
+
+
+function TStringObject.slice (lower, upper : integer) : TStringObject;
+begin
+  // -1 means slice all
+  if lower = -1 then
+     lower := 0;
+  if upper = -1 then
+     upper := length (value);
+
+  if upper < lower then
+     result := TStringObject.Create('')
+  else
+     begin
+     // Clamp the length if need be although I think copy does this anyway
+     if upper >= length (value) then
+        upper := length (value) - 1;
+     result := TStringObject.Create(Copy(value, lower+1, upper-lower+1));
+     end;
 end;
 
 

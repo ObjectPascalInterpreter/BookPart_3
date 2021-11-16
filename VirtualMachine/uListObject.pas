@@ -63,6 +63,10 @@ type
     procedure insertUserFunction(index: integer; fValue: TObject);
     procedure insertModule(index: integer; mValue: TObject);
 
+    function slice (lower, upper : integer) : TListObject;
+
+    class function sliceList2 (alist : TListObject; lower, upper : integer) : TListObject;
+
     function clone: TListObject;
     function listToString: string;
     function getsize: integer;
@@ -86,6 +90,7 @@ type
     function getScalar : double;
 
     procedure setInteger (value : integer);
+    function  clone : TListItem;
 
     constructor Create(iValue: integer); overload;
     constructor Create(bValue: boolean); overload;
@@ -554,6 +559,82 @@ begin
   list.insert(index, TListItem.CreateModule(mValue));
 end;
 
+
+function TListObject.slice (lower, upper : integer) : TListObject;
+var i : integer;
+    obj : TListObject;
+begin
+  // -1 means slice all
+  if lower = -1 then
+     lower := 0;
+  if upper = -1 then
+     upper := list.Count;
+
+  if upper < lower then
+     obj := TListObject.Create(0)
+  else
+     begin
+     if upper >= list.Count then
+        upper := list.Count - 1;
+
+     obj := TListObject.Create (0);
+     for i := lower to upper do
+         begin
+         case list[i].itemType of
+            liInteger : obj.append(list[i].iValue);
+            liBoolean : obj.append(list[i].bValue);
+            liDouble  : obj.append(list[i].dValue);
+            liString  : obj.append(list[i].sValue.clone);
+            liList    : obj.append(list[i].lValue.clone);
+            liArray   : obj.append(list[i].aValue.clone);
+            liFunction: obj.appendUserFunction(TUserFunction (list[i].fValue).clone);
+            liModule  : obj.appendModule(TModule (list[i].mValue));
+         end;
+         end;
+     end;
+  result := obj;
+end;
+
+// ---------------------------------------------------------------
+// Class methods
+
+
+class function TListObject.sliceList2 (alist : TListObject; lower, upper : integer) : TListObject;
+var i : integer;
+    obj : TListObject;
+begin
+  // -1 means slice all
+  if lower = -1 then
+     lower := 0;
+  if upper = -1 then
+     upper := alist.list.Count;
+
+  if upper < lower then
+     obj := TListObject.Create(0)
+  else
+     begin
+     if upper >= alist.list.Count then
+        upper := alist.list.Count - 1;
+
+     obj := TListObject.Create (0);
+     for i := lower to upper do
+         begin
+         case alist.list[i].itemType of
+            liInteger : obj.append(alist.list[i].iValue);
+            liBoolean : obj.append(alist.list[i].bValue);
+            liDouble  : obj.append(alist.list[i].dValue);
+            liString  : obj.append(alist.list[i].sValue.clone);
+            liList    : obj.append(alist.list[i].lValue.clone);
+            liArray   : obj.append(alist.list[i].aValue.clone);
+            liFunction: obj.appendUserFunction(TUserFunction (alist.list[i].fValue).clone);
+            liModule  : obj.appendModule(TModule (alist.list[i].mValue));
+         end;
+         end;
+     end;
+  result := obj;
+end;
+
+
 class function TListObject.addLists(list1, list2: TListObject): TListObject;
 var
   i: integer;
@@ -770,6 +851,24 @@ begin
     end;
   inherited;
 end;
+
+
+function TListItem.clone : TListItem;
+begin
+  case itemType of
+    liInteger: begin result := TListItem.Create(iValue); end;
+    liBoolean: result := TListItem.Create(bValue);
+    liDouble: result := TListItem.Create(dValue);
+    liString: result := TListItem.Create(sValue.clone);
+    liList: begin result := TListItem.Create(lValue.clone); result.lValue.blockType := btOwned; end;
+    liArray: result := TListItem.Create(aValue.clone);
+    liFunction: result := TListItem.CreateUserFunction(TUSerFunction (fValue).clone);
+    liModule: raise ERuntimeException.Create('can''t clone module');
+  else
+    raise ERuntimeException.Create('Internal Error in ListItem Clone');
+  end;
+end;
+
 
 function TListItem.getsize(): integer;
 begin

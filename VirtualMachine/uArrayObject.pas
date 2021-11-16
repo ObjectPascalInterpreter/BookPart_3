@@ -14,12 +14,19 @@ uses Classes, uMemoryManager, uObjectSupport, uRhodusObject, Generics.Collection
 type
   TArrayMethods = class;
 
-  T1DArray = array of double;
+  TIntArray = array of double;
+  TFloatArray = array of double;
+
+  TUniFunction = function (const value : Extended) : Extended;
+
+  TArrayDataType = (adtInteger, adtDouble);
 
   TArrayObject = class (TRhodusObject)
     private
+     dataType : TArrayDataType;
     public
-     data : T1DArray;
+     datai : TIntArray;
+     dataf : TFloatArray;
      dim  : TIndexArray;
 
      class function arrayIntMult (m1 : TArrayObject; alpha : integer) : TArrayObject;
@@ -50,11 +57,16 @@ type
      property        ndims : integer read getNumDimensions;
      property        item[index1, index2: Integer]: double read getValue2D write setValue2D; default;
 
-     procedure       appendx (mat : TArrayObject);
+     function        slice (slices : TSliceObjectList) : TArrayObject;
+
+     procedure       append (mat : TArrayObject);
      class function  isEqualTo (a1, a2 : TArrayObject) : boolean;
+     function        applyUniFunction (func : TUniFunction) : TArrayObject;
      class function  add (a1, a2 : TArrayObject) : TArrayObject;
      class function  sub (a1, a2 : TArrayObject) : TArrayObject;
      class function  mult (m1, m2 : TArrayObject) : TArrayObject;
+     class function  getMax (a1 : TArrayObject) : double;
+     class function  getMin (a1 : TArrayObject) : double;
      constructor     Create; overload;
      constructor     Create (dim : TIndexArray); overload;
      destructor      Destroy; override;
@@ -72,6 +84,8 @@ type
      procedure   getSqr (vm : TObject);
      procedure   add (vm : TObject);
      procedure   sub (vm : TObject);
+     procedure   getMax (vm : TObject);
+     procedure   getMin (vm : TObject);
      procedure   getTrunc (vm : TObject);
      constructor Create;
      destructor  Destroy; override;
@@ -83,8 +97,9 @@ implementation
 Uses SysUtils,
      StrUtils,
      System.Character,
-     uVM,
+     uUtils,
      uMachineStack,
+     uVM,
      uListObject,
      uVMExceptions;
 
@@ -98,7 +113,7 @@ begin
   methodList := TMethodList.Create;
 
   // -1 means variable arguments
-  methodList.Add(TMethodDetails.Create ('len',   -1, 'get the length of an array: var.len ()', getLength));
+  methodList.Add(TMethodDetails.Create ('len',   VARIABLE_ARGS, 'get the length of an array: var.len ()', getLength));
   methodList.Add(TMethodDetails.Create ('shape',  0, 'get the dimensions of the array: var.shape ()', getShape));
   methodList.Add(TMethodDetails.Create ('ndim',   0, 'get the number of dimensions of the array: var.ndim ()', getNumDim));
   methodList.Add(TMethodDetails.Create ('rows',   0, 'get the number of rows of a matrix: var.rows()', getNumRows));
@@ -110,7 +125,9 @@ begin
   methodList.Add(TMethodDetails.Create ('sqr',    0, 'square each element in the array: var.sqr ()', getSqr));
   methodList.Add(TMethodDetails.Create ('add',    1, 'add an array argument ot the array: c = a.add (b)', add));
   methodList.Add(TMethodDetails.Create ('sub',    1, 'subtract an array argument from the array: c = a.sub (b)', sub));
-  methodList.Add(TMethodDetails.Create ('trunc',  0, 'runcate all entries to whole numbersy: c = a.trunc ()', getTrunc));
+  methodList.Add(TMethodDetails.Create ('trunc',  0, 'Truncate all entries to whole numbers: c = a.trunc ()', getTrunc));
+  methodList.Add(TMethodDetails.Create ('max',    0, 'Find the maximum value in an array: c = a.max ()', getMax));
+  methodList.Add(TMethodDetails.Create ('min',    0, 'Find the minimum value in an array: c = a.min ()', getMin));
 
   methodList.Add(TMethodDetails.Create ('dir',    0, 'dir of array object methods', dir));
 end;
@@ -282,6 +299,7 @@ begin
   TVM (vm).push (tmp);
 end;
 
+
 procedure TArrayMethods.getSqr (vm : TObject);
 var i : integer;
     s1, s2 : TArrayObject;
@@ -293,7 +311,7 @@ begin
 
    len := s1.getNumberOfElements - 1;
    for i := 0 to len do
-       s2.data[i] := s1.data[i]*s1.data[i];
+       s2.dataf[i] := s1.dataf[i]*s1.dataf[i];
     TVM (vm).push (s2);
 end;
 
@@ -334,11 +352,35 @@ begin
      begin
      n := s1.getNumDimensions() - 1;
      for i := 0 to n do
-         s2.setValue(i, s1.getValue(i)-+ s1.getValue(i));
+         s2.setValue(i, s1.getValue(i) - s1.getValue(i));
      end
   else
      raise ERuntimeException.Create('Arrays must have the same dimensions when summing');
   TVM (vm).push (s2);
+end;
+
+
+procedure TArrayMethods.getMax (vm : TObject);
+var i : integer;
+    s1 : TArrayObject;
+    max : double;
+begin
+   TVM (vm).decStackTop; // Dump the object method
+   s1 := TVM (vm).popArray;
+
+   TVM (vm).push (TArrayObject.getMax(s1));
+end;
+
+
+procedure TArrayMethods.getMin (vm : TObject);
+var i : integer;
+    s1 : TArrayObject;
+    min : double;
+begin
+   TVM (vm).decStackTop; // Dump the object method
+   s1 := TVM (vm).popArray;
+
+   TVM (vm).push (TArrayObject.getMin(s1)); 
 end;
 
 
@@ -351,7 +393,7 @@ begin
   target := s.clone;
 
   for i := 0 to s.getNumberOfElements() - 1 do
-      target.data[i] := trunc (s.data[i]);
+      target.dataf[i] := trunc (s.dataf[i]);
 
   TVM (vm).push(target);
 end;
@@ -372,13 +414,14 @@ begin
   Create;
 
   self.dim := copy (dim);
-  setlength (data, getNumberOfElements());
+  setlength (dataf, getNumberOfElements());
 end;
 
 
 destructor TArrayObject.Destroy;
 begin
-  setLength (data, 0);
+  setLength (datai, 0);
+  setLength (dataf, 0);
   setLength (dim, 0);
   inherited;
 end;
@@ -412,7 +455,7 @@ begin
          raise ERuntimeException.Create(outOfRangeMsg);
 
   index := getIndex (dim, idx);
-  result := data[index];
+  result := dataf[index];
 end;
 
 
@@ -421,7 +464,7 @@ begin
   if i >= dim[0] then
      raise ERuntimeException.Create(outOfRangeMsg);
 
-  result := data[i];
+  result := dataf[i];
 end;
 
 
@@ -433,7 +476,7 @@ begin
 
   x := getIndex ([dim[0],dim[1]],[i,j]);
   //x := j + dim[1]*i;
-  result := data[x];
+  result := dataf[x];
 end;
 
 
@@ -460,7 +503,7 @@ begin
   if i >= dim[0] then
      raise ERuntimeException.Create(outOfRangeMsg);
 
-  data[getIndex (dim, [i])] := value;
+  dataf[getIndex (dim, [i])] := value;
 end;
 
 
@@ -469,7 +512,7 @@ begin
   if (i >= dim[0]) or (j >= dim[1]) then
      raise ERuntimeException.Create(outOfRangeMsg);
 
-  data[getIndex (dim, [i, j])] := value;
+  dataf[getIndex (dim, [i, j])] := value;
 end;
 
 
@@ -483,14 +526,14 @@ begin
          raise ERuntimeException.Create(outOfRangeMsg);
 
   index := getIndex (dim, idx);
-  data[index] := value;
+  dataf[index] := value;
 end;
 
 
 function TArrayObject.clone : TArrayObject;
 begin
   result := TArrayObject.Create (dim);
-  result.data := copy (self.data);
+  result.dataf := copy (self.dataf);
 end;
 
 
@@ -503,17 +546,23 @@ end;
 
 procedure TArrayObject.resize2D (n, m : integer);
 begin
-  setlength (data, n*m);
+  setlength (dataf, n*m);
   dim[0] := n;
   dim[1] := m;
 end;
 
+
 function TArrayObject.getNumberOfElements : integer;
 var i : integer;
 begin
-  result := 1;
-  for i := 0 to length (dim) - 1 do
-      result := result * dim[i];
+  if length(dim) = 0 then
+     result := 0
+  else
+     begin
+     result := 1;
+     for i := 0 to length (dim) - 1 do
+         result := result * dim[i];
+     end;
 end;
 
 
@@ -563,14 +612,14 @@ begin
      end;
 
 
-  // tempoeary affair for n-dim arrays
+  // temporary affair for n-dim arrays
   n := getNumberOfElements();
   result := '[';
   for i := 0 to n - 1 do
       begin
       if i mod 8 = 0 then
          result := result + sLineBreak;
-      result := result + Format('%10.4f', [self.data[i]]);
+      result := result + Format('%10.4f', [self.dataf[i]]);
       end;
   result := result + ']';
 end;
@@ -595,22 +644,115 @@ end;
 //end;
 
 
-procedure TArrayObject.appendx (mat : TArrayObject);
+procedure TArrayObject.append (mat : TArrayObject);
 var i : integer;
 begin
+  if length (self.dim) <> 2 then
+     raise ERuntimeException.Create('Only 2D arrays are currently supported in append');
+
   // Check that the number of columns is compatible
   if self.dim[1] = mat.dim[1] then
      begin
      inc (self.dim[0]);
-     setLength (data, self.dim[0] * self.dim[1]);
+     setLength (dataf, self.dim[0] * self.dim[1]);
 
      for i := 0 to mat.dim[1] - 1 do
          self.setValue2D (self.dim[0]-1, i, mat.getValue2D (0, i));
 
-     setLength (mat.data, 0);
+     setLength (mat.dataf, 0);
      end
   else
     raise ERuntimeException.Create(' column dimensions must match for each row of the matrix');
+end;
+
+
+procedure coordCallback (coord : TIntList);
+begin
+
+end;
+
+
+// If we've got this far it means there is at least one slice
+// in the index. it is possible that the nunber of slices is
+// less then the number of dimensions of the array, this means
+// we must fill out the remining slices as :
+// eg 3D array where the user has provided the following slice
+// [1:3,4:10] must be expanded to [1:3,4:10,:]
+//
+// Slices are encoded  with SLICE_ALL to represent : or SLICE_EQUAL
+// for something line [3:3]
+// For a mix slices with slices and indexes, the index must be turned into
+// a SLICE_ALL
+// eg [:,0] is converted to [:,0:0]
+//
+function TArrayObject.slice (slices : TSliceObjectList) : TArrayObject;
+var i, j : integer;
+    slicedims : array of integer;
+    slicesize, nProducts : integer;
+    coords, inputLists : TIntLists;
+    alist : TIntList;
+    cp : TCartesianProduct;
+begin
+  result := TArrayObject.Create;
+  // Check for missing slices
+  if length (dim)  > length (slices) then
+     begin
+     // fill out the missing slices which should all be ':' (SLICE_ALL)
+     for i := length (slices) to length (dim) - 1do
+         begin
+         setLength (slices, length (slices)+1);
+         slices[length (slices)-1] := TSliceObject.Create(0, SLICE_ALL);
+         end;
+     end;
+
+  // Create space for the number of dimensions of the slice.
+  setlength (result.dim, length (slices));
+  // Compute the number of elements that will be in the slice
+  // eg [1:2,3:5] will have 6 elements
+  // At this point we also convert the SLICE_ALL and SLICE_EQUAL to coordinates
+  slicesize := 1;
+  for i := 0 to length (slices) - 1 do
+      begin
+      if slices[i].lower = SLICE_ALL then
+         slices[i].lower := 0;
+      if slices[i].upper = SLICE_ALL then
+         slices[i].upper := Self.dim[i] - 1;
+      if slices[i].upper = SLICE_EQUAL then
+         slices[i].upper := slices[i].lower;
+
+      // Sotre the size of the dimension in dim[i]
+      result.dim[i] := slices[i].upper - slices[i].lower+1;
+      slicesize := slicesize * (slices[i].upper - slices[i].lower+1);
+      end;
+  // Allocate space for the slice
+  setlength (result.dataf, slicesize);
+  // Generate the coordinates for each item that we need to copy from the source array
+  setlength (inputLists, length (slices));
+  for i := 0 to length (slices) - 1 do
+      begin
+      setLength (alist, result.dim[i]);
+      for j := slices[i].lower to slices[i].upper do
+          alist[j-slices[i].lower] := j;
+      inputLists[i] := alist;
+      end;
+  cp := TCartesianProduct.Create (inputlists);
+  try
+    // Copy all data over to target
+    for i := 0 to cp.numberofProducts - 1 do
+        result.dataf[i] := self.getValue(cp.getIthCartesianProduct(i));
+  finally
+    cp.free;
+  end;
+end;
+
+
+function TArrayObject.applyUniFunction (func : TUniFunction) : TArrayObject;
+var i, n : integer;
+begin
+  n := self.getNumberOfElements();
+  result := self.clone();
+  for i := 0 to n - 1 do
+      result.dataf[i] := func (self.dataf[i]);
 end;
 
 
@@ -689,7 +831,7 @@ begin
   result := TArrayObject.Create ([m1.dim[0], m1.dim[1]]);
   n := m1.getNumberOfElements;
   for var i := 0 to n - 1 do
-      result.data[i] := alpha*m1.data[i];
+      result.dataf[i] := alpha*m1.dataf[i];
 end;
 
 
@@ -699,7 +841,7 @@ begin
   result := TArrayObject.Create ([m1.dim[0], m1.dim[1]]);
   n := m1.getNumberOfElements;
   for var i := 0 to n - 1 do
-      result.data[i] := alpha*m1.data[i];
+      result.dataf[i] := alpha*m1.dataf[i];
 end;
 
 
@@ -721,10 +863,44 @@ begin
   result := TArrayObject.Create ([m1.dim[0], m2.dim[1]]);
   n := m1.dim[0] * m1.dim[1];
   for var i := 0 to n - 1 do
-      result.data[i] :=  m1.data[i] * m2.data[i];
+      result.dataf[i] :=  m1.dataf[i] * m2.dataf[i];
 end;
 
 
+class function TArrayObject.getMax (a1 : TArrayObject) : double;
+var i : integer;
+    maxValue : double; 
+begin
+  if length (a1.dataf) = 0 then
+     result := 0
+  else
+      begin
+      maxValue := a1.dataf[0];
+      for i := 1 to length (a1.dataf) - 1 do
+          if a1.dataf[i] > maxValue then
+             maxValue := a1.dataf[i];
+      result := maxValue
+      end;  
+end;
+
+
+class function TArrayObject.getMin (a1 : TArrayObject) : double;
+var i : integer;
+    minValue : double; 
+begin
+  if length (a1.dataf) = 0 then
+     result := 0
+  else
+      begin
+      minValue := a1.dataf[0];
+      for i := 1 to length (a1.dataf) - 1 do
+          if a1.dataf[i] < minValue then
+             minValue := a1.dataf[i];
+      result := minValue
+      end;  
+end;
+
+     
 class function TArrayObject.isEqualTo (a1, a2 : TArrayObject) : boolean;
 var n: integer;
 begin
@@ -735,7 +911,7 @@ begin
 
   for var i := 0 to n do
       begin
-      if a1.data[i] <> a2.data[i] then
+      if a1.dataf[i] <> a2.dataf[i] then
          exit (False);
       end;
 end;

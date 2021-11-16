@@ -21,6 +21,7 @@ Uses Classes,
 
 type
   TBreakStack = TStack<integer>;
+  TSlicingStack = TStack<boolean>;
 
   TCompilerError  = record
         lineNumber, columnNumber : integer;
@@ -38,6 +39,7 @@ type
     globalStmt: TASTGlobal;
     inAssignment : boolean;
     inAssignment_NextToEquals : boolean;
+    slicingSubscripts : TSlicingStack;
 
     procedure handleError (node : TASTErrorNode);
     procedure importBuiltIn (moduleName :string; index: integer);
@@ -73,6 +75,8 @@ type
     procedure compilePrimaryPeriod (node : TASTPrimaryPeriod);
     procedure compilePrimaryIndex (node : TASTPrimaryIndex);
     procedure compilePrimaryFunction (node : TASTPrimaryFunction);
+    procedure compileSlice (node : TASTNode);
+    procedure compileSliceAll (node : TASTNode);
     procedure compileSubscripts(subscripts: TChildNodes);
 
     procedure compileCode(node: TASTNode);
@@ -129,12 +133,14 @@ begin
   interactive := False;
   inAssignment := False;
   inAssignment_NextToEquals := False;
+  slicingSubscripts := TSlicingStack.Create;
 end;
 
 
 destructor TCompiler.Destroy;
 begin
   stackOfBreakStacks.Free;
+  slicingSubscripts.Free;
   inherited;
 end;
 
@@ -439,27 +445,62 @@ procedure TCompiler.compileSubscripts(subscripts: TChildNodes);
 var
   i: integer;
   old_inAssignment : boolean;
+  slicing : boolean;
+  slice : TASTSlice;
 begin
+  slicing := False;
+  // We need to check if there are any slicing requests
+  // among the subscripts. If there are then we will
+  // treat all subscrupts as a slicing operation eg in a[1:2,3]
+  // the 3 is mot treated as a subscript but as the slice 3:3, ie a[1:2,3:3]
+  for i := 0 to subscripts.Count - 1 do
+      if subscripts[i].nodeType = ntSlice then
+         begin
+         // We use a stack to record this because there could
+         // be slicing syntax in the slicing expressions themselves,
+         // eg a[b[2:3]:4]
+         slicingSubscripts.push (True);
+         slicing := True;
+         break;
+         end;
+
   for i := 0 to subscripts.Count - 1 do
       begin
       // Compile the subscript expression
       old_inAssignment := inAssignment;
       inAssignment := False;
-      // Subscript expressions always use load opcodes, hence set inAssignmet = False
+      if slicing then
+         if subscripts[i].nodeType <> ntSlice then
+            begin
+            slice := TASTSlice.Create (nil, nil);
+            slice.lower := subscripts[i];
+            slice.upper := TASTSliceEqual.Create;
+            subscripts[i] := slice;
+            end;
+
+      // Subscript expressions always use load opcodes, hence set inAssingmet = False
       compileCode(subscripts[i]);
       inAssignment := old_inAssignment;
 
       if inAssignment then
          begin
-         // Special case, we only save is its the last index, otherwise we load
+         // Special case, we only save if its the last index, otherwise we load
          if i = subscripts.Count - 1 then
             code.addByteCode(oSvecIdx, subscripts.Count)
          else
             code.addByteCode(oLvecIdx, subscripts.Count);
          end
       else
-         code.addByteCode(oLvecIdx, subscripts.Count)
+         begin
+         if not slicing then
+            code.addByteCode(oLvecIdx, subscripts.Count)
+         end;
       end;
+  if slicing then
+     code.addByteCode(oSliceObj, subscripts.Count);
+
+  if slicing then
+     slicingSubscripts.Pop;
 end;
 
 
@@ -944,6 +985,22 @@ begin
 end;
 
 
+procedure TCompiler.compileSlice (node : TASTNode);
+var sliceNode : TASTSlice;
+begin
+  sliceNode := TASTSlice (node);
+  compileCode (sliceNode.lower);
+  compileCode (sliceNode.upper);
+  code.addByteCode(oBuildSlice);
+end;
+
+
+procedure TCompiler.compileSliceAll (node : TASTNode);
+begin
+  code.addByteCode(oSliceAll);
+end;
+
+
 procedure TCompiler.handleError (node : TASTErrorNode);
 begin
   raise ESyntaxException.Create(node.errorMsg, node.lineNumber, node.columnNumber);
@@ -979,6 +1036,12 @@ begin
       compilePrimaryIndex(node as TASTPrimaryIndex);
     ntPrimaryFunction:
       compilePrimaryFunction (node as TASTPrimaryFunction);
+    ntSlice:
+      compileSlice (node);
+    ntSliceAll:
+      compileSliceAll (node);
+    ntSliceEqual:
+       code.addByteCode(oPushi, SLICE_EQUAL);
     ntCreateList:
       compileList(node as TASTCreatelist);
     ntAssignment:

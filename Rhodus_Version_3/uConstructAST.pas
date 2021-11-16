@@ -52,14 +52,12 @@ type
     procedure enterUserFunctionScope;
     procedure exitUserFunctionScope;
 
-    function expect(thisToken: TTokenCode) : TASTNode;
-    function variable: TASTNode;
-    function parseList: TASTNode;
-    function parseIndexedVariable : TASTNode;
-    function parseFunctionCall: TASTNode;
-
-    //function  parseArrayRow : TASTNode;
-    //function  parseLiteralArray : TASTNode;
+    function  expect(thisToken: TTokenCode) : TASTNode;
+    function  variable: TASTNode;
+    function  parseList: TASTNode;
+    function  parseIndexOrSlice : TASTNode;
+    function  parseIndexedVariable : TASTNode;
+    function  parseFunctionCall: TASTNode;
 
     function primary : TASTNode;
     function factor : TASTNode;
@@ -99,6 +97,7 @@ type
     function buildModuleAST(moduleName: string; var astRoot: TASTNode): TModuleLib;
     function constructAST: TASTNode;
     function inUserFunctionScope: boolean;
+
     constructor Create(sc: TTokenVector);
     destructor  Destroy; override;
   end;
@@ -268,6 +267,37 @@ begin
 end;
 
 
+// Parse: x:y  :y  x:  :  x
+function TConstructAST.parseIndexOrSlice : TASTNode;
+var exp1 : TASTNode;
+begin
+ // check for :x and :
+ if sc.token = tColon then
+     begin
+     sc.nextToken;
+     if sc.token in [tComma, tRightBracket] then  // Must be just a single ':'
+        result := TASTSlice.Create (TASTSliceAll.Create, TASTSliceAll.Create)
+     else
+        result := TASTSlice.Create (TASTSliceAll.Create, expression())
+     end
+  else
+     begin
+     // check for x:  x:y   x
+     exp1 := expression();
+     if sc.token = tColon then
+        begin
+        nextToken;
+        if sc.token in [tComma, tRightBracket] then
+           result := TASTSlice.Create (exp1, TASTSliceAll.Create)
+        else
+           result := TASTSlice.Create (exp1, expression())
+        end
+     else
+        result := exp1;
+     end;
+end;
+
+
 // Parse something of the form variable '[' expressionList ']'
 // Such indexing applies to lists and strings
 function TConstructAST.parseIndexedVariable : TASTNode;
@@ -284,17 +314,15 @@ begin
      exit;
      end;
 
-  exp := expression();
+  exp := parseIndexOrSlice();
 
   nodeList.list.Add(exp);
   while sc.token = tComma do
     begin
     sc.nextToken;
-    nodeList.list.Add(expression);
+    nodeList.list.Add(parseIndexOrSlice());
     end;
-  node := expect(tRightBracket);
-  if node <> nil then
-     nodeList.list.Add (node);   // easist thing to do is add the error node to the expression list
+  expect(tRightBracket);
   exit (nodeList);
 end;
 

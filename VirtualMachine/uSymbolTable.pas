@@ -51,7 +51,7 @@ type
    TxBuiltInFunction = procedure (vm : TObject) of object;
    TUserFunction = class (TRhodusObject)
        name : string;
-       nArgs : integer;
+       nArgs : integer;  // Expected number of arguments
        localSymbolTable : TLocalSymbolTable;  // The local symbol table is accessed by index not name
        moduleName : string;   // Not actually used at the moment, probabhyl will be removed
        moduleRef : TModule;

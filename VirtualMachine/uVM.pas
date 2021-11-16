@@ -90,7 +90,10 @@ type
 
     //procedure stackInc; inline;  // Not yet implemnted
     //procedure stackDec; inline;  // Not yet implemnted
-    procedure callUserFunction (nArgs : integer);
+
+    procedure callObjectMethod (actualNumArgs : integer; p : PMachineStackRecord);
+    procedure callBuiltIn (expectedNumArgs, actualNumArgs : integer; functionObject :TUserFunction);
+    procedure callUserFunction (actualNumArgs : integer);
 
     function createList(count: integer): TListObject;
 
@@ -134,6 +137,9 @@ type
     procedure loadLocalIndexableList (aList: TListObject; index: integer);
     procedure loadLocalIndexableString (astr: TStringObject; index: integer);
     procedure loadLocalIndexableArray (arr: TArrayObject; index: integer);
+
+    procedure buildSlice;
+    procedure evalSliceObject (numSlices : integer);
 
     procedure copyToStack (stackElement: PMachineStackRecord; index : integer; frame : PFrame);
     procedure clearAnyStackHeapAllocations;
@@ -184,6 +190,7 @@ type
     procedure   push(oValue : TMethodDetails); overload;
     procedure   pushModule (module : TModule);
     procedure   pushNone;
+    procedure   pushObject (obj : TObject);
     function    peek : PMachineStackRecord;
     procedure   decStackTop;
     function    pop: PMachineStackRecord; inline;
@@ -819,6 +826,17 @@ begin
 end;
 
 
+procedure TVM.pushObject (obj : TObject);
+begin
+  inc(stackTop);
+{$IFDEF STACKCHECK}
+  checkStackOverflow;
+{$ENDIF}
+
+  stack[stackTop].objValue := obj;
+  stack[stackTop].stackType := TStackType.stObject;
+end;
+
 // -------------------------------------------------------------------------
 
 procedure error(const arg: string; st1, st2: PMachineStackRecord);
@@ -1043,7 +1061,7 @@ begin
         begin
         sum := 0;
         for var i := 0 to m1.dim[0] - 1 do
-            sum := sum + m1.data[i] * m2.data[i];
+            sum := sum + m1.dataf[i] * m2.dataf[i];
         push (sum);
         exit;
         end
@@ -1320,6 +1338,7 @@ end;
 //   primary (X)
 //   secondary (a)
 // A primary can be a module, a list (eg a.len), or a string (eg a.len)
+
 procedure TVM.loadAttr (symbolName : string);
 var m : TModule;
     l : TListObject;
@@ -1780,114 +1799,139 @@ begin
 end;
 
 
-// nArgs is the number of arguments that the user specified in the function call
+// Call something like a.len()
+procedure TVM.callObjectMethod (actualNumArgs : integer; p : PMachineStackRecord);
+begin
+  if p.oValue.nArgs <> VARIABLE_ARGS then
+     if actualNumArgs <> p.oValue.nArgs then
+        raise ERuntimeException.Create('Expecting ' + inttostr (p.oValue.nArgs) + ' arguments in function call [' + p.oValue.name + '] but received ' + inttostr (actualNumArgs) + ' arguments');
+
+  if p.oValue.nArgs = VARIABLE_ARGS then
+     push(actualNumArgs);
+  // The order of stack entries from the top will be
+  //   Arguments
+  //   Object method
+  //   Object (ie self)
+  // Its the responsibility of the object being called
+  // to remove the object method from the stack.
+  p.oValue.method(self);
+end;
+
+
+procedure TVM.callBuiltIn (expectedNumArgs, actualNumArgs : integer; functionObject :TUserFunction);
+begin
+  if expectedNumArgs = VARIABLE_ARGS then
+     push(actualNumArgs);
+  functionObject.builtInPtr(self);
+  // At this point the stack is:
+  //   functionObject
+  //   return result from builtin
+
+  // Bring the functionObject forward and remove it,
+  // what's left is therefore the return result.
+  swapStack;
+  dec (stackTop);  // remove the function object
+end;
+
+
+// nArgs is the number of arguments the user included in the function call
 // The stack will have arguments followed by the function object
-procedure TVM.callUserFunction (nArgs : integer);
+procedure TVM.callUserFunction (actualNumArgs : integer);
 var
   functionObject: TUserFunction;
   i: integer;
-  nPureLocals, tbsp, targs, symTableCount : integer;
+  nPureLocals, tbsp : integer;
+  expectedNumArgs : integer;
+  symTableCount : integer;
   p: PMachineStackRecord;
   oldModule : TModule;
 begin
   // Get the function object
-  p := @stack[stackTop-nArgs];
+  p := @stack[stackTop-actualNumArgs];
   // Check first that its actually something we can call
   if (p.stackType <> stFunction) and (p.stackType <> stObjectMethod) then
      raise ERuntimeException.Create(stToStr (p.stackType) + ' is not something that can be called as a function');
 
+  // This deals with calls such as a.len(), where len() is an object method
   if p.stackType = stObjectMethod then
      begin
-     if p.oValue.nArgs <> -1 then
-        if nArgs <> p.oValue.nArgs then
-           raise ERuntimeException.Create('Expecting ' + inttostr (p.oValue.nArgs) + ' arguments in function call [' + p.oValue.name + '] but received ' + inttostr (nArgs) + ' arguments');
-
-     if p.oValue.nArgs = -1 then
-        push(nArgs);
-     // The order of stack entries from the top will be
-     //   Arguments
-     //   Object method
-     //   Object
-     // Its the responsibility of the object being called to remove the object method from the stack.
-     p.oValue.method(self);
+     callObjectMethod (actualNumArgs, p);
      exit;
      end;
 
-
   functionObject := p.fValue;
-  tArgs := functionObject.nArgs;
+  expectedNumArgs := functionObject.nArgs;
 
-  if tArgs <> -1 then
-     if nArgs <> tArgs then
-        raise ERuntimeException.Create('Expecting ' + inttostr (functionObject.nArgs) + ' arguments in function call but received ' + inttostr (nArgs) + ' arguments');
+  // If it's a non-variable argument call check that the right
+  // number of arguments are avaiable to the function
+  if expectedNumArgs <> VARIABLE_ARGS then
+     if actualNumArgs <> expectedNumArgs then
+        raise ERuntimeException.Create('Expecting ' + inttostr (functionObject.nArgs) + ' arguments in function call but received ' + inttostr (actualNumArgs) + ' arguments');
 
   // Support for special builtins, eg Math
   if functionObject.isBuiltInFunction then
      begin
-     if tArgs = -1 then
-         push(nArgs);
-     functionObject.builtInPtr(self);
-     // At this point the stack is:
-     //   functionObject
-     //   return result from builtin
-
-     // Bring the functionObject forward and remove it,
-     // what's left is therefore the return result.
-     swapStack;
-     dec (stackTop);  // remove the function object
+     callBuiltIn (expectedNumArgs, actualNumArgs, functionObject);
      exit;
      end;
 
+  // Finally, its a normal method call to a real user defined function
   inc(frameStackTop);
   if frameStackTop > MAX_FRAME_DEPTH then
     raise ERuntimeException.Create ('Exceeded maximum recursion depth for functions');
 
-  // Fill in the frame entries - some code optimiztions first (reduces the amount of machine code generated)
+  // Fill in the frame entries - some code optimizations first
+  // reduces the amount of machine code generated
   tbsp := stackTop - functionObject.nArgs + 1;
   symTableCount := functionObject.localSymbolTable.count;
-  nPureLocals := symTableCount - targs;
+  nPureLocals := symTableCount - expectedNumArgs;
+  // Fill in the stack frame
   with frameStack[frameStackTop] do
      begin
-     nArgs := targs;
+     nArgs := expectedNumArgs;
      nlocals := symTableCount;
      purelocals := nPureLocals;
      symbolTable := functionObject.localSymbolTable;
      bsp := tbsp;
      end;
 
-  // Make space for the local variables (Note symboltable contains args plus purelocals)
-  stackTop := stackTop + symTableCount - targs;
+  // Make space for the local variables (Note symbolTable contains arguments plus purelocals)
+  stackTop := stackTop + symTableCount - expectedNumArgs;
 
-
-  // Initialize the purelocals to undefined so we can detect assignments from unassigned variables
-  // The pure locals sit just above the arguments
+  // Initialize the purelocals to undefined so we can detect assignments
+  // from unassigned variables. The pure locals sit just above the arguments
   for i := 0 to nPureLocals - 1 do
-      stack[tbsp + i + targs].stackType := stNone;
+      stack[tbsp + i + expectedNumArgs].stackType := stNone;
 
   // This check to see if the argument is passed as a literal to the function
-  // eg callme ({1,2,3,4}). Since a literal isn't assigned to anything
+  // eg callme ([1,2,3,4]). Since a literal isn't assigned to anything
   // is it marked as garbage. However, if this enters a function, we must
   // make sure the garbage collector doesn't collect it since it will be
   // used inside the function.
-  for i := 0 to targs - 1 do
+  for i := 0 to expectedNumArgs - 1 do
       if stack[tbsp + i].stackType = stList then
          if stack[tbsp + i].lValue.blockType = btGarbage then
             stack[tbsp + i].lValue.blockType := btTemporary; // To stop the garbage collector
 
   // This is to make sure the user function knows what module its in.
   oldModule := module;
-  module := functionObject.moduleRef;
-  run(functionObject.codeBlock, module.symbolTable);
+  try
+    module := functionObject.moduleRef;
 
-  // deal with the special case where a user has passed aliteral list whch
-  // is not owned by anyone. Such arguments come in as btTemporary inorder
-  // to prevent the garbage collector from freeing up the argument.
-  for i := 0 to targs - 1 do
-      if stack[tbsp + i].stackType = stList then
-         if stack[tbsp + i].lValue.blockType = btTemporary then
-            stack[tbsp + i].lValue.blockType := btGarbage;
+    // And finally we make the call
+    run(functionObject.codeBlock, module.symbolTable);
 
-  module := oldModule;
+    // deal with the special case where a user has passed a literal (list, array, etc)
+    // which is not owned by anyone. Such arguments come in as btTemporary inorder
+    // to prevent the garbage collector from freeing up the argument.
+    for i := 0 to expectedNumArgs - 1 do
+        if stack[tbsp + i].stackType = stList then
+           if stack[tbsp + i].lValue.blockType = btTemporary then
+              stack[tbsp + i].lValue.blockType := btGarbage;
+
+  finally
+     module := oldModule;
+  end;
   // Note the function object will get popped off by the return code in run()
 end;
 
@@ -2358,6 +2402,56 @@ begin
 end;
 
 
+procedure TVM.buildSlice;
+var lower, upper : integer;
+    obj : PMachineStackRecord;
+    p1, p2: PMachineStackRecord;
+begin
+  upper := popInteger;
+  lower := popInteger;
+
+  pushObject (TSliceObject.Create (lower, upper));
+end;
+
+
+procedure TVM.evalSliceObject (numSlices : integer);
+var i : integer;
+    obj : TSliceObject;
+    sliceObjlist : TSliceObjectList;
+    value : PMachineStackRecord;
+begin
+  setLength (sliceObjlist, numSlices);
+  for i := numSlices - 1 downto 0  do
+      sliceObjlist[i] := TSliceObject (pop.objValue);
+  value := pop;
+
+  case value.stackType of
+     stString :
+        begin
+        if numSlices > 1 then
+           raise ERuntimeException.Create('Only a single slice can be applied to a string');
+        push (value.sValue.slice (sliceObjlist[0].lower, sliceObjlist[0].upper));
+        end;
+     stList :
+        begin
+        if numSlices > 1 then
+           raise ERuntimeException.Create('Only a single slice can be applied to a list');
+        push (value.lValue.slice (sliceObjlist[0].lower, sliceObjlist[0].upper));
+        end;
+     stArray :
+        begin
+        push (value.aValue.slice(sliceObjList));
+        end
+  else
+     raise ERuntimeException.Create('You can only slice strings, arrays, or lists');
+  end;
+
+  // Free slices
+  for i := 0 to numSlices - 1 do
+      sliceObjlist[i].Free;
+end;
+
+
 // Any data ytpes such as strings or lists thatwere creating inside the user
 // function will need to be marked as garbage once the function returns.
 procedure TVM.clearAnyStackHeapAllocations;
@@ -2536,6 +2630,10 @@ begin
                            collectGarbage;
                         end;
            oLoadLocal:  loadLocalSymbol(c[ip].index);
+
+          oBuildSlice : buildSlice();
+           oSliceAll  : push(SLICE_ALL);
+           oSliceObj  : evalSliceObject (c[ip].index);
 
         oImportModule: importModule (c[ip].moduleName);
 

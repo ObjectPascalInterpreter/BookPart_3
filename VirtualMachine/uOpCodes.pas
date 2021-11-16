@@ -37,6 +37,7 @@ const
    oStoreSymbol    = byte (23);
    oStoreAttr      = byte (24);
    oStoreLocal     = byte (25);
+   //oLoadSlice      = byte (26);
 
    // Logical
    oAnd            = byte (30);
@@ -72,6 +73,9 @@ const
    oSvecIdx      = byte (92);  // Save element to vector
    oLocalLvecIdx = byte (93);  // Load element from local vector
    oLocalSvecIdx = byte (94);  // Save element to local vector
+   oBuildSlice   = byte (95);  // Build a slice object then push it onto stack
+   oSliceAll     = byte (96);
+   oSliceObj     = byte (97);
 
    oCreateArray  = byte (100);
 
@@ -125,6 +129,10 @@ initialization
 
   opCodeNames[oStoreSymbol ]   := 'store';
   opCodeNames[oStoreAttr]      := 'storeAttr';
+
+  opCodeNames[oBuildSlice]     := 'buildSlice';
+  opCodeNames[oSliceAll]       := 'sliceAll';
+  opCodeNames[oSliceObj]       := 'sliceObj';
 
   opCodeNames[oAnd]            := 'and';
   opCodeNames[oOr]             := 'or';

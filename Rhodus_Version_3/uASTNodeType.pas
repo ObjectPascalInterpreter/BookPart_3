@@ -34,18 +34,16 @@ type
       ntDotProduct,
       ntLT,
       ntLE,
-      ntGT,
-      ntGE,  // 21
+      ntGT,  // 21
+      ntGE,
       ntNE,
       ntEQ,
       ntLeftSide,
       ntExpression,
       ntSubscript,
       ntNode,
-      ntPrimaryOld,
-      //ntPeriod,
       ntImportStmt,
-      ntGlobalStmt,   // 32
+      ntGlobalStmt,   // 30
       ntModule,
       ntCreateList,
       ntPrint,
@@ -56,7 +54,7 @@ type
       ntAssertFalse,
       ntAssertFalseEx,
       ntHelp,
-      ntSwitch,           // 43
+      ntSwitch,           // 41
       ntListOfCaseStatements,
       ntCaseStatement,
       ntIf,
@@ -65,8 +63,8 @@ type
       ntFor,
       ntIter,
       ntTo,
-      ntDownTo,         // 52
-      ntFunction,       // 53
+      ntDownTo,         // 50
+      ntFunction,       // 51
       ntFunctionArguments,
       ntReturn,
       ntAssignment,
@@ -75,11 +73,14 @@ type
       ntFunctionCall,
       ntStatementList,
       ntExpressionStatement,
-      ntIdentifier,
+      ntIdentifier,   // 60
       ntPrimary,
       ntPrimaryPeriod,
       ntPrimaryIndex,
       ntPrimaryFunction,
+      ntSlice,
+      ntSliceAll,
+      ntSliceEqual,
       ntNull
    );
 

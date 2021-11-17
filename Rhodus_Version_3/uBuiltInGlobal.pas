@@ -649,14 +649,9 @@ begin
      stModule  : vm.push(TStringObject.Create (st.module.helpStr));
 
      stFunction :
-           begin
            vm.push(TStringObject.Create (st.fValue.helpStr));
-           end;
      stObjectMethod :
-           begin
-           vm.pop(); // dup object
            vm.push(TStringObject.Create (st.oValue.helpStr));
-           end;
   else
      raise ERuntimeException.Create('Unkown object type in help');
   end;

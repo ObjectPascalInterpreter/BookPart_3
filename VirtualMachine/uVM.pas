@@ -207,6 +207,7 @@ type
     function    popString : TStringObject;
     function    popList : TListObject;
     function    popUserFunction : TUserFunction;
+    function    popMethodDetails: TMethodDetails;
     function    popModule: TModule;
 
     procedure   setRecursionLimit (rl : integer);
@@ -623,6 +624,7 @@ begin
      raise ERuntimeException.Create ('Stack underflow error in popList');
  end;
 
+
 function TVM.popUserFunction : TUserFunction;
 var p: PMachineStackRecord;
 begin
@@ -638,6 +640,21 @@ begin
      raise ERuntimeException.Create ('Stack underflow error in popUserFunction');
  end;
 
+
+function TVM.popMethodDetails: TMethodDetails;
+var p: PMachineStackRecord;
+begin
+  if stackTop > -1 then
+     begin
+     p := @stack[stackTop];
+     dec(stackTop);
+     if p.stackType <> stObjectMethod then
+        raise ERuntimeException.Create ('Expecting object method type');
+     result := p.oValue;
+     end
+ else
+     raise ERuntimeException.Create ('Stack underflow error in popUserFunction');
+ end;
 
 
 function TVM.popModule: TModule;
@@ -1381,7 +1398,7 @@ begin
               f := l.methods.methodList.find (symbolName);
               if f <> nil then
                  begin
-                 push (primary);
+                 f.self := primary.lValue;
                  push (f);
                  end
               else
@@ -1394,7 +1411,7 @@ begin
               f := s.methods.methodList.find (symbolName);
               if f <> nil then
                  begin
-                 push (primary);
+                 f.self := primary.sValue;
                  push (f);
                  end
               else
@@ -1407,7 +1424,7 @@ begin
               f := a.methods.methodList.find (symbolName);
               if f <> nil then
                  begin
-                 push (primary);
+                 f.self := primary.aValue;
                  push (f);
                  end
               else
@@ -1421,7 +1438,7 @@ begin
               f := func.userFunctionMethods.methodList.find (symbolName);
               if f <> nil then
                  begin
-                 push (primary);
+                 f.self := primary.fValue;
                  push (f);
                  end
               else
@@ -1801,6 +1818,7 @@ end;
 
 // Call something like a.len()
 procedure TVM.callObjectMethod (actualNumArgs : integer; p : PMachineStackRecord);
+var selfValue : PMachineStackRecord;
 begin
   if p.oValue.nArgs <> VARIABLE_ARGS then
      if actualNumArgs <> p.oValue.nArgs then
@@ -1810,10 +1828,7 @@ begin
      push(actualNumArgs);
   // The order of stack entries from the top will be
   //   Arguments
-  //   Object method
-  //   Object (ie self)
-  // Its the responsibility of the object being called
-  // to remove the object method from the stack.
+  //   Object method -> pointer to self
   p.oValue.method(self);
 end;
 
@@ -1903,9 +1918,9 @@ begin
   for i := 0 to nPureLocals - 1 do
       stack[tbsp + i + expectedNumArgs].stackType := stNone;
 
-  // This check to see if the argument is passed as a literal to the function
+  // This check is to see if the argument is passed as a literal to the function
   // eg callme ([1,2,3,4]). Since a literal isn't assigned to anything
-  // is it marked as garbage. However, if this enters a function, we must
+  // it is marked as garbage. However, if this enters a function, we must
   // make sure the garbage collector doesn't collect it since it will be
   // used inside the function.
   for i := 0 to expectedNumArgs - 1 do

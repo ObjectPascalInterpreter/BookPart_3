@@ -27,7 +27,6 @@ type
       procedure removeLastElement (vm : TObject);
       procedure getMax (vm : TObject);
       procedure getMin (vm : TObject);
-      procedure getDims (vm : TObject);
       constructor Create;
       destructor  Destroy; override;
   end;
@@ -129,12 +128,11 @@ begin
 
   methodList.Add(TMethodDetails.Create ('len',    0, 'Return the length of a list: var.len (mylist)', getLength));
   methodList.Add(TMethodDetails.Create ('append', 1, 'Append the element to the list: var.append (a, 3.14)', append));
-  methodList.Add(TMethodDetails.Create ('remove', 1, 'Remove an element from a list with given index: var.remove (mylist, 4)', remove));
+  methodList.Add(TMethodDetails.Create ('remove', 1, 'Remove an element from a list with given index: var.remove (4)', remove));
   methodList.Add(TMethodDetails.Create ('sum',    0, 'Find the sum of values in a list. var.sum ()', getSum));
   methodList.Add(TMethodDetails.Create ('pop',    1, 'Remove the last element from a list: var.pop (list)', removeLastElement));
-  methodList.Add(TMethodDetails.Create ('max',    1, 'Find the maximum value is a 1D list of values: var.max ({1,2,3})', getMin));
-  methodList.Add(TMethodDetails.Create ('min',    1, 'Find the minimum value is a 1D list of values: var.min ({1,2,3})', getMin));
-  methodList.Add(TMethodDetails.Create ('dims',   0, 'Get dims: var.min ({1,2,3})', getDims));
+  methodList.Add(TMethodDetails.Create ('max',    0, 'Find the maximum value is a 1D list of values: var.max ()', getMax));
+  methodList.Add(TMethodDetails.Create ('min',    0, 'Find the minimum value is a 1D list of values: var.min ()', getMin));
 
   methodList.Add(TMethodDetails.Create ('dir',    0, 'dir of string object methods', dir));
 end;
@@ -154,12 +152,13 @@ end;
 //  Object
 
 procedure TListMethods.getLength (vm : TObject);
-var alist : TListObject;
+var s : TListObject;
+    md : TMethodDetails;
 begin
   // No arguments for this method
-  TVM (vm).decStackTop; // Dump the object method
-  alist := TVM (vm).popList;
-  TVM (vm).push (alist.list.Count);
+  md := TVM (vm).popMethodDetails;
+  s := TListObject (md.self);
+  TVM (vm).push (s.list.Count);
 end;
 
 
@@ -170,10 +169,11 @@ var s : TListObject;
     ls : TListObject;
     ar : TArrayObject;
     fs : TUserFunction;
+    md : TMethodDetails;
 begin
   value := TVM (vm).pop;
-  TVM (vm).decStackTop; // Dump the object method
-  s := TVM (vm).popList;
+  md := TVM (vm).popMethodDetails;
+  s := TListObject (md.self);
 
    case value.stackType of
       stInteger :    s.append (value.iValue);
@@ -211,10 +211,11 @@ end;
 procedure TListMethods.remove (vm : TObject);
 var s : TListObject;
     index : integer;
+    md : TMethodDetails;
 begin
   index := TVM (vm).popInteger;
-  TVM (vm).decStackTop; // Dump the object method
-  s := TVM (vm).popList;
+  md := TVM (vm).popMethodDetails;
+  s := TListObject (md.self);
   s.remove (index);
   TVM (vm).pushNone;
 end;
@@ -223,32 +224,35 @@ end;
 procedure TListMethods.getSum (vm : TObject);
 var s : TListObject;
     sum : double;
+    md : TMethodDetails;
 begin
-   // No argument to pop off
-   TVM (vm).decStackTop; // Dump the object method
-   s := TVM (vm).popList;
-   sum := 0;
-   for var i := 0 to s.list.Count - 1 do
-       case s.list[i].itemType of
-          liInteger :  sum := sum + s.list[i].iValue;
-          liDouble  :  sum := sum + s.list[i].dValue;
-       else
-          raise ERuntimeException.Create('You cannot sum non-numerical values in a list');
-       end;
-   TVM (vm).push(sum);
+  // No argument to pop off
+  md := TVM (vm).popMethodDetails;
+  s := TListObject (md.self);
+  sum := 0;
+  for var i := 0 to s.list.Count - 1 do
+      case s.list[i].itemType of
+         liInteger :  sum := sum + s.list[i].iValue;
+         liDouble  :  sum := sum + s.list[i].dValue;
+      else
+         raise ERuntimeException.Create('You cannot sum non-numerical values in a list');
+      end;
+  TVM (vm).push(sum);
 end;
 
 
 procedure TListMethods.removeLastElement (vm : TObject);
 var s : TListObject;
      r : TListItem;
+    md : TMethodDetails;
 begin
-   s := TVM (vm).popList;
-   if s.list.count = 0 then
-      begin
-      TVM (vm).push  (s);
-      exit;
-      end;
+  md := TVM (vm).popMethodDetails;
+  s := TListObject (md.self);
+  if s.list.count = 0 then
+     begin
+     TVM (vm).push  (s);
+     exit;
+     end;
 
    r := s.list [s.list.Count - 1];
    case r.itemType of
@@ -270,12 +274,14 @@ procedure TListMethods.insert (vm : TObject);
 var s : TListObject;
     index : integer;
     value : PMachineStackRecord;
+    md : TMethodDetails;
 begin
-   index := TVM (vm).popInteger;
-   value := TVM (vm).pop;
-   s := TVM (vm).popList;
-   if (index < 0) or (index > s.list.Count) then
-      raise ERuntimeException.Create('List index out of range');
+  index := TVM (vm).popInteger;
+  value := TVM (vm).pop;
+  md := TVM (vm).popMethodDetails;
+  s := TListObject (md.self);
+  if (index < 0) or (index > s.list.Count) then
+     raise ERuntimeException.Create('List index out of range');
 
    case value.stackType of
       stInteger :    s.insert (index, value.iValue);
@@ -296,9 +302,11 @@ procedure TListMethods.getMax (vm : TObject);
 var s : TListObject;
     i : integer;
     value : double;
+    md : TMethodDetails;
 begin
   value := -1E10;
-  s := TVM (vm).popList;
+  md := TVM (vm).popMethodDetails;
+  s := TListObject (md.self);
   for i := 0 to s.list.Count - 1 do
       case s.list[i].itemType of
          liInteger:
@@ -323,9 +331,11 @@ procedure TListMethods.getMin (vm : TObject);
 var s : TListObject;
     i : integer;
     value : double;
+    md : TMethodDetails;
 begin
   value := 1E10;
-  s := TVM (vm).popList;
+  md := TVM (vm).popMethodDetails;
+  s := TListObject (md.self);
   for i := 0 to s.list.Count - 1 do
       case s.list[i].itemType of
          liInteger:
@@ -373,39 +383,6 @@ begin
          collectData (s.list[i].lValue, data, count);
       end;
 end;
-
-
-procedure TListMethods.getDims (vm : TObject);
-var s, r : TListObject;
-    i : integer;
-    dims: TIntArray;
-    data : TDoubleArray;
-    count : integer;
-begin
-  TVM (vm).decStackTop; // Dump the object method
-  s := TVM (vm).popList;
-  setlength (dims, 10);
-  setLength (data, 16);
-  r := s;
-  count := 0;
-  while r.list.Count > 0 do
-      begin
-      r := r.list[0].lValue;
-      inc (count);
-      end;
-  dims[0] := s.list.Count;
-  dims[1] := s.list[0].lValue.list.Count;
-
-  count := 0;
-  collectData (s, data, count);
-  //level := 0;
-  //countItems (s, dims, level);
-  for i := 0 to 10 do
-      write (data[i]:3:1, ' ');
-  writeln;
-  TVM (vm).push (double(2.6));
-end;
-
 
 
 // ---------------------------------------------------------------------------------------------------

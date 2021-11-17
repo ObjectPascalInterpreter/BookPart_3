@@ -60,7 +60,7 @@ begin
 
   methodList.Add(TMethodDetails.Create ('len',     0, 'Return the length of a string: a.len()', getLength));
   methodList.Add(TMethodDetails.Create ('find',    1, 'Finds a substring in string. Returns -1 if it fails: a.find ("CD")', find));
-  methodList.Add(TMethodDetails.Create ('toUpper', 0, 'Converts all letters in the string to uppoer case: a.toUpper ()', toUpper));
+  methodList.Add(TMethodDetails.Create ('toUpper', 0, 'Converts all letters in the string to upper case: a.toUpper ()', toUpper));
   methodList.Add(TMethodDetails.Create ('toLower', 0, 'Converts all letters in the string to lower case: a.toUpper ()', toLower));
   methodList.Add(TMethodDetails.Create ('left',    1, 'Returns the left n chars of a string: a.left (5)', left));
   methodList.Add(TMethodDetails.Create ('right',   1, 'Returns the right n chars of a string: a.right (5)', right));
@@ -80,9 +80,10 @@ end;
 
 procedure TStringMethods.getLength (vm : TObject);
 var s : TStringObject;
+    md : TMethodDetails;
 begin
-   TVM (vm).decStackTop; // Dump the object method
-   s := TVM (vm).popString;
+   md := TVM (vm).popMethodDetails;
+   s := TStringObject (md.self);
    TVM (vm).push(length (s.value));
 end;
 
@@ -90,10 +91,11 @@ end;
 procedure TStringMethods.find (vm : TObject);
 var s, substr : TStringObject;
     index : integer;
+    md : TMethodDetails;
 begin
    substr := TVM (vm).popString;
-   TVM (vm).decStackTop; // Dump the object method
-   s := TVM (vm).popString;
+   md := TVM (vm).popMethodDetails;
+   s := TStringObject (md.self);
    index := pos (substr.value, s.value);
    TVM (vm).push(index-1);
 end;
@@ -101,9 +103,10 @@ end;
 
 procedure TStringMethods.toUpper (vm : TObject);
 var s : TStringObject;
+    md : TMethodDetails;
 begin
-  TVM (vm).decStackTop; // Dump the object method
-  s := TVM (vm).popString;
+  md := TVM (vm).popMethodDetails;
+  s := TStringObject (md.self);
   s.value := UpperCase (s.value);
   TVM (vm).push(s);
 end;
@@ -111,9 +114,10 @@ end;
 
 procedure TStringMethods.toLower (vm : TObject);
 var s : TStringObject;
+    md : TMethodDetails;
 begin
-  TVM (vm).decStackTop; // Dump the object method
-  s := TVM (vm).popString;
+  md := TVM (vm).popMethodDetails;
+  s := TStringObject (md.self);
   s.value := LowerCase (s.value);
   TVM (vm).push(s);
 end;
@@ -122,10 +126,11 @@ end;
 procedure TStringMethods.left (vm : TObject);
 var s : TStringObject;
     index : integer;
+    md : TMethodDetails;
 begin
   index := TVM (vm).popInteger;
-  TVM (vm).decStackTop; // Dump the object method
-  s := TVM (vm).popString;
+  md := TVM (vm).popMethodDetails;
+  s := TStringObject (md.self);
   TVM (vm).push (TStringObject.create (LeftStr (s.value, index)));
 end;
 
@@ -133,19 +138,21 @@ end;
 procedure TStringMethods.right (vm : TObject);
 var s : TStringObject;
     index : integer;
+    md : TMethodDetails;
 begin
   index := TVM (vm).popInteger;
-  TVM (vm).decStackTop; // Dump the object method
-  s := TVM (vm).popString;
+  md := TVM (vm).popMethodDetails;
+  s := TStringObject (md.self);
   TVM (vm).push (TStringObject.create (RightStr (s.value, index)));
 end;
 
 
 procedure TStringMethods.trim (vm : TObject);
 var s : TStringObject;
+    md : TMethodDetails;
 begin
-  TVM (vm).decStackTop; // Dump the object method
-  s := TVM (vm).popString;
+  md := TVM (vm).popMethodDetails;
+  s := TStringObject (md.self);
   TVM (vm).push (TStringObject.create (sysutils.trim (s.value)));
 end;
 
@@ -153,27 +160,29 @@ end;
 procedure TStringMethods.mid (vm : TObject);
 var s : TStringObject;
     start, count : integer;
+    md : TMethodDetails;
 begin
   count := TVM (vm).popInteger;
   start := TVM (vm).popInteger;
-  TVM (vm).decStackTop; // Dump the object method
-  s := TVM (vm).popString;
+  md := TVM (vm).popMethodDetails;
+  s := TStringObject (md.self);
 
   TVM (vm).push (TStringObject.create (MidStr (s.value, start + 1, count)));
 end;
 
 
 procedure TStringMethods.split (vm :TObject);
-var  s : TStringObject;
-     delimiter : string;
-     splitted: TArray<String>;
-     alist : TListObject;
-     i : integer;
+var s : TStringObject;
+    delimiter : string;
+    splitted: TArray<String>;
+    alist : TListObject;
+    i : integer;
+    md : TMethodDetails;
 begin
   delimiter := TVM (vm).popString.value;
 
-  TVM (vm).decStackTop; // Dump the object method
-  s := TVM (vm).popString;
+  md := TVM (vm).popMethodDetails;
+  s := TStringObject (md.self);
 
   splitted := SplitString(s.value, delimiter);
   alist := TListObject.Create (0);

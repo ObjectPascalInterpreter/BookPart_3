@@ -12,6 +12,7 @@ type
         helpStr : string;
         nArgs : integer;
         method : TObjectMethod;
+        self : pointer;  // Only used during execution but during execution to the 'self' associated with this method
         constructor Create (const name : string; nArgs: integer; const helpStr : string; fcn : TObjectMethod);
    end;
 
@@ -52,15 +53,15 @@ end;
 
 procedure TMethodsBase.dir(vm: TObject);
 var ls : TListObject;
+    md : TMethodDetails;
 begin
-  TVM (vm).decStackTop;
+  md := TVM (vm).popMethodDetails;
   ls := TListObject.create (0);
   for var i := 0 to methodList.Count - 1 do
       begin
       ls.append (TStringObject.Create (methodList[i].name));
       end;
 
-  TVM (vm).pop(); // Dump the object
   TVM (vm).push (ls);
 end;
 

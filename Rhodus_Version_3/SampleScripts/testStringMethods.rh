@@ -1,0 +1,13 @@
+
+a = "1234567890"
+
+assertTrue (a.len ()==10)
+assertTrue (a.find ("45")==3)
+assertTrue ("abc".toUpper ()=="ABC")
+assertTrue ("ABC".toLower ()=="abc")
+assertTrue (a.left (3)=="123")
+assertTrue (a.right (3)=="890")
+assertTrue (a.mid (2,4)=="3456")
+assertTrue ("  123 ".trim ()=="123")
+assertTrue ("A B C".split (" ")==["A", "B", "C"])
+

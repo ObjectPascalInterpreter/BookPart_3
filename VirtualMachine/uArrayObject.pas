@@ -158,6 +158,7 @@ end;
 procedure TArrayMethods.getLength (vm : TObject);
 var s : TArrayObject;
     nArgs, d : integer;
+    md : TMethodDetails;
 begin
    d := 0;
    nArgs := TVM (vm).popInteger;
@@ -167,8 +168,8 @@ begin
    if nArgs > 1 then
       raise ERuntimeException.Create('Too many arguments passed to len()');
 
-   TVM (vm).decStackTop; // Dump the object method
-   s := TVM (vm).popArray;
+   md := TVM (vm).popMethodDetails;
+   s := TArrayObject (md.self);
 
    if nArgs = 0 then
       TVM (vm).push(s.getNumberOfElements())
@@ -189,9 +190,10 @@ procedure TArrayMethods.getShape (vm : TObject);
 var s : TArrayObject;
     r : TListObject;
     i : integer;
+    md : TMethodDetails;
 begin
-  TVM (vm).decStackTop; // Dump the object method
-  s := TVM (vm).popArray;
+   md := TVM (vm).popMethodDetails;
+   s := TArrayObject (md.self);
 
   r := TListObject.Create(length (s.dim));
   for i := 0 to length (s.dim) - 1 do
@@ -206,9 +208,10 @@ end;
 
 procedure TArrayMethods.getNumDim (vm: TObject);
 var s :TArrayObject;
+    md : TMethodDetails;
 begin
-  TVM (vm).decStackTop; // Dump the object method
-  s := TVM (vm).popArray;
+   md := TVM (vm).popMethodDetails;
+   s := TArrayObject (md.self);
 
   TVM (vm).push (length (s.dim));
 end;
@@ -216,9 +219,10 @@ end;
 
 procedure TArrayMethods.getNumRows (vm: TObject);
 var s :TArrayObject;
+    md : TMethodDetails;
 begin
-  TVM (vm).decStackTop; // Dump the object method
-  s := TVM (vm).popArray;
+   md := TVM (vm).popMethodDetails;
+   s := TArrayObject (md.self);
 
   if s.getNumDimensions() <= 2 then
      TVM (vm).push (s.dim[0])
@@ -229,9 +233,10 @@ end;
 
 procedure TArrayMethods.getNumCols (vm: TObject);
 var s :TArrayObject;
+    md : TMethodDetails;
 begin
-  TVM (vm).decStackTop; // Dump the object method
-  s := TVM (vm).popArray;
+   md := TVM (vm).popMethodDetails;
+   s := TArrayObject (md.self);
 
   if s.getNumDimensions() = 2 then
      TVM (vm).push (s.dim[1])
@@ -246,11 +251,12 @@ var s, appendee : TArrayObject;
     target : TArrayObject;
     i, j : integer;
     sRows: integer;
+    md : TMethodDetails;
 begin
   appendee := TVM (vm).popArray;
 
-  TVM (vm).decStackTop; // Dump the object method
-  s := TVM (vm).popArray;
+   md := TVM (vm).popMethodDetails;
+   s := TArrayObject (md.self);
 
   if (s.getNumDimensions() = 2) and (appendee.getNumDimensions() = 2) then
      begin
@@ -275,6 +281,7 @@ end;
 
 procedure TArrayMethods.appendCol (vm : TObject);
 var s :TArrayObject;
+    md : TMethodDetails;
 begin
 
 end;
@@ -284,9 +291,11 @@ procedure TArrayMethods.getTranspose (vm : TObject);
 var s, tmp :TArrayObject;
     i, j : integer;
     r, c : integer;
+    md : TMethodDetails;
 begin
-  TVM (vm).decStackTop; // Dump the object method
-  s := TVM (vm).popArray;  // Object itself
+  md := TVM (vm).popMethodDetails;
+  s := TArrayObject (md.self);
+
   r := s.dim[0];
   c := s.dim[1];
 
@@ -304,9 +313,11 @@ procedure TArrayMethods.getSqr (vm : TObject);
 var i : integer;
     s1, s2 : TArrayObject;
     len : integer;
+    md : TMethodDetails;
 begin
-   TVM (vm).decStackTop; // Dump the object method
-   s1 := TVM (vm).popArray;
+   md := TVM (vm).popMethodDetails;
+   s1 := TArrayObject (md.self);
+
    s2 := s1.clone;
 
    len := s1.getNumberOfElements - 1;
@@ -320,10 +331,12 @@ procedure TArrayMethods.add (vm : TObject);
 var i, n : integer;
     s1, s2 : TArrayObject;
     argument : TArrayObject;
+    md : TMethodDetails;
 begin
   argument := TVM (vm).popArray;
-  TVM (vm).decStackTop; // Dump the object method
-  s1 := TVM (vm).popArray;
+
+  md := TVM (vm).popMethodDetails;
+  s1 := TArrayObject (md.self);
   s2 := s1.clone;
 
   if sameDimensions (s1, argument) then
@@ -342,10 +355,12 @@ procedure TArrayMethods.sub (vm : TObject);
 var i, n : integer;
     s1, s2 : TArrayObject;
     argument : TArrayObject;
+    md : TMethodDetails;
 begin
   argument := TVM (vm).popArray;
-  TVM (vm).decStackTop; // Dump the object method
-  s1 := TVM (vm).popArray;
+
+  md := TVM (vm).popMethodDetails;
+  s1 := TArrayObject (md.self);
   s2 := s1.clone;
 
   if sameDimensions (s1, argument) then
@@ -364,9 +379,10 @@ procedure TArrayMethods.getMax (vm : TObject);
 var i : integer;
     s1 : TArrayObject;
     max : double;
+    md : TMethodDetails;
 begin
-   TVM (vm).decStackTop; // Dump the object method
-   s1 := TVM (vm).popArray;
+   md := TVM (vm).popMethodDetails;
+   s1 := TArrayObject (md.self);
 
    TVM (vm).push (TArrayObject.getMax(s1));
 end;
@@ -376,9 +392,10 @@ procedure TArrayMethods.getMin (vm : TObject);
 var i : integer;
     s1 : TArrayObject;
     min : double;
+    md : TMethodDetails;
 begin
-   TVM (vm).decStackTop; // Dump the object method
-   s1 := TVM (vm).popArray;
+   md := TVM (vm).popMethodDetails;
+   s1 := TArrayObject (md.self);
 
    TVM (vm).push (TArrayObject.getMin(s1)); 
 end;
@@ -387,9 +404,11 @@ end;
 procedure TArrayMethods.getTrunc (vm : TObject);
 var s, target : TArrayObject;
     i : integer;
+    md : TMethodDetails;
 begin
-  TVM (vm).decStackTop; // Dump the object method
-  s := TVM (vm).popArray;
+  md := TVM (vm).popMethodDetails;
+  s := TArrayObject (md.self);
+
   target := s.clone;
 
   for i := 0 to s.getNumberOfElements() - 1 do

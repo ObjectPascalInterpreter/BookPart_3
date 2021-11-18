@@ -1,0 +1,9 @@
+
+a = array([[1,2],[3,4],[5,6]])
+
+assertTrue (a.len () == 6)
+assertTrue (a.shape() == [3,2])
+assertTrue (a.rows () == 3)
+assertTrue (a.cols() == 2)
+assertTrue (a.tr() == array([[1,3,5],[2,4,6]]))
+

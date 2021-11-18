@@ -154,9 +154,10 @@ testUtils.beginTests ("")
   testUtils.runtestTrue (math.toRadians (180) == math.pi)
   testUtils.runtestTrue (math.toRadians (90) == math.pi/2)
   
-  testUtils.runtestTrue (math.sin (30) == -0.988031624092862)
-  testUtils.runtestTrue (math.cos (30) == 0.154251449887584)  
-  testUtils.runtestTrue (math.tan (30) == -6.40533119664628)  
+  // math.pi/3 = 60 degrees
+  testUtils.runtestTrue (math.sin (math.pi/3) == 0.866025403784439)
+  testUtils.runtestTrue (math.cos (math.pi/3) == 0.5)  
+  testUtils.runtestTrue (math.tan (math.pi/3) == 1.73205080756888)  
   testUtils.runtestTrue (math.acos (0.2) == 1.36943840600457)  
   testUtils.runtestTrue (math.asin (0.2) == 0.201357920790331)
   testUtils.runtestTrue (math.atan (0.2) == 0.197395559849881)

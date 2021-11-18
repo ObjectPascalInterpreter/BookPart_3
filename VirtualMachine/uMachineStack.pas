@@ -2,7 +2,7 @@ unit uMachineStack;
 
 // This source is distributed under Apache 2.0
 
-// Copyright (C) 2019-2020 Herbert M Sauro
+// Copyright (C) 2019-2021 Herbert M Sauro
 
 // Author Contact Information:
 // email: hsauro@gmail.com
@@ -16,8 +16,6 @@ type
                 stLocalSymbol, stList, stModule, stFunction, stObjectMethod, stObject);
   TMachineStackRecord = record
      stackType : TStackType;  // 1 byte
-     module : TModule;
-     symbol : TSymbol;
      case TStackType of       // Max 8 bytes
        stInteger     : (iValue : integer);
        stBoolean     : (bValue : boolean);
@@ -29,7 +27,8 @@ type
        stFunction    : (fValue : TUserFunction);
        stObjectMethod: (oValue : TMethodDetails);
 
-       stObject : (objValue : TObject);
+       stModule      : (module : TModule);
+       stObject      : (objValue : TObject); // not currently used
      end;
 
   PMachineStackRecord = ^TMachineStackRecord;

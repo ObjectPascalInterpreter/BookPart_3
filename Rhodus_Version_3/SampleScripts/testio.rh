@@ -1,0 +1,20 @@
+
+import file
+
+lines = []
+f = file.openFile ("testtext.txt", "r")
+while not file.eof (f) do
+    s = file.readLine(f)
+    lines.append (s)
+end 
+file.closeFile(f)
+
+f = file.openFile ("copy.txt", "w")
+for i = 0 to lines.len() - 1 do
+    file.writeString (f, lines[i] + "\n")
+end
+file.closeFile(f)
+
+astr = file.readAllText ("copy.txt")
+print (astr);
+

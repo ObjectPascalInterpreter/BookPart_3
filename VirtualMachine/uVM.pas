@@ -1983,6 +1983,10 @@ begin
         result.list[i].dValue := p.dValue;
         result.list[i].itemType := liDouble;
         end;
+      stObject:
+        begin
+
+        end;
       stString:
         begin
         result.list[i].sValue := p.sValue.clone;

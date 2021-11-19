@@ -1,0 +1,117 @@
+{
+   "examples": [ 
+   { 
+     "name": "Print method",
+     "src": "println(\"This how you print things\")"
+},
+{
+    "name": "Assignment",
+"src": 
+"a = 3
+b = \"a string\"
+c = 3.1415
+d = False
+e = [1,False, 5.67, [5,6]]
+println (a)
+println (b)
+println (c)
+println (d)
+println (e)"
+},
+    {"name": "For Loop",
+"src": 
+"for i = 1 to 5 do
+  println (i)
+end"
+    },
+{
+"name": "While loop",
+"src":
+"i = 5
+while i >= 1 do
+   println (i)
+   i = i - 1
+end
+"
+},
+{
+"name": "Repeat loop",
+"src":
+"i = 5
+repeat
+   println (i)
+   i = i - 1
+until i < 1
+"
+},
+{
+"name": "Arithmetic",
+"src":
+"a = 3.4; b = 7.8
+println (-a, \" \", a/b, \" \", a*b, \" \")
+println (a+b, \" \", a-b, \" \", a mod b, \" \", 12 div 5)
+"
+},
+{
+"name": "Math",
+"src":
+"import math
+println (\"Pi constant = \", math.pi)
+println (math.sin (math.pi))"
+},
+{
+"name": "dir()",
+"src":
+"import math
+println (math.dir())"
+},
+{
+"name": "User functions",
+"src":
+"function callme (a, b)
+    c = a + b
+    return c
+end
+
+println (callme (2,3))
+println (callme (\"Hello \", \"World\"))
+"
+},
+{
+"name": "Lists",
+"src":
+"a = [1,2,3,4]
+println (a)
+b = [True, False]
+c = a + b
+println (c)
+a = [1,True,3.14,\"Rhodus\",[5,6,[8,9]]]
+x = a[2]
+println (x)
+println (a[4,2])
+a[4,2] = [\"abc\"]
+println (a)
+"
+},
+{
+"name": "Arrays",
+"src":
+"a = array([1,2,3,4])
+b = array([0]*20)
+
+println (a.len())
+println (b.len())
+println (b)
+"
+},
+{
+"name": "Graphics_1",
+"src":
+"import graphics
+
+graphics.moveto(10,10)
+graphics.lineto(123,140)
+"
+}
+  ]
+}

@@ -21,6 +21,7 @@ Uses uSyntaxParser,
      uBuiltInGlobal;
 
 var lastError : TRhodusError;
+    settings : TRhodusSettings;
 
 function rhodus_initialize (var config : TRhodusConfig) : NativeInt; stdcall
 var rhodus : TRhodus;
@@ -44,11 +45,16 @@ begin
 end;
 
 
+var s : AnsiString;
 function rhodus_getSettings (handle : NativeInt) : PRhodusSettings; stdcall;
 var rhodus : TRhodus;
+    p : PAnsiChar;
+    s: AnsiString;
 begin
+  result := @settings;
   rhodus := TRhodus (handle);
-  result.versionStr := PansiChar (AnsiString (rhodus.getVersion()));
+  s := AnsiString (rhodus.getVersion());
+  result.versionStr := PAnsiChar (s);
 end;
 
 

@@ -78,7 +78,7 @@ type
   TRhodusRun = function  (handle : THandle; code : AnsiString) : integer; stdcall;
   TRhodusTerminate = procedure (handle : THandle); stdcall;
   TRhodusGetLastError = function (handle : THandle) : PRhodusError; stdcall;
-  TRhodusGetSettings = function (handle : THandle) : PRhodusSettings; stdcall;
+  TRhodusGetSettings = function (handle : THandle) : PRhodusSettings; cdecl;
 
 var config : TRhodusConfig;
     graphicsMethods : TGraphicsMethods;
@@ -213,6 +213,7 @@ end;
 procedure TfrmMain.FormCreate(Sender: TObject);
 var i : integer;
 begin
+  try
   handle := LoadLibrary('librhodus.dll');
   @rhodus_initialize := GetProcAddress(Handle, 'rhodus_initialize');
   @rhodus_run := GetProcAddress(Handle, 'rhodus_run');
@@ -240,6 +241,9 @@ begin
   cboExamples.ItemIndex := -1;
 
   gClear;
+  except
+    showmessage ('Error');
+  end;
 end;
 
 procedure TfrmMain.N2Click(Sender: TObject);

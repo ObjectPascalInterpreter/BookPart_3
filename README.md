@@ -1,6 +1,6 @@
 # BookPart 3
 
-Update (11/10/2021): Clean up of code and uploaded ne chapters and new pdf. Note the book is very incomplete.
+Update (11/19/2021) To make things a little more interting I added very simple graphics module which can be used by the IDE.  Also released a new binary with this functionality.
 
 Update (11/6/2021): Added new binary release (3.0.2.0). Includes console, dll library and GUI app in binary form. 
 

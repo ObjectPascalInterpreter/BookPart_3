@@ -2,8 +2,8 @@ object frmMain: TfrmMain
   Left = 0
   Top = 0
   Caption = 'Rhodus IDE'
-  ClientHeight = 957
-  ClientWidth = 1575
+  ClientHeight = 1109
+  ClientWidth = 1749
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,21 +16,22 @@ object frmMain: TfrmMain
   PixelsPerInch = 144
   TextHeight = 25
   object Splitter2: TSplitter
-    Left = 1099
+    Left = 1211
     Top = 86
     Width = 5
-    Height = 871
+    Height = 1023
     Margins.Left = 5
     Margins.Top = 5
     Margins.Right = 5
     Margins.Bottom = 5
     Align = alRight
     ExplicitLeft = 1179
+    ExplicitHeight = 871
   end
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 1575
+    Width = 1749
     Height = 86
     Margins.Left = 5
     Margins.Top = 5
@@ -40,10 +41,10 @@ object frmMain: TfrmMain
     TabOrder = 0
     ExplicitWidth = 1561
     DesignSize = (
-      1575
+      1749
       86)
     object lblVersion: TLabel
-      Left = 1359
+      Left = 1533
       Top = 18
       Width = 77
       Height = 25
@@ -53,6 +54,7 @@ object frmMain: TfrmMain
       Margins.Bottom = 5
       Anchors = [akTop, akRight]
       Caption = 'lblVersion'
+      ExplicitLeft = 1359
     end
     object Label1: TLabel
       Left = 454
@@ -136,7 +138,7 @@ object frmMain: TfrmMain
     Left = 0
     Top = 86
     Width = 278
-    Height = 871
+    Height = 1023
     Margins.Left = 5
     Margins.Top = 5
     Margins.Right = 5
@@ -162,7 +164,7 @@ object frmMain: TfrmMain
       Left = 1
       Top = 349
       Width = 276
-      Height = 521
+      Height = 673
       Margins.Left = 5
       Margins.Top = 5
       Margins.Right = 5
@@ -177,8 +179,8 @@ object frmMain: TfrmMain
   object Panel3: TPanel
     Left = 278
     Top = 86
-    Width = 821
-    Height = 871
+    Width = 933
+    Height = 1023
     Margins.Left = 5
     Margins.Top = 5
     Margins.Right = 5
@@ -186,10 +188,11 @@ object frmMain: TfrmMain
     Align = alClient
     TabOrder = 2
     ExplicitWidth = 901
+    ExplicitHeight = 871
     object Splitter1: TSplitter
       Left = 1
-      Top = 506
-      Width = 819
+      Top = 658
+      Width = 931
       Height = 4
       Cursor = crVSplit
       Margins.Left = 5
@@ -198,12 +201,13 @@ object frmMain: TfrmMain
       Margins.Bottom = 5
       Align = alBottom
       ExplicitLeft = 2
+      ExplicitTop = 506
       ExplicitWidth = 898
     end
     object moutput: TMemo
       Left = 1
-      Top = 510
-      Width = 819
+      Top = 662
+      Width = 931
       Height = 360
       Margins.Left = 5
       Margins.Top = 5
@@ -225,8 +229,8 @@ object frmMain: TfrmMain
     object editor: TMemo
       Left = 1
       Top = 1
-      Width = 819
-      Height = 505
+      Width = 931
+      Height = 657
       Margins.Left = 5
       Margins.Top = 5
       Margins.Right = 5
@@ -235,7 +239,7 @@ object frmMain: TfrmMain
       Color = clWhite
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clCream
-      Font.Height = -24
+      Font.Height = -16
       Font.Name = 'Fira Code Medium'
       Font.Style = []
       Lines.Strings = (
@@ -269,15 +273,14 @@ object frmMain: TfrmMain
       ScrollBars = ssBoth
       TabOrder = 1
       StyleElements = [seClient, seBorder]
-      ExplicitWidth = 885
-      ExplicitHeight = 498
+      ExplicitWidth = 896
     end
   end
   object pnlRight: TPanel
-    Left = 1104
+    Left = 1216
     Top = 86
-    Width = 471
-    Height = 871
+    Width = 533
+    Height = 1023
     Margins.Left = 5
     Margins.Top = 5
     Margins.Right = 5
@@ -287,8 +290,8 @@ object frmMain: TfrmMain
     OnResize = pnlRightResize
     object Splitter3: TSplitter
       Left = 1
-      Top = 411
-      Width = 469
+      Top = 563
+      Width = 531
       Height = 3
       Cursor = crVSplit
       Margins.Left = 5
@@ -297,12 +300,13 @@ object frmMain: TfrmMain
       Margins.Bottom = 5
       Align = alBottom
       ExplicitLeft = 4
+      ExplicitTop = 411
       ExplicitWidth = 389
     end
     object pnlInfo: TPanel
       Left = 1
-      Top = 414
-      Width = 469
+      Top = 566
+      Width = 531
       Height = 456
       Margins.Left = 5
       Margins.Top = 5
@@ -317,8 +321,8 @@ object frmMain: TfrmMain
     object pnlImage: TPanel
       Left = 1
       Top = 1
-      Width = 469
-      Height = 410
+      Width = 531
+      Height = 562
       Margins.Left = 5
       Margins.Top = 5
       Margins.Right = 5
@@ -334,8 +338,8 @@ object frmMain: TfrmMain
       object pnlDrawing: TImage
         Left = 1
         Top = 1
-        Width = 467
-        Height = 408
+        Width = 529
+        Height = 560
         Margins.Left = 5
         Margins.Top = 5
         Margins.Right = 5

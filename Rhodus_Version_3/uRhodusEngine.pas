@@ -63,7 +63,7 @@ type
       procedure setSetColorCallBack (setColorCallBack : TVMCaptureStringCallBack);
 
       function  getVM : TVM;
-      function  getVersion : string;
+      function  getVersion : AnsiString;
       function  compileToAST (sourceCode : string; var syntaxError : TSyntaxError) : boolean;
       function  generateByteCode (interactive : boolean; var compileError : TCompilerError) : boolean;
       function  compileCode (const src : string;  var module : TModuleLib; interactive : boolean) : boolean;
@@ -146,7 +146,7 @@ begin
 end;
 
 
-function  TRhodus.getVersion : string;
+function  TRhodus.getVersion : AnsiString;
 begin
   result := uBuiltInConfig.RHODUS_VERSION;
 end;

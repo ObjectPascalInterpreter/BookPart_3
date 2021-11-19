@@ -103,6 +103,15 @@ println (a.len())
 println (b.len())
 println (b)
 "
+},
+{
+"name": "Graphics_1",
+"src":
+"import graphics
+
+graphics.moveto(10,10)
+graphics.lineto(123,140)
+"
 }
   ]
 }

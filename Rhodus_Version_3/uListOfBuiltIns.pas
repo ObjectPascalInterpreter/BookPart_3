@@ -29,7 +29,8 @@ Uses uBuiltInMath,
      uBuiltInRandom,
      uBuiltInFile,
      uBuiltInOS,
-     uBuiltInStr;
+     uBuiltInStr,
+     uBuiltInGraphics;
 
 
 constructor TBuiltIn.Create (name, className : string);
@@ -70,6 +71,7 @@ initialization
   listofBuiltIns.Add (TBuiltIn.Create ('file',   'uBuiltInFile.'   + TBuiltInFile.ClassName));
   listofBuiltIns.Add (TBuiltIn.Create ('time',   'uBuiltInOS.'     + TBuiltInTime.ClassName));
   listofBuiltIns.Add (TBuiltIn.Create ('strings','uBuiltInStrings.' + TBuiltInStr.ClassName));
+  listofBuiltIns.Add (TBuiltIn.Create ('graphics','uBuiltInGraphics.' + TBuiltInGraphics.ClassName));
 finalization
   listOfBuiltIns.Free;
 end.

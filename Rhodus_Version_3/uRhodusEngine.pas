@@ -11,6 +11,7 @@ interface
 
 Uses Generics.Collections,
      IOUtils,
+     ulibTypes,
      uVM,
      uSymbolTable,
      uMachineStack,
@@ -50,12 +51,15 @@ type
       readStringCallBack : TVMReadStringCallBack;
       function memAllocatedByVm : integer;
     public
+      graphicsMethods : PGraphicsMethods;
+
       class var bolShowTree : boolean;
       class var bolShowByteCode : boolean;
 
       procedure setPrintCallBack (printcallBack : TVMCaptureStringCallBack);
       procedure setPrintLnCallBack (printLnCallBack : TVMCaptureStringCallBack);
       procedure setReadStringCallBack (readStringCallBack : TVMReadStringCallBack);
+      procedure setGraphicsMethodCallBack (graphicsMethodsCallback : PGraphicsMethods);
       procedure setSetColorCallBack (setColorCallBack : TVMCaptureStringCallBack);
 
       function  getVM : TVM;
@@ -82,6 +86,7 @@ uses uCommands,
      uOpCodes,
      uBuiltInOS,
      uBuiltInConfig,
+     uBuiltInGraphics,
      uTerminal,
      uRhodusTypes,
      uEnvironment,
@@ -139,7 +144,6 @@ begin
   memoryList.freeGarbage;
   inherited;
 end;
-
 
 
 function  TRhodus.getVersion : string;
@@ -321,6 +325,13 @@ end;
 procedure TRhodus.setReadStringCallBack (readStringCallBack : TVMReadStringCallBack);
 begin
   self.readStringCallBack := readStringCallBack;
+end;
+
+
+procedure TRhodus.setGraphicsMethodCallBack (graphicsMethodsCallback : PGraphicsMethods);
+begin
+  graphicsMethods := graphicsMethodsCallback;
+  setGaphicsCallBackTable (graphicsMethods);
 end;
 
 

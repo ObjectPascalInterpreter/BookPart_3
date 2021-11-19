@@ -35,6 +35,14 @@ type
     N1: TMenuItem;
     N2: TMenuItem;
     About1: TMenuItem;
+    pnlRight: TPanel;
+    Splitter2: TSplitter;
+    Splitter3: TSplitter;
+    btnNew: TButton;
+    pnlInfo: TPanel;
+    mnuNew: TMenuItem;
+    pnlImage: TPanel;
+    pnlDrawing: TImage;
     procedure btnRunClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure btnLoadClick(Sender: TObject);
@@ -45,6 +53,8 @@ type
     procedure About1Click(Sender: TObject);
     procedure N2Click(Sender: TObject);
     procedure Quit1Click(Sender: TObject);
+    procedure pnlRightResize(Sender: TObject);
+    procedure mnuNewClick(Sender: TObject);
   private
     { Private declarations }
     examples : TExamples;
@@ -71,6 +81,7 @@ type
   TRhodusGetSettings = function (handle : THandle) : PRhodusSettings; stdcall;
 
 var config : TRhodusConfig;
+    graphicsMethods : TGraphicsMethods;
     rhodus_initialize : TRhodusInitialise;
     rhodus_run : TRhodusRun;
     rhodus_terminate : TRhodusTerminate;
@@ -112,19 +123,56 @@ begin
   end;
 end;
 
+
 procedure TfrmMain.btnClearClick(Sender: TObject);
 begin
   moutput.Clear;
 end;
 
+// --------------------------------------------------------------
+procedure gClear;
+begin
+  frmMain.pnlDrawing.Canvas.Pen.Color := clWhite;
+  frmMain.pnlDrawing.Canvas.Brush.Color := clWebOldLace;
+  frmMain.pnlDrawing.canvas.rectangle(0, 0, frmMain.pnlDrawing.Width-1, frmMain.pnlDrawing.Height-1);
+end;
+
+function gGetCanvasSize : TRhodusPoint;
+begin
+  result.w := frmMain.pnlDrawing.Width;
+  result.h := frmMain.pnlDrawing.Height;
+end;
+
+procedure gMoveTo (x, y : double);
+begin
+  frmMain.pnlDrawing.canvas.moveTo (trunc (x), trunc (y));
+end;
+
+procedure gLineTo (x, y : double);
+begin
+  frmMain.pnlDrawing.Canvas.Pen.Color := clRed;
+  frmMain.pnlDrawing.Canvas.Pen.Width := 2;
+  frmMain.pnlDrawing.canvas.lineTo (trunc (x), trunc (y));
+end;
+
+
+procedure gRefresh;
+begin
+end;
+
+
+// ----------------------------------------------------------------
+
 procedure TfrmMain.loadScript;
 begin
  if OpenDialog.Execute then
-     begin
-     editor.Lines.LoadFromFile(opendialog.FileName);
-     end;
+    editor.Lines.LoadFromFile(opendialog.FileName);
 end;
 
+procedure TfrmMain.mnuNewClick(Sender: TObject);
+begin
+  editor.Clear;
+end;
 
 procedure TfrmMain.btnLoadClick(Sender: TObject);
 begin
@@ -143,7 +191,6 @@ begin
      end;
 end;
 
-
 procedure TfrmMain.cboExamplesChange(Sender: TObject);
 begin
   editor.Lines.Text :=
@@ -155,7 +202,6 @@ begin
   FileListBox1.Directory := DirectoryListBox1.Directory;
 end;
 
-
 procedure TfrmMain.FileListBox1Click(Sender: TObject);
 var fileName : string;
 begin
@@ -163,7 +209,6 @@ begin
   if TPath.GetExtension(fileName) = '.rh' then
      editor.Lines.Text := TFile.ReadAllText(filename);
 end;
-
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 var i : integer;
@@ -179,6 +224,13 @@ begin
   config.printlnPtr := rhodus_println;
   config.readStringPtr := rhodus_readString;
 
+  graphicsMethods.redrawRequest := gRefresh;
+  graphicsMethods.clear := gClear;
+  graphicsMethods.getCanvasSize := gGetCanvasSize;
+  graphicsMethods.moveTo := gMoveTo;
+  graphicsMethods.lineTo := gLineTo;
+  config.graphicsHandlerPtr := @graphicsMethods;
+
   rhodus := rhodus_initialize (config);
   lblVersion.caption := 'Running Version: ' + AnsiString (rhodus_getSettings(rhodus).versionStr);
 
@@ -186,11 +238,22 @@ begin
   for i := 0 to examples.Count - 1 do
       cboExamples.AddItem(examples[i].name, examples[i]);
   cboExamples.ItemIndex := -1;
+
+  gClear;
 end;
 
 procedure TfrmMain.N2Click(Sender: TObject);
 begin
   Application.Terminate;
+end;
+
+procedure TfrmMain.pnlRightResize(Sender: TObject);
+begin
+  pnlDrawing.Canvas.Pen.Color := clWhite;
+  pnlDrawing.Canvas.Brush.Color := clWebOldLace;
+  pnlDrawing.Picture.Bitmap.Width := pnlDrawing.Width;
+  pnlDrawing.Picture.Bitmap.Height := pnlDrawing.Height;
+  pnlDrawing.canvas.rectangle(0, 0, pnlDrawing.Width-1, pnlDrawing.Height-1);
 end;
 
 procedure TfrmMain.Quit1Click(Sender: TObject);

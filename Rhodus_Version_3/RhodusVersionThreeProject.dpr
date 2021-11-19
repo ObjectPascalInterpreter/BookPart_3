@@ -32,7 +32,6 @@
 uses
   {$IFDEF DEBUG}
   {$ENDIF }
-  //FastMM4 in '..\..\Library\FastMM\FastMM4.pas',
   Windows,
   ShellAPI,
   System.SysUtils,
@@ -93,8 +92,9 @@ uses
   uArrayObject in '..\VirtualMachine\uArrayObject.pas',
   uBuiltInArray in 'uBuiltInArray.pas',
   uBuiltInMatrix in 'uBuiltInMatrix.pas',
-  uMath in 'uMath.pas';
-
+  uMath in 'uMath.pas',
+  uBuiltInGraphics in 'uBuiltInGraphics.pas',
+  ulibTypes in '..\librhodus\ulibTypes.pas';
 
 begin
   ReportMemoryLeaksOnShutdown := True;

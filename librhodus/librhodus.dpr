@@ -64,7 +64,8 @@ uses
   uSyntaxParser in '..\Rhodus_Version_3\uSyntaxParser.pas',
   uTerminal in '..\Rhodus_Version_3\uTerminal.pas',
   uTokenVector in '..\Rhodus_Version_3\uTokenVector.pas',
-  uTurtleInterface in '..\Rhodus_Version_3\uTurtleInterface.pas';
+  uTurtleInterface in '..\Rhodus_Version_3\uTurtleInterface.pas',
+  uBuiltInGraphics in '..\Rhodus_Version_3\uBuiltInGraphics.pas';
 
 {$R *.res}
 

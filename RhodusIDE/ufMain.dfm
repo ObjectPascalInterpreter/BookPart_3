@@ -2,8 +2,8 @@ object frmMain: TfrmMain
   Left = 0
   Top = 0
   Caption = 'Rhodus IDE'
-  ClientHeight = 864
-  ClientWidth = 1397
+  ClientHeight = 957
+  ClientWidth = 1575
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,10 +15,22 @@ object frmMain: TfrmMain
   OnCreate = FormCreate
   PixelsPerInch = 144
   TextHeight = 25
+  object Splitter2: TSplitter
+    Left = 1099
+    Top = 86
+    Width = 5
+    Height = 871
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
+    Align = alRight
+    ExplicitLeft = 1179
+  end
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 1397
+    Width = 1575
     Height = 86
     Margins.Left = 5
     Margins.Top = 5
@@ -26,12 +38,12 @@ object frmMain: TfrmMain
     Margins.Bottom = 5
     Align = alTop
     TabOrder = 0
-    ExplicitWidth = 1383
+    ExplicitWidth = 1561
     DesignSize = (
-      1397
+      1575
       86)
     object lblVersion: TLabel
-      Left = 1181
+      Left = 1359
       Top = 18
       Width = 77
       Height = 25
@@ -41,10 +53,9 @@ object frmMain: TfrmMain
       Margins.Bottom = 5
       Anchors = [akTop, akRight]
       Caption = 'lblVersion'
-      ExplicitLeft = 1026
     end
     object Label1: TLabel
-      Left = 345
+      Left = 454
       Top = 12
       Width = 121
       Height = 25
@@ -55,7 +66,7 @@ object frmMain: TfrmMain
       Caption = 'Sample Scripts:'
     end
     object btnRun: TButton
-      Left = 125
+      Left = 234
       Top = 15
       Width = 97
       Height = 54
@@ -68,7 +79,7 @@ object frmMain: TfrmMain
       OnClick = btnRunClick
     end
     object btnLoad: TButton
-      Left = 12
+      Left = 121
       Top = 15
       Width = 98
       Height = 54
@@ -81,7 +92,7 @@ object frmMain: TfrmMain
       OnClick = btnLoadClick
     end
     object btnClear: TButton
-      Left = 236
+      Left = 345
       Top = 15
       Width = 97
       Height = 54
@@ -94,7 +105,7 @@ object frmMain: TfrmMain
       OnClick = btnClearClick
     end
     object cboExamples: TComboBox
-      Left = 344
+      Left = 453
       Top = 39
       Width = 217
       Height = 33
@@ -107,19 +118,32 @@ object frmMain: TfrmMain
       Text = 'Examples'
       OnChange = cboExamplesChange
     end
+    object btnNew: TButton
+      Left = 8
+      Top = 18
+      Width = 97
+      Height = 54
+      Margins.Left = 8
+      Margins.Top = 8
+      Margins.Right = 8
+      Margins.Bottom = 8
+      Caption = 'New'
+      TabOrder = 4
+      OnClick = mnuNewClick
+    end
   end
   object Panel2: TPanel
     Left = 0
     Top = 86
     Width = 278
-    Height = 778
+    Height = 871
     Margins.Left = 5
     Margins.Top = 5
     Margins.Right = 5
     Margins.Bottom = 5
     Align = alLeft
     TabOrder = 1
-    ExplicitHeight = 771
+    ExplicitHeight = 864
     object DirectoryListBox1: TDirectoryListBox
       Left = 1
       Top = 1
@@ -138,7 +162,7 @@ object frmMain: TfrmMain
       Left = 1
       Top = 349
       Width = 276
-      Height = 428
+      Height = 521
       Margins.Left = 5
       Margins.Top = 5
       Margins.Right = 5
@@ -147,26 +171,25 @@ object frmMain: TfrmMain
       ItemHeight = 25
       TabOrder = 1
       OnClick = FileListBox1Click
-      ExplicitHeight = 421
+      ExplicitHeight = 514
     end
   end
   object Panel3: TPanel
     Left = 278
     Top = 86
-    Width = 1119
-    Height = 778
+    Width = 821
+    Height = 871
     Margins.Left = 5
     Margins.Top = 5
     Margins.Right = 5
     Margins.Bottom = 5
     Align = alClient
     TabOrder = 2
-    ExplicitWidth = 1105
-    ExplicitHeight = 771
+    ExplicitWidth = 901
     object Splitter1: TSplitter
       Left = 1
-      Top = 413
-      Width = 1117
+      Top = 506
+      Width = 819
       Height = 4
       Cursor = crVSplit
       Margins.Left = 5
@@ -175,13 +198,12 @@ object frmMain: TfrmMain
       Margins.Bottom = 5
       Align = alBottom
       ExplicitLeft = 2
-      ExplicitTop = 290
-      ExplicitWidth = 1582
+      ExplicitWidth = 898
     end
     object moutput: TMemo
       Left = 1
-      Top = 417
-      Width = 1117
+      Top = 510
+      Width = 819
       Height = 360
       Margins.Left = 5
       Margins.Top = 5
@@ -197,14 +219,14 @@ object frmMain: TfrmMain
       ScrollBars = ssBoth
       TabOrder = 0
       StyleElements = [seClient, seBorder]
-      ExplicitTop = 410
-      ExplicitWidth = 1103
+      ExplicitTop = 503
+      ExplicitWidth = 885
     end
     object editor: TMemo
       Left = 1
       Top = 1
-      Width = 1117
-      Height = 412
+      Width = 819
+      Height = 505
       Margins.Left = 5
       Margins.Top = 5
       Margins.Right = 5
@@ -217,18 +239,113 @@ object frmMain: TfrmMain
       Font.Name = 'Fira Code Medium'
       Font.Style = []
       Lines.Strings = (
-        'a = 3; b = 6; println ("sum = ", a + b)'
-        'print (1)'
-        'for x = 1 to 10 do'
-        '    print (", ", x * x)'
+        'import graphics'
+        'import math'
+        ''
+        'p = graphics.size()'
+        'x = p[0]/2-50; y = p[1]/2-50;'
+        'heading = 45'
+        ''
+        'function forward (distance)'
+        '  global x, y'
+        ''
+        '  graphics.moveto(x,y)'
+        '  radians = heading*math.pi/180'
+        '  dx = math.cos (radians) * distance'
+        '  dy = math.sin (radians) * distance'
+        '  x = x + dx'
+        '  y = y + dy'
+        '  graphics.lineto(x,y)'
         'end'
-        'println()')
+        ''
+        'graphics.clear()'
+        'graphics.moveto(x,y)'
+        'graphics.lineto(x,y)'
+        'for i = 1 to 12 do'
+        '    forward (200)'
+        '    heading = heading + 150 '
+        'end')
       ParentFont = False
       ScrollBars = ssBoth
       TabOrder = 1
       StyleElements = [seClient, seBorder]
-      ExplicitWidth = 1103
-      ExplicitHeight = 405
+      ExplicitWidth = 885
+      ExplicitHeight = 498
+    end
+  end
+  object pnlRight: TPanel
+    Left = 1104
+    Top = 86
+    Width = 471
+    Height = 871
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
+    Align = alRight
+    TabOrder = 3
+    OnResize = pnlRightResize
+    object Splitter3: TSplitter
+      Left = 1
+      Top = 411
+      Width = 469
+      Height = 3
+      Cursor = crVSplit
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
+      Align = alBottom
+      ExplicitLeft = 4
+      ExplicitWidth = 389
+    end
+    object pnlInfo: TPanel
+      Left = 1
+      Top = 414
+      Width = 469
+      Height = 456
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
+      Align = alBottom
+      TabOrder = 0
+      ExplicitLeft = -15
+      ExplicitTop = 139
+      ExplicitWidth = 389
+    end
+    object pnlImage: TPanel
+      Left = 1
+      Top = 1
+      Width = 469
+      Height = 410
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
+      Align = alClient
+      Caption = 'pnlImage'
+      TabOrder = 1
+      OnResize = pnlRightResize
+      ExplicitLeft = 108
+      ExplicitTop = 156
+      ExplicitWidth = 278
+      ExplicitHeight = 62
+      object pnlDrawing: TImage
+        Left = 1
+        Top = 1
+        Width = 467
+        Height = 408
+        Margins.Left = 5
+        Margins.Top = 5
+        Margins.Right = 5
+        Margins.Bottom = 5
+        Align = alClient
+        ExplicitLeft = 144
+        ExplicitTop = 168
+        ExplicitWidth = 158
+        ExplicitHeight = 158
+      end
     end
   end
   object OpenDialog: TOpenDialog
@@ -244,6 +361,10 @@ object frmMain: TfrmMain
     Top = 24
     object File1: TMenuItem
       Caption = 'File'
+      object mnuNew: TMenuItem
+        Caption = 'New'
+        OnClick = mnuNewClick
+      end
       object Quit1: TMenuItem
         Caption = 'Open'
         OnClick = Quit1Click

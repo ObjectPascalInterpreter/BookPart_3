@@ -32,6 +32,8 @@ begin
     rhodus.setPrintCallBack(config.printPtr);
     rhodus.setPrintLnCallBack(config.printlnPtr);
     rhodus.setReadStringCallBack(config.readStringPtr);
+    if config.graphicsHandlerPtr <> nil then
+       rhodus.setGraphicsMethodCallBack (config.graphicsHandlerPtr);
   except
     on e: Exception do
       begin
@@ -57,6 +59,7 @@ var rhodus : TRhodus;
 begin
   result := 0;
   rhodus := TRhodus (handle);
+
   if rhodus.compileToAST (code, syntaxError) then
      begin
      if rhodus.generateByteCode (True, compilerError) then

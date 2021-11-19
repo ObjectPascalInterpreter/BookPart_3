@@ -24,6 +24,7 @@ const
   MAX_INDICES_DEPTH = 64; // Number of indexable dimensions to a list
 
 type
+  // Used when user functions are called
   TFrame = record
     bsp: integer;     // stack base of function arguments
     nArgs: integer;   // number of arguments

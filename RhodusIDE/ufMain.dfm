@@ -39,12 +39,12 @@ object frmMain: TfrmMain
     Margins.Bottom = 5
     Align = alTop
     TabOrder = 0
-    ExplicitWidth = 1561
+    ExplicitWidth = 1735
     DesignSize = (
       1749
       86)
     object lblVersion: TLabel
-      Left = 1533
+      Left = 1519
       Top = 18
       Width = 77
       Height = 25
@@ -145,7 +145,7 @@ object frmMain: TfrmMain
     Margins.Bottom = 5
     Align = alLeft
     TabOrder = 1
-    ExplicitHeight = 864
+    ExplicitHeight = 1016
     object DirectoryListBox1: TDirectoryListBox
       Left = 1
       Top = 1
@@ -173,7 +173,7 @@ object frmMain: TfrmMain
       ItemHeight = 25
       TabOrder = 1
       OnClick = FileListBox1Click
-      ExplicitHeight = 514
+      ExplicitHeight = 666
     end
   end
   object Panel3: TPanel
@@ -187,8 +187,8 @@ object frmMain: TfrmMain
     Margins.Bottom = 5
     Align = alClient
     TabOrder = 2
-    ExplicitWidth = 901
-    ExplicitHeight = 871
+    ExplicitWidth = 919
+    ExplicitHeight = 1016
     object Splitter1: TSplitter
       Left = 1
       Top = 658
@@ -223,8 +223,8 @@ object frmMain: TfrmMain
       ScrollBars = ssBoth
       TabOrder = 0
       StyleElements = [seClient, seBorder]
-      ExplicitTop = 503
-      ExplicitWidth = 885
+      ExplicitTop = 655
+      ExplicitWidth = 917
     end
     object editor: TMemo
       Left = 1
@@ -239,7 +239,7 @@ object frmMain: TfrmMain
       Color = clWhite
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clCream
-      Font.Height = -16
+      Font.Height = -24
       Font.Name = 'Fira Code Medium'
       Font.Style = []
       Lines.Strings = (
@@ -273,7 +273,8 @@ object frmMain: TfrmMain
       ScrollBars = ssBoth
       TabOrder = 1
       StyleElements = [seClient, seBorder]
-      ExplicitWidth = 896
+      ExplicitWidth = 917
+      ExplicitHeight = 650
     end
   end
   object pnlRight: TPanel
@@ -288,6 +289,8 @@ object frmMain: TfrmMain
     Align = alRight
     TabOrder = 3
     OnResize = pnlRightResize
+    ExplicitLeft = 1202
+    ExplicitHeight = 1016
     object Splitter3: TSplitter
       Left = 1
       Top = 563
@@ -314,9 +317,7 @@ object frmMain: TfrmMain
       Margins.Bottom = 5
       Align = alBottom
       TabOrder = 0
-      ExplicitLeft = -15
-      ExplicitTop = 139
-      ExplicitWidth = 389
+      ExplicitTop = 559
     end
     object pnlImage: TPanel
       Left = 1
@@ -331,10 +332,7 @@ object frmMain: TfrmMain
       Caption = 'pnlImage'
       TabOrder = 1
       OnResize = pnlRightResize
-      ExplicitLeft = 108
-      ExplicitTop = 156
-      ExplicitWidth = 278
-      ExplicitHeight = 62
+      ExplicitHeight = 555
       object pnlDrawing: TImage
         Left = 1
         Top = 1

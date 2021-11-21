@@ -105,12 +105,80 @@ println (b)
 "
 },
 {
-"name": "Graphics_1",
+"name": "Square",
 "src":
 "import graphics
 
-graphics.moveto(10,10)
-graphics.lineto(123,140)
+graphics.clear()
+delta = 100
+graphics.moveto(50,50)
+graphics.lineto(50+delta,50)
+graphics.lineto(50+delta,50+delta)
+graphics.lineto(50,50+delta)
+graphics.lineto(50,50)
+"
+},
+{
+"name": "Tree",
+"src":
+"
+import graphics
+import math
+
+x = 260; y = 600
+heading = 270
+
+function forward (distance)
+  global x, y
+
+  graphics.moveto(x,y)
+  radians = heading*math.pi/180
+  dx = math.cos (radians) * distance
+  dy = math.sin (radians) * distance
+  x = x + dx
+  y = y + dy
+  graphics.lineto(x,y)
+end
+
+function tree(branchLen)
+    global heading
+    if branchLen > 5 then
+       forward(branchLen)
+       heading = heading + 20
+       tree(branchLen-15)
+       heading = heading - 40
+       tree(branchLen-15)
+       heading = heading + 20
+       forward(-branchLen)
+    end
+end
+
+graphics.clear()
+graphics.pencolor(210,20,0)
+graphics.moveto (x,y)
+graphics.penwidth(2)
+tree(115)
+"
+},
+{
+"name": "Colors1",
+"src":
+"
+import graphics
+import math
+import random
+
+graphics.clear()
+for i = 1 to 4 do
+    for j = 1 to 4 do
+        r = random.randint(255)
+        g = random.randint(255)
+        b =  random.randint(255)
+        graphics.pencolor (r, g, b); 
+        graphics.brushcolor (r, g, b); 
+        graphics.fillellipse (j*80,i*100,70,70)  
+    end
+end
 "
 }
   ]

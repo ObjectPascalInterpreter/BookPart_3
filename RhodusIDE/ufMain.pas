@@ -64,8 +64,14 @@ type
     procedure loadScript;
   end;
 
+  TRhodusWorker = class (TThread)
+    protected
+      procedure Execute; override;
+  end;
+
 var
   frmMain: TfrmMain;
+  rt : TRhodusWorker;
 
 implementation
 
@@ -88,6 +94,23 @@ var config : TRhodusConfig;
     rhodus_getLastError : TRhodusGetLastError;
     rhodus_getSettings : TRhodusGetSettings;
     rhodus : THandle;
+
+    pen_r, pen_g, pen_b : integer;
+    brush_r, brush_g, brush_b : integer;
+    penWidth : double;
+
+
+procedure TRhodusWorker.Execute;
+var errorId : integer;
+    pt : PRhodusError;
+begin
+  errorId := rhodus_run (rhodus, frmMain.editor.text);
+  if errorId < 0 then
+     begin
+     pt := rhodus_getLastError (rhodus);
+     frmMain.moutput.Lines.Add(AnsiString (pt.errorMsg));
+     end;
+end;
 
 
 procedure rhodus_print (astr : AnsiString);
@@ -132,10 +155,87 @@ end;
 // --------------------------------------------------------------
 procedure gClear;
 begin
-  frmMain.pnlDrawing.Canvas.Pen.Color := clWhite;
-  frmMain.pnlDrawing.Canvas.Brush.Color := clWebOldLace;
-  frmMain.pnlDrawing.canvas.rectangle(0, 0, frmMain.pnlDrawing.Width-1, frmMain.pnlDrawing.Height-1);
+  TThread.Synchronize(nil,
+    procedure
+    begin
+    frmMain.pnlDrawing.Canvas.Pen.Color := clWhite;
+    frmMain.pnlDrawing.Canvas.Brush.Color := clWebOldLace;
+    frmMain.pnlDrawing.canvas.rectangle(0, 0, frmMain.pnlDrawing.Width-1, frmMain.pnlDrawing.Height-1);
+    end
+  );
 end;
+
+
+procedure gSetPenColor (r, g, b : integer);
+begin
+  pen_r := r; pen_g := g; pen_b := b;
+end;
+
+
+procedure gSetPenWidth (w : double);
+begin
+  penWidth := w;
+end;
+
+
+procedure gSetBrushColor (r, g, b : integer);
+begin
+  brush_r := r; brush_g := g; brush_b := b;
+end;
+
+
+procedure gDrawRect (x, y, w, h : double);
+begin
+  TThread.Synchronize(nil,
+    procedure
+    begin
+    frmMain.pnlDrawing.Canvas.Pen.Width := trunc (penWidth);
+    frmMain.pnlDrawing.Canvas.Pen.Color := RGB (pen_r, pen_g, pen_b);
+    frmMain.pnlDrawing.Canvas.Rectangle(trunc (x), trunc (y), trunc (x + w), trunc(y + h));
+    end
+  );
+end;
+
+procedure gDrawFilledRect (x, y, w, h : double);
+begin
+  TThread.Synchronize(nil,
+    procedure
+    begin
+    frmMain.pnlDrawing.Canvas.Pen.Width := trunc (penWidth);
+    frmMain.pnlDrawing.Canvas.Pen.Color := RGB (pen_r, pen_g, pen_b);
+    frmMain.pnlDrawing.Canvas.Brush.Color := RGB (brush_r, brush_g, brush_b);
+    frmMain.pnlDrawing.Canvas.Rectangle(trunc (x), trunc (y), trunc (x + w), trunc(y + h));
+    frmMain.pnlDrawing.Refresh;
+    end
+  );
+end;
+
+procedure gDrawEllipse (x1, y1, x2, y2 : double);
+begin
+  TThread.Synchronize(nil,
+    procedure
+    begin
+    frmMain.pnlDrawing.Canvas.Pen.Width := trunc (penWidth);
+    frmMain.pnlDrawing.Canvas.Pen.Color := RGB (pen_r, pen_g, pen_b);
+    frmMain.pnlDrawing.Canvas.Brush.Style := TBrushStyle.bsClear;
+    frmMain.pnlDrawing.Canvas.Ellipse(trunc (x1), trunc (y1), trunc (x2), trunc(y2));
+    end
+  );
+end;
+
+procedure gDrawFilledEllipse (x1, y1, x2, y2 : double);
+begin
+  TThread.Synchronize(nil,
+    procedure
+    begin
+    frmMain.pnlDrawing.Canvas.Pen.Width := trunc (penWidth);
+    frmMain.pnlDrawing.Canvas.Brush.Color := RGB (brush_r, brush_g, brush_b);
+    frmMain.pnlDrawing.Canvas.Pen.Color := RGB (pen_r, pen_g, pen_b);
+    frmMain.pnlDrawing.Canvas.Ellipse(trunc (x1), trunc (y1), trunc (x2), trunc(y2));
+    end
+  );
+end;
+
 
 function gGetCanvasSize : TRhodusPoint;
 begin
@@ -145,14 +245,24 @@ end;
 
 procedure gMoveTo (x, y : double);
 begin
-  frmMain.pnlDrawing.canvas.moveTo (trunc (x), trunc (y));
+  TThread.Synchronize(nil,
+    procedure
+    begin
+    frmMain.pnlDrawing.canvas.moveTo (trunc (x), trunc (y));
+    end
+  );
 end;
 
 procedure gLineTo (x, y : double);
 begin
-  frmMain.pnlDrawing.Canvas.Pen.Color := clRed;
-  frmMain.pnlDrawing.Canvas.Pen.Width := 2;
-  frmMain.pnlDrawing.canvas.lineTo (trunc (x), trunc (y));
+  TThread.Synchronize(nil,
+    procedure
+    begin
+    frmMain.pnlDrawing.Canvas.Pen.Color := RGB (pen_r, pen_g, pen_b);
+    frmMain.pnlDrawing.Canvas.Pen.Width := trunc (penWidth);
+    frmMain.pnlDrawing.canvas.lineTo (trunc (x), trunc (y));
+    end
+  );
 end;
 
 
@@ -183,12 +293,17 @@ procedure TfrmMain.btnRunClick(Sender: TObject);
 var errorId : integer;
     pt : PRhodusError;
 begin
-  errorId := rhodus_run (rhodus, editor.text);
-  if errorId < 0 then
-     begin
-     pt := rhodus_getLastError (rhodus);
-     moutput.Lines.Add(AnsiString (pt.errorMsg));
-     end;
+   rt := TRhodusWorker.Create (True);
+   rt.resume;
+   //rt.WaitFor;
+   //rt.Free;
+
+  //errorId := rhodus_run (rhodus, editor.text);
+  //if errorId < 0 then
+  //   begin
+  //   pt := rhodus_getLastError (rhodus);
+  //   moutput.Lines.Add(AnsiString (pt.errorMsg));
+  //   end;
 end;
 
 procedure TfrmMain.cboExamplesChange(Sender: TObject);
@@ -230,6 +345,14 @@ begin
   graphicsMethods.getCanvasSize := gGetCanvasSize;
   graphicsMethods.moveTo := gMoveTo;
   graphicsMethods.lineTo := gLineTo;
+  graphicsMethods.setPenColor := gSetPenColor;
+  graphicsMethods.setPenWidth := gSetPenWidth;
+  graphicsMethods.setBrushColor := gSetBrushColor;
+  graphicsMethods.drawRectangle := gDrawRect;
+  graphicsMethods.drawFilledRectangle := gDrawFilledRect;
+  graphicsMethods.drawEllipse := gDrawEllipse;
+  graphicsMethods.drawFilledEllipse := gDrawFilledEllipse;
+
   config.graphicsHandlerPtr := @graphicsMethods;
 
   rhodus := rhodus_initialize (config);

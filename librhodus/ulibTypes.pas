@@ -11,6 +11,7 @@ type
      setPenColor : procedure (r, g, b : integer);
      setPenWidth : procedure (width : double);
      setBrushColor : procedure (r, g, b : integer);
+     setPixel : procedure (x, y : integer);//, pen_r, pen_g, pen_b : integer);
      moveTo : procedure (x, y : double);
      lineTo : procedure (x, y : double);
      drawRectangle : procedure (x, y, w, h : double);

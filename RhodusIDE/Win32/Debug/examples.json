@@ -161,7 +161,7 @@ tree(115)
 "
 },
 {
-"name": "Colors1",
+"name": "circles",
 "src":
 "
 import graphics
@@ -173,12 +173,117 @@ for i = 1 to 4 do
     for j = 1 to 4 do
         r = random.randint(255)
         g = random.randint(255)
-        b =  random.randint(255)
+        b = random.randint(255)
         graphics.pencolor (r, g, b); 
         graphics.brushcolor (r, g, b); 
         graphics.fillellipse (j*80,i*100,70,70)  
     end
 end
+"
+},
+{
+"name": "lines",
+"src":
+"
+import graphics
+import math
+import random
+
+p = graphics.size()
+width = p[0]; height = p[1]
+
+graphics.clear()
+for i = 1 to 100 do
+   graphics.penwidth (3+random.randint(4))
+   graphics.pencolor(
+       random.randint (255),
+       random.randint (255),
+       random.randint (255)
+   )
+   graphics.moveto(random.randint (width),random.randint (height))
+   graphics.lineto(random.randint (width),random.randint (height))
+end
+"
+},
+{
+"name": "spiral",
+"src":
+"
+// From spiral.go
+import graphics
+import math
+
+s = 520
+num = 600
+
+graphics.clear()
+graphics.pencolor (255, 0, 0)
+graphics.brushcolor (255, 0, 0)
+
+for i = 0 to num do 
+    t = i / num 
+    d = t*s*0.4 + 10
+    a = t * math.pi * 2 * 20
+    x = s/2 + math.cos(a)*d
+    y = s/2 + math.sin(a)*d
+    r = t * 8
+    graphics.fillellipse (x, y, r, r)
+end"
+},
+{
+"name": "mandelbrot",
+"src":
+"
+import graphics
+import time
+
+graphics.clear();
+
+p = graphics.size()
+kt = 319
+itermax = 100;  // how many iterations to do  
+width = p[0];   // horizonal resolution   
+height= p[1];   // vertical resolution    
+
+t1 = time.getTickCount()
+for row = 0 to height - 1 do
+    for col = 0 to width - 1 do
+        c_re = (col - width/2.0)*4.0/width
+        c_im = (row - height/2.0)*4.0/width
+        x = 0; y = 0
+        k = 0
+
+        while (x*x+y*y <= 4) and (k < 319) do
+            x_new = x*x - y*y + c_re;
+            y = 2*x*y + c_im;
+            x = x_new;
+            k = k + 1
+        end 
+
+      if k < kt then
+         if k < 16 then 
+            graphics.pencolor (k * 8, k * 8, 128 + k * 4)
+         end
+         if (k >= 16) and (k < 64) then 
+            graphics.pencolor (128 + k - 16, 128 + k - 16, 192 + k - 16)
+         end
+         if k >= 64 then 
+            graphics.pencolor (kt - k, 128 + (kt - k) / 2, kt - k)
+         end 
+         graphics.pixel (row, col)
+      else 
+         graphics.brushcolor (1,1,1)
+         graphics.pencolor (1, 1, 1) 
+         graphics.pixel (row, col)
+      end
+   end
+
+  if row mod 50 == 0 then
+     println (row)
+  end
+end
+println (\"Done\");
+println (\"Time = \", time.getTickCount() - t1, \" ms\")
 "
 }
   ]

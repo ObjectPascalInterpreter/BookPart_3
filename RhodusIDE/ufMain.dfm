@@ -2,7 +2,7 @@ object frmMain: TfrmMain
   Left = 0
   Top = 0
   Caption = 'Rhodus IDE'
-  ClientHeight = 1109
+  ClientHeight = 1112
   ClientWidth = 1749
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -13,20 +13,19 @@ object frmMain: TfrmMain
   Menu = MainMenu
   Position = poScreenCenter
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   PixelsPerInch = 144
   TextHeight = 25
   object Splitter2: TSplitter
     Left = 1211
     Top = 86
-    Width = 5
-    Height = 1023
+    Width = 6
+    Height = 1026
     Margins.Left = 5
     Margins.Top = 5
     Margins.Right = 5
     Margins.Bottom = 5
     Align = alRight
-    ExplicitLeft = 1179
-    ExplicitHeight = 871
   end
   object Panel1: TPanel
     Left = 0
@@ -44,7 +43,7 @@ object frmMain: TfrmMain
       1749
       86)
     object lblVersion: TLabel
-      Left = 1519
+      Left = 1520
       Top = 18
       Width = 77
       Height = 25
@@ -54,10 +53,9 @@ object frmMain: TfrmMain
       Margins.Bottom = 5
       Anchors = [akTop, akRight]
       Caption = 'lblVersion'
-      ExplicitLeft = 1359
     end
     object Label1: TLabel
-      Left = 454
+      Left = 455
       Top = 12
       Width = 121
       Height = 25
@@ -70,7 +68,7 @@ object frmMain: TfrmMain
     object btnRun: TButton
       Left = 234
       Top = 15
-      Width = 97
+      Width = 98
       Height = 54
       Margins.Left = 8
       Margins.Top = 8
@@ -81,9 +79,9 @@ object frmMain: TfrmMain
       OnClick = btnRunClick
     end
     object btnLoad: TButton
-      Left = 121
+      Left = 122
       Top = 15
-      Width = 98
+      Width = 97
       Height = 54
       Margins.Left = 8
       Margins.Top = 8
@@ -96,7 +94,7 @@ object frmMain: TfrmMain
     object btnClear: TButton
       Left = 345
       Top = 15
-      Width = 97
+      Width = 98
       Height = 54
       Margins.Left = 8
       Margins.Top = 8
@@ -109,7 +107,7 @@ object frmMain: TfrmMain
     object cboExamples: TComboBox
       Left = 453
       Top = 39
-      Width = 217
+      Width = 218
       Height = 33
       Margins.Left = 5
       Margins.Top = 5
@@ -138,14 +136,14 @@ object frmMain: TfrmMain
     Left = 0
     Top = 86
     Width = 278
-    Height = 1023
+    Height = 1026
     Margins.Left = 5
     Margins.Top = 5
     Margins.Right = 5
     Margins.Bottom = 5
     Align = alLeft
     TabOrder = 1
-    ExplicitHeight = 1016
+    ExplicitHeight = 1019
     object DirectoryListBox1: TDirectoryListBox
       Left = 1
       Top = 1
@@ -164,7 +162,7 @@ object frmMain: TfrmMain
       Left = 1
       Top = 349
       Width = 276
-      Height = 673
+      Height = 676
       Margins.Left = 5
       Margins.Top = 5
       Margins.Right = 5
@@ -173,14 +171,14 @@ object frmMain: TfrmMain
       ItemHeight = 25
       TabOrder = 1
       OnClick = FileListBox1Click
-      ExplicitHeight = 666
+      ExplicitHeight = 669
     end
   end
   object Panel3: TPanel
     Left = 278
     Top = 86
     Width = 933
-    Height = 1023
+    Height = 1026
     Margins.Left = 5
     Margins.Top = 5
     Margins.Right = 5
@@ -188,12 +186,12 @@ object frmMain: TfrmMain
     Align = alClient
     TabOrder = 2
     ExplicitWidth = 919
-    ExplicitHeight = 1016
+    ExplicitHeight = 1019
     object Splitter1: TSplitter
       Left = 1
-      Top = 658
+      Top = 660
       Width = 931
-      Height = 4
+      Height = 5
       Cursor = crVSplit
       Margins.Left = 5
       Margins.Top = 5
@@ -201,12 +199,11 @@ object frmMain: TfrmMain
       Margins.Bottom = 5
       Align = alBottom
       ExplicitLeft = 2
-      ExplicitTop = 506
-      ExplicitWidth = 898
+      ExplicitWidth = 930
     end
     object moutput: TMemo
       Left = 1
-      Top = 662
+      Top = 665
       Width = 931
       Height = 360
       Margins.Left = 5
@@ -223,14 +220,14 @@ object frmMain: TfrmMain
       ScrollBars = ssBoth
       TabOrder = 0
       StyleElements = [seClient, seBorder]
-      ExplicitTop = 655
+      ExplicitTop = 658
       ExplicitWidth = 917
     end
     object editor: TMemo
       Left = 1
       Top = 1
       Width = 931
-      Height = 657
+      Height = 659
       Margins.Left = 5
       Margins.Top = 5
       Margins.Right = 5
@@ -274,14 +271,14 @@ object frmMain: TfrmMain
       TabOrder = 1
       StyleElements = [seClient, seBorder]
       ExplicitWidth = 917
-      ExplicitHeight = 650
+      ExplicitHeight = 652
     end
   end
   object pnlRight: TPanel
-    Left = 1216
+    Left = 1217
     Top = 86
-    Width = 533
-    Height = 1023
+    Width = 532
+    Height = 1026
     Margins.Left = 5
     Margins.Top = 5
     Margins.Right = 5
@@ -289,12 +286,12 @@ object frmMain: TfrmMain
     Align = alRight
     TabOrder = 3
     OnResize = pnlRightResize
-    ExplicitLeft = 1202
-    ExplicitHeight = 1016
+    ExplicitLeft = 1203
+    ExplicitHeight = 1019
     object Splitter3: TSplitter
       Left = 1
-      Top = 563
-      Width = 531
+      Top = 566
+      Width = 530
       Height = 3
       Cursor = crVSplit
       Margins.Left = 5
@@ -302,14 +299,13 @@ object frmMain: TfrmMain
       Margins.Right = 5
       Margins.Bottom = 5
       Align = alBottom
-      ExplicitLeft = 4
-      ExplicitTop = 411
-      ExplicitWidth = 389
+      ExplicitLeft = 2
+      ExplicitWidth = 529
     end
     object pnlInfo: TPanel
       Left = 1
-      Top = 566
-      Width = 531
+      Top = 569
+      Width = 530
       Height = 456
       Margins.Left = 5
       Margins.Top = 5
@@ -317,13 +313,13 @@ object frmMain: TfrmMain
       Margins.Bottom = 5
       Align = alBottom
       TabOrder = 0
-      ExplicitTop = 559
+      ExplicitTop = 562
     end
     object pnlImage: TPanel
       Left = 1
       Top = 1
-      Width = 531
-      Height = 562
+      Width = 530
+      Height = 565
       Margins.Left = 5
       Margins.Top = 5
       Margins.Right = 5
@@ -332,21 +328,21 @@ object frmMain: TfrmMain
       Caption = 'pnlImage'
       TabOrder = 1
       OnResize = pnlRightResize
-      ExplicitHeight = 555
+      ExplicitHeight = 558
       object pnlDrawing: TImage
         Left = 1
         Top = 1
-        Width = 529
-        Height = 560
+        Width = 528
+        Height = 563
         Margins.Left = 5
         Margins.Top = 5
         Margins.Right = 5
         Margins.Bottom = 5
         Align = alClient
-        ExplicitLeft = 144
-        ExplicitTop = 168
-        ExplicitWidth = 158
-        ExplicitHeight = 158
+        ExplicitLeft = 2
+        ExplicitTop = 2
+        ExplicitWidth = 526
+        ExplicitHeight = 561
       end
     end
   end

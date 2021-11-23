@@ -24,6 +24,7 @@ type
        procedure   setPenColor (vm : TObject);
        procedure   setPenWidth (vm : TObject);
        procedure   setBrushColor (vm : TObject);
+       procedure   setPixel (vm : TObject);
        procedure   moveTo  (vm : TObject);
        procedure   lineTo    (vm : TObject);
        procedure   drawRect (vm : TObject);
@@ -34,6 +35,7 @@ type
 
        constructor Create;
   end;
+
 
 procedure setGaphicsCallBackTable (graphicsMethods : PGraphicsMethods);
 
@@ -47,6 +49,13 @@ Uses Math,
      uListObject,
      uVMExceptions,
      uMemoryManager;
+
+type
+  TRGBTriple = packed record
+    rgbtBlue: Byte;
+    rgbtGreen: Byte;
+    rgbtRed: Byte;
+  end;
 
 var graphicsMethodsPtr : PGraphicsMethods;
 
@@ -62,8 +71,9 @@ begin
   addMethod (clear,          0, 'clear',   'Set the seed for the random number generator: seed (23)');
   addMethod (getCanvasSize,  0, 'size',   'Set the seed for the random number generator: seed (23)');
   addMethod (setPenColor,    3, 'pencolor', '');
-  addMethod (setPenWidth,    1, 'penwidth', '');
-  addMethod (setBrushColor,  3, 'brushcolor', '');
+  addMethod (setPenWidth,       1, 'penwidth', '');
+  addMethod (setBrushColor,     3, 'brushcolor', '');
+  addMethod (setPixel,          2, 'pixel', '');
   addMethod (moveTo,            2, 'moveto',  'Set the seed for the random number generator: seed (23)');
   addMethod (lineTo,            2, 'lineto',  'Return a uniformly distributed random number: random()');
   addMethod (drawRect,          4, 'rect',  'Return a uniformly distributed random number: random()');
@@ -108,9 +118,9 @@ end;
 
 procedure TBuiltInGraphics.setPenColor (vm : TObject);
 begin
-  pen_b := TVM (vm).popInteger;
-  pen_g := TVM (vm).popInteger;
-  pen_r := TVM (vm).popInteger;
+  pen_b := trunc (TVM (vm).popScalar);
+  pen_g := trunc (TVM (vm).popScalar);
+  pen_r := trunc (TVM (vm).popScalar);
 
   checkGraphicsSubsystem;
 
@@ -125,9 +135,9 @@ end;
 
 procedure TBuiltInGraphics.setBrushColor (vm : TObject);
 begin
-  brush_b := TVM (vm).popInteger;
-  brush_g := TVM (vm).popInteger;
-  brush_r := TVM (vm).popInteger;
+  brush_b := trunc (TVM (vm).popScalar);
+  brush_g := trunc (TVM (vm).popScalar);
+  brush_r := trunc (TVM (vm).popScalar);
 
   checkGraphicsSubsystem;
 
@@ -150,6 +160,23 @@ begin
      graphicsMethodsPtr.setPenWidth (penwidth)
   else
      raise ERuntimeException.Create('setPenWidth subsystem not available.');
+
+  TVM (vm).pushNone;
+end;
+
+
+procedure TBuiltInGraphics.setPixel (vm : TObject);
+var x, y : integer;
+begin
+  y := TVM (vm).popInteger;
+  x := TVM (vm).popInteger;
+
+  checkGraphicsSubsystem;
+
+  if @graphicsMethodsPtr.setPixel <> nil then
+     graphicsMethodsPtr.setPixel (x, y)
+  else
+     raise ERuntimeException.Create('setPixel subsystem not available.');
 
   TVM (vm).pushNone;
 end;
@@ -219,7 +246,6 @@ begin
   x2 := TVM (vm).popScalar;
   y1 := TVM (vm).popScalar;
   x1 := TVM (vm).popScalar;
-
 
   checkGraphicsSubsystem;
 

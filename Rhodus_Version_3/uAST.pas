@@ -19,13 +19,6 @@ type
        procedure freeChildNodes;
    end;
 
-   // Experimental way to free nodes if there are errors during parsing
-   // Not currently active
-   TPool = class (TList<TASTNode>)
-      procedure addToPool (obj : TASTNode);
-   end;
-
-
    // Base AST Node
    TASTNode = class (TObject)
         nodeType : TASTNodeType;
@@ -339,28 +332,10 @@ type
 
    function displayAST (root : TASTNode) : string;
 
-   procedure freePool;
-
 implementation
 
 Uses StrUtils, RTTi;
 
-var pool : TPool;
-
-procedure TPool.addToPool (obj : TASTNode);
-begin
-  add (obj);
-end;
-
-
-procedure freePool;
-begin
-  for var i := pool.Count - 1 downto 0 do
-      begin
-      pool[i].Free;
-      pool.Delete (i);
-      end;
-end;
 
 
 procedure TChildNodes.freeChildNodes;
@@ -376,7 +351,6 @@ begin
   inherited Create;
   freeChildren := True;//False;    // set true so that we can use freeAST
   self.nodeType := nodeType;
-  pool.addToPool (self);
 end;
 
 
@@ -1485,10 +1459,6 @@ begin
   result := print (root, '');
 end;
 
-initialization
-  pool := TPool.Create;
-finalization
-  pool.Free;
 end.
 
 

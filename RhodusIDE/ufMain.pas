@@ -6,11 +6,19 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, ulibTypes,
   Vcl.ExtCtrls, Vcl.FileCtrl, Vcl.ComCtrls,
-  uExamples, Vcl.Menus;
+  uExamples, Vcl.Menus, SyncObjs;
 
 const RHODUS_VERSION = 0.5;
 
 type
+  TRGBTriple = packed record
+    rgbtBlue: Byte;
+    rgbtGreen: Byte;
+    rgbtRed: Byte;
+  end;
+  TRGBTripleArray = ARRAY[Word] of TRGBTriple;
+  pRGBTripleArray = ^TRGBTripleArray;
+
   TfrmMain = class(TForm)
     Panel1: TPanel;
     btnRun: TButton;
@@ -55,18 +63,26 @@ type
     procedure Quit1Click(Sender: TObject);
     procedure pnlRightResize(Sender: TObject);
     procedure mnuNewClick(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
     { Private declarations }
     examples : TExamples;
+    bmp : TBitmap;
+    Line: array of pRGBTripleArray;
+    procedure defaultColors;
   public
     { Public declarations }
     handle: THandle;
+    Lock: TCriticalSection;
     procedure loadScript;
   end;
 
   TRhodusWorker = class (TThread)
+    private
+      FLock : TCriticalSection;
     protected
       procedure Execute; override;
+      constructor Create(ALock: TCriticalSection);
   end;
 
 var
@@ -100,16 +116,24 @@ var config : TRhodusConfig;
     penWidth : double;
 
 
+constructor TRhodusWorker.Create(ALock: TCriticalSection);
+begin
+  self.FLock := ALock;
+  inherited Create (False);
+end;
+
 procedure TRhodusWorker.Execute;
 var errorId : integer;
     pt : PRhodusError;
 begin
+  FLock.Acquire;
   errorId := rhodus_run (rhodus, frmMain.editor.text);
   if errorId < 0 then
      begin
      pt := rhodus_getLastError (rhodus);
      frmMain.moutput.Lines.Add(AnsiString (pt.errorMsg));
      end;
+  FLock.Release;
 end;
 
 
@@ -158,9 +182,11 @@ begin
   TThread.Synchronize(nil,
     procedure
     begin
-    frmMain.pnlDrawing.Canvas.Pen.Color := clWhite;
-    frmMain.pnlDrawing.Canvas.Brush.Color := clWebOldLace;
-    frmMain.pnlDrawing.canvas.rectangle(0, 0, frmMain.pnlDrawing.Width-1, frmMain.pnlDrawing.Height-1);
+    frmMain.pnlDrawing.Canvas.Pen.Color := RGB (brush_r, brush_g, brush_b);
+    frmMain.pnlDrawing.Canvas.Brush.Style := TBrushStyle.bsSolid;
+    frmMain.pnlDrawing.Canvas.Brush.Color := RGB (brush_r, brush_g, brush_b);
+
+    frmMain.pnlDrawing.canvas.rectangle(0, 0, frmMain.pnlDrawing.Width, frmMain.pnlDrawing.Height);
     end
   );
 end;
@@ -184,6 +210,24 @@ begin
 end;
 
 
+procedure gSetPixel (x, y : integer);
+var c : TRGBTriple;
+    bigP : pRGBTripleArray;
+begin
+  TThread.Synchronize(nil,
+    procedure
+    begin
+    bigP := frmMain.Line[x];
+    bigP[y].rgbtRed := pen_r;// := RGB (pen_r, pen_g, pen_b);
+    bigP[y].rgbtGreen := pen_g;
+    bigP[y].rgbtBlue := pen_b;
+    Application.ProcessMessages;
+    frmMain.pnlDrawing.Invalidate;
+    end
+  );
+end;
+
+
 procedure gDrawRect (x, y, w, h : double);
 begin
   TThread.Synchronize(nil,
@@ -203,6 +247,7 @@ begin
     begin
     frmMain.pnlDrawing.Canvas.Pen.Width := trunc (penWidth);
     frmMain.pnlDrawing.Canvas.Pen.Color := RGB (pen_r, pen_g, pen_b);
+    frmMain.pnlDrawing.Canvas.Brush.Style := TBrushStyle.bsSolid;
     frmMain.pnlDrawing.Canvas.Brush.Color := RGB (brush_r, brush_g, brush_b);
     frmMain.pnlDrawing.Canvas.Rectangle(trunc (x), trunc (y), trunc (x + w), trunc(y + h));
     frmMain.pnlDrawing.Refresh;
@@ -229,6 +274,7 @@ begin
     procedure
     begin
     frmMain.pnlDrawing.Canvas.Pen.Width := trunc (penWidth);
+    frmMain.pnlDrawing.Canvas.Brush.Style := TBrushStyle.bsSolid;
     frmMain.pnlDrawing.Canvas.Brush.Color := RGB (brush_r, brush_g, brush_b);
     frmMain.pnlDrawing.Canvas.Pen.Color := RGB (pen_r, pen_g, pen_b);
     frmMain.pnlDrawing.Canvas.Ellipse(trunc (x1), trunc (y1), trunc (x2), trunc(y2));
@@ -242,6 +288,7 @@ begin
   result.w := frmMain.pnlDrawing.Width;
   result.h := frmMain.pnlDrawing.Height;
 end;
+
 
 procedure gMoveTo (x, y : double);
 begin
@@ -290,20 +337,9 @@ begin
 end;
 
 procedure TfrmMain.btnRunClick(Sender: TObject);
-var errorId : integer;
-    pt : PRhodusError;
 begin
-   rt := TRhodusWorker.Create (True);
-   rt.resume;
-   //rt.WaitFor;
-   //rt.Free;
-
-  //errorId := rhodus_run (rhodus, editor.text);
-  //if errorId < 0 then
-  //   begin
-  //   pt := rhodus_getLastError (rhodus);
-  //   moutput.Lines.Add(AnsiString (pt.errorMsg));
-  //   end;
+   defaultColors;
+   rt := TRhodusWorker.Create (Lock);
 end;
 
 procedure TfrmMain.cboExamplesChange(Sender: TObject);
@@ -325,6 +361,15 @@ begin
      editor.Lines.Text := TFile.ReadAllText(filename);
 end;
 
+procedure TfrmMain.defaultColors;
+begin
+  // clWebOldLace
+  brush_r := 253; brush_g := 245;  brush_b := 230;
+  pen_r := 255; pen_g := 0; pen_b := 0;
+  penwidth := 1;
+end;
+
+
 procedure TfrmMain.FormCreate(Sender: TObject);
 var i : integer;
 begin
@@ -343,6 +388,7 @@ begin
   graphicsMethods.redrawRequest := gRefresh;
   graphicsMethods.clear := gClear;
   graphicsMethods.getCanvasSize := gGetCanvasSize;
+  graphicsMethods.setPixel := gSetPixel;
   graphicsMethods.moveTo := gMoveTo;
   graphicsMethods.lineTo := gLineTo;
   graphicsMethods.setPenColor := gSetPenColor;
@@ -363,10 +409,26 @@ begin
       cboExamples.AddItem(examples[i].name, examples[i]);
   cboExamples.ItemIndex := -1;
 
+  defaultColors;
+  Lock := TCriticalSection.Create;
+ 
+  Bmp := pnlDrawing.Picture.Bitmap;
+  Bmp.PixelFormat := pf24bit;
+  Bmp.Width := pnlDrawing.Width;
+  Bmp.Height := pnlDrawing.Height;
+  setlength (line, Bmp.Height);
+  for i := 0 to Bmp.Height - 1 do
+      line[i] :=  Bmp.ScanLine [i];
   gClear;
   except
-    showmessage ('Error');
+    on e: exception do
+      showmessage ('Error in FormCreate: ' + e.message);
   end;
+end;
+
+procedure TfrmMain.FormDestroy(Sender: TObject);
+begin
+  lock.Free;
 end;
 
 procedure TfrmMain.N2Click(Sender: TObject);
@@ -376,11 +438,18 @@ end;
 
 procedure TfrmMain.pnlRightResize(Sender: TObject);
 begin
-  pnlDrawing.Canvas.Pen.Color := clWhite;
-  pnlDrawing.Canvas.Brush.Color := clWebOldLace;
+  pnlDrawing.Canvas.Brush.Color := RGB (brush_r, brush_g, brush_b);
   pnlDrawing.Picture.Bitmap.Width := pnlDrawing.Width;
   pnlDrawing.Picture.Bitmap.Height := pnlDrawing.Height;
   pnlDrawing.canvas.rectangle(0, 0, pnlDrawing.Width-1, pnlDrawing.Height-1);
+
+  Bmp := pnlDrawing.Picture.Bitmap;
+  Bmp.PixelFormat := pf24bit;
+  Bmp.Width := pnlDrawing.Width;
+  Bmp.Height := pnlDrawing.Height;
+  setlength (line, Bmp.Height);
+  for var i := 0 to Bmp.Height - 1 do
+      line[i] :=  Bmp.ScanLine [i];
 end;
 
 procedure TfrmMain.Quit1Click(Sender: TObject);

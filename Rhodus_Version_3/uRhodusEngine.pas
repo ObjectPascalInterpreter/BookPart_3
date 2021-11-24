@@ -387,9 +387,9 @@ begin
           except
           on e:exception do
              begin
-              //setGreen;
+              setColor('Cyan');
               printLnCallBack ('ERROR: ' + e.Message);
-              //setWhite;
+              setWhite;
               result := False;
               end;
         end;

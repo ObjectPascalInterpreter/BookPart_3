@@ -8,31 +8,29 @@ procedure startRepl;
 
 implementation
 
-Uses StrUtils, 
-     uMemoryManager, 
+Uses StrUtils,
+     uMemoryManager,
      uBuiltInGlobal,
      uBuiltInSys,
-     uSyntaxParser, 
-     uRhodusTypes, 
+     uSyntaxParser,
+     uRhodusTypes,
      uSymbolTable,
-     uCommands, 
+     uCommands,
      IOUtils,
      uCompile,
      uMachineStack;
- 
+
 
 var rhodus : TRhodus;
     sourceCode : string;
     syntaxError : TSyntaxError;
     compilerError : TCompilerError;
-    currentColor : string;
 
 
 // Print methods to support output from the VM
 // -------------------------------------------------------------------------------
 procedure print (astr : AnsiString);
 begin
-  uTerminal.setColor (currentColor);
   write (astr);
 end;
 
@@ -55,8 +53,7 @@ end;
 
 procedure setColor (acolor : AnsiString);
 begin
-  currentColor := acolor;
-  uTerminal.setColor(currentColor);
+  uTerminal.setColor(aColor);
 end;
 
 
@@ -211,7 +208,11 @@ begin
        end;
      end
   else
+     begin
+     setGreen;
      writeln ('ERROR ' + '[line ' + inttostr (syntaxError.lineNumber) + ', column: ' + inttostr (syntaxError.columnNumber) + '] ' + syntaxError.errorMsg);
+     setWhite;
+     end;
 end;
 
 

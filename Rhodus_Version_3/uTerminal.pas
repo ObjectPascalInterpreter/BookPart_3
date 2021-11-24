@@ -21,6 +21,7 @@ procedure setGreen;
 procedure setBlue;
 procedure setYellow;
 procedure setWhite;
+procedure setAqua;
 procedure setUpConsole;
 procedure shutDownConsole;
 procedure clearConsoleScreen;
@@ -32,7 +33,7 @@ procedure setCurrentColors;
 
 implementation
 
-Uses Windows, Classes, SysUtils, StrUtils, Vcl.GraphUtil, uCommands;
+Uses Windows, Classes, SysUtils, StrUtils, Vcl.GraphUtil, uCommands, uRepl;
 
 type
   COORD = record
@@ -178,7 +179,9 @@ end;
 
 procedure setGreen;
 begin
-  currentColor[0] := 0;  currentColor[1] := 255;  currentColor[2] := 0;
+  currentColor[0] := 0;
+  currentColor[1] := 255;
+  currentColor[2] := 0;
   setCurrentColors;
 end;
 

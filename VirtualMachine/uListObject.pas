@@ -130,7 +130,7 @@ begin
   methodList.Add(TMethodDetails.Create ('append', 1, 'Append the element to the list: var.append (a, 3.14)', append));
   methodList.Add(TMethodDetails.Create ('remove', 1, 'Remove an element from a list with given index: var.remove (4)', remove));
   methodList.Add(TMethodDetails.Create ('sum',    0, 'Find the sum of values in a list. var.sum ()', getSum));
-  methodList.Add(TMethodDetails.Create ('pop',    1, 'Remove the last element from a list: var.pop (list)', removeLastElement));
+  methodList.Add(TMethodDetails.Create ('pop',    0, 'Remove the last element from a list: var.pop ()', removeLastElement));
   methodList.Add(TMethodDetails.Create ('max',    0, 'Find the maximum value is a 1D list of values: var.max ()', getMax));
   methodList.Add(TMethodDetails.Create ('min',    0, 'Find the minimum value is a 1D list of values: var.min ()', getMin));
 

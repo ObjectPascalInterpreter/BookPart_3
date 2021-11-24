@@ -9,6 +9,8 @@ unit uAST;
 // email: hsauro@gmail.com
 
 
+// Defines the Abstract Syntax Tree. All nodes are derived from TASTNode
+
 interface
 
 Uses SysUtils, Classes, Generics.Collections, uASTNodeType, uListObject;
@@ -337,7 +339,6 @@ implementation
 Uses StrUtils, RTTi;
 
 
-
 procedure TChildNodes.freeChildNodes;
 begin
    for var i := self.count - 1 downto 0 do
@@ -449,18 +450,6 @@ end;
 
 destructor TASTSlice.Destroy;
 begin
-  // ntSlideEqual if both nodes point to the same ASTNode
-  // Therefore only free one of them
-  //if upper.nodeType = ntSliceEqual then
-  //   begin
-  //   lower.Free;
-  //   exit;
-  //   end
-  //else
-  //   begin
-  //   lower.free;
-  //   upper.free;
-  //   end;
   lower.free;
   upper.free;
   inherited;

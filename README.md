@@ -19,7 +19,10 @@ This repo holds source code for part III of the book series on building an inter
 
 The major outward change in this version includes library support, and a range of small builtin libraries such as math (these will be expanded). The biggest internal change is to separate code generation from syntax analysis in the form of an abstract syntax tree. User functions are also now first-class entities which can be passed around like any other variable. A lot of work has been done on ensure that garbage collection doesn't leak memory. 
 
-<img src="/Images/demo1.gif" width="609" height="345"/>
+<img src="/Images/basics.gif" width="609" height="345"/>
+
+<img src="/Images/ListsAndStrings.gif" width="609" height="345"/>
+
 
 ## Build
 

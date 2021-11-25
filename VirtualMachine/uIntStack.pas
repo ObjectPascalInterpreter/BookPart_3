@@ -25,20 +25,20 @@ type
       maxSize : integer;
   end;
 
-procedure create (stack : TStack; n : integer);
-procedure push (stack : TStack; value : integer);
-function  pop (stack : TStack) : integer;
+procedure create (var stack : TStack; n : integer);
+procedure push (var stack : TStack; value : integer);
+function  pop (var stack : TStack) : integer;
 function  peek (stack : TStack) : integer;
 
 implementation
 
-procedure create (stack : TStack; n : integer);
+procedure create (var stack : TStack; n : integer);
 begin
   stack.maxSize := n;
   setLength (stack.data, n);
 end;
 
-procedure push (stack : TStack; value : integer);
+procedure push (var stack : TStack; value : integer);
 begin
   if stack.stackPtr = stack.maxSize then
      raise Exception.Create('Integer stack overflow error.');
@@ -46,7 +46,7 @@ begin
   stack.data[stack.stackPtr] := value;
 end;
 
-function pop (stack : TStack) : integer;
+function pop (var stack : TStack) : integer;
 begin
   if stack.stackPtr = -1 then
      raise Exception.Create('Integer stack underflow error.');

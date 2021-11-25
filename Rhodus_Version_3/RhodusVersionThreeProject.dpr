@@ -94,7 +94,8 @@ uses
   uBuiltInMatrix in 'uBuiltInMatrix.pas',
   uMath in 'uMath.pas',
   uBuiltInGraphics in 'uBuiltInGraphics.pas',
-  ulibTypes in '..\librhodus\ulibTypes.pas';
+  ulibTypes in '..\librhodus\ulibTypes.pas',
+  uIntStack in '..\VirtualMachine\uIntStack.pas';
 
 begin
   ReportMemoryLeaksOnShutdown := True;

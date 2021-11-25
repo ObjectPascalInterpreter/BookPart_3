@@ -5,8 +5,9 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, ulibTypes,
-  Vcl.ExtCtrls, Vcl.FileCtrl, Vcl.ComCtrls,
-  uExamples, Vcl.Menus, SyncObjs;
+  Vcl.ExtCtrls, Vcl.FileCtrl, Vcl.ComCtrls, Vcl.Themes,
+  uExamples, Vcl.Menus, SyncObjs, SynEdit, SynEditHighlighter, SynEditCodeFolding, SynHighlighterPython, SynHighlighterGeneral,
+  SynEditMiscClasses, SynEditSearch, StrUtils;
 
 const RHODUS_VERSION = 0.5;
 
@@ -26,7 +27,6 @@ type
     Panel3: TPanel;
     moutput: TMemo;
     Splitter1: TSplitter;
-    editor: TMemo;
     btnLoad: TButton;
     OpenDialog: TOpenDialog;
     lblVersion: TLabel;
@@ -51,6 +51,9 @@ type
     mnuNew: TMenuItem;
     pnlImage: TPanel;
     pnlDrawing: TImage;
+    editor: TSynEdit;
+    SynGeneralSyn1: TSynGeneralSyn;
+    SynEditSearch1: TSynEditSearch;
     procedure btnRunClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure btnLoadClick(Sender: TObject);
@@ -344,8 +347,7 @@ end;
 
 procedure TfrmMain.cboExamplesChange(Sender: TObject);
 begin
-  editor.Lines.Text :=
-     (cboExamples.items.Objects[cboExamples.ItemIndex] as TExample).src;
+  editor.Lines.Text := (cboExamples.items.Objects[cboExamples.ItemIndex] as TExample).src;
 end;
 
 procedure TfrmMain.DirectoryListBox1Change(Sender: TObject);
@@ -420,6 +422,11 @@ begin
   for i := 0 to Bmp.Height - 1 do
       line[i] :=  Bmp.ScanLine [i];
   gClear;
+  editor.Color := $614326;
+  editor.Font.Color := $F0FBFF;
+  editor.Gutter.Color :=  $614326;
+  editor.Gutter.Font.Color := $838383;
+  SynGeneralSyn1.KeyAttri.Foreground := $0099FF;
   except
     on e: exception do
       showmessage ('Error in FormCreate: ' + e.message);
@@ -457,4 +464,6 @@ begin
   loadScript;
 end;
 
+initialization
+  TStyleManager.Engine.RegisterStyleHook(TSynEdit, TScrollBoxStyleHook);
 end.

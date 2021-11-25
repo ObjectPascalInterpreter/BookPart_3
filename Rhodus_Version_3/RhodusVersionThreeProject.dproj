@@ -225,6 +225,7 @@
         <DCCReference Include="uMath.pas"/>
         <DCCReference Include="uBuiltInGraphics.pas"/>
         <DCCReference Include="..\librhodus\ulibTypes.pas"/>
+        <DCCReference Include="..\VirtualMachine\uIntStack.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

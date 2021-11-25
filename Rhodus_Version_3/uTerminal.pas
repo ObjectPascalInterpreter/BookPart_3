@@ -1,6 +1,5 @@
 unit uTerminal;
 
-
 // This source is distributed under Apache 2.0
 
 // Copyright (C) 2019-2021 Herbert M Sauro

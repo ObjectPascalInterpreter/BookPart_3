@@ -16,7 +16,7 @@ interface
 Uses System.SysUtils, System.Diagnostics, System.TimeSpan, uUtils,
   uMachineStack, System.generics.Collections, uListObject, uStringObject,
   uArrayObject, uSymbolTable, uConstantTable, uProgramCode, uMemoryManager,
-  uObjectSupport;
+  uObjectSupport, uIntStack;
 
 const
   MAX_STACK_SIZE = 40000; // Maximum depth of operand stack
@@ -65,7 +65,7 @@ type
 
     symbolTable : TSymbolTable;
     VMStateStack : TStack<TVMState>;
-    subscriptStack : TStack<integer>;
+    subscriptStack : uIntStack.TStack;     // lightweight integer stack
 
     frameStackTop: integer;
     frameStack: TFrameStack;
@@ -247,7 +247,8 @@ begin
   createStack(MAX_STACK_SIZE);
   createFrameStack(recursionLimit);
   VMStateStack := TStack<TVMState>.Create;
-  subscriptStack := TStack<integer>.Create;
+  //subscriptStack := TStack<integer>.Create;
+  uIntStack.create (subscriptStack, uIntStack.MAX_ENTRIES);
 
   callbackPtr := nil;
   printCallbackPtr := nil;
@@ -262,7 +263,7 @@ begin
   freeStack;
   freeFrameStack;
   VMStateStack.Free;
-  subscriptStack.Free;
+  //subscriptStack.Free;
   inherited;
 end;
 
@@ -2054,22 +2055,23 @@ begin
   if variable.stackType <> stArray then
     raise ERuntimeException.Create('left-hand side must be a array');
 
-  if subscriptStack.Count + 1 < nSubscripts then
+  //if subscriptStack.Count + 1 < nSubscripts then
+  if subscriptStack.stackPtr + 1 < nSubscripts then
      begin
-     subscriptStack.Push(index);
+     uIntStack.Push(subscriptStack, index);
      push (variable);
      end
   else
      begin
-     subscriptStack.Push(index);
-     setLength (idx, subscriptStack.Count);
+     uIntStack.Push(subscriptStack, index);
+     setLength (idx, subscriptStack.stackPtr);
      // Index backwards since the stack entries are backwards
-     for i := subscriptStack.Count - 1 downto 0 do
-         idx[i] := subscriptStack.Pop();
+     for i := subscriptStack.stackPtr - 1 downto 0 do
+         idx[i] := uIntStack.Pop(subscriptStack);
 
      variable.aValue.setValue (idx, value);
 
-     subscriptStack.Clear;
+     subscriptStack.stackPtr := -1; // Clear
      end;
 end;
 
@@ -2270,9 +2272,9 @@ var idx : array of integer;
     i : integer;
 begin
   // For an n dimensional array we will collect the subscripts.
-  if subscriptStack.Count + 1 < nSubscripts then
+  if subscriptStack.StackPtr + 1 < nSubscripts then
      begin
-     subscriptStack.Push(index);
+     uIntStack.Push(subscriptStack, index);
      push (st);
      end
   else
@@ -2286,14 +2288,14 @@ begin
         exit;
         end;
 
-     subscriptStack.Push(index);
-     setLength (idx, subscriptStack.Count);
+     uIntStack.Push(subscriptStack, index);
+     setLength (idx, subscriptStack.stackPtr);
      // Index backwards since the stack entries are backwards
-     for i := subscriptStack.Count - 1 downto 0 do
-         idx[i] := subscriptStack.Pop();
+     for i := subscriptStack.stackPtr - 1 downto 0 do
+         idx[i] := uIntStack.Pop(subscriptStack);
 
      push (st.aValue.getValue (idx));
-     subscriptStack.Clear;
+     subscriptStack.stackPtr := -1; //Clear;
      end;
 end;
 

@@ -61,6 +61,8 @@ type
     procedure insert(index: integer; sValue: TStringObject); overload;
     procedure insertUserFunction(index: integer; fValue: TObject);
     procedure insertModule(index: integer; mValue: TObject);
+    function  findMin : double;
+    function  findMax : double;
 
     function slice (lower, upper : integer) : TListObject;
 
@@ -300,58 +302,21 @@ end;
 
 procedure TListMethods.getMax (vm : TObject);
 var s : TListObject;
-    i : integer;
-    value : double;
     md : TMethodDetails;
 begin
-  value := -1E10;
   md := TVM (vm).popMethodDetails;
   s := TListObject (md.self);
-  for i := 0 to s.list.Count - 1 do
-      case s.list[i].itemType of
-         liInteger:
-              begin
-              if s.list[i].iValue > value then
-                 value := s.list[i].iValue;
-              end;
-         liDouble :
-              begin
-              if s.list[i].dValue > value then
-                 value := s.list[i].dValue;
-
-              end
-      else
-        raise ERuntimeException.Create('Internal error: unrecognized data type during list insert');
-      end;
-   TVM (vm).push (double (value));
+  TVM (vm).push (s.findMax());
 end;
 
 
 procedure TListMethods.getMin (vm : TObject);
 var s : TListObject;
-    i : integer;
-    value : double;
     md : TMethodDetails;
 begin
-  value := 1E10;
   md := TVM (vm).popMethodDetails;
   s := TListObject (md.self);
-  for i := 0 to s.list.Count - 1 do
-      case s.list[i].itemType of
-         liInteger:
-              begin
-              if s.list[i].iValue < value then
-                 value := s.list[i].iValue;
-              end;
-         liDouble :
-              begin
-              if s.list[i].dValue < value then
-                 value := s.list[i].dValue;
-              end
-      else
-        raise ERuntimeException.Create('Can only find the min value for numeric data');
-      end;
-   TVM (vm).push (double(value));
+  TVM (vm).push (s.findMin());
 end;
 
 
@@ -534,6 +499,69 @@ end;
 procedure TListObject.insertModule(index: integer; mValue: TObject);
 begin
   list.insert(index, TListItem.CreateModule(mValue));
+end;
+
+
+function TListObject.findMin : double;
+var i : integer;
+begin
+  if list.Count = 0 then
+     result := 0  // error?
+  else
+     begin
+     case list[0].itemType of
+        liInteger : result := list[0].iValue;
+        liDouble  : result := list[0].dValue;
+     else
+         raise ERuntimeException.Create('Can only find the min value for numeric data');
+     end;
+     for i := 0 to list.Count - 1 do
+        case list[i].itemType of
+           liInteger:
+                begin
+                if list[i].iValue < result then
+                   result := list[i].iValue;
+                end;
+           liDouble :
+                begin
+                if list[i].dValue < result then
+                   result := list[i].dValue;
+                end
+        else
+          raise ERuntimeException.Create('Can only find the min value for numeric data');
+        end;
+     end;
+end;
+
+function TListObject.findMax : double;
+var i : integer;
+begin
+  if list.Count = 0 then
+     result := 0  // error?
+  else
+     begin
+     case list[0].itemType of
+        liInteger : result := list[0].iValue;
+        liDouble  : result := list[0].dValue;
+     else
+         raise ERuntimeException.Create('Can only find the max value for numeric data');
+     end;
+     for i := 0 to list.Count - 1 do
+        case list[i].itemType of
+           liInteger:
+                begin
+                if list[i].iValue > result then
+                   result := list[i].iValue;
+                end;
+           liDouble :
+                begin
+                if list[i].dValue > result then
+                   result := list[i].dValue;
+                end
+        else
+          raise ERuntimeException.Create('Can only find the min value for numeric data');
+        end;
+     end;
 end;
 
 

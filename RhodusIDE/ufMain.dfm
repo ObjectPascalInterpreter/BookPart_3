@@ -2,7 +2,7 @@ object frmMain: TfrmMain
   Left = 0
   Top = 0
   Caption = 'Rhodus IDE'
-  ClientHeight = 701
+  ClientHeight = 676
   ClientWidth = 1166
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -20,9 +20,8 @@ object frmMain: TfrmMain
     Left = 807
     Top = 57
     Width = 4
-    Height = 644
+    Height = 619
     Align = alRight
-    ExplicitHeight = 693
   end
   object Panel1: TPanel
     Left = 0
@@ -31,6 +30,8 @@ object frmMain: TfrmMain
     Height = 57
     Align = alTop
     TabOrder = 0
+    ExplicitLeft = -144
+    ExplicitTop = -6
     DesignSize = (
       1166
       57)
@@ -158,10 +159,10 @@ object frmMain: TfrmMain
     Left = 0
     Top = 57
     Width = 185
-    Height = 644
+    Height = 619
     Align = alLeft
     TabOrder = 1
-    ExplicitHeight = 693
+    ExplicitHeight = 614
     object DirectoryListBox1: TDirectoryListBox
       Left = 1
       Top = 1
@@ -177,13 +178,12 @@ object frmMain: TfrmMain
       ParentFont = False
       TabOrder = 0
       OnChange = DirectoryListBox1Change
-      ExplicitWidth = 184
     end
     object FileListBox1: TFileListBox
       Left = 1
       Top = 233
       Width = 183
-      Height = 410
+      Height = 385
       Align = alClient
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -194,30 +194,29 @@ object frmMain: TfrmMain
       ParentFont = False
       TabOrder = 1
       OnClick = FileListBox1Click
-      ExplicitWidth = 184
-      ExplicitHeight = 459
+      ExplicitHeight = 380
     end
   end
   object Panel3: TPanel
     Left = 185
     Top = 57
     Width = 622
-    Height = 644
+    Height = 619
     Align = alClient
     TabOrder = 2
-    ExplicitHeight = 693
+    ExplicitWidth = 614
+    ExplicitHeight = 614
     object Splitter1: TSplitter
       Left = 1
-      Top = 400
+      Top = 375
       Width = 620
       Height = 3
       Cursor = crVSplit
       Align = alBottom
-      ExplicitTop = 449
     end
     object moutput: TMemo
       Left = 1
-      Top = 403
+      Top = 378
       Width = 620
       Height = 240
       Align = alBottom
@@ -231,13 +230,14 @@ object frmMain: TfrmMain
       ScrollBars = ssBoth
       TabOrder = 0
       StyleElements = [seClient, seBorder]
-      ExplicitTop = 452
+      ExplicitTop = 373
+      ExplicitWidth = 612
     end
     object editor: TSynEdit
       Left = 1
       Top = 1
       Width = 620
-      Height = 399
+      Height = 374
       Align = alClient
       Color = clWhite
       Font.Charset = DEFAULT_CHARSET
@@ -288,54 +288,54 @@ object frmMain: TfrmMain
         '')
       RightEdge = 200
       SearchEngine = SynEditSearch1
-      ExplicitHeight = 448
+      ExplicitTop = -2
     end
   end
   object pnlRight: TPanel
     Left = 811
     Top = 57
     Width = 355
-    Height = 644
+    Height = 619
     Align = alRight
     TabOrder = 3
     OnResize = pnlRightResize
-    ExplicitHeight = 693
+    ExplicitLeft = 803
+    ExplicitHeight = 614
     object Splitter3: TSplitter
       Left = 1
-      Top = 337
+      Top = 312
       Width = 353
       Height = 2
       Cursor = crVSplit
       Align = alBottom
-      ExplicitTop = 386
     end
     object pnlInfo: TPanel
       Left = 1
-      Top = 339
+      Top = 314
       Width = 353
       Height = 304
       Align = alBottom
       TabOrder = 0
-      ExplicitTop = 388
+      ExplicitTop = 309
     end
     object pnlImage: TPanel
       Left = 1
       Top = 1
       Width = 353
-      Height = 336
+      Height = 311
       Align = alClient
       Caption = 'pnlImage'
       TabOrder = 1
       OnResize = pnlRightResize
-      ExplicitHeight = 385
+      ExplicitHeight = 306
       object pnlDrawing: TImage
         Left = 1
         Top = 1
         Width = 351
-        Height = 334
+        Height = 309
         Align = alClient
         ExplicitWidth = 352
-        ExplicitHeight = 384
+        ExplicitHeight = 310
       end
     end
   end

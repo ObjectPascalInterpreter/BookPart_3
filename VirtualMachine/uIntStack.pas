@@ -28,7 +28,7 @@ type
 procedure create (var stack : TStack; n : integer);
 procedure push (var stack : TStack; value : integer);
 function  pop (var stack : TStack) : integer;
-function  peek (stack : TStack) : integer;
+function  peek (var stack : TStack) : integer;
 
 implementation
 
@@ -54,7 +54,7 @@ begin
   dec (stack.stackPtr);
 end;
 
-function peek (stack : TStack) : integer;
+function peek (var stack : TStack) : integer;
 begin
   result := stack.data[stack.stackPtr];
 end;

@@ -37,9 +37,7 @@ type
            procedure compactCode;
            function  addByteCode (opCode : TOpCode) : integer; overload;
            procedure addByteCode (opCode : TOpCode; iValue : integer); overload;
-           //procedure addByteCode (opCode : TOpCode; dValue : double); overload;
            procedure addByteCode (opCode : TOpCode; bValue : boolean); overload;
-           //procedure addByteCode (opCode : TOpCode; sValue : string); overload;
            procedure addByteCode (opCode : TOpCode; const symbolName : string; increment : double);  overload;
            procedure addModuleByteCode (opCode : TOpCode; const moduleName : string);
            procedure addSymbolByteCode (opCode : TOpCode; const symbolName : string);
@@ -60,7 +58,6 @@ type
    end;
 
 function  createByteCode (opCode : TOpCode; iValue : integer) : TByteCode; overload;
-//function  createByteCode (opCode : TOpCode; dValue : double) : TByteCode; overload;
 function  createByteCode (opCode : TOpCode; bValue : boolean) : TByteCode; overload;
 function  createByteCode (opCode : TOpCode) : TByteCode; overload;
 
@@ -72,13 +69,6 @@ begin
   result.opCode := opCode;
   result.index := iValue;
 end;
-
-
-//function createByteCode (opCode : TOpCode; dValue : double) : TByteCode;
-//begin
-//  result.opCode := opCode;
-//  result.index1 := constantValueTable.Add (TConstantValueElement.Create(dValue));
-//end;
 
 
 function  createByteCode (opCode : TOpCode; bValue : boolean) : TByteCode;
@@ -205,28 +195,12 @@ begin
 end;
 
 
-//procedure TProgram.addByteCode (opCode : TOpCode; dValue : double);
-//begin
-//  checkSpace;
-//  code[actualLength] := createByteCode (opCode, dValue);
-//  inc(actualLength);
-//end;
-
-
 procedure TProgram.addByteCode (opCode : TOpCode; bValue : boolean);
 begin
   checkSpace;
   code[actualLength] := createByteCode (opCode, bValue);
   inc(actualLength);
 end;
-
-
-//procedure TProgram.addByteCode (opCode : TOpCode; sValue : string);
-//begin
-//  checkSpace;
-//  code[actualLength] := createByteCode (opCode, sValue);
-//  inc(actualLength);
-//end;
 
 
 procedure TProgram.addStoreByteCode (opCode : TOpCode; const symbolName : string);

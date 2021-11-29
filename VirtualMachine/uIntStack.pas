@@ -29,14 +29,23 @@ procedure create (var stack : TStack; n : integer);
 procedure push (var stack : TStack; value : integer);
 function  pop (var stack : TStack) : integer;
 function  peek (var stack : TStack) : integer;
+function  getCount (var stack : TStack) : integer;
 
 implementation
 
 procedure create (var stack : TStack; n : integer);
 begin
   stack.maxSize := n;
+  stack.stackPtr := -1;
   setLength (stack.data, n);
 end;
+
+
+function getCount (var stack : TStack) : integer;
+begin
+  result := stack.stackPtr + 1;
+end;
+
 
 procedure push (var stack : TStack; value : integer);
 begin

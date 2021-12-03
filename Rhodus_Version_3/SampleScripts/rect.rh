@@ -1,0 +1,10 @@
+import graphics
+import math
+
+
+graphics.clear()
+
+graphics.pencolor (0, 0, 255);
+graphics.rect (10,10,100,100)
+graphics.pencolor (255, 0, 255);
+graphics.ellipse (60, 60, 50, 100)

@@ -2,7 +2,7 @@ unit uEmbeddAPI;
 
 interface
 
-Uses Classes, SysUtils, uRhodusEngine, uRhodusTypes, ulibTypes;
+Uses Classes, SysUtils, uRhodusEngine, uRhodusTypes, uRhodusLibTypes;
 
 
 function  rhodus_initialize (var config : TRhodusConfig) : NativeInt;  stdcall;

@@ -32,7 +32,7 @@ procedure setCurrentColors;
 
 implementation
 
-Uses Windows, Classes, SysUtils, StrUtils, Vcl.GraphUtil, uCommands, uRepl;
+Uses Windows, Classes, SysUtils, StrUtils, System.UITypes, System.UIConsts, uCommands, uRepl;
 
 type
   COORD = record
@@ -199,7 +199,7 @@ end;
 // Color can be some set colors like red, green, blue, aqua, yellow, white, or purple
 // or it can be one of the named web colors
 procedure setColor (color: string);
-var acolor : -$7FFFFFFF-1..$7FFFFFFF;  // Saves pulling in Vcl.Graphics
+var acolor : TAlphaColor;
 begin
   if color = '' then
      begin setWhite; exit; end;
@@ -218,8 +218,10 @@ begin
   if color = 'purple' then
      begin setPurple; exit; end;
 
-  acolor := WebColorNameToColor('clWeb' + color);
-  ColorToRGB(acolor, currentColor[0], currentColor[1], currentColor[2]);
+  acolor := StringToAlphaColor(color);//  WebColorNameToColor('clWeb' + color);
+  currentColor[0] := TAlphaColorRec(acolor).R;
+  currentColor[1] := TAlphaColorRec(acolor).G;
+  currentColor[2] := TAlphaColorRec(acolor).B;
 
   setCurrentColors;
 end;

@@ -76,7 +76,7 @@ begin
   addmethod (getDegrees, 1, 'toDegrees',  'Converts radians to degrees: toDegrees(radians)');
   addmethod (getRadians, 1, 'toRadians',  'Converts degrees to radians: toRadians(degrees)');
 
-  addMethod (getSqrt,  1, 'sqr',   'Computes the square number or array: sqr (5)');
+  addMethod (getSqr,   1, 'sqr',   'Computes the square number or array: sqr (5)');
   addMethod (getSqrt,  1, 'sqrt',  'Computes the square root of a number or array. Negative values are not supported: sqrt (9)');
   addMethod (getExp,   1, 'exp',   'Computes e raised to the power of a value: exp (10)');
   addMethod (getLn,    1, 'ln',    'Computes the natural logarithm of a value: ln (123)');

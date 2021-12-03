@@ -250,7 +250,7 @@ begin
   VMStateStack := TStack<TVMState>.Create;
   // HMS
   //subscriptStack := TStack<integer>.Create;
-  uIntStack.create (subscriptStack, uIntStack.MAX_ENTRIES);
+  uIntStack.create (subscriptStack, uIntStack.MAX_STACK_ENTRIES);
 
   callbackPtr := nil;
   printCallbackPtr := nil;
@@ -2080,7 +2080,7 @@ begin
 
      variable.aValue.setValue (idx, value);
 
-     subscriptStack.stackPtr := -1; // Clear
+     uIntStack.clear (subscriptStack);
      end;
 end;
 
@@ -2303,15 +2303,15 @@ begin
      //setLength (idx, subscriptStack.Count);
      uIntStack.Push(subscriptStack, index);
      setLength (idx, uIntStack.getCount (subscriptStack));
-     // Index backwards since the stack entries are backwards
 
+     // Index backwards since the stack entries are backwards
      //for i := subscriptStack.Count - 1 downto 0 do
      //    idx[i] := subscriptStack.Pop();
      for i := uIntStack.getCount (subscriptStack)  - 1 downto 0 do
          idx[i] := uIntStack.Pop(subscriptStack);
 
      push (st.aValue.getValue (idx));
-     subscriptStack.stackPtr := -1; //Clear;
+     uIntStack.clear (subscriptStack);
      end;
 end;
 

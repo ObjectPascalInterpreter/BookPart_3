@@ -1,0 +1,66 @@
+import math
+import random
+import graphics
+
+width = 42
+height = 42
+
+world = array (width+1,  height+1, 2)
+cur = 0; buf = 1
+
+// randomizes the world with a density of 15%
+for x = 1 to width - 1 do
+   for y = 1 to height - 1 do
+      if random.random() < 0.15 then
+         world[x, y, cur] = 1
+      else
+         world[x, y, cur] = 0      
+      end     
+   end
+end
+
+for i = 1 to 150 do
+    graphics.clear()
+    graphics.beginupdate()
+    // draw the world
+    xi = 10; yi = 10
+    for y = 1 to height - 1 do
+       for x = 1 to width - 1 do
+         if world[x,y,cur] > 0.1 then
+            graphics.fillrect (xi, yi, 7, 7)
+         end
+       xi = xi + 10
+       end
+       xi = 10
+       yi = yi + 10
+    end
+    graphics.endupdate()
+    graphics.pause(10)
+
+    // perform one iteration
+    for x = 1 to width - 1 do
+ 	for y = 1 to height - 1 do
+            SM = 0
+	    SM = SM + world[x-1, y-1, cur] + world[x, y-1, cur] + world[x+1, y-1, cur]
+	    SM = SM + world[x-1, y, cur] + world[x+1, y, cur]
+	    SM = SM + world[x-1, y+1, cur] + world[x, y+1, cur] + world[x+1, y+1, cur]
+	    if SM < 2 or SM > 3 then
+	       world[x, y, buf] = 0
+	    end
+
+	    if SM == 3 then 
+	       world[x, y, buf] = 1
+	    end
+
+	    if SM == 2 then 
+	       world[x,y,buf] = world[x,y,cur]
+	    end
+	end
+   end
+   cur = buf 
+   buf = 1 - buf
+end
+
+
+
+

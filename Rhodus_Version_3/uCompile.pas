@@ -472,7 +472,7 @@ begin
       if slicing then
          if subscripts[i].nodeType <> ntSlice then
             begin
-            slice := TASTSlice.Create (nil, nil);
+            slice := TASTSlice.Create (nil, nil, 0);
             slice.lower := subscripts[i];
             slice.upper := TASTSliceEqual.Create;
             subscripts[i] := slice;

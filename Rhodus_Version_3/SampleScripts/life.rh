@@ -1,0 +1,69 @@
+// The Nature of Code
+// Daniel Shiffman
+// http://natureofcode.com
+
+import math
+import random
+
+width = 320; height = 320
+
+w = 8;
+columns = 0; rows = 0;
+
+// Initialize rows, columns and set-up arrays
+columns = math.trunc (width/w);
+rows = math.trunc (height/w);
+board = array(int (columns), int (rows));
+println (rows, ", ", columns)
+
+// fill array with random values 0 or 1
+for i = 0 to rows - 1 do 
+    for j = 0 to columns - 1 do
+      println (i, ", ", j)
+      board[i,j] = random.randint (2)
+    end
+end
+
+
+// The process of creating the new generation
+function generate()
+
+    next = array (columns, rows);
+
+    // Loop through every spot in our 2D array and check spots neighbors
+    for x = 0 to columns-1 do 
+      for y = 0 to rows-1 do 
+
+        // Add up all the states in a 3x3 surrounding grid
+        neighbors = 0;
+        for i = -1 to 1 do 
+          for j = -1 to 1 do 
+            neighbors = neighbors + board[x+i,y+j];
+          end
+        end
+
+        // A little trick to subtract the current cell's state since
+        // we added it in the above loop
+        neighbors = neighbors - board[x,y]
+
+        // Rules of Life
+        if  ((board[x,y] == 1) and (neighbors <  2)) then 
+            next[x,y] = 0;      // Loneliness
+        else
+           if ((board[x,y] == 1) and (neighbors >  3)) then 
+              next[x,y] = 0;      // Overpopulation
+           else
+             if ((board[x,y] == 0) and (neighbors == 3)) then 
+                next[x,y] = 1;      // Reproduction
+             else     
+                next[x,y] = board[x,y];  // Stasis
+             end
+           end
+        end
+
+      end
+    end
+
+    // Next is now our board
+    board = next
+end

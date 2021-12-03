@@ -246,7 +246,7 @@ begin
      // Add the argument symbol to the user function local symbol table
      // if not currentUserFunction.symbolTable.find(sc.tokenString, symbolIndex) then
      // symbolIndex := currentUserFunction.symbolTable.addSymbol(sc.tokenString, TScope.scUserFunction);
-     result := TASTIdentifier.Create(sc.tokenString);
+     result := TASTIdentifier.Create(sc.tokenString, sc.tokenRecord.lineNumber);
      sc.nextToken;
      end;
 end;
@@ -276,9 +276,9 @@ begin
      begin
      sc.nextToken;
      if sc.token in [tComma, tRightBracket] then  // Must be just a single ':'
-        result := TASTSlice.Create (TASTSliceAll.Create, TASTSliceAll.Create)
+        result := TASTSlice.Create (TASTSliceAll.Create, TASTSliceAll.Create, sc.tokenRecord.lineNumber)
      else
-        result := TASTSlice.Create (TASTSliceAll.Create, expression())
+        result := TASTSlice.Create (TASTSliceAll.Create, expression(), sc.tokenRecord.lineNumber)
      end
   else
      begin
@@ -288,9 +288,9 @@ begin
         begin
         nextToken;
         if sc.token in [tComma, tRightBracket] then
-           result := TASTSlice.Create (exp1, TASTSliceAll.Create)
+           result := TASTSlice.Create (exp1, TASTSliceAll.Create, sc.tokenRecord.lineNumber)
         else
-           result := TASTSlice.Create (exp1, expression())
+           result := TASTSlice.Create (exp1, expression(), sc.tokenRecord.lineNumber)
         end
      else
         result := exp1;
@@ -357,17 +357,8 @@ function TConstructAST.primary : TASTNode;
 var node : TASTNode;
 begin
   result := factor;
-  if result.nodeType = ntError then
-     exit (result);
-
   node := primaryPlus;
-  if node.nodeType = ntError then
-     begin
-     result.freeAST;
-     result := node;
-     end
-  else
-     result := TASTPrimary.Create(result, node);
+  result := TASTPrimary.Create(result, node, sc.tokenRecord.lineNumber);
 end;
 
 
@@ -415,22 +406,22 @@ begin
   case sc.token of
    tInteger:
       begin
-        result := TASTInteger.Create(sc.tokenInteger);
+        result := TASTInteger.Create(sc.tokenInteger, sc.tokenRecord.lineNumber);
         sc.nextToken;
       end;
    tFloat:
       begin
-        result := TASTFloat.Create(sc.tokenFloat);
+        result := TASTFloat.Create(sc.tokenFloat, sc.tokenRecord.lineNumber);
         sc.nextToken;
       end;
    tIdentifier :
         begin
-        result := TASTIdentifier.Create (sc.tokenString);
+        result := TASTIdentifier.Create (sc.tokenString, sc.tokenRecord.lineNumber);
         sc.nextToken;
         end;
    tString:
         begin
-        result := TASTString.Create(sc.tokenString);
+        result := TASTString.Create(sc.tokenString, sc.tokenRecord.lineNumber);
         sc.nextToken;
         end;
     tNOT:
@@ -439,16 +430,16 @@ begin
         node := expression();
         if node.nodeType = ntError then
            exit (node);
-        result := TASTNotOp.Create(node);
+        result := TASTNotOp.Create(node, sc.tokenRecord.lineNumber);
       end;
     tFalse:
       begin
-        result := TASTBoolean.Create(False);
+        result := TASTBoolean.Create(False, sc.tokenRecord.lineNumber);
         sc.nextToken;
       end;
     tTrue:
       begin
-        result := TASTBoolean.Create(True);
+        result := TASTBoolean.Create(True, sc.tokenRecord.lineNumber);
         sc.nextToken;
       end;
     tLeftParenthesis:
@@ -501,7 +492,7 @@ begin
          sc.nextToken;
          periodStr := sc.tokenString;
          sc.nextToken;
-         result := TASTPrimaryPeriod.Create (TASTIdentifier.Create(periodStr), primaryPlus);
+         result := TASTPrimaryPeriod.Create (TASTIdentifier.Create(periodStr, sc.tokenRecord.lineNumber), primaryPlus, sc.tokenRecord.lineNumber);
          end;
      tLeftParenthesis:  // '(' expression list ')'
          begin
@@ -510,7 +501,7 @@ begin
          if nodeList.nodeType = ntError then
             exit (nodeList);
 
-         result := TASTPrimaryFunction.Create(nodeList as TASTNodeList, primaryPlus);
+         result := TASTPrimaryFunction.Create(nodeList as TASTNodeList, primaryPlus, sc.tokenRecord.lineNumber);
          end;
     tLeftBracket: // '[' expression list ']'
          begin
@@ -518,7 +509,7 @@ begin
          if nodeList.nodeType = ntError then
             exit (nodeList);
 
-         result := TASTPrimaryIndex.Create(nodeList as TASTNodeList, primaryPlus);
+         result := TASTPrimaryIndex.Create(nodeList as TASTNodeList, primaryPlus, sc.tokenRecord.lineNumber);
          end;
   else
       begin result := TASTNull.Create; end;
@@ -557,10 +548,10 @@ begin
         exit (rightNode);
         end;
 
-     leftNode := TAstPowerOp.Create(leftNode, rightNode);
+     leftNode := TAstPowerOp.Create(leftNode, rightNode, sc.tokenRecord.lineNumber);
      end;
   for i := 0 to unaryMinus_count - 1 do
-      leftNode := TASTUniOp.Create(leftNode, TASTNodeType.ntUnaryMinus);
+      leftNode := TASTUniOp.Create(leftNode, TASTNodeType.ntUnaryMinus, sc.tokenRecord.lineNumber);
   result := leftNode;
 end;
 
@@ -588,15 +579,15 @@ begin
 
     case op of
       tMult:
-        leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntMult);
+        leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntMult, sc.tokenRecord.lineNumber);
       tDivide:
-        leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntDiv);
+        leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntDiv, sc.tokenRecord.lineNumber);
       tMod:
-        leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntMod);
+        leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntMod, sc.tokenRecord.lineNumber);
       tDivI:
-        leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntDivI);
+        leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntDivI, sc.tokenRecord.lineNumber);
       tDotproduct:
-        leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntDotProduct);
+        leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntDotProduct, sc.tokenRecord.lineNumber);
     end;
     end;
   result := leftNode;
@@ -625,9 +616,9 @@ begin
           end;
        case op of
          tPlus:
-           leftNode := TASTBinOp.Create(leftNode, rightNode, TASTNodeType.ntAdd);
+           leftNode := TASTBinOp.Create(leftNode, rightNode, TASTNodeType.ntAdd, sc.tokenRecord.lineNumber);
          tMinus:
-           leftNode := TASTBinOp.Create(leftNode, rightNode, TASTNodeType.ntSub);
+           leftNode := TASTBinOp.Create(leftNode, rightNode, TASTNodeType.ntSub, sc.tokenRecord.lineNumber);
        end;
      end;
   result := leftNode;
@@ -658,17 +649,17 @@ begin
 
     case op of
       tEquivalence:
-        leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntEQ);
+        leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntEQ, sc.tokenRecord.lineNumber);
       tLessThan:
-        leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntLT);
+        leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntLT, sc.tokenRecord.lineNumber);
       tMoreThan:
-        leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntGT);
+        leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntGT, sc.tokenRecord.lineNumber);
       tMoreThanOrEqual:
-        leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntGE);
+        leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntGE, sc.tokenRecord.lineNumber);
       tLessThanOrEqual:
-        leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntLE);
+        leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntLE, sc.tokenRecord.lineNumber);
       tNotEqual:
-        leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntNE);
+        leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntNE, sc.tokenRecord.lineNumber);
     end;
   end;
   result := leftNode;
@@ -697,11 +688,11 @@ begin
 
     case op of
       tOr:
-        leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntOR);
+        leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntOR, sc.tokenRecord.lineNumber);
       tAnd:
-        leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntAnd);
+        leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntAnd, sc.tokenRecord.lineNumber);
       tXor:
-        leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntXor);
+        leftNode := TAstBinOp.Create(leftNode, rightNode, TASTNodeType.ntXor, sc.tokenRecord.lineNumber);
     end;
   end;
   result := leftNode;
@@ -774,14 +765,14 @@ begin
   if node = nil then
      begin
      // Return empty statment list
-     node := TASTStatementList.Create;
+     node := TASTStatementList.Create (sc.tokenRecord.lineNumber);
      exit (node)
      end;
 
   if node.nodeType = ntError then
      exit (node);
 
-  stat := TASTStatementList.Create;
+  stat := TASTStatementList.Create (sc.tokenRecord.lineNumber);
   stat.statementList.Add(node);
   while True do
      begin
@@ -828,7 +819,7 @@ begin
     result := TASTErrorNode.Create ('Expecting opening bracket to println call', sc.tokenRecord.lineNumber, sc.tokenRecord.columnNumber);
     exit;
     end;
-  result := TASTPrintln.Create(funcArgs);
+  result := TASTPrintln.Create(funcArgs, sc.tokenRecord.lineNumber);
 end;
 
 
@@ -859,7 +850,7 @@ begin
     exit;
     end;
 
-  result := TASTPrint.Create(funcArgs);
+  result := TASTPrint.Create(funcArgs, sc.tokenRecord.lineNumber);
 end;
 
 
@@ -882,7 +873,7 @@ begin
         exit (node);
         end;
 
-     result := TASTSetColor.Create(TASTExpression.Create(result));
+     result := TASTSetColor.Create(TASTExpression.Create(result, sc.tokenRecord.lineNumber), sc.tokenRecord.lineNumber);
      end
   else
     begin
@@ -910,7 +901,7 @@ begin
         result.freeAST;
         exit (node);
         end;
-     result := TASTAssertTrue.Create(TASTExpression.Create(result));
+     result := TASTAssertTrue.Create(TASTExpression.Create(result, sc.tokenRecord.lineNumber), sc.tokenRecord.lineNumber);
      end;
 end;
 
@@ -933,7 +924,7 @@ begin
         result.freeAST;
         exit (node);
         end;
-     result := TASTAssertTrueEx.Create(TASTExpression.Create(result));
+     result := TASTAssertTrueEx.Create(TASTExpression.Create(result, sc.tokenRecord.lineNumber), sc.tokenRecord.lineNumber);
      end;
 end;
 
@@ -956,7 +947,7 @@ begin
         result.freeAST;
         exit (node);
         end;
-     result := TASTAssertFalse.Create(TASTExpression.Create(result));
+     result := TASTAssertFalse.Create(TASTExpression.Create(result, sc.tokenRecord.lineNumber), sc.tokenRecord.lineNumber);
      end;
 end;
 
@@ -979,7 +970,7 @@ begin
         result.freeAST;
         exit (node);
         end;
-     result := TASTHelp.Create(TASTExpression.Create(result));
+     result := TASTHelp.Create(TASTExpression.Create(result, sc.tokenRecord.lineNumber), sc.tokenRecord.lineNumber);
      end;
 end;
 // exprStatement = expression '=' expression
@@ -1023,7 +1014,7 @@ begin
          node.freeAST;
          exit (exprNode);
          end;
-      expressionNode := TASTExpression.Create(exprNode);
+      expressionNode := TASTExpression.Create(exprNode, sc.tokenRecord.lineNumber);
 
       //if node.nodeType <> ntPrimary then
       if node.nodeType <> ntPrimary then
@@ -1034,7 +1025,7 @@ begin
          exit;
          end;
 
-      result := TASTAssignment.Create(node as TASTPrimary, expressionNode);
+      result := TASTAssignment.Create(node as TASTPrimary, expressionNode, sc.tokenRecord.lineNumber);
       end
    else
       begin
@@ -1045,7 +1036,7 @@ begin
       //   result := TASTErrorNode.Create('I reached the end of an expression and was expecting either a semicolon or the end of the text but found "' + sc.tokenLiteral + '"', sc.tokenElement.lineNumber, sc.tokenElement.columnNumber);
       //   end
       //else
-         result := TASTExpressionStatement.Create (node);
+         result := TASTExpressionStatement.Create (node, sc.tokenRecord.lineNumber);
       end;
 end;
 
@@ -1093,7 +1084,7 @@ begin
   if switchExpression.nodeType = ntError then
      exit (switchExpression);
 
-  listOfCaseStatements := TASTListOfCaseStatements.Create;
+  listOfCaseStatements := TASTListOfCaseStatements.Create (sc.tokenRecord.lineNumber);
 
   caseStatementList := nil;
   elseStatement := nil;
@@ -1103,7 +1094,7 @@ begin
       expect(tCase);
 
       if sc.token = tInteger then
-         caseValue := TASTInteger.Create(sc.tokenInteger)
+         caseValue := TASTInteger.Create(sc.tokenInteger, sc.tokenRecord.lineNumber)
       else
          begin
          switchExpression.freeAST;
@@ -1128,7 +1119,7 @@ begin
          caseValue.freeAST;
          exit (caseStatementList);
          end;
-      listOfCaseStatements.list.Add(TASTCaseStatement.Create(caseValue, caseStatementList));
+      listOfCaseStatements.list.Add(TASTCaseStatement.Create(caseValue, caseStatementList, sc.tokenRecord.lineNumber));
     end;
 
   if sc.token = tElse then
@@ -1149,7 +1140,7 @@ begin
      exit (node);
      end;
   if listOfCaseStatements <> nil then
-     exit (TASTSwitch.Create(switchExpression, listOfCaseStatements, elseStatement));
+     exit (TASTSwitch.Create(switchExpression, listOfCaseStatements, elseStatement, sc.tokenRecord.lineNumber));
   result := TASTErrorNode.Create('Empty switch construct', sc.tokenRecord.lineNumber, sc.tokenRecord.columnNumber);
 end;
 
@@ -1200,14 +1191,14 @@ begin
         exit (node);
         end;
 
-     result := TASTIf.Create(condition, listOfStatements, listOfElseStatements);
+     result := TASTIf.Create(condition, listOfStatements, listOfElseStatements, sc.tokenRecord.lineNumber);
      end
   else
      begin
      node := expect(tEnd);
      if node <> nil then
         exit (node);
-     result := TASTIf.Create(condition, listOfStatements, nil);
+     result := TASTIf.Create(condition, listOfStatements, nil, sc.tokenRecord.lineNumber);
      end;
 end;
 
@@ -1221,7 +1212,7 @@ begin
      exit;
      end;
 
-  result := TASTNode.Create(TASTNodeType.ntBreak);
+  result := TASTNode.Create(TASTNodeType.ntBreak, sc.tokenRecord.lineNumber);
   sc.nextToken;
 end;
 
@@ -1242,7 +1233,7 @@ begin
   try
     expect(tWhile);   // Guaranteed to be true
 
-    condition := TASTExpression.Create(expression);
+    condition := TASTExpression.Create(expression, sc.tokenRecord.lineNumber);
     if condition.nodeType = ntError then
        begin
        exit (condition);
@@ -1265,7 +1256,7 @@ begin
        exit (node);
        end;
 
-    result := TASTWhile.Create(condition, listOfStatements);
+    result := TASTWhile.Create(condition, listOfStatements, sc.tokenRecord.lineNumber);
 
     while breakStack.Count > 0 do
         breakJump := breakStack.Pop;
@@ -1309,7 +1300,7 @@ begin
        exit (condition);
        end;
 
-    result := TASTRepeat.Create(listOfStatements, condition);
+    result := TASTRepeat.Create(listOfStatements, condition, sc.tokenRecord.lineNumber);
     while breakStack1.Count > 0 do
         breakJump := breakStack1.Pop;
   finally
@@ -1345,7 +1336,7 @@ begin
     if node <> nil then
        exit (node);
 
-    id := TASTIdentifier.Create (sc.tokenString);
+    id := TASTIdentifier.Create (sc.tokenString, sc.tokenRecord.lineNumber);
     if id.nodeType = ntError then
        exit (id);
 
@@ -1362,7 +1353,7 @@ begin
        id.freeAST;
        exit (node);
        end;
-    lower := TASTExpression.Create(node);
+    lower := TASTExpression.Create(node, sc.tokenRecord.lineNumber);
 
     if sc.token in [tTo, tDownTo] then
        begin
@@ -1385,13 +1376,13 @@ begin
        lower.freeAST;
        exit (node);
        end;
-    upper := TASTExpression.Create(node);
+    upper := TASTExpression.Create(node, sc.tokenRecord.lineNumber);
 
-    iterationBlock := TASTIterationBlock.Create(id, lower, upper);
+    iterationBlock := TASTIterationBlock.Create(id, lower, upper, sc.tokenRecord.lineNumber);
     if toToken = tTo then
-      iterationBlock.direction := TASTNode.Create(TASTNodeType.ntTo)
+      iterationBlock.direction := TASTNode.Create(TASTNodeType.ntTo, sc.tokenRecord.lineNumber)
     else
-      iterationBlock.direction := TASTNode.Create(TASTNodeType.ntDownTo);
+      iterationBlock.direction := TASTNode.Create(TASTNodeType.ntDownTo, sc.tokenRecord.lineNumber);
 
     // Deal with any step keyword
     iterationBlock.stepValue := 1.0;
@@ -1421,7 +1412,7 @@ begin
     // .... do <body>
     body := statementList;
 
-    result := TASTFor.Create(iterationBlock, body);
+    result := TASTFor.Create(iterationBlock, body, sc.tokenRecord.lineNumber);
 
     while breakStack.Count > 0 do
       breakJump := breakStack.Pop;
@@ -1493,7 +1484,7 @@ begin
        end;
     // currentModuleName is required so that we can add the name of the function to the symbol table
     // early and before we parse the body of the fucntion so that recursive function calls can be handled.
-    result := TASTUserFunction.Create(primaryModuleName, functionName, argList, statementlistNode);
+    result := TASTUserFunction.Create(primaryModuleName, functionName, argList, statementlistNode, sc.tokenRecord.lineNumber);
 
    except
     on Exception do
@@ -1550,7 +1541,7 @@ begin
           // global a
           // After the function has been parsed the global list is deleted.
           globalVariableList.Add(sc.tokenString);
-          variableList.list.Add(TASTIdentifier.Create(sc.tokenString));
+          variableList.list.Add(TASTIdentifier.Create(sc.tokenString, sc.tokenRecord.lineNumber));
 
           sc.nextToken;
           while sc.token = tComma do
@@ -1565,11 +1556,11 @@ begin
                 exit;
                 end;
 
-              variableList.list.Add(TASTIdentifier.Create(sc.tokenString));
+              variableList.list.Add(TASTIdentifier.Create(sc.tokenString, sc.tokenRecord.lineNumber));
               sc.nextToken;
               end;
 
-          result := TASTGlobal.Create(primaryModuleName, variableList);
+          result := TASTGlobal.Create(primaryModuleName, variableList, sc.tokenRecord.lineNumber);
         end
       else
         begin
@@ -1590,7 +1581,7 @@ begin
   sc.nextToken();
   if (sc.token = tIdentifier) then
       begin
-      result := TASTImport.Create(sc.tokenString);
+      result := TASTImport.Create(sc.tokenString, sc.tokenRecord.lineNumber);
       sc.nextToken();
       end
   else
@@ -1612,7 +1603,7 @@ begin
      end;
 
   expect(tReturn);
-  result := TASTReturn.Create(TASTExpression.Create(expression));
+  result := TASTReturn.Create(TASTExpression.Create(expression, sc.tokenRecord.lineNumber), sc.tokenRecord.lineNumber);
 end;
 
 

@@ -71,11 +71,11 @@ var  builtInGlobal : TBuiltInGlobal;
 
 procedure addGlobalMethodsToModule (module : TModuleLib);
 begin
-  module.addMethod (builtInGlobal.createArray,   -1, 'array',         'Create an array: x = array (3, 4)');
+  module.addMethod (builtInGlobal.createArray, VARIABLE_ARGS, 'array',         'Create an array: x = array (3, 4)');
   module.addMethod (builtInGlobal.myInt,          1, 'int',           'Convert float to integer: int (3.4)');
   module.addMethod (builtInGlobal.myFloat,        1, 'float',         'Convert and integer to a float: float (3)');
-  module.addMethod (builtInGlobal.readNumber,    -1, 'readNumber',    'Read an integer from the input channel: : str = readNumber ("Enter answer: ")');
-  module.addMethod (builtInGlobal.readString,    -1, 'readString',    'Read a string from the input channel: str = readString ("Enter name")');
+  module.addMethod (builtInGlobal.readNumber,    VARIABLE_ARGS, 'readNumber',    'Read an integer from the input channel: : str = readNumber ("Enter answer: ")');
+  module.addMethod (builtInGlobal.readString,    VARIABLE_ARGS, 'readString',    'Read a string from the input channel: str = readString ("Enter name")');
   module.addMethod (builtInGlobal.listSymbols,    1, 'symbols',       'Returns list of symbols in the specified module: symbols(math). Use main() as the argument to get the symbols for the main module');
   module.addMethod (builtInGlobal.getType,        1, 'type',          'Returns the type of a given variable: type (x)');
   module.addMethod (builtInGlobal.getAttr,        2, 'getAttr',       'Returns the value attached to the symbol attribute: getAttr (mylib, "x")');

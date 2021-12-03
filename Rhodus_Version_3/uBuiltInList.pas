@@ -1,6 +1,5 @@
 unit uBuiltInList;
 
-
 // This source is distributed under Apache 2.0
 
 // Copyright (C) 2019-2021 Herbert M Sauro
@@ -41,8 +40,8 @@ begin
   inherited Create ('lists', 'List Module');
 
   addMethod(range,       3, 'range', 'Create a list based on the range arguments: l = lists.range (0, 10, 2)');
-  addMethod(getRndu,     1, 'rndu', 'Create a list if uniformly random numbers: l = lists.rndu (10)');
-  addMethod(getRndi,     3, 'rndi', 'Create a list if uniformly random integer: l = lists.rndi (lower, upper, number)');
+  addMethod(getRndu,     1, 'rndu',  'Create a list if uniformly random numbers: l = lists.rndu (10)');
+  addMethod(getRndi,     3, 'rndi',  'Create a list if uniformly random integer: l = lists.rndi (lower, upper, number)');
 end;
 
 

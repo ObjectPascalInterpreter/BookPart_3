@@ -94,7 +94,7 @@ uses
   uBuiltInMatrix in 'uBuiltInMatrix.pas',
   uMath in 'uMath.pas',
   uBuiltInGraphics in 'uBuiltInGraphics.pas',
-  ulibTypes in '..\librhodus\ulibTypes.pas',
+  uRhodusLibTypes in '..\librhodus\uRhodusLibTypes.pas',
   uIntStack in '..\VirtualMachine\uIntStack.pas';
 
 begin

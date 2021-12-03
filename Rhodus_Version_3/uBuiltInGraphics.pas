@@ -9,7 +9,7 @@ unit uBuiltInGraphics;
 
 interface
 
-Uses SysUtils, Classes, uLibModule, ulibTypes;
+Uses SysUtils, Classes, uLibModule, uRhodusLibTypes, System.UIConsts, System.UITypes;
 
 type
   TBuiltInGraphics = class (TModuleLib)
@@ -17,6 +17,7 @@ type
        pen_r, pen_g, pen_b : integer;
        brush_r, brush_g, brush_b : integer;
        penwidth : double;
+       updateflag : boolean;
        procedure   checkGraphicsSubsystem;
     public
        procedure   clear (vm : TObject);
@@ -31,6 +32,9 @@ type
        procedure   drawFilledRect (vm : TObject);
        procedure   drawEllipse (vm: TObject);
        procedure   drawFilledEllipse (vm: TObject);
+       procedure   beginUpdate (vm : TObject);
+       procedure   endUpdate (vm : TObject);
+       procedure   refresh (vm : TObject);
        procedure   pause (vm : TObject);
 
        constructor Create;
@@ -44,6 +48,7 @@ implementation
 
 Uses Math,
      uSymbolTable,
+     uRhodusTypes,
      uVM,
      uStringObject,
      uListObject,
@@ -68,20 +73,23 @@ constructor TBuiltInGraphics.Create;
 begin
   inherited Create ('graphics', 'Graphics module');
 
-  addMethod (clear,          0, 'clear',   'Set the seed for the random number generator: seed (23)');
-  addMethod (getCanvasSize,  0, 'size',   'Set the seed for the random number generator: seed (23)');
-  addMethod (setPenColor,    3, 'pencolor', '');
-  addMethod (setPenWidth,       1, 'penwidth', '');
-  addMethod (setBrushColor,     3, 'brushcolor', '');
+  addMethod (clear,            VARIABLE_ARGS, 'clear',    'Clear the canvas: clear () or clear ("red"');
+  addMethod (getCanvasSize,     0, 'size',     'Returns the size of the canvas as a list: size ()');
+  addMethod (setPenColor,      VARIABLE_ARGS, 'pencolor', 'Set the pen color using rgb: pencolor (255, 34, 123)');
+  addMethod (setPenWidth,       1, 'penwidth', 'Set the pen width: graphics.penwidth (4)');
+  addMethod (setBrushColor,    VARIABLE_ARGS, 'brushcolor', '');
   addMethod (setPixel,          2, 'pixel', '');
-  addMethod (moveTo,            2, 'moveto',  'Set the seed for the random number generator: seed (23)');
-  addMethod (lineTo,            2, 'lineto',  'Return a uniformly distributed random number: random()');
-  addMethod (drawRect,          4, 'rect',  'Return a uniformly distributed random number: random()');
-  addMethod (drawFilledRect,    4, 'fillrect',  'Return a uniformly distributed random number: random()');
-  addMethod (drawEllipse,       4,  'ellipse',  'Return a uniformly distributed random number: random()');
-  addMethod (drawFilledEllipse, 4, 'fillellipse',  'Return a uniformly distributed random number: random()');
+  addMethod (moveTo,            2, 'moveto',   'Move the current plotting cursor to x, y: graphics.moveto (100,200)');
+  addMethod (lineTo,            2, 'lineto',   'Return a uniformly distributed random number: random()');
+  addMethod (drawRect,          4, 'rect',     'Draw a rectangle: rect ()');
+  addMethod (drawFilledRect,    4, 'fillrect', 'Draw a filled rectangle');
+  addMethod (drawEllipse,       4, 'ellipse',  'Draw an ellipse with top/left coordiante x, y and width and height w, h: ellipse(100, 100, w, h)');
+  addMethod (drawFilledEllipse, 4, 'fillellipse', 'Draw a filled ellipse');
   addMethod (pause,             1, 'pause', '');
-end;
+  addMethod (beginUpdate,       0, 'beginupdate', ' Suppress output to the canvas');
+  addMethod (endUpdate,         0, 'endupdate', 'Draw any cached drawings to the canvas');
+  addMethod (refresh,           0, 'refresh', 'Rdraw teh current image');
+  end;
 
 
 procedure TBuiltInGraphics.checkGraphicsSubsystem;
@@ -92,11 +100,38 @@ end;
 
 
 procedure TBuiltInGraphics.clear (vm : TObject);
+var nArgs : integer;
+    scolor : string;
+    acolor : TAlphaColor;
+    r, g, b : integer;
 begin
+   nArgs := TVM (vm).popInteger;
+   if nArgs = 1 then
+      begin
+      scolor := TVM (vm).popString.value;
+
+      try
+        acolor := StringToAlphaColor(scolor);
+      except
+        on Exception do
+          raise ERuntimeException.Create(scolor + ' is not a valud color in function clear');
+      end;
+      r := TAlphaColorRec(acolor).R;
+      g := TAlphaColorRec(acolor).G;
+      b := TAlphaColorRec(acolor).B;
+      end
+   else
+      begin
+      // Oldlace
+      r := 254;
+      g := 245;
+      b := 230;
+      end;
+
    checkGraphicsSubsystem;
 
-   if @graphicsMethodsPtr.clear <> nil then
-      graphicsMethodsPtr.clear
+   if @graphicsMethodsPtr.clearColor <> nil then
+      graphicsMethodsPtr.clearColor (r, g, b)
    else
       raise ERuntimeException.Create('clear subsystem not available.');
 
@@ -110,6 +145,7 @@ var ms : integer;
 begin
   ms := TVM (vm).popInteger;
 
+  sleep (ms);
   checkGraphicsSubsystem;
 
   TVM (vm).pushNone;
@@ -117,10 +153,33 @@ end;
 
 
 procedure TBuiltInGraphics.setPenColor (vm : TObject);
+var nArgs : integer;
+    scolor : string;
+    acolor : TAlphaColor;
 begin
-  pen_b := trunc (TVM (vm).popScalar);
-  pen_g := trunc (TVM (vm).popScalar);
-  pen_r := trunc (TVM (vm).popScalar);
+  // has a variable number of arguments
+  nArgs := TVM (vm).popInteger;
+  case nArgs of
+     1 : begin
+         scolor := TVM (vm).popString.value;
+         try
+           acolor := StringToAlphaColor(scolor);
+         except
+           on e:Exception do
+              raise ERuntimeException.Create(scolor + ' is not a valid color in pencolor.');
+         end;
+         pen_r := TAlphaColorRec(acolor).R;
+         pen_g := TAlphaColorRec(acolor).G;
+         pen_b := TAlphaColorRec(acolor).B;
+         end;
+     3 : begin
+         pen_b := trunc (TVM (vm).popScalar);
+         pen_g := trunc (TVM (vm).popScalar);
+         pen_r := trunc (TVM (vm).popScalar);
+         end
+  else
+     raise ERuntimeException.Create('Expecting one or three arguments in pencolor.');
+  end;
 
   checkGraphicsSubsystem;
 
@@ -134,10 +193,33 @@ end;
 
 
 procedure TBuiltInGraphics.setBrushColor (vm : TObject);
+var nArgs : integer;
+    scolor : string;
+    acolor : TAlphaColor;
 begin
-  brush_b := trunc (TVM (vm).popScalar);
-  brush_g := trunc (TVM (vm).popScalar);
-  brush_r := trunc (TVM (vm).popScalar);
+  // has a variable number of arguments
+  nArgs := TVM (vm).popInteger;
+  case nArgs of
+     1 : begin
+         scolor := TVM (vm).popString.value;
+         try
+           acolor := StringToAlphaColor(scolor);
+         except
+           on e:Exception do
+              raise ERuntimeException.Create(scolor + ' is not a valid color in brushcolor.');
+         end;
+         brush_r := TAlphaColorRec(acolor).R;
+         brush_g := TAlphaColorRec(acolor).G;
+         brush_b := TAlphaColorRec(acolor).B;
+         end;
+     3 : begin
+         brush_b := trunc (TVM (vm).popScalar);
+         brush_g := trunc (TVM (vm).popScalar);
+         brush_r := trunc (TVM (vm).popScalar);
+         end
+  else
+     raise ERuntimeException.Create('Expecting one or three arguments in brushcolor.');
+  end;
 
   checkGraphicsSubsystem;
 
@@ -306,5 +388,49 @@ begin
   lt.list[1].iValue := p.h;
   TVM (vm).push(lt);
 end;
+
+
+procedure TBuiltInGraphics.beginUpdate (vm : TObject);
+begin
+  updateflag := True;
+
+   checkGraphicsSubsystem;
+
+   if @graphicsMethodsPtr.beginupdate <> nil then
+      graphicsMethodsPtr.beginupdate ()
+   else
+      raise ERuntimeException.Create('beginupdate subsystem not available.');
+
+  TVM (vm).pushNone;
+end;
+
+
+procedure TBuiltInGraphics.endUpdate (vm : TObject);
+begin
+  updateflag := False;
+
+  checkGraphicsSubsystem;
+
+  if @graphicsMethodsPtr.endupdate <> nil then
+     graphicsMethodsPtr.endupdate ()
+  else
+     raise ERuntimeException.Create('endupdate subsystem not available.');
+
+  TVM (vm).pushNone;
+end;
+
+
+procedure TBuiltInGraphics.refresh (vm : TObject);
+begin
+  checkGraphicsSubsystem;
+
+  if @graphicsMethodsPtr.refresh <> nil then
+     graphicsMethodsPtr.refresh ()
+  else
+     raise ERuntimeException.Create('refresh subsystem not available.');
+
+  TVM (vm).pushNone;
+end;
+
 
 end.

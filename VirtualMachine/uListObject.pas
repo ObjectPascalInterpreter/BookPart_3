@@ -456,14 +456,15 @@ begin
   result := getRhodusObjectSize;
   result := result + self.InstanceSize;
   for i := 0 to self.list.count - 1 do
-    result := result + self.list[i].getsize();
+    result := result + list[i].getsize();
 end;
 
 procedure TListObject.remove(index: integer);
 begin
-  if (index < 0) or (index > self.list.count - 1) then
+  if (index < 0) or (index > list.count - 1) then
     raise ERuntimeException.Create ('out of range while indexing element in list');
-  self.list.Delete(index);
+  list[index].Free;
+  list.Delete(index);
 end;
 
 procedure TListObject.insert(index, iValue: integer);

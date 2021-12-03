@@ -22,7 +22,12 @@ println (e)"
 "src": 
 "for i = 1 to 5 do
   println (i)
-end"
+end
+
+for i = 10 downto 1 do
+   print (i, \" \")
+end
+"
     },
 {
 "name": "While loop",
@@ -107,15 +112,25 @@ println (b)
 {
 "name": "Square",
 "src":
-"import graphics
+"
+import graphics
 
 graphics.clear()
 delta = 100
-graphics.moveto(50,50)
-graphics.lineto(50+delta,50)
-graphics.lineto(50+delta,50+delta)
-graphics.lineto(50,50+delta)
-graphics.lineto(50,50)
+
+function drawSquare (x, y, delta)
+   graphics.moveto(x,y)
+   graphics.lineto(x+delta,y)
+   graphics.lineto(x+delta,y+delta)
+   graphics.lineto(x,y+delta)
+   graphics.lineto(x, y)
+end
+
+x = 50; y = 50
+for i = 1 to 15 do
+    drawSquare (x, y, delta)
+    x = x + 10; y = y + 10   
+end
 "
 },
 {
@@ -161,7 +176,7 @@ tree(115)
 "
 },
 {
-"name": "circles",
+"name": "Circles",
 "src":
 "
 import graphics
@@ -182,7 +197,7 @@ end
 "
 },
 {
-"name": "lines",
+"name": "Lines",
 "src":
 "
 import graphics
@@ -206,7 +221,7 @@ end
 "
 },
 {
-"name": "spiral",
+"name": "Spiral",
 "src":
 "
 // From spiral.go
@@ -217,8 +232,8 @@ s = 520
 num = 600
 
 graphics.clear()
-graphics.pencolor (255, 0, 0)
-graphics.brushcolor (255, 0, 0)
+graphics.pencolor (\"red\")
+graphics.brushcolor (\"red\")
 
 for i = 0 to num do 
     t = i / num 
@@ -231,7 +246,7 @@ for i = 0 to num do
 end"
 },
 {
-"name": "mandelbrot",
+"name": "Mandelbrot",
 "src":
 "
 import graphics
@@ -284,6 +299,62 @@ for row = 0 to height - 1 do
 end
 println (\"Done\");
 println (\"Time = \", time.getTickCount() - t1, \" ms\")
+"
+},{
+"name": "Colors",
+"src":
+"
+import graphics
+import math
+
+colors = [\"Snow\", \"FloralWhite\", \"LavenderBlush\", \"OldLace\",
+\"Ivory\", \"CornSilk\", \"Beige\", \"AntiqueWhite\",
+\"Wheat\", \"AliceBlue\", \"GhostWhite\", \"Lavender\",
+\"Seashell\", \"LightYellow\", \"PapayaWhip\", \"NavajoWhite\",
+\"Moccasin\", \"Burlywood\", \"Azure\", \"Mintcream\",
+\"Honeydew\", \"Linen\", \"LemonChiffon\", \"BlanchedAlmond\",
+\"Bisque\", \"PeachPuff\", \"Tan\", \"Yellow\",
+\"DarkOrange\", \"Red\", \"DarkRed\", \"Maroon\",
+\"IndianRed\", \"Salmon\", \"Coral\", \"Gold\",
+\"Tomato\", \"Crimson\", \"Brown\", \"Chocolate\",
+\"SandyBrown\", \"LightSalmon\", \"LightCoral\", \"Orange\",
+\"OrangeRed\", \"Firebrick\", \"SaddleBrown\", \"Sienna\",
+\"Peru\", \"DarkSalmon\", \"RosyBrown\", \"PaleGoldenrod\",
+\"LightGoldenrodYellow\", \"Olive\", \"ForestGreen\", \"GreenYellow\",
+\"Chartreuse\", \"LightGreen\", \"Aquamarine\", \"SeaGreen\",
+\"GoldenRod\", \"Khaki\", \"OliveDrab\", \"Green\",
+\"YellowGreen\", \"LawnGreen\", \"PaleGreen\", \"MediumAquamarine\",
+\"MediumSeaGreen\", \"DarkGoldenRod\", \"DarkKhaki\", \"DarkOliveGreen\",
+\"Darkgreen\", \"LimeGreen\", \"Lime\", \"SpringGreen\",
+\"MediumSpringGreen\", \"DarkSeaGreen\", \"LightSeaGreen\", \"PaleTurquoise\",
+\"LightCyan\", \"LightBlue\", \"LightSkyBlue\", \"CornFlowerBlue\",
+\"DarkBlue\", \"Indigo\", \"MediumTurquoise\", \"Turquoise\",
+\"Cyan\", \"PowderBlue\", \"SkyBlue\", \"RoyalBlue\",
+\"MediumBlue\", \"MidnightBlue\", \"DarkTurquoise\", \"CadetBlue\",
+\"DarkCyan\", \"Teal\", \"DeepSkyBlue\", \"DodgerBlue\",
+\"Blue\", \"Navy\", \"DarkViolet\", \"DarkOrchid\",
+\"Magenta\", \"DarkMagenta\", \"MediumVioletRed\", \"PaleVioletRed\",
+\"BlueViolet\", \"MediumOrchid\", \"MediumPurple\", \"Purple\",
+\"DeepPink\", \"LightPink\", \"Violet\", \"Orchid\",
+\"Plum\", \"Thistle\", \"HotPink\", \"Pink\",
+\"LightSteelBlue\", \"MediumSlateBlue\", \"LightSlateGray\", \"White\",
+\"Lightgrey\", \"Gray\", \"SteelBlue\", \"SlateBlue\",
+\"SlateGray\", \"WhiteSmoke\", \"Silver\", \"DimGray\",
+\"MistyRose\", \"DarkSlateBlue\", \"DarkSlategray\", \"Gainsboro\",
+\"DarkGray\", \"Black\"]   
+ 
+
+graphics.clear(\"white\")
+x = 10; y = 10;
+for i = 0 to colors.len() - 1 do
+    graphics.pencolor (colors[i]);
+    graphics.fillrect (x, y, 40, 40);
+    x = x + 50
+    if x > 600 then
+       x = 10
+       y = y + 50
+    end
+end
 "
 }
   ]

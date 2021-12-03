@@ -471,7 +471,7 @@ var index : integer;
 begin
   for var i := 0 to length (dim) - 1 do
       if idx[i] >= dim[i] then
-         raise ERuntimeException.Create(outOfRangeMsg);
+         raise ERuntimeException.Create(outOfRangeMsg + ': ' + inttostr (idx[i]));
 
   index := getIndex (dim, idx);
   result := dataf[index];

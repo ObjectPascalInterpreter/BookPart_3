@@ -16,7 +16,7 @@ interface
 Uses Classes, SysUtils;
 
 const
-   MAX_ENTRIES = 100;
+  MAX_STACK_ENTRIES = 100;
 
 type
   TStack = record
@@ -30,6 +30,8 @@ procedure push (var stack : TStack; value : integer);
 function  pop (var stack : TStack) : integer;
 function  peek (var stack : TStack) : integer;
 function  getCount (var stack : TStack) : integer;
+procedure clear (var stack : TStack);
+function  getSize (var stack : TStack) : integer;
 
 implementation
 
@@ -38,6 +40,17 @@ begin
   stack.maxSize := n;
   stack.stackPtr := -1;
   setLength (stack.data, n);
+end;
+
+function  getSize (var stack : TStack) : integer;
+begin
+  result := stack.maxSize;
+end;
+
+
+procedure clear (var stack : TStack);
+begin
+  stack.stackPtr := -1;
 end;
 
 
@@ -55,6 +68,7 @@ begin
   stack.data[stack.stackPtr] := value;
 end;
 
+
 function pop (var stack : TStack) : integer;
 begin
   if stack.stackPtr = -1 then
@@ -62,6 +76,7 @@ begin
   result := stack.data[stack.stackPtr];
   dec (stack.stackPtr);
 end;
+
 
 function peek (var stack : TStack) : integer;
 begin

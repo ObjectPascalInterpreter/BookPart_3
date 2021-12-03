@@ -40,14 +40,14 @@ function getcell(x, y)
 end
 
 while isnull(getkey()) do
-    t0 = timetick()
+    //t0 = timetick()
     o = 0
     for y = 0, height2 do
         for x = 0, width2 do
             c = 0
             for x1 = -1, 1 do
                 for y1 = -1, 1 do
-                    if !(x1 || y1) then
+                    if not (x1 or y1) then
                         continue
                     end
                     if getcell(x + x1, y + y1) then
@@ -87,5 +87,3 @@ while isnull(getkey()) do
     t1 = timetick()
     println((t1 - t0).." ms   ")
 end
-© by René 'Neotec' Jeschke in 2006, 2007
-Last updated: 14 JUN 2007 (under construction)	SourceForge.net Logo

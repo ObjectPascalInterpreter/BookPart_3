@@ -65,7 +65,8 @@ uses
   uTerminal in '..\Rhodus_Version_3\uTerminal.pas',
   uTokenVector in '..\Rhodus_Version_3\uTokenVector.pas',
   uTurtleInterface in '..\Rhodus_Version_3\uTurtleInterface.pas',
-  uBuiltInGraphics in '..\Rhodus_Version_3\uBuiltInGraphics.pas';
+  uBuiltInGraphics in '..\Rhodus_Version_3\uBuiltInGraphics.pas',
+  uIntStack in '..\VirtualMachine\uIntStack.pas';
 
 {$R *.res}
 

@@ -11,7 +11,7 @@ interface
 
 Uses Generics.Collections,
      IOUtils,
-     ulibTypes,
+     uRhodusLibTypes,
      uVM,
      uSymbolTable,
      uMachineStack,

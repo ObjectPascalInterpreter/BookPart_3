@@ -17,7 +17,7 @@ type
          opCode : TOpCode;   // 1 byte
          index : integer;    // 4 bytes
          float : double;     // This is currently only used by the inc and dec op codes
-         moduleName : string;
+         moduleName : string;// Use by import module
          symbolName : string;
    end;
    TCode = TArray<TByteCode>;

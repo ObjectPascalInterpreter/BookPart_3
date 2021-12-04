@@ -32,6 +32,11 @@ constructor TBuiltInStr.Create;
 begin
   inherited Create ('strings', 'String Module');
 
+
+  addStringValue('ascii_lower',  'abcdefghijklmnopqrstuv', 'lower ascii characters', true);
+  addStringValue('ascii_upper', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'upper ascii characters', true);
+  addStringValue('digits', '0123456789', 'digits', true);
+
   addMethod(str,         1, 'str', 'Converts a string into a number: strings.str ("1.23"');
   addMethod(val,         1, 'val', 'Converts a number into a string: strings.val (1.23)');
   addMethod(formatStr,   2, 'format', 'Formats a number and returns a string, eg strings.format (2.3456, "%3.2f")');

@@ -158,19 +158,19 @@ begin
                //   continue;
                //   end;
                if opCodeStr = opCodeNames[oStoreSymbol] then begin
-                  result.addByteCode (oStoreSymbol, strtoint (opCodeArgument));
+                  result.addByteCode (oStoreSymbol, strtoint (opCodeArgument), 0);
                   inc (instCounter);
                   continue;
                   end;
                 if opCodeStr = opCodeNames[oCreateList] then
                   begin
-                  result.addByteCode (oCreateList, strtoint (opCodeArgument));
+                  result.addByteCode (oCreateList, strtoint (opCodeArgument), 0);
                   inc (instCounter);
                   continue
                   end;
                if opCodeStr = opCodeNames[oPushi] then
                   begin
-                  result.addByteCode (oPushi, strtoint (opCodeArgument));
+                  result.addByteCode (oPushi, strtoint (opCodeArgument), 0);
                   inc (instCounter);
                   continue;
                   end;
@@ -215,7 +215,7 @@ begin
                   if index <> -1 then
                      begin
                      labelInt := integer (labels.Objects[index]);
-                     result.addByteCode (oJMP, labelInt - instCounter);
+                     result.addByteCode (oJMP, labelInt - instCounter, 0);
                      end
                   else
                      raise Exception.Create ('Unable to locate label specificed in jmp opcode');
@@ -228,7 +228,7 @@ begin
                   if index <> -1 then
                      begin
                      labelInt := integer (labels.Objects[index]);
-                     result.addByteCode (oJmpIfTrue, labelInt - instCounter);
+                     result.addByteCode (oJmpIfTrue, labelInt - instCounter, 0);
                      end
                   else
                      raise Exception.Create ('Unable to locate label specificed in jmpIfTrue opcode');
@@ -242,7 +242,7 @@ begin
                   if index <> -1 then
                      begin
                      labelInt := integer (labels.Objects[index]);
-                     result.addByteCode (oJmpIfFalse, labelInt - instCounter);
+                     result.addByteCode (oJmpIfFalse, labelInt - instCounter, 0);
                      end
                   else
                      raise Exception.Create ('Unable to locate label specificed in jmpIfFalse opcode');

@@ -32,7 +32,6 @@ constructor TBuiltInStr.Create;
 begin
   inherited Create ('strings', 'String Module');
 
-
   addStringValue('ascii_lower',  'abcdefghijklmnopqrstuv', 'lower ascii characters', true);
   addStringValue('ascii_upper', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'upper ascii characters', true);
   addStringValue('digits', '0123456789', 'digits', true);

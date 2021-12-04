@@ -77,6 +77,7 @@ type
 
     assertCounter: integer;
     bolStopVm : boolean;
+    lineNumber : integer;  // set to the source code line number associated with the current bytecode
 
     procedure issueMessage (msg : string);
 
@@ -112,6 +113,8 @@ type
     procedure DecOp(symbolName : string; step : double);
     procedure localDecOp(symbolIndex: integer; step : double);
     procedure powerOp;
+
+    procedure compatibilityError (const arg: string; st1, st2: PMachineStackRecord);
 
     procedure storeSymbol(symbolName: string);
     procedure storeLocalSymbol(index: integer);
@@ -201,6 +204,7 @@ type
     function    stackHasEntry : boolean;
     procedure   stopvm;
     procedure   importModule (moduleName : string);
+    procedure   raiseError (msg: string);
 
     function    popInteger: integer; inline;
     function    popBoolean: boolean;
@@ -371,8 +375,14 @@ begin
                       result := st.fValue.name;
                       end
      else
-        result := 'Unrecognized value from print' + sLineBreak;
+        result := 'Unrecognized value type from print' + sLineBreak;
      end;
+end;
+
+
+procedure TVM.raiseError (msg : string);
+begin
+  raise ERuntimeException.Create(msg + ' at line number: ' + inttostr (lineNumber));
 end;
 
 
@@ -435,7 +445,7 @@ begin
     printValue;
   end
   else
-    raise ERuntimeException.Create ('Expecting boolean data type when using AssertTrue function');
+    raiseError ('Expecting boolean data type when using AssertTrue function');
   inc(assertCounter);
 end;
 
@@ -455,7 +465,7 @@ begin
     printValue;
   end
   else
-    raise ERuntimeException.Create ('Expecting boolean data type when using AssertFalse function');
+    raiseError ('Expecting boolean data type when using AssertFalse function');
   inc(assertCounter);
 end;
 
@@ -505,7 +515,7 @@ begin
      dec(stackTop);
      end
   else
-    raise ERuntimeException.Create ('Stack underflow error in pop');
+    raiseError ('Stack underflow error in pop');
 {$ELSE}
    result := @stack[stackTop];
    dec(stackTop);
@@ -533,7 +543,7 @@ begin
     stList: stack[stackTop].lValue := entry.lValue;
     stArray: stack[stackTop].aValue := entry.aValue;
   else
-    raise ERuntimeException.Create('Unknown type in dup method');
+    raiseError ('Unknown type in dup method');
   end;
 end;
 
@@ -555,11 +565,11 @@ begin
     p := @stack[stackTop];
     dec(stackTop);
     if p.stackType <> stInteger then
-      raise ERuntimeException.Create ('Expecting integer type');
+      raiseError ('Expecting integer type');
     result := p.iValue;
   end
   else
-    raise ERuntimeException.Create ('Stack underflow error in popInteger');
+    raiseError ('Stack underflow error in popInteger');
 end;
 
 
@@ -572,11 +582,11 @@ begin
     p := @stack[stackTop];
     dec(stackTop);
     if p.stackType <> stBoolean then
-      raise ERuntimeException.Create ('Expecting boolean type');
+      raiseError ('Expecting boolean type');
     result := p.bValue;
   end
   else
-    raise ERuntimeException.Create ('Stack underflow error in popBoolean');
+    raiseError ('Stack underflow error in popBoolean');
 end;
 
 
@@ -589,11 +599,11 @@ begin
      p := @stack[stackTop];
      dec(stackTop);
      if p.stackType <> stArray then
-        raise ERuntimeException.Create ('Expecting array type');
+        raiseError ('Expecting array type');
      result := p.aValue;
      end
   else
-     raise ERuntimeException.Create ('Stack underflow error in popString');
+     raiseError ('Stack underflow error in popString');
  end;
 
 
@@ -606,11 +616,11 @@ begin
      p := @stack[stackTop];
      dec(stackTop);
      if p.stackType <> stString then
-        raise ERuntimeException.Create ('Expecting string type');
+        raiseError ('Expecting string type');
      result := p.sValue;
      end
   else
-     raise ERuntimeException.Create ('Stack underflow error in popString');
+     raiseError ('Stack underflow error in popString');
  end;
 
 
@@ -622,11 +632,11 @@ begin
      p := @stack[stackTop];
      dec(stackTop);
      if p.stackType <> stList then
-        raise ERuntimeException.Create ('Expecting list type');
+        raiseError ('Expecting list type');
      result := p.lValue;
      end
  else
-     raise ERuntimeException.Create ('Stack underflow error in popList');
+     raiseError ('Stack underflow error in popList');
  end;
 
 
@@ -638,11 +648,11 @@ begin
      p := @stack[stackTop];
      dec(stackTop);
      if p.stackType <> stFunction then
-        raise ERuntimeException.Create ('Expecting function type');
+        raiseError ('Expecting function type');
      result := p.fValue;
      end
  else
-     raise ERuntimeException.Create ('Stack underflow error in popUserFunction');
+     raiseError ('Stack underflow error in popUserFunction');
  end;
 
 
@@ -654,11 +664,11 @@ begin
      p := @stack[stackTop];
      dec(stackTop);
      if p.stackType <> stObjectMethod then
-        raise ERuntimeException.Create ('Expecting object method type');
+        raiseError ('Expecting object method type');
      result := p.oValue;
      end
  else
-     raise ERuntimeException.Create ('Stack underflow error in popUserFunction');
+     raiseError ('Stack underflow error in popUserFunction');
  end;
 
 
@@ -670,12 +680,12 @@ begin
      p := @stack[stackTop];
      dec(stackTop);
      if p.stackType <> stModule then
-        raise ERuntimeException.Create ('Expecting module type but found: ' + stToStr (p.stackType));
+        raiseError ('Expecting module type but found: ' + stToStr (p.stackType));
 
      result := p.module;
      end
   else
-    raise ERuntimeException.Create ('Stack underflow error in popModule');
+    raiseError ('Stack underflow error in popModule');
 end;
 
 
@@ -691,17 +701,17 @@ begin
      if p.stackType = stDouble then
         exit(p.dValue);
 
-     raise ERuntimeException.Create('Expecting integer or double type');
+     raiseError ('Expecting integer or double type');
      end
   else
-    raise ERuntimeException.Create('Stack underflow error in popScalar');
+    raiseError ('Stack underflow error in popScalar');
 end;
 
 
 procedure TVM.checkStackOverflow;
 begin
   if stackTop = stacksize then
-    raise ERuntimeException.Create('Stack overflow error: ' + inttostr(stackTop)
+    raiseError ('Stack overflow error: ' + inttostr(stackTop)
       + ', max permitted depth is: ' + inttostr(stacksize));
 end;
 
@@ -736,7 +746,7 @@ begin
     stArray: stack[stackTop].aValue := value.aValue;
     stFunction : stack[stackTop].fValue := value.fValue;
   else
-    raise ERuntimeException.Create('Unknown type in push method');
+    raise ERuntimeException.Create('Internal Error: Unknown type in push method');
   end;
 end;
 
@@ -861,9 +871,9 @@ end;
 
 // -------------------------------------------------------------------------
 
-procedure error(const arg: string; st1, st2: PMachineStackRecord);
+procedure TVM.compatibilityError (const arg: string; st1, st2: PMachineStackRecord);
 begin
-  raise ERuntimeException.Create(stToStr(st1.stackType) + ' and ' +
+  raiseError (stToStr(st1.stackType) + ' and ' +
     stToStr(st2.stackType) + ' cannot be used with the ' + arg + ' operation');
 end;
 
@@ -878,29 +888,29 @@ begin
   st2 := pop; // first operand
 
   if (st1.stackType = stNone) or (st2.stackType = stNone) then
-     raise ERuntimeException.Create ('Variable undefined');
+     raiseError ('Variable undefined');
 
   case st2.stackType of
     stInteger: case st1.stackType of
         stInteger: push(st1.iValue + st2.iValue);
         stDouble: push(st1.dValue + st2.iValue);
       else
-        error('adding', st2, st1);
+        compatibilityError('adding', st2, st1);
       end;
 
-    stBoolean: error('adding', st2, st1); // Can't add booleans
+    stBoolean: compatibilityError('adding', st2, st1); // Can't add booleans
 
     stDouble: case st1.stackType of
         stInteger: push(st1.iValue + st2.dValue);
         stDouble: push(st1.dValue + st2.dValue);
       else
-        error('adding', st2, st1);
+        compatibilityError('adding', st2, st1);
       end;
 
     stString: case st1.stackType of
         stString: push(TStringObject.add(st2.sValue, st1.sValue));
       else
-        error('adding', st2, st1);
+        compatibilityError('adding', st2, st1);
       end;
 
     stList: case st1.stackType of
@@ -943,14 +953,14 @@ begin
           aList.appendModule (st1.module);
           push(aList);
           end;      else
-        error('adding', st2, st1);
+        compatibilityError('adding', st2, st1);
       end;
 
     stArray:
       case st1.stackType of
         stArray: push(TArrayObject.add(st2.aValue, st1.aValue));
       else
-        error('adding', st2, st1);
+        compatibilityError('adding', st2, st1);
       end;
   else
     raise ERuntimeException.Create ('Internal Error: Unsupported datatype in add');
@@ -966,31 +976,29 @@ begin
   st1 := pop;
   st2 := pop;
   if (st1.stackType = stNone) or (st2.stackType = stNone) then
-     raise ERuntimeException.Create ('Variable undefined');
+     raiseError ('Variable undefined');
 
   case st2.stackType of
     stInteger: case st1.stackType of
         stInteger: push(st2.iValue - st1.iValue);
         stDouble: push(st2.iValue - st1.dValue);
       else
-        raise ERuntimeException.Create(stToStr(st1.stackType) + ' and ' +
-                stToStr(st2.stackType) + ' cannot be used with the subtraction operation');
+        compatibilityError('subtraction', st1, st2);
       end;
     stDouble: case st1.stackType of
         stInteger: push(st2.dValue - st1.iValue);
         stDouble: push(st2.dValue - st1.dValue);
       else
-       raise ERuntimeException.Create(stToStr(st2.stackType) + ' and ' +
-                stToStr(st1.stackType) + ' cannot be used with the subtraction operation');
+        compatibilityError('subtraction', st2, st1);
       end;
     stArray:
       case st1.stackType of
         stArray: push(TArrayObject.sub(st2.aValue, st1.aValue));
       else
-        error('subracting', st2, st1);
+        compatibilityError('subracting', st2, st1);
       end;
   else
-    raise ERuntimeException.Create ('Only integers and floats can be subtracted from each other');
+    raiseError ('Only integers and floats can be subtracted from each other');
   end;
 end;
 
@@ -1005,7 +1013,7 @@ begin
   st1 := pop;
   st2 := pop;
   if (st1.stackType = stNone) or (st2.stackType = stNone) then
-     raise ERuntimeException.Create ('Variable undefined');
+     raiseError  ('Variable undefined');
 
   case st2.stackType of
     stInteger:
@@ -1022,10 +1030,10 @@ begin
         stList  : push(TListObject.multiply(st2.iValue, st1.lValue));
         stArray : push (TArrayObject.arrayIntMult (st1.aValue, st2.iValue));
       else
-        error('multipying', st2, st1);
+        compatibilityError('multipying', st2, st1);
       end;
 
-    stBoolean: error('multiplying', st2, st1);
+    stBoolean: compatibilityError('multiplying', st2, st1);
 
     stDouble:
       case st1.stackType of
@@ -1033,7 +1041,7 @@ begin
         stDouble  : push(st2.dValue * st1.dValue);
         stArray   :  push (TArrayObject.arrayDoubleMult (st1.aValue, st2.dValue))
       else
-        error('multipying', st2, st1);
+        compatibilityError('multipying', st2, st1);
       end;
 
     stString:
@@ -1052,7 +1060,7 @@ begin
       if st1.stackType = stInteger then
         push(TListObject.multiply(st1.iValue, st2.lValue))
       else
-        raise ERuntimeException.Create ('Lists can only be multiplied by integers');
+        raiseError  ('Lists can only be multiplied by integers');
       end;
 
     stArray :
@@ -1061,10 +1069,10 @@ begin
          stDouble  : push (TArrayObject.arrayDoubleMult (st2.aValue, st1.dValue));
          stArray   : push (TArrayObject.mult (st2.aValue, st1.aValue))
        else
-         error('multipying', st2, st1);
+         compatibilityError('multipying', st2, st1);
        end
   else
-    raise ERuntimeException.Create ('Data type not supported by multiplication operator')
+    raiseError  ('Data type not supported by multiplication operator')
   end
 end;
 
@@ -1088,7 +1096,7 @@ begin
         exit;
         end
      else
-        raise ERuntimeException.Create('Dot product requires both vectros to be the same size');
+        raiseError ('Dot product requires both vectros to be the same size');
      end;
 
   // Otherwise its matrix-matrix multiplication
@@ -1111,17 +1119,17 @@ begin
         stInteger: push(st2.iValue / st1.iValue);
         stDouble: push(st2.iValue / st1.dValue);
       else
-        error('dividing', st2, st1);
+        compatibilityError('dividing', st2, st1);
 
       end;
     stDouble: case st1.stackType of
         stInteger: push(st2.dValue / st1.iValue);
         stDouble: push(st2.dValue / st1.dValue);
       else
-        error('dividing', st2, st1);
+        compatibilityError('dividing', st2, st1);
       end
   else
-    raise ERuntimeException.Create ('Data type not supported by division operator');
+    raiseError  ('Data type not supported by division operator');
   end;
 end;
 
@@ -1135,7 +1143,7 @@ begin
     stInteger: push(-st.iValue);
     stDouble: push(-st.dValue);
   else
-    raise ERuntimeException.Create('Data type not supported by unary operator');
+    raiseError ('Data type not supported by unary operator');
   end;
 end;
 
@@ -1148,16 +1156,16 @@ begin
   st1 := pop;
   st2 := pop;
   if (st1.stackType = stNone) or (st2.stackType = stNone) then
-     raise ERuntimeException.Create ('Variable undefined');
+     raiseError  ('Variable undefined');
 
   case st2.stackType of
     stInteger: case st2.stackType of
         stInteger: push(st2.iValue div st1.iValue);
       else
-        raise ERuntimeException.Create ('Expecting integer type with div operator');
+        raiseError  ('Expecting integer type with div operator');
       end
   else
-    raise ERuntimeException.Create('Expecting integer type with div operator');
+    raiseError ('Expecting integer type with div operator');
   end;
 end;
 
@@ -1170,7 +1178,7 @@ begin
   st1 := pop;
   st2 := pop;
   if (st1.stackType = stNone) or (st2.stackType = stNone) then
-     raise ERuntimeException.Create ('Variable undefined');
+     raiseError  ('Variable undefined');
 
   case st2.stackType of
     stInteger:
@@ -1179,7 +1187,7 @@ begin
         stInteger: push(st2.iValue mod st1.iValue);
         stDouble : push(Math.FMod (st2.iValue, st1.dValue));
       else
-         raise ERuntimeException.Create('Incompatible types in mod operation');
+         raiseError ('Incompatible types in mod operation');
       end;
       end;
     stDouble:
@@ -1188,11 +1196,11 @@ begin
          stInteger : push(Math.FMod (st2.dValue, st1.iValue));
          stDouble  : push(Math.FMod (st2.dValue, st1.dValue));
         else
-          raise ERuntimeException.Create('Incompatible types in mod operation');
+          raiseError ('Incompatible types in mod operation');
         end;
       end
   else
-    raise ERuntimeException.Create('Incompatible types in mod operation');
+    raiseError ('Incompatible types in mod operation');
   end;
 end;
 
@@ -1207,7 +1215,7 @@ begin
     symInteger: symbol.iValue := symbol.iValue + trunc (step);
     symDouble:  symbol.dValue := symbol.dValue + step;
   else
-    raise ERuntimeException.Create  ('Internal error: Illegal use of incBy on a non-integer/double type');
+    raiseError ('Internal error: Illegal use of incBy on a non-integer/double type');
   end;
 end;
 
@@ -1227,7 +1235,7 @@ begin
     stInteger: inc(sy.iValue);
     stDouble: sy.dValue := sy.dValue + step;
   else
-    raise ERuntimeException.Create ('Internal error: Illegal use of incBy on a non-integer/double type');
+    raiseError ('Internal error: Illegal use of incBy on a non-integer/double type');
   end;
 end;
 
@@ -1241,7 +1249,7 @@ begin
     symInteger: symbol.iValue := symbol.iValue - trunc (step);
     symDouble:  symbol.dValue := symbol.dValue - step;
   else
-    raise ERuntimeException.Create ('Internal error: Illegal use of decBy on non-integer/double type');
+    raiseError ('Internal error: Illegal use of decBy on non-integer/double type');
   end;
 end;
 
@@ -1259,7 +1267,7 @@ begin
     stInteger: dec(sy.iValue);
     stDouble: sy.dValue := sy.dValue - step;
   else
-    raise ERuntimeException.Create ('Internal error: Illegal use of incBy on non-integer/double type');
+    raiseError ('Internal error: Illegal use of incBy on non-integer/double type');
   end;
 end;
 
@@ -1271,23 +1279,23 @@ begin
   st1 := pop;
   st2 := pop;
   if (st1.stackType = stNone) or (st2.stackType = stNone) then
-     raise ERuntimeException.Create ('Variable undefined');
+     raiseError ('Variable undefined');
 
   case st2.stackType of
     stInteger: case st1.stackType of
         stInteger: push(power(st2.iValue, st1.iValue));
         stDouble: push(power(st2.iValue, st1.dValue));
       else
-        error('power', st2, st1);
+        compatibilityError('power', st2, st1);
       end;
     stDouble: case st1.stackType of
         stInteger: push(power(st2.dValue, st1.iValue));
         stDouble: push(power(st2.dValue, st1.dValue));
       else
-        error('exponential', st2, st1);
+        compatibilityError('exponential', st2, st1);
       end;
   else
-    raise ERuntimeException.Create('Data type not supported by power operator');
+    raiseError ('Data type not supported by power operator');
   end;
 end;
 
@@ -1306,9 +1314,9 @@ var
 begin
   value := pop();
   if not module.symbolTable.find (symbolName, symbol) then
-     raise ERuntimeException.Create('Undeclared variable: ' + symbolName + ' in module: ' + module.name);
+     raiseError ('Undeclared variable: ' + symbolName + ' in module: ' + module.name);
 
-  case value.stackType of
+   case value.stackType of
     stNone:     begin symbol.symbolType := symUndefined; end;
     stInteger:  module.symbolTable.storeInteger (symbol, value.iValue);
     stDouble:   module.symbolTable.storeDouble (symbol, value.dValue);
@@ -1319,12 +1327,12 @@ begin
     stFunction: module.symbolTable.storeFunction (symbol, value.fValue);
 
     stModule:   begin
-                raise ERuntimeException.Create('You cannot store modules: ' + value.module.name);
+                raiseError ('You cannot store modules: ' + value.module.name);
                 end;
     stObjectMethod:
-       raise ERuntimeException.Create('You cannot store object methods: ' + value.oValue.name);
+       raiseError ('You cannot store object methods: ' + value.oValue.name);
   else
-    raise ERuntimeException.Create('Internal error: Unrecognized stacktype in storeSymbol: ' + TRttiEnumerationType.GetName(value.stackType));
+    raiseError ('Internal error: Unrecognized stacktype in storeSymbol: ' + TRttiEnumerationType.GetName(value.stackType));
   end;
 end;
 
@@ -1334,10 +1342,10 @@ procedure TVM.loadSymbol (symbolName : string);
 var symbol : TSymbol;
 begin
   if not module.symbolTable.find (symbolName, symbol) then
-     raise ERuntimeException.Create ('Undefined symbol: ' + symbolName);
+     raiseError ('Undefined symbol: ' + symbolName);
 
  case symbol.symbolType of
-    symUndefined: raise ERuntimeException.Create ('Variable has no assigned value: ' + symbol.symbolName);
+    symUndefined: raiseError('Variable has no assigned value: ' + symbol.symbolName);
     symInteger:   push(symbol.iValue);
     symDouble:    push(symbol.dValue);
     symBoolean:   push(symbol.bValue);
@@ -1350,7 +1358,7 @@ begin
                   end;
     symModule:    pushModule(TModule (symbol.mValue));
   else
-    raise ERuntimeException.Create('Unknown symbol type in loadSymbol: ' +  inttostr(integer(symbol.symbolType)));
+    raiseError('Unknown symbol type in loadSymbol: ' +  inttostr(integer(symbol.symbolType)));
   end;
 end;
 
@@ -1377,10 +1385,10 @@ begin
               m := primary.module;
 
               if not m.symbolTable.find (symbolName, symbol) then
-                 raise ERuntimeException.Create ('Undefined symbol: ' + symbolName);
+                 raiseError  ('Undefined symbol: ' + symbolName);
 
               case symbol.symbolType of
-                symUndefined: raise ERuntimeException.Create ('Variable has no assigned value: ' + symbol.symbolName);
+                symUndefined: raiseError ('Variable has no assigned value: ' + symbol.symbolName);
                 symInteger:   push(symbol.iValue);
                 symDouble:    push(symbol.dValue);
                 symBoolean:   push(symbol.bValue);
@@ -1393,7 +1401,7 @@ begin
                               end;
                 symModule:    pushModule(TModule (symbol.mValue));
               else
-                raise ERuntimeException.Create('Unknown symbol type in loadAttr: ' +  inttostr(integer(symbol.symbolType)));
+                raiseError ('Unknown symbol type in loadAttr: ' +  inttostr(integer(symbol.symbolType)));
               end;
               end;
 
@@ -1407,7 +1415,7 @@ begin
                  push (f);
                  end
               else
-                 raise ERuntimeException.Create('No method <' + symbolName + '> associated with object');
+                 raiseError ('No method <' + symbolName + '> associated with object');
               end;
 
      stString : begin
@@ -1420,7 +1428,7 @@ begin
                  push (f);
                  end
               else
-                 raise ERuntimeException.Create('No method <' + symbolName + '> associated with object');
+                 raiseError ('No method <' + symbolName + '> associated with object');
               end;
 
      stArray : begin
@@ -1433,7 +1441,7 @@ begin
                  push (f);
                  end
               else
-                 raise ERuntimeException.Create('No method <' + symbolName + '> associated with object');
+                 raiseError('No method <' + symbolName + '> associated with object');
               end;
 
    stFunction :
@@ -1447,10 +1455,10 @@ begin
                  push (f);
                  end
               else
-                 raise ERuntimeException.Create('No method <' + symbolName + '> associated with object');
+                 raiseError('No method <' + symbolName + '> associated with object');
               end
   else
-     raise ERuntimeException.Create('Primary objects can only be modules, functions, strings, arrays or lists');
+     raiseError ('Primary objects can only be modules, functions, strings, arrays or lists');
   end;
 end;
 
@@ -1464,10 +1472,10 @@ begin
   value := pop();
 
   if not m.symbolTable.find (symbolName, symbol) then
-     raise ERuntimeException.Create ('Undefined symbol: ' + symbolName);
+     raiseError ('Undefined symbol: ' + symbolName);
 
   if symbol.locked then
-     raise ERuntimeException.Create ('This symbol is locked, you cannot change it: ' + symbolName);
+     raiseError ('This symbol is locked, you cannot change it: ' + symbolName);
 
   case value.stackType of
     stNone:     begin symbol.symbolType := symUndefined; end;
@@ -1480,7 +1488,7 @@ begin
     stFunction: m.symbolTable.storeFunction (symbol, value.fValue);
     stModule:   m.symbolTable.storeModule (symbol, value.module);
   else
-    raise ERuntimeException.Create('Internal error: Unrecognized stacktype in storeAttr: ' + TRttiEnumerationType.GetName(symbol.symbolType));
+    raiseError ('Internal error: Unrecognized stacktype in storeAttr: ' + TRttiEnumerationType.GetName(symbol.symbolType));
   end;
 
 end;
@@ -1529,9 +1537,9 @@ begin
         end;
     stNone:
       // ###
-      raise ERuntimeException.Create ('Undefined variable: ' + frame.symbolTable[index].symbolName);
+      raiseError ('Undefined variable: ' + frame.symbolTable[index].symbolName);
   else
-    raise ERuntimeException.Create ('Internal Error: Unknown symbol in copyToStack');
+    raiseError  ('Internal Error: Unknown symbol in copyToStack');
   end;
 end;
 
@@ -1604,9 +1612,9 @@ begin
       stack[bsp + index].stackType := stArray;
       end;
     stNone:
-      raise ERuntimeException.Create ('No value to assign in function');
+      raiseError  ('No value to assign in function');
   else
-    raise ERuntimeException.Create('Unknown symbol type in storeLocalValue');
+    raiseError ('Unknown symbol type in storeLocalValue');
   end;
 end;
 
@@ -1630,7 +1638,7 @@ begin
         stDouble: push(st2.dValue <= st1.dValue);
       end
   else
-    raise ERuntimeException.Create('Incompatible data types ''Is Less or Equal Than'' Operation');
+    raiseError ('Incompatible data types ''Is Less or Equal Than'' Operation');
   end;
 end;
 
@@ -1646,15 +1654,15 @@ begin
     stInteger: case st2.stackType of
         stInteger: push(st2.iValue < st1.iValue);
         stDouble:  push(st2.dValue < st1.iValue);
-        stNone : raise ERuntimeException.Create ('Undefined value in greater than tests');
+        stNone : raiseError  ('Undefined value in greater than tests');
       end;
     stDouble: case st2.stackType of
         stInteger: push(st2.iValue < st1.dValue);
         stDouble: push(st2.dValue < st1.dValue);
-        stNone : raise ERuntimeException.Create ('Undefined value in greater than tests');
+        stNone : raiseError ('Undefined value in greater than tests');
       end;
   else
-    raise ERuntimeException.Create('Incompatible types in ''Is Less Than'' Operation');
+    raiseError ('Incompatible types in ''Is Less Than'' Operation');
   end;
 end;
 
@@ -1676,7 +1684,7 @@ begin
         stDouble: push(st2.dValue > st1.dValue);
       end;
   else
-    raise ERuntimeException.Create('Incompatible types in ''Is Greater Than Operation''');
+    raiseError ('Incompatible types in ''Is Greater Than Operation''');
   end;
 end;
 
@@ -1693,14 +1701,14 @@ begin
         stInteger: push(st2.iValue >= st1.iValue);
         stDouble: push(st2.dValue >= st1.iValue);
       else
-        raise ERuntimeException.Create ('Boolean data types not permitted in isGte comparison');
+        raiseError  ('Boolean data types not permitted in isGte comparison');
       end;
     stDouble: case st2.stackType of
         stInteger: push(st2.iValue >= st1.dValue);
         stDouble: push(st2.dValue >= st1.dValue);
       end
   else
-    raise ERuntimeException.Create('Incompatible types in ''Is Greater or Equal Than Operation''');
+    raiseError ('Incompatible types in ''Is Greater or Equal Than Operation''');
   end;
 end;
 
@@ -1733,36 +1741,36 @@ begin
         stInteger: push(st2.iValue = st1.iValue);
         stDouble:  push(math.sameValue (st1.iValue, st2.dValue));
       else
-        raise ERuntimeException.Create('Incompatible types in equality test');
+        raiseError ('Incompatible types in equality test');
       end;
     stDouble:
       case st2.stackType of
         stInteger: push(st2.iValue = st1.dValue);
         stDouble:  push(math.sameValue(st2.dValue, st1.dValue));
       else
-        raise ERuntimeException.Create('Incompatible types in equality test');
+        raiseError ('Incompatible types in equality test');
       end;
     stString:
       begin
       if st2.stackType = stString then
          push(st1.sValue.isEqualTo (st2.sValue))
       else
-         raise ERuntimeException.Create('Incompatible types in equality test');
+         raiseError ('Incompatible types in equality test');
       end;
     stList:
       begin
       if st2.stackType = stList then
         push(TListObject.listEquals(st1.lValue, st2.lValue))
       else
-        raise ERuntimeException.Create ('Unable to test for equality between lists and non-lists data types');
+        raiseError  ('Unable to test for equality between lists and non-lists data types');
       end;
     stArray :
       if st2.stackType = stArray then
          push (TArrayObject.isEqualTo(st1.aValue, st2.aValue))
       else
-        raise ERuntimeException.Create ('Unable to test for equality between arrays and non-arrays data types');
+        raiseError  ('Unable to test for equality between arrays and non-arrays data types');
   else
-    raise ERuntimeException.Create ('Incompatible types in equality test');
+    raiseError  ('Incompatible types in equality test');
   end;
 end;
 
@@ -1774,7 +1782,7 @@ begin
   st1 := pop;
   st2 := pop;
   if (st1.stackType <> stBoolean) or (st2.stackType <> stBoolean) then
-     raise ERuntimeException.Create('Incompatible types in AND operation');
+     raiseError ('Incompatible types in AND operation');
   push(st1.bValue and st2.bValue);
 end;
 
@@ -1786,7 +1794,7 @@ begin
   st1 := pop;
   st2 := pop;
   if (st1.stackType <> stBoolean) or (st2.stackType <> stBoolean) then
-     raise ERuntimeException.Create('Incompatible types in OR operation');
+     raiseError ('Incompatible types in OR operation');
   push(st1.bValue or st2.bValue);
 end;
 
@@ -1798,7 +1806,7 @@ begin
   st1 := pop;
   st2 := pop;
   if (st1.stackType <> stBoolean) or (st2.stackType <> stBoolean) then
-     raise ERuntimeException.Create('Incompatible types in XOR operation');
+     raiseError ('Incompatible types in XOR operation');
   push(st1.bValue xor st2.bValue);
 end;
 
@@ -1809,7 +1817,7 @@ var
 begin
   st := pop;
   if (st.stackType <> stBoolean) then
-     raise ERuntimeException.Create('Incompatible types in NOT operation');
+     raiseError ('Incompatible types in NOT operation');
   push(not st.bValue);
 end;
 
@@ -1827,7 +1835,7 @@ var selfValue : PMachineStackRecord;
 begin
   if p.oValue.nArgs <> VARIABLE_ARGS then
      if actualNumArgs <> p.oValue.nArgs then
-        raise ERuntimeException.Create('Expecting ' + inttostr (p.oValue.nArgs) + ' arguments in function call [' + p.oValue.name + '] but received ' + inttostr (actualNumArgs) + ' arguments');
+        raiseError ('Expecting ' + inttostr (p.oValue.nArgs) + ' arguments in function call [' + p.oValue.name + '] but received ' + inttostr (actualNumArgs) + ' arguments');
 
   if p.oValue.nArgs = VARIABLE_ARGS then
      push(actualNumArgs);
@@ -1870,7 +1878,7 @@ begin
   p := @stack[stackTop-actualNumArgs];
   // Check first that its actually something we can call
   if (p.stackType <> stFunction) and (p.stackType <> stObjectMethod) then
-     raise ERuntimeException.Create(stToStr (p.stackType) + ' is not something that can be called as a function');
+     raiseError (stToStr (p.stackType) + ' is not something that can be called as a function');
 
   // This deals with calls such as a.len(), where len() is an object method
   if p.stackType = stObjectMethod then
@@ -1886,7 +1894,7 @@ begin
   // number of arguments are avaiable to the function
   if expectedNumArgs <> VARIABLE_ARGS then
      if actualNumArgs <> expectedNumArgs then
-        raise ERuntimeException.Create('Expecting ' + inttostr (functionObject.nArgs) + ' arguments in function call but received ' + inttostr (actualNumArgs) + ' arguments');
+        raiseError ('Expecting ' + inttostr (functionObject.nArgs) + ' arguments in function call but received ' + inttostr (actualNumArgs) + ' arguments');
 
   // Support for special builtins, eg Math
   if functionObject.isBuiltInFunction then
@@ -1898,7 +1906,7 @@ begin
   // Finally, its a normal method call to a real user defined function
   inc(frameStackTop);
   if frameStackTop > MAX_FRAME_DEPTH then
-    raise ERuntimeException.Create ('Exceeded maximum recursion depth for functions');
+    raiseError ('Exceeded maximum recursion depth for functions');
 
   // Fill in the frame entries - some code optimizations first
   // reduces the amount of machine code generated
@@ -2017,7 +2025,7 @@ begin
         result.list[i].itemType := liFunction;
         end
     else
-      raise ERuntimeException.Create('Unrecognized type in createList');
+      raiseError('Unrecognized type in createList');
     end;
     end;
 end;
@@ -2030,16 +2038,16 @@ begin
   value := pop;
 
   if (index < 0) or (index > length(variable.sValue.value) - 1) then
-    raise ERuntimeException.Create('string index out of range');
+    raiseError ('string index out of range');
 
   if variable.stackType <> stString then
-    raise ERuntimeException.Create('left-hand side must be a string');
+    raiseError ('left-hand side must be a string');
 
   if value.stackType <> stString then
-    raise ERuntimeException.Create('right-hand side must be a string');
+    raiseError ('right-hand side must be a string');
 
   if length(value.sValue.value) > 1 then
-    raise ERuntimeException.Create ('can only assign a single string character to an indexed string');
+    raiseError ('can only assign a single string character to an indexed string');
 
   variable.sValue.value[index + 1] := value.sValue.value[1];
 end;
@@ -2056,7 +2064,7 @@ begin
   //  raise ERuntimeException.Create('string index out of range');
 
   if variable.stackType <> stArray then
-    raise ERuntimeException.Create('left-hand side must be a array');
+    raiseError ('left-hand side must be a array');
 
   //if subscriptStack.Count + 1 < nSubscripts then
   if uIntStack.getCount (subscriptStack) + 1 < nSubscripts then
@@ -2091,7 +2099,7 @@ var
   element: TListItem;
 begin
   if (variable.lValue.list.count  < 0) or (index > variable.lValue.list.count - 1) then
-     raise ERuntimeException.Create('index out of range: ' + inttostr (index));
+     raiseError ('index out of range: ' + inttostr (index));
 
 
   // Get the element from the list that we're going to store to
@@ -2138,7 +2146,7 @@ begin
       element.itemType := liFunction;
       end;
   else
-    raise ERuntimeException.Create('Unrecognized stacktype in storeIndexable: ' + TRttiEnumerationType.GetName (value.stackType));
+    raiseError ('Unrecognized stacktype in storeIndexable: ' + TRttiEnumerationType.GetName (value.stackType));
   end
 end;
 
@@ -2151,7 +2159,7 @@ begin
   value := pop;
 
   if (index < 0) or (index > st.lValue.list.count - 1) then
-     raise ERuntimeException.Create('list index out of range: ' + inttostr (index));
+     raiseError ('list index out of range: ' + inttostr (index));
 
   element := st.lValue.list[index];
 
@@ -2194,7 +2202,7 @@ begin
       element.fValue := value.fValue;
       element.itemType := liFunction;
       end;  else
-    raise ERuntimeException.Create('Unrecognized stacktype in storeLocalIndexable');
+    raiseError ('Unrecognized stacktype in storeLocalIndexable');
   end
 end;
 
@@ -2207,13 +2215,13 @@ begin
   value := pop;
 
   if (index < 0) or (index > length(st.sValue.value) - 1) then
-    raise ERuntimeException.Create('string index out of range');
+    raiseError ('string index out of range');
 
   if value.stackType <> stString then
-    raise ERuntimeException.Create ('can only assign a single string character to an indexed string');
+    raiseError ('can only assign a single string character to an indexed string');
 
   if length(value.sValue.value) > 1 then
-    raise ERuntimeException.Create ('can only assign a single string character to an indexed string');
+    raiseError ('can only assign a single string character to an indexed string');
   st.sValue.value[index + 1] := value.sValue.value[1];
 end;
 
@@ -2235,7 +2243,7 @@ begin
       stack[index + bsp].sValue := variable.sValue;
     end;
   else
-    raise ERuntimeException.Create(stToStr(variable.stackType) + ' local variable is not indexable');
+    raiseError (stToStr(variable.stackType) + ' local variable is not indexable');
   end;
 end;
 
@@ -2258,7 +2266,7 @@ begin
      stString : storeIndexableString(symbol, index);
      stArray  : storeIndexableArray(symbol, index, nSubscripts);
   else
-    raise Exception.Create(stToStr(symbol.stackType) + ' variable is not indexable');
+    raiseError (stToStr(symbol.stackType) + ' variable is not indexable');
   end;
 
 end;
@@ -2271,7 +2279,7 @@ end;
 procedure TVM.loadIndexableString(st: PMachineStackRecord; index: integer);
 begin
   if (index < 0) or (index > length(st.sValue .value) - 1) then
-    raise ERuntimeException.Create('string index out of range');
+    raiseError ('string index out of range');
   push(TStringObject.Create(st.sValue.value[index + 1]));
 end;
 
@@ -2294,7 +2302,7 @@ begin
         begin
         // This needs to be relaxed so that users can extract portions of an array
         if st.aValue.getNumDimensions > 1 then
-           raise ERuntimeException.Create('Array has more dimensions that specified in indexing');
+           raiseError ('Array has more dimensions that specified in indexing');
         push (st.aValue.getValue(index));
         exit;
         end;
@@ -2320,7 +2328,7 @@ procedure TVM.loadIndexableList(variable: PMachineStackRecord; index: integer);
 var element: TListItem;
 begin
   if (index < 0) or (index > variable.lValue.list.count - 1) then
-    raise ERuntimeException.Create('list index out of range: ' + inttostr (index));
+    raiseError('list index out of range: ' + inttostr (index));
 
   element := variable.lValue.list[index];
 
@@ -2332,7 +2340,7 @@ begin
     liList:    push(element.lValue);
     liFunction:push(TUserFunction (element.fValue));
   else
-    raise ERuntimeException.Create ('internal error: unsupported type in loadIndexableList');
+    raiseError ('internal error: unsupported type in loadIndexableList');
   end;
 end;
 
@@ -2353,7 +2361,7 @@ begin
     stString: loadIndexableString(variable, index);
     stArray : loadIndexableArray (variable, index, nSubscripts);
   else
-    raise ERuntimeException.Create(stToStr(variable.stackType) +  ' variable is not indexable');
+    raiseError (stToStr(variable.stackType) +  ' variable is not indexable');
   end;
 end;
 
@@ -2363,7 +2371,7 @@ var
   element: TListItem;
 begin
   if (index < 0) or (index > aList.list.count - 1) then
-    raise ERuntimeException.Create('list index out of range: ' + inttostr (index));
+    raiseError ('list index out of range: ' + inttostr (index));
 
   // Get the first element of the list
   element := aList.list[index];
@@ -2376,7 +2384,7 @@ begin
     liList:    push(element.lValue);
     liFunction:push(element.fValue as TUserFunction);
   else
-    raise ERuntimeException.Create('unsupported type in loadIndexable');
+    raiseError('unsupported type in loadIndexable');
   end;
 end;
 
@@ -2384,14 +2392,14 @@ end;
 procedure TVM.loadLocalIndexableString(astr: TStringObject; index: integer);
 begin
   if (index < 0) or (index >= length(astr.value) - 1) then
-    raise ERuntimeException.Create('string index out of range');
+    raiseError('string index out of range');
   push(TStringObject.Create(astr.value[index + 1]));
 end;
 
 
 procedure TVM.loadLocalIndexableArray(arr: TArrayObject; index: integer);
 begin
-  raise ERuntimeException.Create('loadLocalIndexableArray not implemented');
+  raiseError('loadLocalIndexableArray not implemented');
   //if (index < 0) or (index >= length(arr.data) - 1) then
   //  raise ERuntimeException.Create('string index out of range');
   //push(TArrayObject.Create(arr.data[index]));
@@ -2411,7 +2419,7 @@ begin
   if st.stackType = stString then
     loadLocalIndexableString(st.sValue, index)
   else
-    raise ERuntimeException.Create(stToStr(st.stackType) + ' variable is not indexable');
+    raiseError (stToStr(st.stackType) + ' variable is not indexable');
 end;
 
 
@@ -2422,9 +2430,9 @@ var vm : TVM;
 begin
   // Find the module
   if not symbolTable.find (moduleName, symbol) then
-     raise ERuntimeException.Create('Symbol: ' + moduleName + ' could not be found.');
+     raiseError('Symbol: ' + moduleName + ' could not be found.');
   if symbol.symbolType <> symModule then
-     raise ERuntimeException.Create('Symbol: ' + moduleName + ' is not a module.');
+     raiseError ('Symbol: ' + moduleName + ' is not a module.');
 
   module := TModule (symbol.mValue);
 
@@ -2467,13 +2475,13 @@ begin
      stString :
         begin
         if numSlices > 1 then
-           raise ERuntimeException.Create('Only a single slice can be applied to a string');
+           raiseError ('Only a single slice can be applied to a string');
         push (value.sValue.slice (sliceObjlist[0].lower, sliceObjlist[0].upper));
         end;
      stList :
         begin
         if numSlices > 1 then
-           raise ERuntimeException.Create('Only a single slice can be applied to a list');
+           raiseError ('Only a single slice can be applied to a list');
         push (value.lValue.slice (sliceObjlist[0].lower, sliceObjlist[0].upper));
         end;
      stArray :
@@ -2481,7 +2489,7 @@ begin
         push (value.aValue.slice(sliceObjList));
         end
   else
-     raise ERuntimeException.Create('You can only slice strings, arrays, or lists');
+     raiseError ('You can only slice strings, arrays, or lists');
   end;
 
   // Free slices
@@ -2591,6 +2599,7 @@ begin
            exit;
            end;
 
+          lineNumber := c[ip].lineNumber;
           case c[ip].opCode of
             oNop:        begin end;
             oAdd:        addOp;
@@ -2708,7 +2717,7 @@ begin
 
             oPopAndSend:   callBack(pop);  // Not currently used
           else
-            raise ERuntimeException.Create('Unknown opcode encountered in virtual machine execution loop: ' + inttostr(c[ip].opCode));
+            raiseError('Unknown opcode encountered in virtual machine execution loop: ' + inttostr(c[ip].opCode));
           end;
           inc(ip);
         end;

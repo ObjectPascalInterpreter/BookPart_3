@@ -251,7 +251,7 @@ begin
     if node.iterationBlock.direction.nodeType = ntTo then
       begin
         if compilingFunction then
-           code.addByteCode(oLocalInc, localSymbolIndex)
+           code.addByteCode(oLocalInc, localSymbolIndex, node.iterationBlock.direction.lineNumber)
         else
            code.addByteCode(oInc, symbol.symbolName, node.iterationBlock.stepValue)
        end
@@ -372,11 +372,9 @@ begin
      inAssignment := True;
      try
        compileCode (node.leftSide);
-       // emit the store method here?
      finally
        inAssignment := False
      end;
-
      end
   else
      raise ECompilerException.Create('Internal Error in compileAssignment', 0, 0)
@@ -486,18 +484,18 @@ begin
          begin
          // Special case, we only save if its the last index, otherwise we load
          if i = subscripts.Count - 1 then
-            code.addByteCode(oSvecIdx, subscripts.Count)
+            code.addByteCode(oSvecIdx, subscripts.Count, subscripts[i].lineNumber)
          else
-            code.addByteCode(oLvecIdx, subscripts.Count);
+            code.addByteCode(oLvecIdx, subscripts.Count, subscripts.lineNumber);
          end
       else
          begin
          if not slicing then
-            code.addByteCode(oLvecIdx, subscripts.Count)
+            code.addByteCode(oLvecIdx, subscripts.Count, subscripts.lineNumber)
          end;
       end;
   if slicing then
-     code.addByteCode(oSliceObj, subscripts.Count);
+     code.addByteCode(oSliceObj, subscripts.Count, subscripts.lineNumber);
 
   if slicing then
      slicingSubscripts.Pop;
@@ -556,10 +554,10 @@ begin
     begin
       for i := 0 to node.list.Count - 1 do
         compileCode(node.list[i]);
-      code.addByteCode(oCreateList, node.list.Count);
+      code.addByteCode(oCreateList, node.list.Count, node.lineNumber);
     end
   else
-    code.addByteCode(oCreateList, 0); // empty list
+    code.addByteCode(oCreateList, 0, node.lineNumber); // empty list
 end;
 
 
@@ -634,7 +632,7 @@ begin
       for i := 0 to (node as TASTPrint).argumentList.list.Count - 1 do
         compileCode((node as TASTPrint).argumentList.list[i]);
 
-      code.addByteCode(oPushi, (node as TASTPrint).argumentList.list.Count);
+      code.addByteCode(oPushi, (node as TASTPrint).argumentList.list.Count, node.lineNumber);
       code.addByteCode(oPrint);
     end
   else
@@ -642,7 +640,7 @@ begin
       for i := 0 to (node as TASTPrintLn).argumentList.list.Count - 1 do
         compileCode((node as TASTPrintLn).argumentList.list[i]);
 
-      code.addByteCode(oPushi, (node as TASTPrintLn).argumentList.list.Count);
+      code.addByteCode(oPushi, (node as TASTPrintLn).argumentList.list.Count, node.lineNumber);
       code.addByteCode(oPrintln);
     end;
 end;
@@ -701,7 +699,7 @@ begin
   for i := 0 to listOfCaseStatements.list.Count - 1 do
     begin
       code.addByteCode(oDup);
-      code.addByteCode(oPushi, caseValues[i]);
+      code.addByteCode(oPushi, caseValues[i], node.lineNumber);
       code.addByteCode(oIsEq);
       jumpToLocation[i] := code.addByteCode(oJmpIfTrue);
     end;
@@ -877,7 +875,7 @@ begin
          // Check if its in the local space, if yes then emit the local load opecode
          // if not it could be in the module space
          if currentUserFunction.localSymbolTable.find(node.symbolName, localSymbolIndex) then
-            code.addByteCode(oLoadLocal, localSymbolIndex)
+            code.addByteCode(oLoadLocal, localSymbolIndex, node.lineNumber)
          else
             begin
             if currentModule.symbolTable.find(node.symbolName, symbol) then
@@ -913,9 +911,9 @@ begin
          if not currentUserFunction.localSymbolTable.find(node.symbolName, localSymbolIndex) then
             localSymbolIndex := currentUserFunction.localSymbolTable.addSymbol (node.symbolName);
          if inAssignment_NextToEquals then
-            code.addByteCode (oStoreLocal, localSymbolIndex)
+            code.addByteCode (oStoreLocal, localSymbolIndex, node.lineNumber)
          else
-            code.addByteCode (oLoadLocal, localSymbolIndex)
+            code.addByteCode (oLoadLocal, localSymbolIndex, node.lineNumber)
          end
       end
    else
@@ -980,7 +978,7 @@ begin
   for anode in node.argumentList.list do
       compileCode (anode);
 
-  code.addByteCode(oCall, node.argumentList.list.Count);
+  code.addByteCode(oCall, node.argumentList.list.Count, node.lineNumber);
   compileCode (node.primaryPlus);
 end;
 
@@ -1041,7 +1039,7 @@ begin
     ntSliceAll:
       compileSliceAll (node);
     ntSliceEqual:
-       code.addByteCode(oPushi, SLICE_EQUAL);
+       code.addByteCode(oPushi, SLICE_EQUAL, 0);
     ntCreateList:
       compileList(node as TASTCreatelist);
     ntAssignment:
@@ -1123,16 +1121,16 @@ begin
     ntBoolean:
       code.addByteCode(oPushb, (node as TASTBoolean).bValue);
     ntInteger:
-      code.addByteCode(oPushi, (node as TASTInteger).iValue);
+      code.addByteCode(oPushi, (node as TASTInteger).iValue, node.lineNumber);
     ntFloat:
       begin
       index := currentModule.moduleProgram.constantValueTable.Add (TConstantValueElement.Create((node as TASTFloat).dValue));
-      code.addByteCode(oPushd, index);
+      code.addByteCode(oPushd, index, node.lineNumber);
       end;
     ntString :
       begin
       index := currentmodule.moduleProgram.constantValueTable.Add (TConstantValueElement.Create ((node as TASTString).sValue));
-      code.addByteCode(oPushs, index);
+      code.addByteCode(oPushs, index, node.lineNumber);
       end;
     ntBreak:
       // place holder for the jmp instruction

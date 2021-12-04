@@ -18,6 +18,7 @@ Uses SysUtils, Classes, Generics.Collections, uASTNodeType, uListObject;
 type
    TASTNode = class;
    TChildNodes = class (TList<TASTNode>)  // TList allows me to handle freeing of objects myself
+       lineNumber : integer;
        procedure freeChildNodes;
    end;
 

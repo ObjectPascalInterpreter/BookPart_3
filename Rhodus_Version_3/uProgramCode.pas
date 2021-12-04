@@ -19,6 +19,7 @@ type
          float : double;     // This is currently only used by the inc and dec op codes
          moduleName : string;// Use by import module
          symbolName : string;
+         lineNumber : integer;
    end;
    TCode = TArray<TByteCode>;
 
@@ -36,7 +37,7 @@ type
            procedure append (byteCode : TByteCode);
            procedure compactCode;
            function  addByteCode (opCode : TOpCode) : integer; overload;
-           procedure addByteCode (opCode : TOpCode; iValue : integer); overload;
+           procedure addByteCode (opCode : TOpCode; iValue, lineNumber : integer); overload;
            procedure addByteCode (opCode : TOpCode; bValue : boolean); overload;
            procedure addByteCode (opCode : TOpCode; const symbolName : string; increment : double);  overload;
            procedure addModuleByteCode (opCode : TOpCode; const moduleName : string);
@@ -187,10 +188,11 @@ begin
 end;
 
 
-procedure TProgram.addByteCode (opCode : TOpCode; iValue : integer);
+procedure TProgram.addByteCode (opCode : TOpCode; iValue, lineNumber : integer);
 begin
   checkSpace;
   code[actualLength] := createByteCode (opCode, iValue);
+  code[actualLength].lineNumber := lineNumber;
   inc(actualLength);
 end;
 

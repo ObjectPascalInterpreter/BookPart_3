@@ -18,7 +18,7 @@ procedure computeBaseLineMemoryAllocated;
 procedure addGlobalMethodsToModule (module : TModuleLib);
 
 var mainModule : TModuleLib;
-    baseLineMemoryAllocated : integer;
+    baseLineMemoryAllocated : UInt64;
 
     procedure createGlobalBuiltIns;
 
@@ -100,7 +100,7 @@ end;
 
 function getMemoryAllocated : integer;
 var st: TMemoryManagerState; sb: TSmallBlockTypeState;
-    value : integer;
+    value : UInt64;
 begin
   getMemoryManagerState(st);
   value :=  st.TotalAllocatedMediumBlockSize + st.TotalAllocatedLargeBlockSize;
@@ -227,7 +227,7 @@ end;
 
 function getDimensions (alist : TListObject; count : integer) : TIndexArray;
 var firstdim : integer;
-    i, n, dimIndex : integer;
+    n, dimIndex : integer;
     aitem : TListItem;
 begin
   firstdim := alist.list.Count;
@@ -410,13 +410,13 @@ begin
   nArgs := TVM (vm).popInteger;
   case nArgs of
     0 : prompt := '';
-    1 : prompt := TVM (vm).popString ().value;
+    1 : prompt := AnsiString (TVM (vm).popString ().value);
   else
     raise ERuntimeException.Create('readString takes a single string argument or none at all');
   end;
 
   if Assigned (TVM (vm).readStringCallbackPtr) then
-     s := TVM (vm).readStringCallbackPtr(prompt);
+     s := string (AnsiString (TVM (vm).readStringCallbackPtr(prompt)));
   sobj := TStringObject.create (s);
   TVM (vm).push (sObj);
 end;
@@ -432,20 +432,20 @@ begin
   nArgs := TVM (vm).popInteger;
   case nArgs of
     0 : prompt := '';
-    1 : prompt := TVM (vm).popString ().value;
+    1 : prompt := AnsiString (TVM (vm).popString ().value);
   else
     raise ERuntimeException.Create('readString takes a single string argument or none at all');
   end;
 
   if Assigned (TVM (vm).readStringCallbackPtr) then
-     s := TVM (vm).readStringCallbackPtr(prompt);
+     s := string (AnsiString (TVM (vm).readStringCallbackPtr(prompt)));
 
   while (not TryStrToInt(s, iValue)) and (not TryStrToFloat(s, dValue)) do
       begin
       if assigned (TVM (vm).printlnCallbackPtr) then
-         TVM (vm).printlnCallbackPtr ('Number error: ' + s + ' is not a number, try again');
+         TVM (vm).printlnCallbackPtr (AnsiString ('Number error: ' + s + ' is not a number, try again'));
       if Assigned (TVM (vm).readStringCallbackPtr) then
-         s := TVM (vm).readStringCallbackPtr(prompt);
+         s := string (AnsiString (TVM (vm).readStringCallbackPtr(prompt)));
       end;
   if TryStrToInt(s, iValue) then
      TVM (vm).push (iValue)

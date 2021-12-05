@@ -36,6 +36,7 @@ implementation
 
 Uses uListObject,
      uStringObject,
+     uMachineStack,
      uVM;
 
 constructor TMethodsBase.Create;
@@ -53,9 +54,8 @@ end;
 
 procedure TMethodsBase.dir(vm: TObject);
 var ls : TListObject;
-    md : TMethodDetails;
 begin
-  md := TVM (vm).popMethodDetails;
+  TVM (vm).popMethodDetails;
   ls := TListObject.create (0);
   for var i := 0 to methodList.Count - 1 do
       begin

@@ -167,7 +167,7 @@ begin
        begin
        root := ast.constructAST ();
        if bolShowTree then
-          printLnCallBack (displayAST (root));
+          printLnCallBack (AnsiString (displayAST (root)));
        end
     else
        result := False;
@@ -226,7 +226,7 @@ var root : TASTNode;
     error : TSyntaxError;
     compilerError : TCompilerError;
 begin
-  result := True;
+  result := True; root := nil;
   // Note we don't clear the symboltables because the next script
   // may need to refer to entries in the symbol table.
   module.clearCode;
@@ -239,19 +239,19 @@ begin
       try
           if not syntaxParser.syntaxCheck (error) then
              begin
-             printLnCallBack ('ERROR ' + '[line ' + inttostr (error.lineNumber) + ', column: ' + inttostr (error.columnNumber) + '] ' + error.errorMsg);
+             printLnCallBack (AnsiString ('ERROR ' + '[line ' + inttostr (error.lineNumber) + ', column: ' + inttostr (error.columnNumber) + '] ' + error.errorMsg));
              result := False;
              exit;
              end;
         root := ast.constructAST;
 
         if bolShowByteCode  then
-           printLnCallBack (displayAST (root));
+           printLnCallBack (AnsiString (displayAST (root)));
         try
           if not compiler.startCompilation (module, root, compilerError) then
              begin
              //setGreen;
-             printLnCallBack ('ERROR ' + '[line ' + inttostr (compilerError.lineNumber) + ', column: ' + inttostr (compilerError.columnNumber) + '] ' + compilerError.errorMsg);
+             printLnCallBack (AnsiString ('ERROR ' + '[line ' + inttostr (compilerError.lineNumber) + ', column: ' + inttostr (compilerError.columnNumber) + '] ' + compilerError.errorMsg));
              //setWhite;
              result := False;
              exit;
@@ -262,7 +262,7 @@ begin
           on e: ERuntimeException do
              begin
              //setGreen;
-             printLnCallBack ('ERROR: ' + e.Message);
+             printLnCallBack (AnsiString ('ERROR: ' + e.Message));
              //setWhite;
              result := False;
              end;
@@ -277,7 +277,7 @@ begin
     on e:exception do
        begin
        //setGreen;
-       printLnCallBack ('ERROR ' + '[line ' + inttostr (sc.tokenElement.lineNumber) + ', column: ' + inttostr (sc.tokenElement.columnNumber) + '] ' + e.Message);
+       printLnCallBack (AnsiString ('ERROR ' + '[line ' + inttostr (sc.tokenElement.lineNumber) + ', column: ' + inttostr (sc.tokenElement.columnNumber) + '] ' + e.Message));
        //setWhite;
        result := False;
        end;
@@ -287,7 +287,7 @@ end;
 
 function TRhodus.memAllocatedByVm : integer;
 var vm : TVM;
-    start : integer;
+    start : UInt64;
 begin
   start := getMemoryAllocated();
   vm := TVM.Create;
@@ -304,9 +304,9 @@ begin
          if mainModule.symbolTable.Items[key].symbolType = symUserFunc then
             begin
             if not mainModule.symbolTable.items[key].fValue.isbuiltInFunction then
-               printLnCallBack (dissassemble(mainModule, mainModule.symbolTable.items[key].fValue.codeBlock));
+               printLnCallBack (AnsiString (dissassemble(mainModule, mainModule.symbolTable.items[key].fValue.codeBlock)));
             end;
-  printLnCallBack (dissassemble(mainModule, mainModule.moduleProgram));
+  printLnCallBack (AnsiString (dissassemble(mainModule, mainModule.moduleProgram)));
 end;
 
 
@@ -367,28 +367,28 @@ begin
                 stNone    : begin end;
                 stInteger : begin
                             fmt := SysLibraryRef.find ('integerFormat').sValue.value;
-                            printLnCallBack (Format (fmt,  [st.iValue]));
+                            printLnCallBack (AnsiString (Format (fmt,  [st.iValue])));
                             end;
-                stBoolean : printLnCallBack (BoolToStr(st.bValue, True));
+                stBoolean : printLnCallBack (AnsiString (BoolToStr(st.bValue, True)));
                 stDouble  : begin
                             fmt := SysLibraryRef.find ('doubleFormat').sValue.value;
-                            printLnCallBack (Format(fmt, [st.dValue]));
+                            printLnCallBack (AnsiString (Format(fmt, [st.dValue])));
                             end;
-                stString  : printLnCallBack (st.sValue.value);
-                stList    : printLnCallBack (st.lValue.listToString());
-                stArray   : printLnCallBack (st.aValue.arrayToString());
-                stModule  : printLnCallBack ('Module: ' + st.module.name + ' ' + st.module.helpStr);
-                stFunction: printLnCallBack ('Function: ' + st.fValue.moduleRef.name + '.' + st.fValue.name);
-                stObjectMethod : begin printLnCallBack ('Object Method: ' + st.oValue.helpStr); vm.pop(); end;   // pop the operand
+                stString  : printLnCallBack (AnsiString (st.sValue.value));
+                stList    : printLnCallBack (AnsiString (st.lValue.listToString()));
+                stArray   : printLnCallBack (AnsiString (st.aValue.arrayToString()));
+                stModule  : printLnCallBack (AnsiString ('Module: ' + st.module.name + ' ' + st.module.helpStr));
+                stFunction: printLnCallBack (AnsiString ('Function: ' + st.fValue.moduleRef.name + '.' + st.fValue.name));
+                stObjectMethod : begin printLnCallBack (AnsiString ('Object Method: ' + st.oValue.helpStr)); vm.pop(); end;   // pop the operand
                else
-                 printLnCallBack ('Unrecognized type of value returned from virtual machine');
+                 printLnCallBack (AnsiString ('Unrecognized type of value returned from virtual machine'));
                end;
                end;
           except
           on e:exception do
              begin
               setColor('Cyan');
-              printLnCallBack ('ERROR: ' + e.Message);
+              printLnCallBack (AnsiString ('ERROR: ' + e.Message));
               setWhite;
               result := False;
               end;
@@ -426,14 +426,14 @@ begin
                st := vm.pop;
                case st.stackType of
                 stNone    : begin end;
-                stInteger : printLnCallBack (Format ('%d', [st.iValue]));
-                stBoolean : printLnCallBack (BoolToStr(st.bValue, True));
-                stDouble  : printLnCallBack (Format('%g', [st.dValue]));
-                stString  : printLnCallBack (st.sValue.value);
-                stList    : printLnCallBack (st.lValue.listToString());
-                stArray   : printLnCallBack (st.aValue.arrayToString());
-                stModule  : printLnCallBack ('Module: ' + st.module.name + ' ' + st.module.helpStr);
-                stFunction: printLnCallBack ('Function: ' + st.fValue.moduleRef.name + '.' + st.fValue.name);
+                stInteger : printLnCallBack (AnsiString (Format ('%d', [st.iValue])));
+                stBoolean : printLnCallBack (AnsiString (BoolToStr(st.bValue, True)));
+                stDouble  : printLnCallBack (AnsiString (Format('%g', [st.dValue])));
+                stString  : printLnCallBack (AnsiString (st.sValue.value));
+                stList    : printLnCallBack (AnsiString (st.lValue.listToString()));
+                stArray   : printLnCallBack (AnsiString (st.aValue.arrayToString()));
+                stModule  : printLnCallBack (AnsiString ('Module: ' + st.module.name + ' ' + st.module.helpStr));
+                stFunction: printLnCallBack (AnsiString ('Function: ' + st.fValue.moduleRef.name + '.' + st.fValue.name));
                else
                  printLnCallBack ('Unrecognized type of value returned from virtual machine');
                end;
@@ -447,16 +447,16 @@ begin
                         if mainModule.symbolTable.items[key].fValue.isbuiltInFunction then
                            printLnCallBack ('No code for builtin function')
                         else
-                           printLnCallBack (dissassemble(mainModule, mainModule.symbolTable.items[key].fValue.codeBlock));
+                           printLnCallBack (AnsiString (dissassemble(mainModule, mainModule.symbolTable.items[key].fValue.codeBlock)));
                         end;
-              printLnCallBack (dissassemble(mainModule, mainModule.moduleProgram));
+              printLnCallBack (AnsiString (dissassemble(mainModule, mainModule.moduleProgram)));
              end;
 
         except
           on e:exception do
              begin
               setGreen;
-              printLnCallBack ('ERROR: ' + e.Message);
+              printLnCallBack (AnsiString ('ERROR: ' + e.Message));
               setWhite;
               end;
         end;

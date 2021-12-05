@@ -23,7 +23,7 @@ type
 
   TArrayObject = class (TRhodusObject)
     private
-     dataType : TArrayDataType;
+    // dataType : TArrayDataType;
     public
      datai : TIntArray;
      dataf : TFloatArray;
@@ -280,8 +280,8 @@ end;
 
 
 procedure TArrayMethods.appendCol (vm : TObject);
-var s :TArrayObject;
-    md : TMethodDetails;
+//var s :TArrayObject;
+//    md : TMethodDetails;
 begin
 
 end;
@@ -376,9 +376,7 @@ end;
 
 
 procedure TArrayMethods.getMax (vm : TObject);
-var i : integer;
-    s1 : TArrayObject;
-    max : double;
+var s1 : TArrayObject;
     md : TMethodDetails;
 begin
    md := TVM (vm).popMethodDetails;
@@ -389,9 +387,7 @@ end;
 
 
 procedure TArrayMethods.getMin (vm : TObject);
-var i : integer;
-    s1 : TArrayObject;
-    min : double;
+var s1 : TArrayObject;
     md : TMethodDetails;
 begin
    md := TVM (vm).popMethodDetails;
@@ -706,9 +702,8 @@ end;
 //
 function TArrayObject.slice (slices : TSliceObjectList) : TArrayObject;
 var i, j : integer;
-    slicedims : array of integer;
-    slicesize, nProducts : integer;
-    coords, inputLists : TIntLists;
+    slicesize : integer;
+    inputLists : TIntLists;
     alist : TIntList;
     cp : TCartesianProduct;
 begin

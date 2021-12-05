@@ -23,8 +23,6 @@ type
       function isOwned : boolean;
       function isGarbage : boolean;
 
-      function clone : TRhodusObject; virtual; abstract;
-
       function    getRhodusObjectSize : integer;
       constructor Create;
       destructor  Destroy; override;

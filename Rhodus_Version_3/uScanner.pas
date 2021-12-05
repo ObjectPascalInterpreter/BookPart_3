@@ -406,17 +406,14 @@ procedure TScanner.getNumber;
 var singleDigit : integer; scale : double;
     evalue : integer;
     exponentSign : integer;
-    hasLeftHandSide, hasRightHandSide : boolean;
 begin
   FTokenRecord.FTokenInteger := 0; FTokenRecord.FTokenFloat := 0.0;
-  hasLeftHandSide := False; hasRightHandSide := False;
 
   // Assume it's an integer
   FTokenRecord.FToken := tINTEGER;
   // check for decimal point just in case user has typed something like .5
   if Fch <> '.' then
      begin
-     hasLeftHandSide := True;
      repeat
        singleDigit := ord (Fch) - ord ('0');
        if FTokenRecord.FTokenInteger <= (MaxInt - singleDigit) div 10 then
@@ -435,7 +432,6 @@ begin
      // Then it's a float. Start collecting fractional part
      FTokenRecord.FToken := tFLOAT; FTokenRecord.FTokenFloat := FTokenRecord.FTokenInteger;
      Fch := nextchar;
-     if isDigit (FCh) then hasRightHandSide := True;
 
      while isDigit (FCh) do
         begin

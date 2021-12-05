@@ -141,7 +141,6 @@ type
     procedure loadLocalIndexable;
     procedure loadLocalIndexableList (aList: TListObject; index: integer);
     procedure loadLocalIndexableString (astr: TStringObject; index: integer);
-    procedure loadLocalIndexableArray (arr: TArrayObject; index: integer);
 
     procedure buildSlice;
     procedure evalSliceObject (numSlices : integer);
@@ -352,27 +351,27 @@ begin
           stNone    : begin end; //write ('undefined value'); end;
           stInteger : begin
                       fmt := SysLibraryRef.find ('integerFormat').sValue.value;
-                      result := Format(fmt, [st.iValue]);
+                      result := AnsiString (Format(fmt, [st.iValue]));
                       end;
            stDouble : begin
                       fmt := SysLibraryRef.find ('doubleFormat').sValue.value;
-                      result := Format(fmt, [st.dValue]);
+                      result := AnsiString (Format(fmt, [st.dValue]));
                       end;
-          stString  : result := st.sValue.value;
+          stString  : result := AnsiString (st.sValue.value);
           stBoolean : if st.bValue = True then
                          result := 'True'
                       else
                          result := 'False';
           stList    : begin
-                      result := st.lValue.listToString;
+                      result := AnsiString (st.lValue.listToString);
                       end;
-          stArray   : result := st.aValue.arrayToString();
+          stArray   : result := AnsiString (st.aValue.arrayToString());
 
           stModule  : begin
-                      result := st.module.name;
+                      result := AnsiString (st.module.name);
                       end;
           stFunction: begin
-                      result := st.fValue.name;
+                      result := AnsiString (st.fValue.name);
                       end
      else
         result := 'Unrecognized value type from print' + sLineBreak;
@@ -425,7 +424,7 @@ var color : PMachineStackRecord;
 begin
   color := pop;
   if Assigned (setColorCallbackPtr) then
-     setColorCallbackPtr (color.sValue.value);
+     setColorCallbackPtr (AnsiString (color.sValue.value));
 end;
 
 
@@ -560,6 +559,7 @@ function TVM.popInteger: integer;
 var
   p: PMachineStackRecord;
 begin
+  result := 0;
   if stackTop > -1 then
   begin
     p := @stack[stackTop];
@@ -577,6 +577,7 @@ function TVM.popBoolean: boolean;
 var
   p: PMachineStackRecord;
 begin
+  result := False;
   if stackTop > -1 then
   begin
     p := @stack[stackTop];
@@ -594,6 +595,7 @@ function TVM.popArray : TArrayObject;
 var
   p: PMachineStackRecord;
 begin
+  result := nil;
   if stackTop > -1 then
      begin
      p := @stack[stackTop];
@@ -611,6 +613,7 @@ function TVM.popString : TStringObject;
 var
   p: PMachineStackRecord;
 begin
+  result := nil;
   if stackTop > -1 then
      begin
      p := @stack[stackTop];
@@ -627,6 +630,7 @@ begin
 function TVM.popList : TListObject;
 var p: PMachineStackRecord;
 begin
+  result := nil;
   if stackTop > -1 then
      begin
      p := @stack[stackTop];
@@ -643,6 +647,7 @@ begin
 function TVM.popUserFunction : TUserFunction;
 var p: PMachineStackRecord;
 begin
+  result := nil;
   if stackTop > -1 then
      begin
      p := @stack[stackTop];
@@ -659,6 +664,7 @@ begin
 function TVM.popMethodDetails: TMethodDetails;
 var p: PMachineStackRecord;
 begin
+  result := nil;
   if stackTop > -1 then
      begin
      p := @stack[stackTop];
@@ -675,6 +681,7 @@ begin
 function TVM.popModule: TModule;
 var p: PMachineStackRecord;
 begin
+  result := nil;
   if stackTop > -1 then
      begin
      p := @stack[stackTop];
@@ -692,6 +699,7 @@ end;
 function TVM.popScalar: double;
 var p: PMachineStackRecord;
 begin
+  result := 0.0;
   if stackTop > -1 then
      begin
      p := @stack[stackTop];
@@ -881,93 +889,93 @@ end;
 procedure TVM.addOp;
 var
   st1, st2 : PMachineStackRecord;
-  aList : TListObject; tmp : TStringObject;
+  //aList : TListObject; tmp : TStringObject;
   result : TMachineStackRecord;
-  binop : TBinOp;
 begin
   st2 := pop; // second operand
   st1 := pop; // first operand
 
-  //addJumpTable[st1.stackType, st2.stackType] (st2, st1, result);
-  //push (@result);
+  addJumpTable[st1.stackType, st2.stackType] (st2, st1, result);
+  push (@result);
 
-  //exit;
+  exit;
 
-  case st2.stackType of
-    stInteger: case st1.stackType of
-        stInteger: push(st1.iValue + st2.iValue);
-        stDouble: push(st1.dValue + st2.iValue);
-      else
-        compatibilityError('adding', st2, st1);
-      end;
-
-    stBoolean: compatibilityError('adding', st2, st1); // Can't add booleans
-
-    stDouble: case st1.stackType of
-        stInteger: push(st1.iValue + st2.dValue);
-        stDouble: push(st1.dValue + st2.dValue);
-      else
-        compatibilityError('adding', st2, st1);
-      end;
-
-    stString: case st1.stackType of
-        stString: push(TStringObject.add(st2.sValue, st1.sValue));
-      else
-        compatibilityError('adding', st2, st1);
-      end;
-
-    stList: case st1.stackType of
-        stInteger:
-          begin
-          aList := st2.lValue.clone;
-          aList.append(st1.iValue);
-          push(aList);
-          end;
-        stBoolean:
-          begin
-          aList := st2.lValue.clone;
-          aList.append(st1.bValue);
-          push(aList);
-          end;
-        stDouble:
-          begin
-          aList := st2.lValue.clone;
-          aList.append(st1.dValue);
-          push(aList);
-          end;
-        stString:
-          begin
-          aList := st2.lValue.clone;
-          tmp   := st1.sValue.clone;
-          tmp.blockType := btOwned;
-          aList.append(tmp);
-          push(aList);
-          end;
-        stList: push(TListObject.addLists(st2.lValue, st1.lValue));
-        stFunction:
-          begin
-          aList := st2.lValue.clone;
-          aList.appendUserFunction (st1.fValue);
-          push(aList);
-          end;
-        stModule:
-          begin
-          aList := st2.lValue.clone;
-          aList.appendModule (st1.module);
-          push(aList);
-          end;      else
-        compatibilityError('adding', st2, st1);
-      end;
-
-    stArray:
-      case st1.stackType of
-        stArray: push(TArrayObject.add(st2.aValue, st1.aValue));
-      else
-        compatibilityError('adding', st2, st1);
-      end;
-  else
-    raise ERuntimeException.Create ('Internal Error: Unsupported datatype in add');
-  end
+// Old approach, will remove after a few more interations.
+//  case st2.stackType of
+//    stInteger: case st1.stackType of
+//        stInteger: push(st1.iValue + st2.iValue);
+//        stDouble: push(st1.dValue + st2.iValue);
+//      else
+//        compatibilityError('adding', st2, st1);
+//      end;
+//
+//    stBoolean: compatibilityError('adding', st2, st1); // Can't add booleans
+//
+//    stDouble: case st1.stackType of
+//        stInteger: push(st1.iValue + st2.dValue);
+//        stDouble: push(st1.dValue + st2.dValue);
+//      else
+//        compatibilityError('adding', st2, st1);
+//      end;
+//
+//    stString: case st1.stackType of
+//        stString: push(TStringObject.add(st2.sValue, st1.sValue));
+//      else
+//        compatibilityError('adding', st2, st1);
+//      end;
+//
+//    stList: case st1.stackType of
+//        stInteger:
+//          begin
+//          aList := st2.lValue.clone;
+//          aList.append(st1.iValue);
+//          push(aList);
+//          end;
+//        stBoolean:
+//          begin
+//          aList := st2.lValue.clone;
+//          aList.append(st1.bValue);
+//          push(aList);
+//          end;
+//        stDouble:
+//          begin
+//          aList := st2.lValue.clone;
+//          aList.append(st1.dValue);
+//          push(aList);
+//          end;
+//        stString:
+//          begin
+//          aList := st2.lValue.clone;
+//          tmp   := st1.sValue.clone;
+//          tmp.blockType := btOwned;
+//          aList.append(tmp);
+//          push(aList);
+//          end;
+//        stList: push(TListObject.addLists(st2.lValue, st1.lValue));
+//        stFunction:
+//          begin
+//          aList := st2.lValue.clone;
+//          aList.appendUserFunction (st1.fValue);
+//          push(aList);
+//          end;
+//        stModule:
+//          begin
+//          aList := st2.lValue.clone;
+//          aList.appendModule (st1.module);
+//          push(aList);
+//          end;      else
+//        compatibilityError('adding', st2, st1);
+//      end;
+//
+//    stArray:
+//      case st1.stackType of
+//        stArray: push(TArrayObject.add(st2.aValue, st1.aValue));
+//      else
+//        compatibilityError('adding', st2, st1);
+//      end;
+//  else
+//    raise ERuntimeException.Create ('Internal Error: Unsupported datatype in add');
+//  end
 end;
 
 
@@ -1834,7 +1842,6 @@ end;
 
 // Call something like a.len()
 procedure TVM.callObjectMethod (actualNumArgs : integer; p : PMachineStackRecord);
-var selfValue : PMachineStackRecord;
 begin
   if p.oValue.nArgs <> VARIABLE_ARGS then
      if actualNumArgs <> p.oValue.nArgs then
@@ -2397,15 +2404,6 @@ begin
 end;
 
 
-procedure TVM.loadLocalIndexableArray(arr: TArrayObject; index: integer);
-begin
-  raiseError('loadLocalIndexableArray not implemented');
-  //if (index < 0) or (index >= length(arr.data) - 1) then
-  //  raise ERuntimeException.Create('string index out of range');
-  //push(TArrayObject.Create(arr.data[index]));
-end;
-
-
 procedure TVM.loadLocalIndexable;
 var
   index: integer;
@@ -2450,8 +2448,6 @@ end;
 
 procedure TVM.buildSlice;
 var lower, upper : integer;
-    obj : PMachineStackRecord;
-    p1, p2: PMachineStackRecord;
 begin
   upper := popInteger;
   lower := popInteger;
@@ -2462,7 +2458,6 @@ end;
 
 procedure TVM.evalSliceObject (numSlices : integer);
 var i : integer;
-    obj : TSliceObject;
     sliceObjlist : TSliceObjectList;
     value : PMachineStackRecord;
 begin

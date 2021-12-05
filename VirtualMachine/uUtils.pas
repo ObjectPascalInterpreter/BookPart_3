@@ -79,17 +79,17 @@ end;
 
 
 // Use by the slicing function to generate the coordiantes
-// that should be copied over from teh source array.
+// that should be copied over from the source array.
 // Algorithm taken and modified from rosettacode.org
 // https://rosettacode.org/wiki/Cartesian_product_of_two_or_more_lists#Delphi
 function TCartesianProduct.getIthCartesianProduct (index : integer): TIntList;
+var s, e : integer;
 begin
-  var s := 0;
-  var e := s + argc;
+  s := 0;
+  e := s + argc;
   var Resi := copy(b, s, e - s);
   Result := Resi;
 
-  s := e;
   for var j := 0 to high(n) do
   begin
     var nj := n[j];

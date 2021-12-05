@@ -147,7 +147,7 @@ end;
 
 
 procedure TBuiltInMatrix.getAdd (vm : TObject);
-var m1, m2, ar : TArrayObject;
+var m1, m2 : TArrayObject;
 begin
   m2 := TVM (vm).popArray;
   m1 := TVM (vm).popArray;
@@ -159,7 +159,7 @@ end;
 
 
 procedure TBuiltInMatrix.getSub (vm : TObject);
-var m1, m2, ar : TArrayObject;
+var m1, m2 : TArrayObject;
 begin
   m2 := TVM (vm).popArray;
   m1 := TVM (vm).popArray;
@@ -266,8 +266,6 @@ end;
 
 procedure TBuiltInMatrix.getMult (vm : TObject);
 var m1, m2 : PMachineStackRecord;
-    ar : TArrayObject;
-    sum : double;
 begin
    m2 := TVM (vm).pop;
    m1 := TVM (vm).pop;

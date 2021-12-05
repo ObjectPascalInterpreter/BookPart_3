@@ -54,7 +54,6 @@ type
 
     function  expect(thisToken: TTokenCode) : TASTNode;
     function  variable: TASTNode;
-    function  parseList: TASTNode;
     function  parseIndexOrSlice : TASTNode;
     function  parseIndexedVariable : TASTNode;
     function  parseFunctionCall: TASTNode;
@@ -251,21 +250,6 @@ begin
      end;
 end;
 
-// Parse a list of the form: expression ',' expression ','' etc.
-// Returns the number of items found in the list
-function TConstructAST.parseList: TASTNode;
-var node : TASTNodeList;
-begin
-  node := TASTNodeList.Create (ntNodeList);
-  node.list.Add(expression);
-  while sc.token = tComma do
-    begin
-      sc.nextToken;
-      node.list.Add(expression);
-    end;
-  exit (node);
-end;
-
 
 // Parse: x:y  :y  x:  :  x
 function TConstructAST.parseIndexOrSlice : TASTNode;
@@ -301,8 +285,7 @@ end;
 // Parse something of the form variable '[' expressionList ']'
 // Such indexing applies to lists and strings
 function TConstructAST.parseIndexedVariable : TASTNode;
-var node : TASTNode;
-    nodeList : TASTNodeList;
+var nodeList : TASTNodeList;
     exp : TASTNode;
 begin
   nodelist := TASTNodeList.Create (ntNodeList);
@@ -1323,7 +1306,7 @@ var
   breakStack: TStack<integer>;
   assignment: TASTAssignment;
   iterationBlock: TASTIterationBlock;
-  rightSide, body, node: TASTNode;
+  body, node: TASTNode;
   lower, upper : TASTExpression;
   id : TASTIdentifier;
 begin

@@ -48,8 +48,6 @@ end;
 var s : AnsiString;
 function rhodus_getSettings (handle : NativeInt) : PRhodusSettings; stdcall;
 var rhodus : TRhodus;
-    p : PAnsiChar;
-    s: AnsiString;
 begin
   result := @settings;
   rhodus := TRhodus (handle);
@@ -89,6 +87,7 @@ end;
 function rhodus_terminate (handle : NativeInt) : integer; stdcall;
 var rhodus : TRhodus;
 begin
+  result := 0;
   try
     rhodus := TRhodus (handle);
     rhodus.free;

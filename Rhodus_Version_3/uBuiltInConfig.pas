@@ -26,7 +26,14 @@ type
 
 implementation
 
-Uses Windows, uSymboLTable, uVM, uStringObject, uListObject, uMemoryManager, uRhodusEngine;
+Uses Windows,
+    uSymboLTable,
+    uVM,
+    uStringObject,
+    uListObject,
+    uMemoryManager,
+    uMachineStack,
+    uRhodusEngine;
 
 // --------------------------------------------------------------------------------------------
 
@@ -55,7 +62,7 @@ end;
 
 procedure TBuiltInConfig.getVersion (vm : TObject);
 begin
-  TVM (vm).push (TStringObject.create(RHODUS_VERSION));
+  TVM (vm).push (TStringObject.create(string (RHODUS_VERSION)));
 end;
 
 

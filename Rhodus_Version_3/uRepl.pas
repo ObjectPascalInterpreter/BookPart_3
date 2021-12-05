@@ -61,7 +61,7 @@ end;
 
 procedure setColor (acolor : AnsiString);
 begin
-  uTerminal.setColor(aColor);
+  uTerminal.setColor(string (aColor));
 end;
 
 
@@ -153,7 +153,7 @@ function executeCommand (src : string) : boolean;
 var index : integer;
     helpStr : string;
 begin
-   result := False;
+   //result := False;
 
    if listOfCommands.find (getCommand (src), index) then
       begin

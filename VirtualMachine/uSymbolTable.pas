@@ -172,12 +172,18 @@ var SysLibraryRef : TModule;
 implementation
 
 Uses uVM,
+     uMachineStack,
      uBuiltInGlobal, 
      uBuiltinMath, 
-     uBuiltInList, uBuiltInRandom, uListOfBuiltIns,
+     uBuiltInList,
+     uBuiltInRandom,
+     uListOfBuiltIns,
      uBuiltInOS, 
      uBuiltInStr, 
-     uBuiltInFile, uBuiltInConfig, uBuiltInSys, uBuiltInTurtle;
+     uBuiltInFile,
+     uBuiltInConfig,
+     uBuiltInSys,
+     uBuiltInTurtle;
 
 var _userFunctionMethods : TUserFunctionMethods;
      
@@ -289,7 +295,6 @@ procedure TUserFunctionMethods.getCode (vm : TObject);
 var f : TUserFunction;
     i : integer;
     ls, tmpls: TListObject;
-    it : TListItem;
 begin
   // No arguments for this method
   TVM (vm).decStackTop; // Dump the object method

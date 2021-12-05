@@ -32,7 +32,7 @@ type
 
      function        isEqualTo (str1 : TStringObject) : boolean;
      class function  add (str1, str2 : TStringObject) : TStringObject;
-     function        clone : TStringObject; //override;
+     function        clone : TStringObject;
      constructor     createConstantObj (value : string);
      function        getSize() : integer;
      function        slice (lower, upper : integer) : TStringObject;

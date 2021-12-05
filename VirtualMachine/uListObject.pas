@@ -964,10 +964,9 @@ begin
   end;
 end;
 
-class function TListItem.listEquals(list1: TListItem; list2: TListItem)
-  : boolean;
+class function TListItem.listEquals(list1: TListItem; list2: TListItem) : boolean;
 begin
-  result := False;
+  //result := False;
   if (list1.itemType = liInteger) and (list2.itemType = liInteger) then
     if list1.iValue = list2.iValue then
       exit(True)

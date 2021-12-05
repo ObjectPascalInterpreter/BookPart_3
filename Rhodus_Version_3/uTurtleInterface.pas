@@ -197,7 +197,7 @@ var msRecInfo: TMemoryStream;
     buffer : TIdBytes;
     si : integer;
 begin
-  result.cmd := cmd;
+  result.cmd := AnsiString (cmd);
   result.iValue := 0;
   result.dValue := dValue;
 
@@ -223,7 +223,7 @@ var msRecInfo: TMemoryStream;
     buffer : TIdBytes;
     si : integer;
 begin
-  result.cmd := cmd;
+  result.cmd := AnsiString (cmd);
   result.iValue := 0;
   result.iValue := iValue;
 
@@ -249,7 +249,7 @@ var msRecInfo: TMemoryStream;
     buffer : TIdBytes;
     si : integer;
 begin
-  result.cmd := cmd;
+  result.cmd := AnsiString (cmd);
   result.iValue := 0;
   result.dValue := 0;
   result.x := x;
@@ -277,7 +277,7 @@ var msRecInfo: TMemoryStream;
     buffer : TIdBytes;
     si : integer;
 begin
-  result.cmd := cmd;
+  result.cmd := AnsiString (cmd);
   result.iValue := 0;
   result.dValue := 0;
 

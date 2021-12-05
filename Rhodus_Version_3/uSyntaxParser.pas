@@ -67,9 +67,6 @@ type
 
     procedure expect(thisToken: TTokenCode);
     procedure variable;
-    function  parseArrayRow : integer;
-    procedure parseLiteralArray;
-    procedure parseList;
     procedure parseIndexOrSlice;
     procedure parseIndexedVariable;
     procedure parseFunctionCall;
@@ -210,17 +207,6 @@ begin
      nextToken;
 end;
 
-// Parse a list of the form: expression ',' expression ','' etc.
-// Returns the number of items found in the list
-procedure TSyntaxParser.parseList;
-begin
-  expression;
-  while tokenVector.token = tComma do
-    begin
-      nextToken;
-      expression;
-    end;
-end;
 
 // Parse: x:y  :y  x:  :  x
 procedure TSyntaxParser.parseIndexOrSlice;
@@ -285,42 +271,6 @@ begin
   factor;
   primaryPlus;
 end;
-
-
-function TSyntaxParser.parseArrayRow : integer;
-var count : integer;
-begin
-  count := 0;
-
-  if ((tokenVector.token <> tSemicolon) and (tokenVector.token <> tRightBracket)) then  // Check for empty display statement
-      begin
-      count := 1;
-      expression;
-      while tokenVector.token = tComma do
-            begin
-            nextToken();
-            expression;
-            count := count + 1;
-            end;
-      end;
-      result := count;
-end;
-
-
-procedure TSyntaxParser.parseLiteralArray;
-begin
-  nextToken();
-
-  if parseArrayRow = 0 then
-     raise ESyntaxException.Create ('Empty matrices not permitted', tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
-  while tokenVector.token = tSemicolon do
-      begin
-      nextToken();
-      parseArrayRow;
-     end;
-  expect(tRightCurleyBracket);
-end;
-
 
 procedure TSyntaxParser.factor;
 begin

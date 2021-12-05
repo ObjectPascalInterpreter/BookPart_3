@@ -156,7 +156,6 @@ end;
 
 procedure TBuiltInFile.closeFile (vm : TObject);
 var fileHandle : integer;
-    f : TStreamReader;
     fr : TFileRecord;
 begin
    fileHandle := TVM (vm).popInteger;

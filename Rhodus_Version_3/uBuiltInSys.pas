@@ -46,7 +46,7 @@ var argv : TListObject;
 begin
   inherited Create ('sys', 'System module');
 
-  addStringValue ('version',  uBuiltInConfig.RHODUS_VERSION, 'returns the current version number for Rhodus', True);
+  addStringValue ('version',  string (uBuiltInConfig.RHODUS_VERSION), 'returns the current version number for Rhodus', True);
   addStringValue ('doubleFormat',  TBuiltInSys.defaultDoubleFormat, 'default output format string for double values', False);
   addStringValue ('integerFormat',  TBuiltInSys.defaultIntegerFormat, 'default output format string for integer values', False);
 

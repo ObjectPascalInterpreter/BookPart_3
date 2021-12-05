@@ -195,7 +195,7 @@ begin
      try
         compiler.interactive := interactive;
         if compiler.startCompilation (mainModule, root, compileError) then
-           mainModule.moduleProgram.addByteCode(oHalt)
+           mainModule.moduleProgram.addByteCode(oHalt, 0)
         else
           result := False;
      finally
@@ -257,7 +257,7 @@ begin
              exit;
              end;
 
-          mainModule.moduleProgram.addByteCode(oHalt);
+          mainModule.moduleProgram.addByteCode(oHalt, 0);
         except
           on e: ERuntimeException do
              begin

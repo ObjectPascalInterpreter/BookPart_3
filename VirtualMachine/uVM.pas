@@ -16,7 +16,7 @@ interface
 Uses System.SysUtils, System.Diagnostics, System.TimeSpan, uUtils,
   uMachineStack, System.generics.Collections, uListObject, uStringObject,
   uArrayObject, uSymbolTable, uConstantTable, uProgramCode, uMemoryManager,
-  uObjectSupport, uIntStack;
+  uObjectSupport, uIntStack, uJumpTables;
 
 const
   MAX_STACK_SIZE = 40000; // Maximum depth of operand stack
@@ -882,89 +882,14 @@ procedure TVM.addOp;
 var
   st1, st2 : PMachineStackRecord;
   aList : TListObject; tmp : TStringObject;
-
+  result : TMachineStackRecord;
+  binop : TBinOp;
 begin
-  st1 := pop; // second operand
-  st2 := pop; // first operand
+  st2 := pop; // second operand
+  st1 := pop; // first operand
 
-  if (st1.stackType = stNone) or (st2.stackType = stNone) then
-     raiseError ('Variable undefined');
-
-  case st2.stackType of
-    stInteger: case st1.stackType of
-        stInteger: push(st1.iValue + st2.iValue);
-        stDouble: push(st1.dValue + st2.iValue);
-      else
-        compatibilityError('adding', st2, st1);
-      end;
-
-    stBoolean: compatibilityError('adding', st2, st1); // Can't add booleans
-
-    stDouble: case st1.stackType of
-        stInteger: push(st1.iValue + st2.dValue);
-        stDouble: push(st1.dValue + st2.dValue);
-      else
-        compatibilityError('adding', st2, st1);
-      end;
-
-    stString: case st1.stackType of
-        stString: push(TStringObject.add(st2.sValue, st1.sValue));
-      else
-        compatibilityError('adding', st2, st1);
-      end;
-
-    stList: case st1.stackType of
-        stInteger:
-          begin
-          aList := st2.lValue.clone;
-          aList.append(st1.iValue);
-          push(aList);
-          end;
-        stBoolean:
-          begin
-          aList := st2.lValue.clone;
-          aList.append(st1.bValue);
-          push(aList);
-          end;
-        stDouble:
-          begin
-          aList := st2.lValue.clone;
-          aList.append(st1.dValue);
-          push(aList);
-          end;
-        stString:
-          begin
-          aList := st2.lValue.clone;
-          tmp   := st1.sValue.clone;
-          tmp.blockType := btOwned;
-          aList.append(tmp);
-          push(aList);
-          end;
-        stList: push(TListObject.addLists(st2.lValue, st1.lValue));
-        stFunction:
-          begin
-          aList := st2.lValue.clone;
-          aList.appendUserFunction (st1.fValue);
-          push(aList);
-          end;
-        stModule:
-          begin
-          aList := st2.lValue.clone;
-          aList.appendModule (st1.module);
-          push(aList);
-          end;      else
-        compatibilityError('adding', st2, st1);
-      end;
-
-    stArray:
-      case st1.stackType of
-        stArray: push(TArrayObject.add(st2.aValue, st1.aValue));
-      else
-        compatibilityError('adding', st2, st1);
-      end;
-  else
-    raise ERuntimeException.Create ('Internal Error: Unsupported datatype in add');
-  end
+  addJumpTable[st1.stackType, st2.stackType] (st2, st1, result);
+  push (@result);
 end;
 
 
@@ -2060,9 +1985,6 @@ var value: double;
 begin
   value := popScalar;
 
-  //if (index < 0) or (index > length(variable.sValue.value) - 1) then
-  //  raise ERuntimeException.Create('string index out of range');
-
   if variable.stackType <> stArray then
     raiseError ('left-hand side must be a array');
 
@@ -2595,7 +2517,7 @@ begin
         if bolStopVm then
            begin
            issueMessage ('Ctrl-C Interrupt Detected');
-           // Need to issue exception here inorder to get out completly
+           // Need to issue exception here in order to get out completly
            exit;
            end;
 

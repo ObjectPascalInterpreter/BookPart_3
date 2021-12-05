@@ -152,12 +152,12 @@ var
   jumpLocation_1, jumpLocation_2: integer;
 begin
   compileCode(node.condition);
-  jumpLocation_1 := code.addByteCode(oJmpIfFalse);
+  jumpLocation_1 := code.addByteCode(oJmpIfFalse, node.lineNumber);
   compileCode(node.thenStatementList);
 
   if node.elseStatementList <> nil then
     begin
-      jumpLocation_2 := code.addByteCode(oJmp);
+      jumpLocation_2 := code.addByteCode(oJmp, node.lineNumber);
       code.setGotoLabel(jumpLocation_1, code.getCurrentInstructionPointer - jumpLocation_1);
       compileCode(node.elseStatementList);
       code.setGotoLabel(jumpLocation_2, code.getCurrentInstructionPointer - jumpLocation_2);
@@ -238,10 +238,10 @@ begin
 
     // count up or down
     if node.iterationBlock.direction.nodeType = ntTo then
-      code.addByteCode(oIsGt)
+      code.addByteCode(oIsGt, node.lineNumber)
     else
-       code.addByteCode(oIsLt);
-    jumpLocation_1 := code.addByteCode(oJmpIfTrue);
+       code.addByteCode(oIsLt, node.lineNumber);
+    jumpLocation_1 := code.addByteCode(oJmpIfTrue, node.lineNumber);
 
     // Compile the body
     compileCode(node.body);
@@ -263,7 +263,7 @@ begin
            code.addByteCode(oDec, symbol.symbolName, node.iterationBlock.stepValue);
        end;
 
-    jumpLocation_2 := code.addByteCode(oJmp);
+    jumpLocation_2 := code.addByteCode(oJmp, node.iterationBlock.lineNumber);
     code.setGotoLabel(jumpLocation_2, again - code.getCurrentInstructionPointer + 1);
     code.setGotoLabel(jumpLocation_1, code.getCurrentInstructionPointer -  jumpLocation_1);
 
@@ -296,13 +296,13 @@ begin
     compileCode((node as TASTWhile).condition);
 
     // record the jump location because we're going to patch the relative jump value later
-    jumpLocation_exit := code.addByteCode(oJmpIfFalse);
+    jumpLocation_exit := code.addByteCode(oJmpIfFalse, node.lineNumber);
 
     // compile the body of while loop
     compileCode((node as TASTWhile).statementList);
 
     // Record the location of the 'jump back' to jmp instruction
-    jumpLocation_back := code.addByteCode(oJmp);
+    jumpLocation_back := code.addByteCode(oJmp, node.lineNumber);
 
     // Lastly, patch the relative jump instructions
     code.setGotoLabel(jumpLocation_back,
@@ -344,7 +344,7 @@ begin
     // compile the condition statement in until
     compileCode(node.condition);
 
-    jumpLocation := code.addByteCode(oJmpIfFalse);
+    jumpLocation := code.addByteCode(oJmpIfFalse, node.lineNumber);
     code.setGotoLabel(jumpLocation,
       again - code.getCurrentInstructionPointer + 1);
 
@@ -537,8 +537,8 @@ begin
     compilingFunction := True;
     compileCode(functionNode.body);
     compilingFunction := False;
-    code.addByteCode(oPushNone);
-    code.addByteCode(oRet); // This is to make sure we return
+    code.addByteCode(oPushNone, functionNode.lineNumber);
+    code.addByteCode(oRet, node.lineNumber); // This is to make sure we return
     code.compactCode();
   finally
     code := oldCode;
@@ -599,28 +599,28 @@ procedure TCompiler.compileBinOperator(node: TASTBinOp; opCode: Byte);
 begin
   compileCode(node.left);
   compileCode(node.right);
-  code.addByteCode(opCode);
+  code.addByteCode(opCode, node.lineNumber);
 end;
 
 procedure TCompiler.compilePowerOperator(node: TASTPowerOp);
 begin
   compileCode(node.left);
   compileCode(node.right);
-  code.addByteCode(oPower);
+  code.addByteCode(oPower, node.lineNumber);
 end;
 
 
 procedure TCompiler.compileNotOperator (node : TASTNotOp);
 begin
   compileCode (node.expression);
-  code.addByteCode (oNot);
+  code.addByteCode (oNot, node.lineNumber);
 end;
 
 
 procedure TCompiler.compileUniOperator(node: TASTUniOp; opCode: Byte);
 begin
   compileCode(node.left);
-  code.addByteCode(opCode);
+  code.addByteCode(opCode, node.lineNumber);
 end;
 
 procedure TCompiler.compilePrintStatement(node: TASTNode);
@@ -633,7 +633,7 @@ begin
         compileCode((node as TASTPrint).argumentList.list[i]);
 
       code.addByteCode(oPushi, (node as TASTPrint).argumentList.list.Count, node.lineNumber);
-      code.addByteCode(oPrint);
+      code.addByteCode(oPrint, node.lineNumber);
     end
   else
     begin
@@ -641,7 +641,7 @@ begin
         compileCode((node as TASTPrintLn).argumentList.list[i]);
 
       code.addByteCode(oPushi, (node as TASTPrintLn).argumentList.list.Count, node.lineNumber);
-      code.addByteCode(oPrintln);
+      code.addByteCode(oPrintln, node.lineNumber);
     end;
 end;
 
@@ -649,7 +649,7 @@ end;
 procedure TCompiler.compileSetColor (node : TASTNode);
 begin
   compileCode((node as TASTSetColor).expression);
-  code.addByteCode(oSetColor);
+  code.addByteCode(oSetColor, node.lineNumber);
 end;
 
 
@@ -658,12 +658,12 @@ begin
   if node is TASTAssertTrue then
     begin
       compileCode((node as TASTAssertTrue).expression);
-      code.addByteCode(oAssertTrue);
+      code.addByteCode(oAssertTrue, node.lineNumber);
     end
   else
     begin
       compileCode((node as TASTAssertFalse).expression);
-      code.addByteCode(oAssertFalse);
+      code.addByteCode(oAssertFalse, node.lineNumber);
     end;
 end;
 
@@ -671,7 +671,7 @@ end;
 procedure TCompiler.compileHelp (node: TASTNode);
 begin
   compileCode((node as TASTHelp).expression);
-  code.addByteCode(oHelp);
+  code.addByteCode(oHelp, node.lineNumber);
 end;
 
 
@@ -698,18 +698,18 @@ begin
   compileCode(node.switchExpression);
   for i := 0 to listOfCaseStatements.list.Count - 1 do
     begin
-      code.addByteCode(oDup);
+      code.addByteCode(oDup, node.switchExpression.lineNumber);
       code.addByteCode(oPushi, caseValues[i], node.lineNumber);
-      code.addByteCode(oIsEq);
-      jumpToLocation[i] := code.addByteCode(oJmpIfTrue);
+      code.addByteCode(oIsEq, node.switchExpression.lineNumber);
+      jumpToLocation[i] := code.addByteCode(oJmpIfTrue, node.switchExpression.lineNumber);
     end;
-  elseJump := code.addByteCode(oJmp);
+  elseJump := code.addByteCode(oJmp, node.lineNumber);
 
   for i := 0 to listOfCaseStatements.list.Count - 1 do
     begin
       entryLocation[i] := code.getCurrentInstructionPointer;
       compileCode((listOfCaseStatements.list[i] as TASTCaseStatement).statementList);
-      jumpToEndLocation[i] := code.addByteCode(oJmp);
+      jumpToEndLocation[i] := code.addByteCode(oJmp, node.lineNumber);
     end;
 
   elseDestination := code.getCurrentInstructionPointer;
@@ -719,7 +719,7 @@ begin
   //code.addByteCode(oNop);
   code.setGotoLabel(elseJump, elseDestination - elseJump);
 
-  lastInstruction := code.addByteCode(oPopDup); // pop the dup
+  lastInstruction := code.addByteCode(oPopDup, node.lineNumber); // pop the dup
   for i := 0 to listOfCaseStatements.list.Count - 1 do
     begin
       code.setGotoLabel(jumpToLocation[i], entryLocation[i] - jumpToLocation[i]);
@@ -825,7 +825,7 @@ begin
           if not compiler.startCompilation(module, root, compilerError) then
              raise ECompilerException.Create (compilerError.errorMsg, compilerError.lineNumber, compilerError.columnNumber);
 
-          module.moduleProgram.addByteCode(oHalt);
+          module.moduleProgram.addByteCode(oHalt, 0);
         finally
           root.Free;
           compiler.Free;
@@ -989,13 +989,13 @@ begin
   sliceNode := TASTSlice (node);
   compileCode (sliceNode.lower);
   compileCode (sliceNode.upper);
-  code.addByteCode(oBuildSlice);
+  code.addByteCode(oBuildSlice, node.lineNumber);
 end;
 
 
 procedure TCompiler.compileSliceAll (node : TASTNode);
 begin
-  code.addByteCode(oSliceAll);
+  code.addByteCode(oSliceAll, node.lineNumber);
 end;
 
 
@@ -1052,14 +1052,14 @@ begin
       begin
         compileCode((node as TASTExpressionStatement).expression);
         //if not interactive then
-          code.addByteCode(oPop);
+          code.addByteCode(oPop, node.lineNumber);
       end;
     ntFunction:
       compileUserFunction(node);
     ntReturn:
       begin
         compileCode((node as TASTReturn).expression);
-        code.addByteCode(oRet);
+        code.addByteCode(oRet, node.lineNumber);
       end;
     ntGlobalStmt:
       compileGlobalVariable(node);
@@ -1119,7 +1119,7 @@ begin
       compileBinOperator(node as TASTBinOp, oIsLte);
 
     ntBoolean:
-      code.addByteCode(oPushb, (node as TASTBoolean).bValue);
+      code.addByteCode(oPushb, (node as TASTBoolean).bValue, node.lineNumber);
     ntInteger:
       code.addByteCode(oPushi, (node as TASTInteger).iValue, node.lineNumber);
     ntFloat:
@@ -1134,7 +1134,7 @@ begin
       end;
     ntBreak:
       // place holder for the jmp instruction
-      stackOfBreakStacks.Peek.Push(code.addByteCode(oJmp));
+      stackOfBreakStacks.Peek.Push(code.addByteCode(oJmp, node.lineNumber));
     ntNull : begin end;
    else
       raise ECompilerException.Create('Internal error: Unrecognized node type in AST (compileCode): ' +   TRttiEnumerationType.GetName(node.nodeType), 0, 0);

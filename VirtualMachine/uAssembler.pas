@@ -118,39 +118,39 @@ begin
                s := RemoveDupSpaces(s);
                tokenize(s, alabel, opcodeStr, opCodeArgument);
 
-               if opCodeStr = opCodeNames[oNop]     then begin result.addByteCode (oNop);     inc (instCounter); continue end;
-               if opCodeStr = opCodeNames[oAdd]     then begin result.addByteCode (oAdd);     inc (instCounter); continue end;
-               if opCodeStr = opCodeNames[oSub]     then begin result.addByteCode (oSub);     inc (instCounter); continue end;
-               if opCodeStr = opcodeNames[oMult]    then begin result.addByteCode (oMult);    inc (instCounter); continue end;
-               if opCodeStr = opCodeNames[oDivide]  then begin result.addByteCode (oDivide);  inc (instCounter); continue end;
-               if opCodeStr = opCodeNames[oMod]     then begin result.addByteCode (oMod);     inc (instCounter); continue end;
-               if opCodeStr = opCodeNames[oDivi]    then begin result.addByteCode (oDivi);    inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oNop]     then begin result.addByteCode (oNop, 0);     inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oAdd]     then begin result.addByteCode (oAdd, 0);     inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oSub]     then begin result.addByteCode (oSub, 0);     inc (instCounter); continue end;
+               if opCodeStr = opcodeNames[oMult]    then begin result.addByteCode (oMult, 0);    inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oDivide]  then begin result.addByteCode (oDivide, 0);  inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oMod]     then begin result.addByteCode (oMod, 0);     inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oDivi]    then begin result.addByteCode (oDivi, 0);    inc (instCounter); continue end;
 
-               if opCodeStr = opCodeNames[oInc]     then begin result.addByteCode (oInc);     inc (instCounter); continue end;
-               if opCodeStr = opCodeNames[oDec]     then begin result.addByteCode (oDec);     inc (instCounter); continue end;
-               if opCodeStr = opCodeNames[oLocalInc] then begin result.addByteCode (oLocalInc);  inc (instCounter); continue end;
-               if opCodeStr = opCodeNames[oLocalDec] then begin result.addByteCode (oLocalDec);  inc (instCounter); continue end;
-               if opCodeStr = opCodeNames[oNot]     then begin result.addByteCode (oNot);     inc (instCounter); continue end;
-               if opCodeStr = opCodeNames[oAnd]     then begin result.addByteCode (oAnd);     inc (instCounter); continue end;
-               if opCodeStr = opCodeNames[oOr]      then begin result.addByteCode (oOr);      inc (instCounter); continue end;
-               if opCodeStr = opCodeNames[oXor]     then begin result.addByteCode (oXor);     inc (instCounter); continue end;
-               if opCodeStr = opCodeNames[oPop]     then begin result.addByteCode (oPop);     inc (instCounter); continue end;
-               if opCodeStr = opCodeNames[oIsGt]    then begin result.addByteCode (oIsGt);    inc (instCounter); continue end;
-               if opCodeStr = opCodeNames[oIsGte]   then begin result.addByteCode (oIsGte);   inc (instCounter); continue end;
-               if opCodeStr = opCodeNames[oIsLt]    then begin result.addByteCode (oIsLt);    inc (instCounter); continue end;
-               if opCodeStr = opCodeNames[oIsLte]   then begin result.addByteCode (oIsLte);   inc (instCounter); continue end;
-               if opCodeStr = opCodeNames[oIsEq]    then begin result.addByteCode (oIsEq);    inc (instCounter); continue end;
-               if opCodeStr = opCodeNames[oIsNotEq] then begin result.addByteCode (oIsNotEq); inc (instCounter); continue end;
-               if opCodeStr = opCodeNames[oPrint]   then begin result.addByteCode (oPrint);   inc (instCounter); continue end;
-               if opCodeStr = opCodeNames[oPrintln] then begin result.addByteCode (oPrintln); inc (instCounter); continue end;
-               if opCodeStr = opCodeNames[oHalt]    then begin result.addByteCode (oHalt);    inc (instCounter); continue end;
-               if opCodeStr = opCodeNames[oRet]     then begin result.addByteCode (oRet);     inc (instCounter); continue end;
-               if opCodeStr = opCodeNames[oLvecIdx] then begin result.addByteCode (oLvecIdx); inc (instCounter); continue end;
-               if opCodeStr = opCodeNames[oSvecIdx] then begin result.addByteCode (oSvecIdx); inc (instCounter); continue end;
-               if opCodeStr = opCodeNames[oLocalLvecIdx] then begin result.addByteCode (oLocalLvecIdx); inc (instCounter); continue end;
-               if opCodeStr = opCodeNames[oLocalSvecIdx] then begin result.addByteCode (oLocalSvecIdx); inc (instCounter); continue end;
-               if opCodeStr = opCodeNames[oCall]    then begin result.addByteCode (oCall);    inc (instCounter); continue end;
-               if opCodeStr = opCodeNames[oBuiltin] then begin result.addByteCode (oBuiltin); inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oInc]     then begin result.addByteCode (oInc, 0);     inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oDec]     then begin result.addByteCode (oDec, 0);     inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oLocalInc] then begin result.addByteCode (oLocalInc, 0);  inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oLocalDec] then begin result.addByteCode (oLocalDec, 0);  inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oNot]     then begin result.addByteCode (oNot, 0);     inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oAnd]     then begin result.addByteCode (oAnd, 0);     inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oOr]      then begin result.addByteCode (oOr, 0);      inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oXor]     then begin result.addByteCode (oXor, 0);     inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oPop]     then begin result.addByteCode (oPop, 0);     inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oIsGt]    then begin result.addByteCode (oIsGt, 0);    inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oIsGte]   then begin result.addByteCode (oIsGte, 0);   inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oIsLt]    then begin result.addByteCode (oIsLt, 0);    inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oIsLte]   then begin result.addByteCode (oIsLte, 0);   inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oIsEq]    then begin result.addByteCode (oIsEq, 0);    inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oIsNotEq] then begin result.addByteCode (oIsNotEq, 0); inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oPrint]   then begin result.addByteCode (oPrint, 0);   inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oPrintln] then begin result.addByteCode (oPrintln, 0); inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oHalt]    then begin result.addByteCode (oHalt, 0);    inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oRet]     then begin result.addByteCode (oRet, 0);     inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oLvecIdx] then begin result.addByteCode (oLvecIdx, 0); inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oSvecIdx] then begin result.addByteCode (oSvecIdx, 0); inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oLocalLvecIdx] then begin result.addByteCode (oLocalLvecIdx, 0); inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oLocalSvecIdx] then begin result.addByteCode (oLocalSvecIdx, 0); inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oCall]    then begin result.addByteCode (oCall, 0);    inc (instCounter); continue end;
+               if opCodeStr = opCodeNames[oBuiltin] then begin result.addByteCode (oBuiltin, 0); inc (instCounter); continue end;
                //if opCodeStr = opCodeNames[oLoadModuleSymbol] then
                //   begin
               //    result.addByteCode (oLoadModuleSymbol, strtoint (opCodeArgument));
@@ -184,9 +184,9 @@ begin
                if opCodeStr = opCodeNames[oPushb] then
                   begin
                   if opCodeArgument = 'true' then
-                     result.addByteCode (oPushb, true);
+                     result.addByteCode (oPushb, true, 0);
                   if opCodeArgument = 'false' then
-                    result.addByteCode (oPushb, false);
+                    result.addByteCode (oPushb, false, 0);
                   if (opCodeArgument <> 'false') and (opCodeArgument <> 'true') then
                     raise Exception.Create('Expecting boolean true or false in pushb');
                   inc (instCounter);

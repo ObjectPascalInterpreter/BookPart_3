@@ -36,9 +36,9 @@ type
            procedure clearCode;
            procedure append (byteCode : TByteCode);
            procedure compactCode;
-           function  addByteCode (opCode : TOpCode) : integer; overload;
+           function  addByteCode (opCode : TOpCode; lineNumber : integer) : integer; overload;
            procedure addByteCode (opCode : TOpCode; iValue, lineNumber : integer); overload;
-           procedure addByteCode (opCode : TOpCode; bValue : boolean); overload;
+           procedure addByteCode (opCode : TOpCode; bValue : boolean; lineNumber : integer); overload;
            procedure addByteCode (opCode : TOpCode; const symbolName : string; increment : double);  overload;
            procedure addModuleByteCode (opCode : TOpCode; const moduleName : string);
            procedure addSymbolByteCode (opCode : TOpCode; const symbolName : string);
@@ -179,7 +179,7 @@ begin
 end;
 
 
-function TProgram.addByteCode (opCode : TOpCode) : integer;
+function TProgram.addByteCode (opCode : TOpCode; lineNumber : integer) : integer;
 begin
   checkSpace;
   code[actualLength].opCode := opCode;
@@ -197,7 +197,7 @@ begin
 end;
 
 
-procedure TProgram.addByteCode (opCode : TOpCode; bValue : boolean);
+procedure TProgram.addByteCode (opCode : TOpCode; bValue : boolean; lineNumber : integer);
 begin
   checkSpace;
   code[actualLength] := createByteCode (opCode, bValue);

@@ -59,7 +59,8 @@ type
     procedure insert(index: integer; bValue: boolean); overload;
     procedure insert(index: integer; lValue: TListObject); overload;
     procedure insert(index: integer; sValue: TStringObject); overload;
-    procedure insertUserFunction(index: integer; fValue: TObject);
+    procedure insert(index: integer; aValue: TArrayObject); overload;
+    procedure insertUserFunction(index : integer; fValue: TObject);
     procedure insertModule(index: integer; mValue: TObject);
     function  findMin : double;
     function  findMax : double;
@@ -484,16 +485,33 @@ end;
 
 procedure TListObject.insert(index: integer; lValue: TListObject);
 begin
+  if lValue.blockType = btGarbage then
+    lValue.blockType := btOwned;
+
   list.insert(index, TListItem.Create(lValue));
 end;
 
 procedure TListObject.insert(index: integer; sValue: TStringObject);
 begin
+  if sValue.blockType = btGarbage then
+     sValue.blockType := btOwned;
+
   list.insert(index, TListItem.Create(sValue));
+end;
+
+procedure TListObject.insert(index: integer; aValue: TArrayObject);
+begin
+  if aValue.blockType = btGarbage then
+     aValue.blockType := btOwned;
+
+  list.insert(index, TListItem.Create(aValue));
 end;
 
 procedure TListObject.insertUserFunction(index: integer; fValue: TObject);
 begin
+  if (fValue as TUserFunction).blockType = btBound then
+    (fValue as TUserFunction).blockType := btOwned;
+
   list.insert(index, TListItem.CreateUserFunction(fValue));
 end;
 
@@ -733,6 +751,7 @@ begin
   list.add(TListItem.Create(lValue));
 end;
 
+
 procedure TListObject.appendUserFunction(fValue: TObject);
 begin
   if (fValue as TUserFunction).blockType = btBound then
@@ -741,10 +760,12 @@ begin
   list.add(TListItem.CreateUserFunction(fValue));
 end;
 
+
 procedure TListObject.appendModule(mValue: TObject);
 begin
   list.add(TListItem.CreateModule(mValue));
 end;
+
 
 
 // ----------------------------------------------------------------------

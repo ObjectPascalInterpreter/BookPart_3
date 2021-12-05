@@ -4,6 +4,7 @@ import testUtils
 setColor ("yellow")
 println ("---------------------- Loop Tests ------------------------")
 setColor ("white")
+
 testUtils.beginTests ("Repeat/Until Tests")
 
 // ----------------------------------------------
@@ -109,14 +110,12 @@ for i = 8 downto 3 do
 end;
 testUtils.runtestTrue (i == 2); // iteration loop will be one less than lower limit
 
-
 for i = 1 to 10 do
    if i == 5 then
       break;
    end;
 end;
 testUtils.runtestTrue (i == 5);
-
 
 for i = 1 to 10 do
    for j = 1 to 5 do
@@ -129,6 +128,7 @@ for i = 1 to 10 do
    end;
 end;
 testUtils.runtestTrue (i == 5);
+
 
 // ----------------------------------------------
 

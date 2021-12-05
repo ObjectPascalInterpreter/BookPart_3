@@ -95,7 +95,8 @@ uses
   uMath in 'uMath.pas',
   uBuiltInGraphics in 'uBuiltInGraphics.pas',
   uRhodusLibTypes in '..\librhodus\uRhodusLibTypes.pas',
-  uIntStack in '..\VirtualMachine\uIntStack.pas';
+  uIntStack in '..\VirtualMachine\uIntStack.pas',
+  uJumpTables in '..\VirtualMachine\uJumpTables.pas';
 
 begin
   ReportMemoryLeaksOnShutdown := True;

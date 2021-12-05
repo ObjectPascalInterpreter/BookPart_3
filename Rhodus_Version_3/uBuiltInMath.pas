@@ -102,10 +102,10 @@ begin
    st := TVM (vm).pop;
    case st.stackType of
        stInteger : TVM (vm).push(sin (st.iValue));
-       stDouble : TVM (vm).push (sin (st.dValue));
-       stArray : begin
-                 TVM (vm).push(st.aValue.applyUniFunction(sin));
-                 end
+       stDouble  : TVM (vm).push (sin (st.dValue));
+       stArray   : begin
+                   TVM (vm).push(st.aValue.applyUniFunction(sin));
+                   end
   else
       raiseMathError ('sin');
   end;

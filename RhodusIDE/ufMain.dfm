@@ -421,10 +421,8 @@ object frmMain: TfrmMain
         '    forward (200)'
         '    heading = heading + 150 '
         'end')
-      ExplicitLeft = 468
-      ExplicitTop = 336
-      ExplicitWidth = 300
-      ExplicitHeight = 225
+      ExplicitWidth = 869
+      ExplicitHeight = 661
     end
   end
   object pnlRight: TPanel

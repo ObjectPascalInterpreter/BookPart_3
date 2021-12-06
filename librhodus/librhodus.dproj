@@ -4,7 +4,7 @@
         <ProjectVersion>19.3</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Library</AppType>
@@ -173,7 +173,6 @@
         <DCCReference Include="..\Rhodus_Version_3\uCommands.pas"/>
         <DCCReference Include="..\Rhodus_Version_3\uCompile.pas"/>
         <DCCReference Include="..\Rhodus_Version_3\uConstructAST.pas"/>
-        <DCCReference Include="..\Rhodus_Version_3\uEnvironment.pas"/>
         <DCCReference Include="..\Rhodus_Version_3\uFindWindows.pas"/>
         <DCCReference Include="..\Rhodus_Version_3\uGlobal.pas"/>
         <DCCReference Include="..\Rhodus_Version_3\uInitialize.pas"/>
@@ -194,6 +193,7 @@
         <DCCReference Include="..\Rhodus_Version_3\uBuiltInGraphics.pas"/>
         <DCCReference Include="..\VirtualMachine\uIntStack.pas"/>
         <DCCReference Include="..\VirtualMachine\uJumpTables.pas"/>
+        <DCCReference Include="..\Rhodus_Version_3\uEnvironment.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

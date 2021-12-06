@@ -669,6 +669,7 @@ begin
      exit;
      end;
   try
+    config.launchpath := ParamStr(0);
     // set up all the callbacks
     config.printPtr := rhodus_print;
     config.printlnPtr := rhodus_println;

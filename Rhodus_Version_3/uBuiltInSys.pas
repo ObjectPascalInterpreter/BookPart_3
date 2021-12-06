@@ -25,6 +25,8 @@ type
      constructor Create;
   end;
 
+  procedure initialiseSysModuleVariables;
+
 implementation
 
 Uses Windows,
@@ -37,11 +39,24 @@ Uses Windows,
      uRhodusTypes,
      uBuiltInConfig;
 
+var
+    path : TListObject;
+
+// The path variabvle has to be separated out from the sys module
+// because each time the sys module is imported into a new module
+// it is recreated. We need to protect the path variable from this.
+procedure initialiseSysModuleVariables;
+begin
+  // Default path
+  path := TListObject.Create(0);
+  path.append(TStringObject.create('.'));
+  path.blockType := btBound;   // To make sure the garbage collector doesn't get it.
+end;
+
 // --------------------------------------------------------------------------------------------
 
 constructor TBuiltInSys.Create;
 var argv : TListObject;
-    path : TListObject;
     astr : TStringObject;
 begin
   inherited Create ('sys', 'System module');
@@ -59,10 +74,6 @@ begin
   argv.blockType := btBound;   // To make sure the garbage collector doesn't get it.
 
   addListValue ('argv', argv, 'The list of command line arguments passed', True);
-
-  path := TListObject.Create(0);
-  path.append(TStringObject.create('.'));
-  path.blockType := btBound;   // To make sure the garbage collector doesn't get it.
 
   addListValue ('path', path, 'Search path for Rhodus import libraries', True);
 

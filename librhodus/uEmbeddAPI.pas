@@ -18,6 +18,8 @@ Uses uSyntaxParser,
      uMachineStack,
      uStringObject,
      uListObject,
+     uEnvironment,
+     uSymbolTable,
      uBuiltInGlobal;
 
 var lastError : TRhodusError;
@@ -27,6 +29,8 @@ function rhodus_initialize (var config : TRhodusConfig) : NativeInt; stdcall
 var rhodus : TRhodus;
 begin
   try
+    launchEnvironment.executionPath := ExtractFilePath (config.launchpath);
+    launchEnvironment.moduleDir := '.\Modules';
     rhodus := TRhodus.Create;
     result := NativeInt (rhodus);
 
@@ -67,9 +71,7 @@ begin
   if rhodus.compileToAST (code, syntaxError) then
      begin
      if rhodus.generateByteCode (True, compilerError) then
-        begin
-        rhodus.runCode (mainModule, True);
-        end
+        rhodus.runCode (mainModule, True)
      else
        begin
        lastError.errorMsg := PAnsiChar (AnsiString('ERROR ' + '[line ' + inttostr (compilerError.lineNumber) + ', column: ' + inttostr (compilerError.columnNumber) + '] ' + compilerError.errorMsg));

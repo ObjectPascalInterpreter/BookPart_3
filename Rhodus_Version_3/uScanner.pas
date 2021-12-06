@@ -85,9 +85,11 @@ type
 
                function  isLetter (ch : Char) : boolean;
                function  isDigit (ch : Char) : boolean;
+               function  isHexDigit (ch : Char) : boolean;
                procedure getWord;
                procedure getString;
                procedure getNumber;
+               procedure getHexNumber;
                procedure getSpecial;
                procedure addKeyWords;
                function  isKeyWord (const tokenString : string; var Token : TTokenCode) : boolean;
@@ -446,7 +448,7 @@ begin
   //if (hasLeftHandSide = False) and (hasRightHandSide = False) then
   //   raise EScannerError.Create ('single period on its own is not a valid number');
 
-   exponentSign := 1;
+  exponentSign := 1;
   // Next check for scientific notation
   if (Fch = 'e') or (Fch = 'E') then
      begin
@@ -487,6 +489,24 @@ begin
 end;
 
 
+procedure TScanner.getHexNumber;
+var astr : string;
+begin
+  FTokenRecord.FTokenInteger := 0;
+  FTokenRecord.FToken := tINTEGER;
+
+  Fch := nextchar;
+  astr:= '';
+
+  while isHexDigit (FCh) do
+        begin
+        astr := astr + FCh;
+        Fch := nextChar;
+        end;
+  FTokenRecord.FTokenInteger := StrToInt('$' + astr);
+end;
+
+
 function TScanner.getScalar : double;
 begin
   result := 0.0;
@@ -505,9 +525,14 @@ end;
 
 function TScanner.isDigit (ch : Char) : boolean;
 begin
-  result:= CharInSet (ch, ['0'..'9']);
+  result := CharInSet (ch, ['0'..'9']);
 end;
 
+
+function TScanner.isHexDigit (ch : Char) : boolean;
+begin
+  result := CharInSet (ch, ['A'..'F','0'..'9']);
+end;
 
 // Scan in an identifier token
 procedure TScanner.getWord;
@@ -653,6 +678,8 @@ begin
      'a'..'z','A'..'Z','_' : getWord;
 
      '0'..'9' : getNumber;
+
+     '#' : getHexNumber;
 
      '"':   getString;
 

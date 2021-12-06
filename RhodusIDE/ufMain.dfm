@@ -107,7 +107,7 @@ object frmMain: TfrmMain
       Left = 385
       Top = 26
       Width = 145
-      Height = 36
+      Height = 25
       DropDownCount = 16
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -257,8 +257,8 @@ object frmMain: TfrmMain
         Font.Name = 'Courier New'
         Font.Style = []
         ParentFont = False
+        ScrollBars = ssBoth
         TabOrder = 0
-        ExplicitWidth = 587
       end
       object pnlMemoButtons: TPanel
         Left = 1

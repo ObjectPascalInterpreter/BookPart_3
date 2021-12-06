@@ -44,6 +44,7 @@ type
      public
        procedure createArray (vm : TObject);
        procedure myInt (vm : TObject);
+       procedure myIntToHex (vm : TObject);
        procedure myFloat (vm : TObject);
        procedure readNumber (vm : TObject);
        procedure readString (vm : TObject);
@@ -73,6 +74,7 @@ procedure addGlobalMethodsToModule (module : TModuleLib);
 begin
   module.addMethod (builtInGlobal.createArray, VARIABLE_ARGS, 'array',         'Create an array: x = array (3, 4)');
   module.addMethod (builtInGlobal.myInt,          1, 'int',           'Convert float to integer: int (3.4)');
+  module.addMethod (builtInGlobal.myIntToHex,     1, 'hex',           'Convert integer to hex string: hex (56)');
   module.addMethod (builtInGlobal.myFloat,        1, 'float',         'Convert and integer to a float: float (3)');
   module.addMethod (builtInGlobal.readNumber,    VARIABLE_ARGS, 'readNumber',    'Read an integer from the input channel: : str = readNumber ("Enter answer: ")');
   module.addMethod (builtInGlobal.readString,    VARIABLE_ARGS, 'readString',    'Read a string from the input channel: str = readString ("Enter name")');
@@ -129,6 +131,7 @@ begin
   // -1  means variable arguments, call function pushes the actual number of arguments provided
   addMethod (createArray,   -1, 'array',         'Create an array of a given size: a = array(4,5,2)');
   addMethod (myInt,          1, 'int',           'Convert float to integer: int (3.4)');
+  addMethod (myIntTohex,     1, 'hex',           'Convert integer to hex string: hex(56)');
   addMethod (myFloat,        1, 'float',         'Convert an integer to a float: float (3)');
   addMethod (readNumber,     0, 'readNumber',    'Read an integer from the console');
   addMethod (readString,     0, 'readString',    'Rread a string from the console');
@@ -472,6 +475,14 @@ begin
 end;
 
 
+procedure TBuiltInGlobal.myIntToHex (vm : TObject);
+var value : integer;
+begin
+  value := TVM (vm).popInteger;
+  TVM (vm).push(TStringObject.Create(IntToHex(value)));
+end;
+
+
 procedure TBuiltInGlobal.myFloat (vm : TObject);
 var x : PMachineStackRecord;
 begin
@@ -664,6 +675,7 @@ begin
 end;
 
 initialization
+
 finalization
   builtInGlobal.Free;
 end.

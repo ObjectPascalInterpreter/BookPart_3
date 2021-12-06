@@ -31,6 +31,7 @@ type
   TGraphicsHandler = function : PGraphicsMethods;
 
   TRhodusConfig = record
+      launchpath : AnsiString;
       printPtr : TPrint;
       printlnPtr : TPrint;
       readStringPtr : TReadString;

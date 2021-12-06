@@ -20,6 +20,7 @@ Uses Generics.Collections,
      uConstructAST,
      uAST,
      uCompile,
+     uListObject,
      uLibModule,
      uBuiltInGlobal,
      uBuiltInMath,
@@ -100,6 +101,7 @@ constructor TRhodus.Create;
 var astr : string;
 begin
   createGlobalBuiltIns;
+  initialiseSysModuleVariables; // Creates the path variable
 
   mainModule := TModuleLib.Create (TSymbol.mainModuleId, 'Main Module');  // mainModule is declared in uModule
 

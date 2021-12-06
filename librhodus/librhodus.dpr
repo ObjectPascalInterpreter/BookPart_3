@@ -47,7 +47,6 @@ uses
   uCommands in '..\Rhodus_Version_3\uCommands.pas',
   uCompile in '..\Rhodus_Version_3\uCompile.pas',
   uConstructAST in '..\Rhodus_Version_3\uConstructAST.pas',
-  uEnvironment in '..\Rhodus_Version_3\uEnvironment.pas',
   uFindWindows in '..\Rhodus_Version_3\uFindWindows.pas',
   uGlobal in '..\Rhodus_Version_3\uGlobal.pas',
   uInitialize in '..\Rhodus_Version_3\uInitialize.pas',
@@ -67,7 +66,8 @@ uses
   uTurtleInterface in '..\Rhodus_Version_3\uTurtleInterface.pas',
   uBuiltInGraphics in '..\Rhodus_Version_3\uBuiltInGraphics.pas',
   uIntStack in '..\VirtualMachine\uIntStack.pas',
-  uJumpTables in '..\VirtualMachine\uJumpTables.pas';
+  uJumpTables in '..\VirtualMachine\uJumpTables.pas',
+  uEnvironment in '..\Rhodus_Version_3\uEnvironment.pas';
 
 {$R *.res}
 

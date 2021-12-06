@@ -347,8 +347,9 @@ colors = [\"Snow\", \"FloralWhite\", \"LavenderBlush\", \"OldLace\",
 graphics.clear(\"white\")
 x = 10; y = 10;
 for i = 0 to colors.len() - 1 do
-    graphics.pencolor (colors[i]);
-    graphics.fillrect (x, y, 40, 40);
+    graphics.pencolor (colors[i])
+    graphics.brushcolor (colors[i])
+    graphics.fillrect (x, y, 40, 40)
     x = x + 50
     if x > 600 then
        x = 10

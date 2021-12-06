@@ -1,0 +1,68 @@
+import graphics
+import math
+import random
+import time
+
+p = graphics.size()
+width = p[0]; height = p[1];
+
+x1a = array (150)
+y1a = array (150)
+x2a = array (150)
+y2a = array (150)
+
+count = 0
+x1 = 200; y1 = 100; x2 = 400; y2 = 420
+colorCount = 0; pointCount = 0
+//graphics.clear()
+//graphics.pencolor("darkorange")
+//graphics.pencolor("cornflowerblue")
+//graphics.pencolor("Darkorchid")
+graphics.pencolor("Dodgerblue")
+for i = 1 to 400 do
+   if count mod 500 == 0 then
+      graphics.clear()
+   end
+     
+   for k = 1 to 10000 do
+       a = 3.4
+   end
+   
+   if colorCount == 0 then
+      colorCount = 5 * (1 + int (10*random.random()))
+   end
+   
+   if pointCount == 0 then
+      pointCount = 5 * (1 + int (10*random.random()))
+      dx1 = int (10*random.random()) - 5
+      dy1 = int (10*random.random()) - 5
+      dx2 = int (10*random.random()) - 5
+      dy2 = int (10*random.random()) - 5  
+   end
+   
+   x1 = x1 + dx1; if (x1 < 0) or (x1 > width)  then x1 = x1 - 2*dx1 end
+   y1 = y1 + dy1; if (y1 < 0) or (y1 > height) then y1 = y1 - 2*dy1 end
+   x2 = x2 + dx2; if (x2 < 0) or (x2 > width)  then x2 = x2 - 2*dx2 end
+   y2 = y2 + dy2; if (y2 < 0) or (y2 > height) then y2 = y2 - 2*dy2 end
+   
+   graphics.line ("red", x1, y1, x2, y2)
+   graphics.refresh()
+   
+   x1a[i] = x1
+   y1a[i] = y2
+   x2a[i] = x2
+   y2a[i] = y2
+  
+   pointCount = pointCount - 1
+   i = i + 1
+   if i > 148 then
+      i = 1
+   end
+   
+   count = count + 1
+   if count > 1000 then
+       break
+   end
+end
+graphics.clear()
+graphics.refresh()

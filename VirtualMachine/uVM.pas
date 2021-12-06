@@ -39,11 +39,11 @@ type
 
   TFrameStack = array of TFrame;
 
-  TVMCaptureStringCallBack = procedure (astr : AnsiString);
+  TVMCaptureStringCallBack = procedure (const astr : AnsiString);
   TVMReadStringCallBack  = function (const prompt : AnsiString) : PAnsiChar;
 
   TVMCallBack         = procedure(st: PMachineStackRecord) of object;
-  TVMPrintCallBack    = procedure (astr : AnsiString);
+  TVMPrintCallBack    = procedure (const astr : AnsiString);
   TVMSetColorCallBack = function (st: PMachineStackRecord) : AnsiString;
 
   // Use to preseve the state of the virtual machine between calls.
@@ -2625,6 +2625,11 @@ begin
                             pop();
                          end;
             oDup:        dupStack;
+            oToDbl:      if stack[stackTop].stackType = stInteger then
+                            begin
+                            stack[stackTop].stackType := stDouble;
+                            stack[stackTop].dValue := stack[stackTop].iValue;
+                            end;
             oPopDup:     pop();
             oIsLt:       isLt;
             oIsLte:      isLte;

@@ -208,6 +208,8 @@ begin
 
    // HMS watch out local symbols
     compileCode (node.iterationBlock.lower);
+    code.addByteCode(oToDbl, node.iterationBlock.lineNumber);
+
     inAssignment := True;
     inAssignment_NextToEquals := True;
     compileCode(node.iterationBlock.iterationSymbol);
@@ -253,14 +255,14 @@ begin
         if compilingFunction then
            code.addByteCode(oLocalInc, localSymbolIndex, node.iterationBlock.direction.lineNumber)
         else
-           code.addByteCode(oInc, symbol.symbolName, node.iterationBlock.stepValue)
+           code.addByteCode(oInc, symbol.symbolName, node.iterationBlock.stepValue, node.iterationBlock.iterationSymbol.lineNumber)
        end
     else
        begin
         if compilingFunction then
            code.addLocalForByteCode(oLocalDec, localSymbolIndex, node.iterationBlock.stepValue)
         else
-           code.addByteCode(oDec, symbol.symbolName, node.iterationBlock.stepValue);
+           code.addByteCode(oDec, symbol.symbolName, node.iterationBlock.stepValue, node.iterationBlock.lineNumber);
        end;
 
     jumpLocation_2 := code.addByteCode(oJmp, node.iterationBlock.lineNumber);

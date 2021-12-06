@@ -14,11 +14,10 @@ interface
 Uses SysUtils, Classes, uLibModule, System.Diagnostics;
 
 const
-   RHODUS_VERSION : AnsiString = '3.0.3.0';
+   RHODUS_VERSION : AnsiString = '3.0.4.0';
 
 type
   TBuiltInConfig= class (TModuleLib)
-
      procedure   getVersion (vm : TObject);
      procedure   showByteCode (vm : TObject);
      constructor Create;

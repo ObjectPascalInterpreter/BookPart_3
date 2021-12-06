@@ -11,9 +11,10 @@ type
      setPenColor : procedure (r, g, b : integer);
      setPenWidth : procedure (width : double);
      setBrushColor : procedure (r, g, b : integer);
-     setPixel : procedure (x, y : integer);//, pen_r, pen_g, pen_b : integer);
+     setPixel : procedure (x, y : integer);
      moveTo : procedure (x, y : double);
      lineTo : procedure (x, y : double);
+     lineWithColor : procedure (penColor : AnsiString; x1, y1, x2, y2 : double);
      drawRectangle : procedure (x, y, w, h : double);
      drawFilledRectangle : procedure (x, y, w, h : double);
      drawEllipse : procedure (x1, y1, x2, y2 : double);
@@ -25,7 +26,7 @@ type
   PGraphicsMethods = ^TGraphicsMethods;
 
 
-  TPrint = procedure (astr : AnsiString);
+  TPrint = procedure (const astr : AnsiString);
   TReadString = function (const prompt : AnsiString) : PAnsiChar;
   TGraphicsHandler = function : PGraphicsMethods;
 

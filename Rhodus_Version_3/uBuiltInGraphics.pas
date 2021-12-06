@@ -26,6 +26,7 @@ type
        procedure   setPenWidth (vm : TObject);
        procedure   setBrushColor (vm : TObject);
        procedure   setPixel (vm : TObject);
+       procedure   line (vm : TObject);
        procedure   moveTo  (vm : TObject);
        procedure   lineTo    (vm : TObject);
        procedure   drawRect (vm : TObject);
@@ -73,22 +74,23 @@ constructor TBuiltInGraphics.Create;
 begin
   inherited Create ('graphics', 'Graphics module');
 
-  addMethod (clear,            VARIABLE_ARGS, 'clear',    'Clear the canvas: clear () or clear ("red"');
+  addMethod (clear,            VARIABLE_ARGS, 'clear',    'Clear the background canvas: clear () or clear ("red")');
   addMethod (getCanvasSize,     0, 'size',     'Returns the size of the canvas as a list: size ()');
-  addMethod (setPenColor,      VARIABLE_ARGS, 'pencolor', 'Set the pen color using rgb: pencolor (255, 34, 123)');
+  addMethod (setPenColor,      VARIABLE_ARGS, 'pencolor', 'Set the pen color using rgb or color name: pencolor (255, 34, 123)');
   addMethod (setPenWidth,       1, 'penwidth', 'Set the pen width: graphics.penwidth (4)');
-  addMethod (setBrushColor,    VARIABLE_ARGS, 'brushcolor', '');
-  addMethod (setPixel,          2, 'pixel', '');
+  addMethod (setBrushColor,    VARIABLE_ARGS, 'brushcolor', 'Set the brush color using rgb of color name: brushcolor ("red")');
+  addMethod (setPixel,          2, 'pixel', 'Set the pixel to the pen color: pixel (100, 120)');
   addMethod (moveTo,            2, 'moveto',   'Move the current plotting cursor to x, y: graphics.moveto (100,200)');
-  addMethod (lineTo,            2, 'lineto',   'Return a uniformly distributed random number: random()');
-  addMethod (drawRect,          4, 'rect',     'Draw a rectangle: rect ()');
-  addMethod (drawFilledRect,    4, 'fillrect', 'Draw a filled rectangle');
+  addMethod (lineTo,            2, 'lineto',   'Draw a line from the previous moveto/lineto to the new pt: lineto (x, y)');
+  addMethod (line,             VARIABLE_ARGS, 'line',     'Draw a line between two points: line(x1, y1, x2, y2)');
+  addMethod (drawRect,          4, 'rect',     'Draw a rectangle: rect (x, y, w, h)');
+  addMethod (drawFilledRect,    4, 'fillrect', 'Draw a filled rectangle: filrect (x, y, w, h');
   addMethod (drawEllipse,       4, 'ellipse',  'Draw an ellipse with top/left coordiante x, y and width and height w, h: ellipse(100, 100, w, h)');
   addMethod (drawFilledEllipse, 4, 'fillellipse', 'Draw a filled ellipse');
   addMethod (pause,             1, 'pause', '');
-  addMethod (beginUpdate,       0, 'beginupdate', ' Suppress output to the canvas');
-  addMethod (endUpdate,         0, 'endupdate', 'Draw any cached drawings to the canvas');
-  addMethod (refresh,           0, 'refresh', 'Rdraw teh current image');
+  addMethod (beginUpdate,       0, 'beginupdate', 'Suppress output to the GUI canvas');
+  addMethod (endUpdate,         0, 'endupdate',   'Draw the background canvas to the GUI image');
+  addMethod (refresh,           0, 'refresh',     'Copy the background canvas to the GUI image');
   end;
 
 
@@ -372,6 +374,38 @@ begin
    TVM (vm).pushNone;
 end;
 
+
+procedure TBuiltInGraphics.line (vm : TObject);
+var x1, y1, x2, y2 : double;
+    nArgs : integer;
+    penColor : AnsiString;
+begin
+   nArgs := TVM (vm).popInteger;
+   if nArgs = 4 then
+      begin
+      penColor := '';
+      y2 := TVM (vm).popScalar;
+      x2 := TVM (vm).popScalar;
+      y1 := TVM (vm).popScalar;
+      x1 := TVM (vm).popScalar;
+      end;
+   if nArgs = 5 then
+      begin
+      y2 := TVM (vm).popScalar;
+      x2 := TVM (vm).popScalar;
+      y1 := TVM (vm).popScalar;
+      x1 := TVM (vm).popScalar;
+      penColor := AnsiString (TVM (vm).popString.value);
+      end;
+
+   checkGraphicsSubsystem;
+   if @graphicsMethodsPtr.lineWithColor <> nil then
+      graphicsMethodsPtr.lineWithColor (AnsiString (penColor), x1, y1, x2, y2)
+   else
+      raise ERuntimeException.Create('line subsystem not available.');
+
+   TVM (vm).pushNone;
+end;
 
 procedure TBuiltInGraphics.getCanvasSize (vm : TObject);
 var p : TRhodusPoint;

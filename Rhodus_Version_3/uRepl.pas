@@ -37,13 +37,13 @@ var rhodus : TRhodus;
 
 // Print methods to support output from the VM
 // -------------------------------------------------------------------------------
-procedure print (astr : AnsiString);
+procedure print (const astr : AnsiString);
 begin
   write (astr);
 end;
 
 
-procedure println (astr: AnsiString);
+procedure println (const astr: AnsiString);
 begin
   print (astr);
   writeln;
@@ -59,7 +59,7 @@ begin
 end;
 
 
-procedure setColor (acolor : AnsiString);
+procedure setColor (const acolor : AnsiString);
 begin
   uTerminal.setColor(string (aColor));
 end;

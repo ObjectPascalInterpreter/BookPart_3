@@ -155,7 +155,7 @@ begin
 end;
 
 
-procedure rhodus_print (astr : AnsiString);
+procedure rhodus_print (const astr : AnsiString);
 begin
   if astr = sLineBreak then
      frmMain.memoOutput.Lines[frmMain.memoOutput.CaretPos.Y] := frmMain.memoOutput.Lines[frmMain.memoOutput.CaretPos.y] + astr
@@ -164,7 +164,7 @@ begin
 end;
 
 
-procedure rhodus_println (astr : AnsiString);
+procedure rhodus_println (const astr : AnsiString);
 begin
   frmMain.memoOutput.Lines.Append (astr);
 end;
@@ -350,7 +350,7 @@ begin
     begin
     path := Rectangle(RectD(x, y, x + w, y + h));
     DrawLine(frmMain.img, path, penWidth, Color32 ($FF, pen_r, pen_g, pen_b), esPolygon);
-    DrawPolygon(frmMain.img, path, frNonZero, Color32 ($FF, pen_r, pen_g, pen_b));
+    DrawPolygon(frmMain.img, path, frNonZero, Color32 ($FF, brush_r, brush_g, brush_b));
 
     if not updateStatus then
        updateCanvas
@@ -408,7 +408,7 @@ begin
     begin
     path := Img32.Vector.Ellipse(RectD (x1, y1, x2, y2));
     DrawLine(frmMain.img, path, penWidth, Color32 ($FF, pen_r, pen_g, pen_b), esPolygon);
-    DrawPolygon(frmMain.img, path, frNonZero, Color32 ($FF, pen_r, pen_g, pen_b));
+    DrawPolygon(frmMain.img, path, frNonZero, Color32 ($FF, brush_r, brush_g, brush_b));
 
     if not updateStatus then
        updateCanvas
@@ -460,6 +460,25 @@ begin
   );
 end;
 
+procedure gLineWithColor (penColor : AnsiString; x1, y1, x2, y2 : double);
+var aColor : TAlphaColorRec;
+begin
+  TThread.Synchronize(nil,
+    procedure
+    begin
+    if penColor = '' then
+       DrawLine (frmMain.img, PointD(x1, y1), PointD (x2, y2), penWidth, Color32 ($FF, pen_r, pen_g, pen_b))
+    else
+       begin
+       acolor := TAlphaColorRec (StringToAlphaColor (penColor));
+       DrawLine (frmMain.img, PointD(x1, y1), PointD (x2, y2), penWidth, Color32 ($FF, acolor.R, acolor.G, acolor.B));
+       end;
+
+    if not updateStatus then
+       updateCanvas
+    end
+  );
+end;
 
 // ----------------------------------------------------------------
 
@@ -661,6 +680,7 @@ begin
     graphicsMethods.setPixel := gSetPixel;
     graphicsMethods.moveTo := gMoveTo;
     graphicsMethods.lineTo := gLineTo;
+    graphicsMethods.lineWithColor := gLineWithColor;
     graphicsMethods.setPenColor := gSetPenColor;
     graphicsMethods.setPenWidth := gSetPenWidth;
     graphicsMethods.setBrushColor := gSetBrushColor;

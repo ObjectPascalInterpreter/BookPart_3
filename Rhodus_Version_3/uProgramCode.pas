@@ -39,10 +39,10 @@ type
            function  addByteCode (opCode : TOpCode; lineNumber : integer) : integer; overload;
            procedure addByteCode (opCode : TOpCode; iValue, lineNumber : integer); overload;
            procedure addByteCode (opCode : TOpCode; bValue : boolean; lineNumber : integer); overload;
-           procedure addByteCode (opCode : TOpCode; const symbolName : string; increment : double);  overload;
+           procedure addByteCode (opCode : TOpCode; const symbolName : string; increment : double; lineNumber : integer);  overload;
            procedure addModuleByteCode (opCode : TOpCode; const moduleName : string);
            procedure addSymbolByteCode (opCode : TOpCode; const symbolName : string);
-           procedure addFullSymbolByteCode (opCode : TOpCode; const moduleName, symbolName : string);
+           procedure addFullSymbolByteCode (opCode : TOpCode; const moduleName, symbolName : string; lineNumber : integer);
            procedure addLocalForByteCode (opCode : TOpCode; symbolIndex : integer; stepValue : double);
            procedure addStoreByteCode (opCode : TOpCode; const symbolName : string);
            procedure addLoadByteCode (opCode : TOpCode; const symbolName : string);
@@ -241,22 +241,24 @@ begin
 end;
 
 
-procedure TProgram.addFullSymbolByteCode (opCode : TOpCode; const moduleName, symbolName : string);
+procedure TProgram.addFullSymbolByteCode (opCode : TOpCode; const moduleName, symbolName : string; lineNumber : integer);
 begin
   checkSpace;
   code[actualLength] := createByteCode (opCode);
   code[actualLength].symbolName := symbolName;
   code[actualLength].moduleName := moduleName;
+  code[actualLength].lineNumber := lineNumber;
   inc(actualLength);
 end;
 
 
-procedure TProgram.addByteCode (opCode : TOpCode; const symbolName : string; increment : double);
+procedure TProgram.addByteCode (opCode : TOpCode; const symbolName : string; increment : double; lineNumber : integer);
 begin
   checkSpace;
   code[actualLength] := createByteCode (opCode, 0);
   code[actualLength].float := increment;
   code[actualLength].symbolName := symbolName;
+  code[actualLength].lineNumber := lineNumber;
   inc(actualLength);
 end;
 

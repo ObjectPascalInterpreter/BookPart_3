@@ -22,7 +22,12 @@ println (e)"
 "src": 
 "for i = 1 to 5 do
   println (i)
-end"
+end
+
+for i = 10 downto 1 do
+   print (i, \" \")
+end
+"
     },
 {
 "name": "While loop",
@@ -105,12 +110,252 @@ println (b)
 "
 },
 {
-"name": "Graphics_1",
+"name": "Square",
 "src":
-"import graphics
+"
+import graphics
 
-graphics.moveto(10,10)
-graphics.lineto(123,140)
+graphics.clear()
+delta = 100
+
+function drawSquare (x, y, delta)
+   graphics.moveto(x,y)
+   graphics.lineto(x+delta,y)
+   graphics.lineto(x+delta,y+delta)
+   graphics.lineto(x,y+delta)
+   graphics.lineto(x, y)
+end
+
+x = 50; y = 50
+for i = 1 to 15 do
+    drawSquare (x, y, delta)
+    x = x + 10; y = y + 10   
+end
+"
+},
+{
+"name": "Tree",
+"src":
+"
+import graphics
+import math
+
+x = 260; y = 600
+heading = 270
+
+function forward (distance)
+  global x, y
+
+  graphics.moveto(x,y)
+  radians = heading*math.pi/180
+  dx = math.cos (radians) * distance
+  dy = math.sin (radians) * distance
+  x = x + dx
+  y = y + dy
+  graphics.lineto(x,y)
+end
+
+function tree(branchLen)
+    global heading
+    if branchLen > 5 then
+       forward(branchLen)
+       heading = heading + 20
+       tree(branchLen-15)
+       heading = heading - 40
+       tree(branchLen-15)
+       heading = heading + 20
+       forward(-branchLen)
+    end
+end
+
+graphics.clear()
+graphics.pencolor(210,20,0)
+graphics.moveto (x,y)
+graphics.penwidth(2)
+tree(115)
+"
+},
+{
+"name": "Circles",
+"src":
+"
+import graphics
+import math
+import random
+
+graphics.clear()
+for i = 1 to 4 do
+    for j = 1 to 4 do
+        r = random.randint(255)
+        g = random.randint(255)
+        b = random.randint(255)
+        graphics.pencolor (r, g, b); 
+        graphics.brushcolor (r, g, b); 
+        graphics.fillellipse (j*80,i*100,70,70)  
+    end
+end
+"
+},
+{
+"name": "Lines",
+"src":
+"
+import graphics
+import math
+import random
+
+p = graphics.size()
+width = p[0]; height = p[1]
+
+graphics.clear()
+for i = 1 to 100 do
+   graphics.penwidth (3+random.randint(4))
+   graphics.pencolor(
+       random.randint (255),
+       random.randint (255),
+       random.randint (255)
+   )
+   graphics.moveto(random.randint (width),random.randint (height))
+   graphics.lineto(random.randint (width),random.randint (height))
+end
+"
+},
+{
+"name": "Spiral",
+"src":
+"
+// From spiral.go
+import graphics
+import math
+
+s = 520
+num = 600
+
+graphics.clear()
+graphics.pencolor (\"red\")
+graphics.brushcolor (\"red\")
+
+for i = 0 to num do 
+    t = i / num 
+    d = t*s*0.4 + 10
+    a = t * math.pi * 2 * 20
+    x = s/2 + math.cos(a)*d
+    y = s/2 + math.sin(a)*d
+    r = t * 8
+    graphics.fillellipse (x, y, r, r)
+end"
+},
+{
+"name": "Mandelbrot",
+"src":
+"
+import graphics
+import time
+
+graphics.clear();
+
+p = graphics.size()
+kt = 319
+itermax = 100;  // how many iterations to do  
+width = p[0];   // horizonal resolution   
+height= p[1];   // vertical resolution    
+
+t1 = time.getTickCount()
+for row = 0 to height - 1 do
+    for col = 0 to width - 1 do
+        c_re = (col - width/2.0)*4.0/width
+        c_im = (row - height/2.0)*4.0/width
+        x = 0; y = 0
+        k = 0
+
+        while (x*x+y*y <= 4) and (k < 319) do
+            x_new = x*x - y*y + c_re;
+            y = 2*x*y + c_im;
+            x = x_new;
+            k = k + 1
+        end 
+
+      if k < kt then
+         if k < 16 then 
+            graphics.pencolor (k * 8, k * 8, 128 + k * 4)
+         end
+         if (k >= 16) and (k < 64) then 
+            graphics.pencolor (128 + k - 16, 128 + k - 16, 192 + k - 16)
+         end
+         if k >= 64 then 
+            graphics.pencolor (kt - k, 128 + (kt - k) / 2, kt - k)
+         end 
+         graphics.pixel (row, col)
+      else 
+         graphics.brushcolor (1,1,1)
+         graphics.pencolor (1, 1, 1) 
+         graphics.pixel (row, col)
+      end
+   end
+
+  if row mod 50 == 0 then
+     println (row)
+  end
+end
+println (\"Done\");
+println (\"Time = \", time.getTickCount() - t1, \" ms\")
+"
+},{
+"name": "Colors",
+"src":
+"
+import graphics
+import math
+
+colors = [\"Snow\", \"FloralWhite\", \"LavenderBlush\", \"OldLace\",
+\"Ivory\", \"CornSilk\", \"Beige\", \"AntiqueWhite\",
+\"Wheat\", \"AliceBlue\", \"GhostWhite\", \"Lavender\",
+\"Seashell\", \"LightYellow\", \"PapayaWhip\", \"NavajoWhite\",
+\"Moccasin\", \"Burlywood\", \"Azure\", \"Mintcream\",
+\"Honeydew\", \"Linen\", \"LemonChiffon\", \"BlanchedAlmond\",
+\"Bisque\", \"PeachPuff\", \"Tan\", \"Yellow\",
+\"DarkOrange\", \"Red\", \"DarkRed\", \"Maroon\",
+\"IndianRed\", \"Salmon\", \"Coral\", \"Gold\",
+\"Tomato\", \"Crimson\", \"Brown\", \"Chocolate\",
+\"SandyBrown\", \"LightSalmon\", \"LightCoral\", \"Orange\",
+\"OrangeRed\", \"Firebrick\", \"SaddleBrown\", \"Sienna\",
+\"Peru\", \"DarkSalmon\", \"RosyBrown\", \"PaleGoldenrod\",
+\"LightGoldenrodYellow\", \"Olive\", \"ForestGreen\", \"GreenYellow\",
+\"Chartreuse\", \"LightGreen\", \"Aquamarine\", \"SeaGreen\",
+\"GoldenRod\", \"Khaki\", \"OliveDrab\", \"Green\",
+\"YellowGreen\", \"LawnGreen\", \"PaleGreen\", \"MediumAquamarine\",
+\"MediumSeaGreen\", \"DarkGoldenRod\", \"DarkKhaki\", \"DarkOliveGreen\",
+\"Darkgreen\", \"LimeGreen\", \"Lime\", \"SpringGreen\",
+\"MediumSpringGreen\", \"DarkSeaGreen\", \"LightSeaGreen\", \"PaleTurquoise\",
+\"LightCyan\", \"LightBlue\", \"LightSkyBlue\", \"CornFlowerBlue\",
+\"DarkBlue\", \"Indigo\", \"MediumTurquoise\", \"Turquoise\",
+\"Cyan\", \"PowderBlue\", \"SkyBlue\", \"RoyalBlue\",
+\"MediumBlue\", \"MidnightBlue\", \"DarkTurquoise\", \"CadetBlue\",
+\"DarkCyan\", \"Teal\", \"DeepSkyBlue\", \"DodgerBlue\",
+\"Blue\", \"Navy\", \"DarkViolet\", \"DarkOrchid\",
+\"Magenta\", \"DarkMagenta\", \"MediumVioletRed\", \"PaleVioletRed\",
+\"BlueViolet\", \"MediumOrchid\", \"MediumPurple\", \"Purple\",
+\"DeepPink\", \"LightPink\", \"Violet\", \"Orchid\",
+\"Plum\", \"Thistle\", \"HotPink\", \"Pink\",
+\"LightSteelBlue\", \"MediumSlateBlue\", \"LightSlateGray\", \"White\",
+\"Lightgrey\", \"Gray\", \"SteelBlue\", \"SlateBlue\",
+\"SlateGray\", \"WhiteSmoke\", \"Silver\", \"DimGray\",
+\"MistyRose\", \"DarkSlateBlue\", \"DarkSlategray\", \"Gainsboro\",
+\"DarkGray\", \"Black\"]   
+ 
+
+graphics.clear(\"white\")
+x = 10; y = 10;
+for i = 0 to colors.len() - 1 do
+    graphics.pencolor (colors[i])
+    graphics.brushcolor (colors[i])
+    graphics.fillrect (x, y, 40, 40)
+    x = x + 50
+    if x > 600 then
+       x = 10
+       y = y + 50
+    end
+end
 "
 }
   ]

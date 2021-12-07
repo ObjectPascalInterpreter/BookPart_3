@@ -7,11 +7,15 @@ function bubbleSort (list)
       length = length - 1;
       for i = 0 to length - 1 do
           if list[i+1] < list[i] then
+ println ("a: ", list[i])
               temp = list[i];
-              list[i] = list[i + 1];
+ println ("b: ", list[i])
+              list[i] = list[i + 1]
+ println ("c: ", list[i])
               list[i + 1] = temp;
               sorted = False
            end
+
       end
  end
 end;
@@ -19,14 +23,14 @@ end;
 // Driver code to test above   
 numbers = [12, 7, 13, 5, 6]
 bubbleSort (numbers) 
-res = assertTrueEx (numbers == [5, 6, 7, 12, 13])
-if res == "." then
-   println("----PASS----")
-else
-   println("----FAIL----")
-end
+//res = assertTrueEx (numbers == [5, 6, 7, 12, 13])
+//if res == "." then
+//   println("----PASS----")
+//else
+//   println("----FAIL----")
+//end
 
 // Bigger example
-numbers = lists.rndi (1, 100, 100)
-bubbleSort(numbers)
-println ("Larger example: ", numbers)
+//numbers = lists.rndi (1, 100, 100)
+//bubbleSort(numbers)
+//println ("Larger example: ", numbers)

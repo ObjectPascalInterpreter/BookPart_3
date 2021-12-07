@@ -235,7 +235,6 @@ begin
   rhodus.setReadStringCallBack(myRead);
   rhodus.setSetColorCallBack (setColor);
 
-
   try
     displayWelcome;
 

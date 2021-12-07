@@ -247,7 +247,7 @@ begin
              end;
         root := ast.constructAST;
 
-        if bolShowByteCode  then
+        if bolShowTree  then
            printLnCallBack (AnsiString (displayAST (root)));
         try
           if not compiler.startCompilation (module, root, compilerError) then
@@ -260,6 +260,8 @@ begin
              end;
 
           mainModule.moduleProgram.addByteCode(oHalt, 0);
+          if bolShowByteCode then
+             showByteCodeMethod (mainModule);
         except
           on e: ERuntimeException do
              begin

@@ -28,7 +28,6 @@ type
     pnlEditor: TPanel;
     btnLoad: TButton;
     OpenDialog: TOpenDialog;
-    lblVersion: TLabel;
     DirectoryListBox1: TDirectoryListBox;
     FileListBox1: TFileListBox;
     cboExamples: TComboBox;
@@ -65,6 +64,8 @@ type
     mnuSettings: TMenuItem;
     mnuPreferences: TMenuItem;
     SynEditor: TSynEdit;
+    lblVersion: TLabel;
+    btnSaveAs: TButton;
     procedure btnRunClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure btnLoadClick(Sender: TObject);
@@ -77,12 +78,13 @@ type
     procedure pnlRightResize(Sender: TObject);
     procedure mnuNewClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure mnuSaveClick(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
     procedure btnCloseSidePanelClick(Sender: TObject);
     procedure mnuPreferencesClick(Sender: TObject);
+    procedure btnSaveAsClick(Sender: TObject);
   private
     { Private declarations }
+    currentFileName : string;
     examples : TExamples;
     bmp : TBitmap;
     Line: array of pRGBTripleArray;
@@ -94,13 +96,10 @@ type
   public
     { Public declarations }
     Lock: TCriticalSection;
-    //LPaint: ISkPaint;
-    //LSurface : ISkSurface;
-    //LBitmap : TBitmap;
     img : TImage32;
 
     procedure loadScript;
-    procedure saveScript;
+    procedure saveScriptAs;
   end;
 
   TRhodusWorker = class (TThread)
@@ -193,6 +192,7 @@ procedure TfrmMain.btnClearClick(Sender: TObject);
 begin
   memoOutput.Clear;
 end;
+
 
 procedure TfrmMain.btnCloseSidePanelClick(Sender: TObject);
 begin
@@ -485,20 +485,29 @@ end;
 procedure TfrmMain.loadScript;
 begin
  if OpenDialog.Execute then
+    begin
     synEditor.Lines.LoadFromFile(opendialog.FileName);
+    currentFileName := opendialog.FileName;
+    frmMain.Caption := 'Rhodus: ' + currentFileName;
+    end;
 end;
 
 
-procedure TfrmMain.saveScript;
+procedure TfrmMain.saveScriptAs;
 begin
   if SaveDialog.Execute then
+     begin
      synEditor.Lines.SaveToFile(saveDialog.FileName);
+     currentFileName := savedialog.FileName;
+     frmMain.Caption := 'Rhodus: ' + currentFileName;
+     end;
 end;
 
 
 procedure TfrmMain.mnuNewClick(Sender: TObject);
 begin
   synEditor.Clear;
+  frmMain.Caption := 'Rhodus: ' + 'No saved file';
 end;
 
 procedure TfrmMain.mnuPreferencesClick(Sender: TObject);
@@ -534,9 +543,18 @@ begin
    rt := TRhodusWorker.Create (Lock);
 end;
 
+procedure TfrmMain.btnSaveAsClick(Sender: TObject);
+begin
+  saveScriptAs;
+end;
+
 procedure TfrmMain.btnSaveClick(Sender: TObject);
 begin
-  saveScript;
+  if currentFileName <> '' then
+     begin
+     synEditor.Lines.SaveToFile(currentFileName);
+     frmMain.Caption := 'Rhodus: ' + currentFileName;
+     end;
 end;
 
 procedure TfrmMain.cboExamplesChange(Sender: TObject);
@@ -589,7 +607,8 @@ begin
        if Components[idx] is TControl then
        begin
          ctrl := TControl(Components[idx]);
-         if MatchText(ctrl.name, ['pnlLeftPanel', 'memoOutput', 'synEditor', 'pnlInfo', 'pnlDrawing', 'pnlRight']) then
+         if MatchText(ctrl.name, ['pnlLeftPanel', 'memoOutput', 'synEditor',
+           'pnlInfo', 'pnlDrawing', 'pnlRight']) then
             begin
             iniFile.WriteInteger(ctrl.Name,'Top',ctrl.Top) ;
             iniFile.WriteInteger(ctrl.Name,'Left',ctrl.Left) ;
@@ -635,12 +654,6 @@ begin
 end;
 
 
-procedure TfrmMain.mnuSaveClick(Sender: TObject);
-begin
-  saveScript;
-end;
-
-
 function TfrmMain.getContrastingColor(Color: TColor): TColor;
 var r,g,b:double;i:integer;
 begin
@@ -663,6 +676,7 @@ procedure TfrmMain.FormCreate(Sender: TObject);
 var i : integer;
 begin
   readControlPlacement;
+  currentFileName := '';
   if not loadRhodusDll then
      begin
      showmessage ('Failed to locate and load the rhodus runtime library');
@@ -695,7 +709,7 @@ begin
     // Assign the graphics handler list
     config.graphicsHandlerPtr := @graphicsMethods;
 
-    // Use to control whether after a drwing command the screen is updated
+    // Use to control whether after a drawing command the screen is updated
     updateStatus := False;
 
     rhodus := rhodus_initialize (config);

@@ -1,0 +1,22 @@
+import graphics
+import colors
+
+graphics.clear("white")
+graphics.penwidth (9)
+y = 10
+for i  = 1 to 50 do
+  graphics.line (colors.colors[i][0], 20, y, 200, y)
+  y = y + 9
+end
+
+y = 10
+for i  = 51 to 100 do
+  graphics.line (colors.colors[i][0], 210, y, 360, y)
+  y = y + 9
+end
+
+y = 10
+for i  = 101 to 139 do
+  graphics.line (colors.colors[i][0], 370, y, 510, y)
+  y = y + 9
+end

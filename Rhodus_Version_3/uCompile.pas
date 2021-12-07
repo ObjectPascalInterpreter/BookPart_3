@@ -208,7 +208,7 @@ begin
 
    // HMS watch out local symbols
     compileCode (node.iterationBlock.lower);
-    code.addByteCode(oToDbl, node.iterationBlock.lineNumber);
+    //code.addByteCode(oToDbl, node.iterationBlock.lineNumber);
 
     inAssignment := True;
     inAssignment_NextToEquals := True;

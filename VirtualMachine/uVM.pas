@@ -2266,6 +2266,9 @@ var
   index : integer;
   symbol : PMachineStackRecord;
 begin
+  if peek.stackType <> stInteger then
+     raiseError ('index must be an integer while accessing lists, arrays or strings');
+
   index := popInteger;
   symbol := pop;   // Comes from push symbol
   case symbol.stackType of

@@ -11,7 +11,7 @@ object frmMain: TfrmMain
   Font.Name = 'Segoe UI'
   Font.Style = []
   Menu = MainMenu
-  Position = poScreenCenter
+  Position = poDefault
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   PixelsPerInch = 96
@@ -35,27 +35,11 @@ object frmMain: TfrmMain
     Height = 57
     Align = alTop
     TabOrder = 0
-    DesignSize = (
-      1166
-      57)
-    object lblVersion: TLabel
-      Left = 1096
-      Top = 16
-      Width = 57
-      Height = 17
-      Anchors = [akTop, akRight]
-      Caption = 'lblVersion'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -13
-      Font.Name = 'Segoe UI'
-      Font.Style = []
-      ParentFont = False
-    end
+    ExplicitWidth = 1158
     object Label1: TLabel
-      Left = 386
+      Left = 397
       Top = 3
-      Width = 89
+      Width = 94
       Height = 17
       Caption = 'Sample Scripts:'
       Font.Charset = DEFAULT_CHARSET
@@ -65,10 +49,28 @@ object frmMain: TfrmMain
       Font.Style = []
       ParentFont = False
     end
+    object lblVersion: TLabel
+      Left = 1108
+      Top = 1
+      Width = 57
+      Height = 55
+      Align = alRight
+      Anchors = [akLeft, akTop, akBottom]
+      Caption = 'lblVersion'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Segoe UI'
+      Font.Style = []
+      ParentFont = False
+      ExplicitLeft = 1096
+      ExplicitTop = 18
+      ExplicitHeight = 17
+    end
     object btnRun: TButton
-      Left = 234
+      Left = 304
       Top = 10
-      Width = 65
+      Width = 66
       Height = 36
       Margins.Left = 5
       Margins.Top = 5
@@ -104,9 +106,9 @@ object frmMain: TfrmMain
       OnClick = btnLoadClick
     end
     object cboExamples: TComboBox
-      Left = 385
+      Left = 396
       Top = 26
-      Width = 145
+      Width = 150
       Height = 25
       DropDownCount = 16
       Font.Charset = DEFAULT_CHARSET
@@ -157,6 +159,25 @@ object frmMain: TfrmMain
       TabOrder = 4
       OnClick = btnSaveClick
     end
+    object btnSaveAs: TButton
+      Left = 231
+      Top = 10
+      Width = 66
+      Height = 36
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
+      Caption = 'Save As'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Segoe UI'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 5
+      OnClick = btnSaveAsClick
+    end
   end
   object pnlLeftPanel: TPanel
     Left = 0
@@ -165,6 +186,7 @@ object frmMain: TfrmMain
     Height = 684
     Align = alLeft
     TabOrder = 1
+    ExplicitHeight = 679
     object DirectoryListBox1: TDirectoryListBox
       Left = 1
       Top = 27
@@ -196,6 +218,7 @@ object frmMain: TfrmMain
       ParentFont = False
       TabOrder = 1
       OnClick = FileListBox1Click
+      ExplicitHeight = 419
     end
     object pnlSideControls: TPanel
       Left = 1
@@ -229,6 +252,8 @@ object frmMain: TfrmMain
     Height = 684
     Align = alClient
     TabOrder = 2
+    ExplicitWidth = 582
+    ExplicitHeight = 679
     object pblBottomBase: TPanel
       Left = 1
       Top = 463
@@ -236,6 +261,8 @@ object frmMain: TfrmMain
       Height = 220
       Align = alBottom
       TabOrder = 0
+      ExplicitTop = 458
+      ExplicitWidth = 580
       object Splitter1: TSplitter
         Left = 1
         Top = 1
@@ -259,6 +286,7 @@ object frmMain: TfrmMain
         ParentFont = False
         ScrollBars = ssBoth
         TabOrder = 0
+        ExplicitWidth = 578
       end
       object pnlMemoButtons: TPanel
         Left = 1
@@ -267,7 +295,7 @@ object frmMain: TfrmMain
         Height = 42
         Align = alBottom
         TabOrder = 1
-        ExplicitWidth = 587
+        ExplicitWidth = 578
         object btnClear: TButton
           Left = 5
           Top = 3
@@ -337,6 +365,8 @@ object frmMain: TfrmMain
         '    forward (200)'
         '    heading = heading + 150 '
         'end')
+      ExplicitWidth = 580
+      ExplicitHeight = 457
     end
   end
   object pnlRight: TPanel
@@ -347,6 +377,8 @@ object frmMain: TfrmMain
     Align = alRight
     TabOrder = 3
     OnResize = pnlRightResize
+    ExplicitLeft = 803
+    ExplicitHeight = 679
     object Splitter3: TSplitter
       Left = 1
       Top = 377
@@ -362,6 +394,7 @@ object frmMain: TfrmMain
       Height = 304
       Align = alBottom
       TabOrder = 0
+      ExplicitTop = 374
     end
     object pnlImage: TPanel
       Left = 1
@@ -372,6 +405,7 @@ object frmMain: TfrmMain
       Caption = 'pnlImage'
       TabOrder = 1
       OnResize = pnlRightResize
+      ExplicitHeight = 371
       object pnlDrawing: TImage
         Left = 1
         Top = 1
@@ -383,9 +417,9 @@ object frmMain: TfrmMain
     end
   end
   object OpenDialog: TOpenDialog
-    DefaultExt = '*.rh'
+    DefaultExt = 'rh'
     FileName = 'akt.rh'
-    Filter = 'Any files|*.*|Rhodus Scripts|*.rh'
+    Filter = 'Rhodus scripts|*.rh|Any file|*.*'
     Title = 'Load Rhodus Script'
     Left = 1057
     Top = 150
@@ -404,7 +438,6 @@ object frmMain: TfrmMain
       end
       object mnuSave: TMenuItem
         Caption = 'Save'
-        OnClick = mnuSaveClick
       end
       object N1: TMenuItem
         Caption = '-'
@@ -463,7 +496,8 @@ object frmMain: TfrmMain
   end
   object SaveDialog: TSaveDialog
     DefaultExt = '.rh'
-    Filter = 'Any files|*.*|Rhodus Scripts|*.rh'
+    Filter = 'Rhodus Scripts|*.rh|Any file|*.*'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
     Title = 'Save Rhodus Script'
     Left = 1044
     Top = 226

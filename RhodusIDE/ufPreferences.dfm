@@ -3,75 +3,55 @@ object frmPreferences: TfrmPreferences
   Top = 0
   BorderStyle = bsDialog
   Caption = 'Preferences'
-  ClientHeight = 555
-  ClientWidth = 608
+  ClientHeight = 370
+  ClientWidth = 411
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -18
+  Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
   Position = poMainFormCenter
   OnCreate = FormCreate
-  PixelsPerInch = 144
-  TextHeight = 25
+  PixelsPerInch = 96
+  TextHeight = 15
   object Label1: TLabel
-    Left = 32
-    Top = 32
-    Width = 48
-    Height = 25
-    Margins.Left = 5
-    Margins.Top = 5
-    Margins.Right = 5
-    Margins.Bottom = 5
+    Left = 21
+    Top = 23
+    Width = 32
+    Height = 15
     Caption = 'Fonts:'
   end
   object Label2: TLabel
-    Left = 32
-    Top = 128
-    Width = 141
-    Height = 25
-    Margins.Left = 5
-    Margins.Top = 5
-    Margins.Right = 5
-    Margins.Bottom = 5
+    Left = 21
+    Top = 75
+    Width = 95
+    Height = 15
     Caption = 'Available Themes:'
   end
   object pnlBottom: TPanel
     Left = 0
-    Top = 494
-    Width = 608
-    Height = 61
-    Margins.Left = 5
-    Margins.Top = 5
-    Margins.Right = 5
-    Margins.Bottom = 5
+    Top = 329
+    Width = 411
+    Height = 41
     Align = alBottom
     TabOrder = 0
-    ExplicitTop = 487
-    ExplicitWidth = 594
+    ExplicitTop = 324
+    ExplicitWidth = 403
     object btnOk: TButton
-      Left = 360
-      Top = 12
-      Width = 113
-      Height = 38
-      Margins.Left = 5
-      Margins.Top = 5
-      Margins.Right = 5
-      Margins.Bottom = 5
+      Left = 240
+      Top = 8
+      Width = 75
+      Height = 25
       Caption = 'OK'
       TabOrder = 0
       OnClick = btnOkClick
     end
     object btnCancel: TButton
-      Left = 482
-      Top = 12
-      Width = 112
-      Height = 38
-      Margins.Left = 5
-      Margins.Top = 5
-      Margins.Right = 5
-      Margins.Bottom = 5
+      Left = 321
+      Top = 8
+      Width = 75
+      Height = 25
       Cancel = True
       Caption = 'Cancel'
       TabOrder = 1
@@ -79,18 +59,14 @@ object frmPreferences: TfrmPreferences
     end
   end
   object cboFontlist: TComboBox
-    Left = 32
-    Top = 66
-    Width = 398
-    Height = 36
-    Margins.Left = 5
-    Margins.Top = 5
-    Margins.Right = 5
-    Margins.Bottom = 5
+    Left = 21
+    Top = 44
+    Width = 266
+    Height = 25
     DropDownCount = 16
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -20
+    Font.Height = -13
     Font.Name = 'Segoe UI'
     Font.Style = []
     ParentFont = False
@@ -99,17 +75,13 @@ object frmPreferences: TfrmPreferences
     OnClick = cboFontlistClick
   end
   object spFontSize: TSpinEdit
-    Left = 453
-    Top = 66
-    Width = 85
-    Height = 38
-    Margins.Left = 5
-    Margins.Top = 5
-    Margins.Right = 5
-    Margins.Bottom = 5
+    Left = 302
+    Top = 44
+    Width = 57
+    Height = 27
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -20
+    Font.Height = -13
     Font.Name = 'Segoe UI'
     Font.Style = []
     MaxValue = 0
@@ -120,15 +92,11 @@ object frmPreferences: TfrmPreferences
     OnChange = spFontSizeChange
   end
   object lbThemes: TListBox
-    Left = 32
-    Top = 176
-    Width = 398
-    Height = 145
-    Margins.Left = 5
-    Margins.Top = 5
-    Margins.Right = 5
-    Margins.Bottom = 5
-    ItemHeight = 25
+    Left = 21
+    Top = 96
+    Width = 266
+    Height = 153
+    ItemHeight = 15
     TabOrder = 3
     OnClick = lbThemesClick
   end

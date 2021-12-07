@@ -40,7 +40,8 @@ implementation
 
 Uses Vcl.Themes;
 
-
+// The following two methods are called
+// to set up the preferences.
 procedure  TfrmPreferences.setTheme (name : string);
 var i : integer;
 begin

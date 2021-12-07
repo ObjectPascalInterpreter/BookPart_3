@@ -1,0 +1,7 @@
+
+list= [1,2,3,4]
+
+for i = 0 to 2 do
+    i = int (i)
+    list[i] = list[i + 1]
+end

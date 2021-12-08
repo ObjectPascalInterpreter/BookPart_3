@@ -278,7 +278,6 @@ begin
         oPushNone   : result := result + '  ' + opCodeNames[oPushNone] + sLineBreak;
         oDup        : result := result + '  ' + opCodeNames[oDup] + sLineBreak;
         oPopDup     : result := result + '  ' + opCodeNames[oPopDup] + sLineBreak;
-        oToDbl      : result := result + '  ' + opCodeNames[oToDbl] + sLineBreak;
 
         oAdd        : result := result + '  ' + opCodeNames[oAdd]    + sLineBreak;
         oSub        : result := result + '  ' + opCodeNames[oSub]    + sLineBreak;

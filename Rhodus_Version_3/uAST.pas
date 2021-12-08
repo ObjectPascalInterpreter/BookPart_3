@@ -16,6 +16,8 @@ interface
 Uses SysUtils, Classes, Generics.Collections, uASTNodeType, uListObject;
 
 type
+   TForLoopType = (flForNext, flForIn);
+
    TASTNode = class;
    TChildNodes = class (TList<TASTNode>)  // TList allows me to handle freeing of objects myself
        lineNumber : integer;
@@ -208,11 +210,19 @@ type
 
    TASTIterationBlock = class (TASTNode)
      iterationSymbol : TASTIdentifier;
+     forLoopType : TForLoopType;
+
+     forIn : TASTNode;
+
      lower : TASTExpression;
      upper : TASTExpression;
      direction : TASTNode;
-     stepValue : double;
-     constructor Create (iterationSymbol : TASTIdentifier; lower, upper : TASTExpression; lineNumber : integer);
+     stepValue : integer;
+
+     // Use this one for for next loops
+     constructor Create (iterationSymbol : TASTIdentifier; lower, upper : TASTExpression; lineNumber : integer); overload;
+     // Use this one for for in loops
+     constructor Create (iterationSymbol : TASTIdentifier; forInExpression : TASTNode; lineNumber : integer); overload;
      destructor  Destroy; override;
    end;
 
@@ -737,13 +747,22 @@ end;
 constructor TASTIterationBlock.Create (iterationSymbol : TASTIdentifier; lower, upper : TASTExpression; lineNumber : integer);
 begin
   inherited Create (ntIter, lineNumber);
+  self.forLoopType := flForNext;
   self.iterationSymbol := iterationSymbol;
   self.lower := lower;
   self.upper := upper;
 end;
 
 
-destructor TASTIterationBlock.destroy;
+constructor TASTIterationBlock.Create (iterationSymbol : TASTIdentifier; forInExpression : TASTNode; lineNumber : integer);
+begin
+  inherited Create (ntIter, lineNumber);
+  self.forIn := forInExpression;
+  self.forLoopType := flForIn;
+end;
+
+
+destructor TASTIterationBlock.Destroy;
 begin
   iterationSymbol.freeAST;
   lower.freeAST;

@@ -1027,7 +1027,7 @@ var
   assignment: TASTAssignment;
   iterationBlock: TASTIterationBlock;
   body, node: TASTNode;
-  lower, upper : TASTExpression;
+  lower, upper, expr : TASTExpression;
   id : TASTIdentifier;
 begin
   breakStack := TStack<integer>.Create;
@@ -1038,6 +1038,26 @@ begin
     node := expect(tIdentifier);
 
     id := TASTIdentifier.Create (sc.tokenString, sc.tokenRecord.lineNumber);
+
+   if sc.token = tIn then
+       begin
+       nextToken;
+       node := expression;
+       expect (tDo);
+
+       iterationBlock := TASTIterationBlock.Create(id, node, sc.tokenRecord.lineNumber);
+
+       // .... do <body>
+       body := statementList;
+
+       result := TASTFor.Create(iterationBlock, body, sc.tokenRecord.lineNumber);
+
+       while breakStack.Count > 0 do
+         breakJump := breakStack.Pop;
+
+       expect(tEnd);
+       exit;
+       end;
 
     node := expect(tEquals);
 
@@ -1068,21 +1088,15 @@ begin
       iterationBlock.direction := TASTNode.Create(TASTNodeType.ntDownTo, sc.tokenRecord.lineNumber);
 
     // Deal with any step keyword
-    iterationBlock.stepValue := 1.0;
+    iterationBlock.stepValue := 1;
     if sc.token = tStep then
     begin
       sc.nextToken;
-      if (sc.token = tInteger) or (sc.token = tFloat) then
+      if sc.token = tInteger then
          begin
-         iterationBlock.stepValue := sc.getScalar;
+         iterationBlock.stepValue := sc.tokenRecord.FTokenInteger;
          sc.nextToken;
          end
-      else
-         begin
-         iterationBlock.freeAST;
-         result := TASTErrorNode.Create ('step value must be an integer ro float value', sc.tokenRecord.lineNumber, sc.tokenRecord.columnNumber);
-         exit;
-         end;
     end;
 
     node := expect(tDo);

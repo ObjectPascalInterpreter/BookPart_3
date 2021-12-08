@@ -225,6 +225,7 @@ begin
   FKeyWordList.AddObject ('do', TObject (tDo));
   FKeyWordList.AddObject ('to', TObject (tTo));
   FKeyWordList.AddObject ('or', TObject (tOr));
+  FKeyWordList.AddObject ('in', TObject (tIn));
 
   FKeyWordList.AddObject ('end', TObject (tEnd));
   FKeyWordList.AddObject ('for', TObject (tFor));

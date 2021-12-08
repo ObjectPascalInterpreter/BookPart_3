@@ -2628,11 +2628,6 @@ begin
                             pop();
                          end;
             oDup:        dupStack;
-            oToDbl:      if stack[stackTop].stackType = stInteger then
-                            begin
-                            stack[stackTop].stackType := stDouble;
-                            stack[stackTop].dValue := stack[stackTop].iValue;
-                            end;
             oPopDup:     pop();
             oIsLt:       isLt;
             oIsLte:      isLte;

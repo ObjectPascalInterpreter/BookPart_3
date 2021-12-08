@@ -11,6 +11,7 @@ interface
 
 Uses System.SysUtils;
 
+
 const
    oNop            = byte (0);
    oHalt           = byte (1);
@@ -54,7 +55,6 @@ const
    oPop           = byte (55);   // pop() stack is next isntruction is not a halt
    oDup           = byte (56);   // Duplicate the stack entry
    oPopDup        = byte (57);   // Pop the stack
-   oToDbl         = byte (58);   // Convert the stack entry to a double value (used in the for loop)
 
    // Boolean Tests
    oIsEq          = byte (70);   // Push True if TOS1 == TOS
@@ -148,7 +148,6 @@ initialization
   opCodeNames[oPop]            := 'pop';
   opCodeNames[oDup]            := 'dup';
   opCodeNames[oPopDup]         := 'popDup';
-  opCodeNames[oToDbl]          := 'toDbl';
 
   opCodeNames[oIsEq]         := 'isEq';
   opCodeNames[oIsGt]         := 'isGt';

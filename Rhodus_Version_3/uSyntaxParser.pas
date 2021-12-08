@@ -71,6 +71,7 @@ type
     procedure parseIndexedVariable;
     procedure parseFunctionCall;
 
+    procedure parseList;
     procedure primary;
     procedure factor;
     procedure primaryPlus;
@@ -272,6 +273,23 @@ begin
   primaryPlus;
 end;
 
+
+procedure TSyntaxParser.parseList;
+begin
+  nextToken;
+  if tokenVector.token <> tRightBracket then
+     begin
+     expression;
+     while tokenVector.token = tComma do
+           begin
+           nextToken;
+           expression;
+           end;
+    end;
+  expect(tRightBracket);
+end;
+
+
 procedure TSyntaxParser.factor;
 begin
   case tokenVector.token of
@@ -312,18 +330,9 @@ begin
       end;
     tLeftBracket:
       begin
-        nextToken;
-        if tokenVector.token <> tRightBracket then
-           begin
-           expression;
-           while tokenVector.token = tComma do
-              begin
-              nextToken;
-              expression;
-              end;
-           end;
-       expect(tRightBracket);
-       end;
+        parseList;
+      end;
+
      // Reserved for maps
      //tLeftCurleyBracket :
      //  begin
@@ -809,6 +818,22 @@ begin
 
     expect(tIdentifier);
 
+    if tokenVector.token = tIn then
+       begin
+       nextToken;
+       expression;
+       expect (tDo);
+
+       // .... do <body>
+       statementList;
+
+       while breakStack.Count > 0 do
+         breakJump := breakStack.Pop;
+
+       expect(tEnd);
+       exit;
+       end;
+
     expect(tEquals);
 
     expression;
@@ -828,10 +853,10 @@ begin
     if tokenVector.token = tStep then
        begin
        nextToken;
-       if (tokenVector.token = tInteger) or (tokenVector.token = tFloat) then
+       if tokenVector.token = tInteger then
            nextToken
        else
-          raise ESyntaxException.Create ('step value must be an integer ro float value', tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
+          raise ESyntaxException.Create ('step value must be an integer', tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
     end;
 
     expect(tDo);

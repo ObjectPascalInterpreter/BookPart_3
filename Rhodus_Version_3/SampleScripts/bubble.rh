@@ -7,11 +7,8 @@ function bubbleSort (list)
       length = length - 1;
       for i = 0 to length - 1 do
           if list[i+1] < list[i] then
- println ("a: ", list[i])
               temp = list[i];
- println ("b: ", list[i])
               list[i] = list[i + 1]
- println ("c: ", list[i])
               list[i + 1] = temp;
               sorted = False
            end

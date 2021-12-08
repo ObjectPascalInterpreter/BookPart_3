@@ -45,7 +45,11 @@ type
     procedure importBuiltIn (moduleName :string; index: integer);
 
     procedure compileIfStatement(node: TASTIf);
+
     procedure compileForStatement(node: TASTFor);
+    procedure compileForNextStatment (node : TASTFor);
+    procedure compileForInStatment (node : TASTFor);
+
     procedure compileRepeatStatement(node: TASTRepeat);
     procedure compileWhileStatement(node: TASTNode);
 
@@ -166,6 +170,7 @@ begin
     code.setGotoLabel(jumpLocation_1, code.getCurrentInstructionPointer - jumpLocation_1);
 end;
 
+
 // forStatement = FOR identifier = expression TO/DOWNTO expression DO statementList END
 // AST:
 // (for) -> (Iteration) and (body)
@@ -173,13 +178,12 @@ end;
 // (Iteration) -> (assign) and (upper) and (to/downto)
 // (assign) -> (symbol) and (expression)
 // (upper) -> (expression)
-procedure TCompiler.compileForStatement(node: TASTFor);
-var
-  jumpLocation_1, jumpLocation_2, again, breakJump: integer;
-  loopSymbol: TASTIdentifier;
-  breakStack: TStack<integer>;
-  localSymbolIndex: integer;
-  symbol: TSymbol;
+procedure TCompiler.compileForNextStatment (node : TASTFor);
+var jumpLocation_1, jumpLocation_2, again, breakJump: integer;
+    loopSymbol: TASTIdentifier;
+    breakStack: TStack<integer>;
+    localSymbolIndex: integer;
+    symbol: TSymbol;
 begin
   breakStack := TStack<integer>.Create;
   stackOfBreakStacks.Push(breakStack);
@@ -206,9 +210,8 @@ begin
           end;
        end;
 
-   // HMS watch out local symbols
+    // HMS watch out local symbols
     compileCode (node.iterationBlock.lower);
-    //code.addByteCode(oToDbl, node.iterationBlock.lineNumber);
 
     inAssignment := True;
     inAssignment_NextToEquals := True;
@@ -280,6 +283,44 @@ begin
   end;
 end;
 
+
+// forStatement = FOR identifier IN expression DO statementList END
+procedure TCompiler.compileForInStatment (node : TASTFor);
+var breakStack: TStack<integer>;
+    breakJump: integer;
+begin
+  raise ECompilerException.Create('"for in" statements not yet implemented', node.lineNumber, 0);
+
+  breakStack := TStack<integer>.Create;
+  stackOfBreakStacks.Push(breakStack);
+
+  try
+
+  // CODE HERE
+
+    while breakStack.Count > 0 do
+      begin
+        breakJump := breakStack.Pop;
+        code.setGotoLabel(breakJump, code.getCurrentInstructionPointer -
+          breakJump);
+      end;
+  finally
+    breakStack := stackOfBreakStacks.Pop;
+    breakStack.Free;
+  end;
+
+end;
+
+
+procedure TCompiler.compileForStatement(node: TASTFor);
+begin
+  case node.iterationBlock.forLoopType of
+     flForIn   : compileForInStatment (node);
+     flForNext : compileForNextStatment (node);
+  end;
+end;
+
+
 // AST:
 // (while) -> (condition) and (statementList)
 procedure TCompiler.compileWhileStatement(node: TASTNode);
@@ -307,10 +348,8 @@ begin
     jumpLocation_back := code.addByteCode(oJmp, node.lineNumber);
 
     // Lastly, patch the relative jump instructions
-    code.setGotoLabel(jumpLocation_back,
-      again - code.getCurrentInstructionPointer + 1);
-    code.setGotoLabel(jumpLocation_exit, code.getCurrentInstructionPointer -
-      jumpLocation_exit);
+    code.setGotoLabel(jumpLocation_back, again - code.getCurrentInstructionPointer + 1);
+    code.setGotoLabel(jumpLocation_exit, code.getCurrentInstructionPointer - jumpLocation_exit);
 
     while breakStack.Count > 0 do
       begin

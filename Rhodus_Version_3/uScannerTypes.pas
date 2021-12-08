@@ -63,6 +63,7 @@ type
                 tFor,
                 tDo,
                 tTo,
+                tIn,
                 tDownTo,
                 tStep,
                 tWhile,

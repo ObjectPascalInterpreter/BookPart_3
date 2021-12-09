@@ -297,6 +297,12 @@ begin
   try
 
   // CODE HERE
+  // Introduce a special op code to do iteration?
+  // eg
+  // push variable
+  // push list
+  // code block
+  // ??
 
     while breakStack.Count > 0 do
       begin

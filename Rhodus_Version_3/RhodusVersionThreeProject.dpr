@@ -9,7 +9,7 @@
 
 // Source code for Writing an Interpreter in Object Pascal: Part III
 
-// Rhodus langage Version 3
+// Rhodus language Version 3
 
 // Developed under Delphi for Windows and Mac platforms.
 // *** This source is distributed under Apache 2.0 ***
@@ -22,6 +22,7 @@
 // This is not a Delphi builtin console application, instead we allocate our own console. This
 // is to prevent flashing when we move the console window to the center of the screen
 
+// The following is therefore commented out
 //{$  APPTYPE CONSOLE}
 
 {$R *.res}

@@ -61,12 +61,25 @@ type
        procedure dis (vm : TObject);
        procedure stackInfo (vm : TObject);
        procedure getHelp (_vm : TObject);
+       procedure startDebug (vm : TObject);
+       procedure test (vm : TObject);
 
        constructor Create;
        destructor  Destroy; override;
   end;
 
 var  builtInGlobal : TBuiltInGlobal;
+     debugCallback : TUserFunction;
+
+procedure debugProc (vm : TObject);
+var oldDebug : boolean;
+begin
+  oldDebug := TVM (vm).getDebuggerFlag;
+  TVM (vm).setDebuggerFlag (False);
+  TVM (vm).push(debugCallback);
+  TVM (vm).callUserFunction(0);
+  TVM (vm).setDebuggerFlag (oldDebug);
+end;
 
 // -------------------------------------------------------------------------------------
 
@@ -91,6 +104,9 @@ begin
   module.addMethod (builtInGlobal.getChar,        1, 'chr',           'Get the character equivalent of an integer value');
   module.addMethod (builtInGlobal.getAsc,         1, 'asc',           'Get the ascii equivalent of a single character');
   module.addMethod (builtInGlobal.getHelp,        1, 'help',          'Get the help associated with the object');
+  module.addMethod (builtInGlobal.startDebug,     1, 'debug',         'Attached method to the debugger: debug (fcn)');
+  module.addMethod (builtInGlobal.test,     2, 'test',         'Attached method to the debugger: debug (fcn)');
+
 end;
 
 
@@ -666,6 +682,27 @@ begin
   else
      raise ERuntimeException.Create('Unkown object type in help');
   end;
+end;
+
+
+procedure TBuiltInGlobal.startDebug (vm : TObject);
+var f : TUserFunction;
+begin
+  debugCallback := TVM (vm).popUserFunction();
+  TVM (vm).setDebugCallBack(debugProc);
+  TVM (vm).enableDebugging;
+  //TVM (vm).push(integer (vm));
+  //TVM (vm).callUserFunction(1);
+  TVM (vm).pushNone;
+end;
+
+procedure TBuiltInGlobal.test (vm : TObject);
+var f : TUserFunction;
+    x, y: integer;
+begin
+  x := TVM (vm).popInteger;
+  y := TVM (vm).popInteger;
+  TVM (vm).push(x + y);
 end;
 
 

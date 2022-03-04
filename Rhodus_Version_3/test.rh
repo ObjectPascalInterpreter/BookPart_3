@@ -1,0 +1,14 @@
+
+import time
+
+sum = 0
+for j = 1 to 2000 do
+  t0 = time.getTickCount()
+  for i = 1 to 100000 do
+      a = 2.3 + 3.4
+  end
+  sum = sum + (time.getTickCount() - t0);
+end
+println ("average = ", sum/20)
+
+

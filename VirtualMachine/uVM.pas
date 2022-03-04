@@ -45,6 +45,7 @@ type
   TVMCallBack         = procedure(st: PMachineStackRecord) of object;
   TVMPrintCallBack    = procedure (const astr : AnsiString);
   TVMSetColorCallBack = function (st: PMachineStackRecord) : AnsiString;
+  TVMDebugCallback    = procedure (vm : TObject);
 
   // Use to preseve the state of the virtual machine between calls.
   TVMState = record
@@ -78,6 +79,7 @@ type
     assertCounter: integer;
     bolStopVm : boolean;
     lineNumber : integer;  // set to the source code line number associated with the current bytecode
+    bolDebugger : boolean;
 
     procedure issueMessage (msg : string);
 
@@ -96,7 +98,6 @@ type
 
     procedure callObjectMethod (actualNumArgs : integer; p : PMachineStackRecord);
     procedure callBuiltIn (expectedNumArgs, actualNumArgs : integer; functionObject :TUserFunction);
-    procedure callUserFunction (actualNumArgs : integer);
 
     function createList(count: integer): TListObject;
 
@@ -168,10 +169,11 @@ type
     procedure  collectGarbage;
     function   getGarbageSize : integer;
   public
-    printCallbackPtr    : TVMPrintCallBack;
-    printlnCallbackPtr  : TVMPrintCallBack;
-    setColorCallBackPtr : TVMCaptureStringCallBack;
-    readStringCallbackPtr   : TVMReadStringCallBack;
+    printCallbackPtr       : TVMPrintCallBack;
+    printlnCallbackPtr     : TVMPrintCallBack;
+    setColorCallBackPtr    : TVMCaptureStringCallBack;
+    readStringCallbackPtr  : TVMReadStringCallBack;
+    debugCallBackPtr       : TVMDebugCallBack;
 
     recursionLimit : integer;
 
@@ -205,6 +207,8 @@ type
     procedure   importModule (moduleName : string);
     procedure   raiseError (msg: string);
 
+    procedure   callUserFunction (actualNumArgs : integer);
+
     function    popInteger: integer; inline;
     function    popBoolean: boolean;
     function    popScalar: double;
@@ -221,8 +225,12 @@ type
     procedure   run(code: TProgram; symbolTable : TSymbolTable);
     procedure   runModule(module: TModule);
 
+    procedure   enableDebugging;
+    procedure   setDebuggerFlag (flag : boolean);
+    function    getDebuggerFlag : boolean;
     function    getStackInfo : TStackInfo;  // for debuggin purposes)
     procedure   setcallBack(proc: TVMCallBack);
+    procedure   setDebugCallBack(proc: TVMDebugCallback);
     procedure   unsetcallBack;
   end;
 
@@ -258,8 +266,10 @@ begin
   callbackPtr := nil;
   printCallbackPtr := nil;
   printlnCallbackPtr := nil;
+  debugCallBackPtr := nil;
   assertCounter := 1;
   interactive := False;
+  bolDebugger := False;
 end;
 
 
@@ -273,6 +283,21 @@ begin
   inherited;
 end;
 
+
+procedure TVM.enableDebugging;
+begin
+  bolDebugger := True;
+end;
+
+procedure TVM.setDebuggerFlag (flag : boolean);
+begin
+  bolDebugger := flag;
+end;
+
+function TVM.getDebuggerFlag : boolean;
+begin
+  result := bolDebugger;
+end;
 
 function TVM.getStackInfo : TStackInfo;  // for debuggin purposes)
 begin
@@ -307,6 +332,11 @@ end;
 procedure TVM.setcallBack(proc: TVMCallBack);
 begin
   callbackPtr := proc;
+end;
+
+procedure TVM.setDebugCallBack(proc: TVMDebugCallback);
+begin
+  debugCallBackPtr := proc;
 end;
 
 
@@ -2590,6 +2620,8 @@ begin
     c := code.code;
     while True do
         begin
+        lineNumber := c[ip].lineNumber;
+
         if bolStopVm then
            begin
            issueMessage ('Ctrl-C Interrupt Detected');
@@ -2597,7 +2629,12 @@ begin
            exit;
            end;
 
-          lineNumber := c[ip].lineNumber;
+        if bolDebugger then
+           begin
+           if Assigned (debugCallBackPtr) then
+              debugCallBackPtr (self);
+           end;
+
           case c[ip].opCode of
             oNop:        begin end;
             oAdd:        addOp;
@@ -2694,12 +2731,13 @@ begin
                 stString: value.sValue := value.sValue.clone;
                 stList:   value.lValue := value.lValue.clone;
               end;
+              // Clear the pushed arguments from the stack
               stackTop := stackTop - frameStack[frameStackTop].nlocals - 1;  // -1 to also remove the function object
               // This can only be called after the stackTop has been adjusted
               clearAnyStackHeapAllocations;
 
               dec(frameStackTop);
-              push(value);
+              push(value); // push the result back on to the stack
               exit;
               end;
 

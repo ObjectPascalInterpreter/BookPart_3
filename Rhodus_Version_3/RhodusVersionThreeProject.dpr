@@ -46,7 +46,6 @@ uses
   System.Generics.Defaults,
   System.Generics.Collections,
   uScanner in 'uScanner.pas',
-  FastMM4Messages in '..\..\Library\FastMM\FastMM4Messages.pas',
   uFindWindows in 'uFindWindows.pas',
   uAssembler in '..\VirtualMachine\uAssembler.pas',
   uConstantTable in '..\VirtualMachine\uConstantTable.pas',

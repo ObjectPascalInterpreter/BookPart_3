@@ -255,10 +255,10 @@ constructor TUserFunctionMethods.Create;
 begin
   methodList := TMethodList.Create;
 
-  methodList.Add(TMethodDetails.Create ('name',   0, 'Returns the name of the function: var.name ()', getName));
+  methodList.Add(TMethodDetails.Create ('name',   0, 'Returns the name of the function: func.name ()', getName));
   methodList.Add(TMethodDetails.Create ('nargs',  0, 'Returns the number of arguments the function expects. Returns -1 if the number is variable', getnArgs));
-  methodList.Add(TMethodDetails.Create ('code',   0, 'Returns the byte code associated with the function: var.code ()', getCode));
-  methodList.Add(TMethodDetails.Create ('help',   0, 'Returns the help string associated wth the function. var.help ()', getHelp));
+  methodList.Add(TMethodDetails.Create ('code',   0, 'Returns the byte code associated with the function: func.code ()', getCode));
+  methodList.Add(TMethodDetails.Create ('help',   0, 'Returns the help string associated with the function. func.help ()', getHelp));
 
   methodList.Add(TMethodDetails.Create ('dir',    0, 'dir of string object methods', dir));
 end;
@@ -274,31 +274,37 @@ end;
 // ------------------------------------------------------------------------------------------
 procedure TUserFunctionMethods.getName (vm : TObject);
 var f : TUserFunction;
+    om : TMethodDetails;
 begin
   // No arguments for this method
-  TVM (vm).decStackTop; // Dump the object method
-  f := TVM (vm).popUserFunction;
-  TVM (vm).push(TStringObject.Create(f.name)); 
+  om :=TVM (vm).popMethodDetails;
+  f := TUserFunction (om.self);
+
+  TVM (vm).push(TStringObject.Create(f.name));
 end;
 
 procedure TUserFunctionMethods.getnArgs (vm : TObject);
 var f : TUserFunction;
+    om : TMethodDetails;
 begin
   // No arguments for this method
-  TVM (vm).decStackTop; // Dump the object method
-  f := TVM (vm).popUserFunction;
+  om :=TVM (vm).popMethodDetails;
+  f := TUserFunction (om.self);
+
   TVM (vm).push(f.nArgs);
 end;
 
 
 procedure TUserFunctionMethods.getCode (vm : TObject);
 var f : TUserFunction;
+    om : TMethodDetails;
     i : integer;
     ls, tmpls: TListObject;
 begin
   // No arguments for this method
-  TVM (vm).decStackTop; // Dump the object method
-  f := TVM (vm).popUserFunction;  
+  om :=TVM (vm).popMethodDetails;
+  f := TUserFunction (om.self);
+
   if f.isbuiltInFunction then
      begin
      TVM (vm).push(TStringObject.Create('builtin'));
@@ -324,10 +330,11 @@ end;
 
 procedure TUserFunctionMethods.getHelp (vm : TObject);
 var f : TUserFunction;
+    m : TMethodDetails;
 begin
   // No arguments for this method
-  TVM (vm).decStackTop; // Dump the object method
-  f := TVM (vm).popUserFunction;  
+  m := TVM (vm).popMethodDetails();
+  f := TUserFunction (m.self);
 
   TVM (vm).push (TStringObject.Create(f.helpStr));
 end;

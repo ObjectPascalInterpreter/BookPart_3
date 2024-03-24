@@ -17,6 +17,8 @@ type
      lineWithColor : procedure (penColor : AnsiString; x1, y1, x2, y2 : double);
      drawRectangle : procedure (x, y, w, h : double);
      drawFilledRectangle : procedure (x, y, w, h : double);
+     drawCircle : procedure (x, y, radius : double);
+     drawFilledCircle : procedure (x, y, radius : double);
      drawEllipse : procedure (x1, y1, x2, y2 : double);
      drawFilledEllipse : procedure (x1, y1, x2, y2 : double);
      beginupdate : procedure;

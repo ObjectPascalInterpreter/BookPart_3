@@ -1368,10 +1368,10 @@ begin
     stFunction: module.symbolTable.storeFunction (symbol, value.fValue);
 
     stModule:   begin
-                raiseError ('You cannot store modules: ' + value.module.name);
+                raiseError ('You cannot store a module in a variable: ' + value.module.name);
                 end;
     stObjectMethod:
-       raiseError ('You cannot store object methods: ' + value.oValue.name);
+       raiseError ('You cannot store an object method in a variable: ' + value.oValue.name);
   else
     raiseError ('Internal error: Unrecognized stacktype in storeSymbol: ' + TRttiEnumerationType.GetName(value.stackType));
   end;

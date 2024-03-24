@@ -358,7 +358,7 @@ begin
 
         vm.registerPrintCallBack (printcallBack);
         vm.registerPrintlnCallBack (printlnCallBack);
-        vm.registerSetColorcallBack (setColorCallBack);
+        vm.registerSetColorCallBack (setColorCallBack);
         vm.registerReadStringCallBack (readStringCallBack);
 
         try
@@ -383,7 +383,11 @@ begin
                 stArray   : printLnCallBack (AnsiString (st.aValue.arrayToString()));
                 stModule  : printLnCallBack (AnsiString ('Module: ' + st.module.name + ' ' + st.module.helpStr));
                 stFunction: printLnCallBack (AnsiString ('Function: ' + st.fValue.moduleRef.name + '.' + st.fValue.name));
-                stObjectMethod : begin printLnCallBack (AnsiString ('Object Method: ' + st.oValue.helpStr)); vm.pop(); end;   // pop the operand
+                stObjectMethod : begin
+                      printLnCallBack (AnsiString ('Object Method: ' + st.oValue.helpStr));
+                      // This pop causes a stack underflow
+                     // 8/20/2023 vm.pop();
+                      end;   // pop the operand
                else
                  printLnCallBack (AnsiString ('Unrecognized type of value returned from virtual machine'));
                end;

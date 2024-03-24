@@ -64,7 +64,7 @@ end;
 
 constructor TBuiltInMath.Create;
 begin
-  inherited Create ('math', 'Math Module');
+  inherited Create ('math', 'The Builtin Math Module');
 
   addMethod (getSin,   1, 'sin',    'Returns the sine of a radian value: sin (1.2)');
   addMethod (getCos,   1, 'cos',    'Returns the cosine of a radian value: cos (1.2)');

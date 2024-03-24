@@ -98,7 +98,7 @@ begin
   module.addMethod (builtInGlobal.getMemoryUsed,  0, 'mem',           'Get the amount of memory currently in use.');
   module.addMethod (builtInGlobal.myAssertTrueEx, 1, 'assertTrueEx',  'Assert argument is true, return . of F');
   module.addMethod (builtInGlobal.myAssertFalseEx,1, 'assertFalseEx', 'Assert argument is false, return . of F');
-  module.addMethod (builtInGlobal.myMain,         0, 'main',          'Returns a reference to the main module');
+  module.addMethod (builtInGlobal.myMain,         0, 'getMain',       'Returns a reference to the main module');
   module.addMethod (builtInGlobal.dis,            1, 'dis',           'dissassemble module or function');
   module.addMethod (builtInGlobal.stackInfo,      0, 'stackInfo',     'Get the current state of the VM stack');
   module.addMethod (builtInGlobal.getChar,        1, 'chr',           'Get the character equivalent of an integer value');

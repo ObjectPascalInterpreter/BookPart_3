@@ -7,7 +7,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, System.Types,
   Vcl.ExtCtrls, Vcl.FileCtrl, Vcl.ComCtrls, Vcl.Themes, System.UIConsts, System.UITypes,
   uExamples, Vcl.Menus, SyncObjs, SynEdit, SynEditHighlighter, SynEditCodeFolding, SynHighlighterPython, SynHighlighterGeneral,
-  SynEditMiscClasses, SynEditSearch, StrUtils, IniFiles, //Skia, Skia.VCL,
+  SynEditMiscClasses, SynEditSearch, StrUtils, IniFiles, skia,
   Img32, Img32.Fmt.PNG, Img32.vector, Img32.Draw, Vcl.Buttons, uRhodusLibTypes;
 
 const RHODUS_IDE_VERSION = 0.5;
@@ -50,7 +50,7 @@ type
     pnlDrawing: TImage;
     SynGeneralSyn1: TSynGeneralSyn;
     SynEditSearch1: TSynEditSearch;
-    mnuSave: TMenuItem;
+    mnuSaveAs: TMenuItem;
     btnSave: TButton;
     SaveDialog: TSaveDialog;
     pblBottomBase: TPanel;
@@ -66,6 +66,7 @@ type
     SynEditor: TSynEdit;
     lblVersion: TLabel;
     btnSaveAs: TButton;
+    mnuSave: TMenuItem;
     procedure btnRunClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure btnLoadClick(Sender: TObject);
@@ -82,11 +83,16 @@ type
     procedure btnCloseSidePanelClick(Sender: TObject);
     procedure mnuPreferencesClick(Sender: TObject);
     procedure btnSaveAsClick(Sender: TObject);
+    procedure mnuSaveAsClick(Sender: TObject);
+    procedure mnuSaveClick(Sender: TObject);
+    procedure Quit1Click(Sender: TObject);
   private
     { Private declarations }
     currentFileName : string;
     examples : TExamples;
     bmp : TBitmap;
+    LSurface : ISkSurface;
+    LPaint : ISkPaint;
     Line: array of pRGBTripleArray;
     previous_x, previous_y : double;  // Used to implementmoveto, lineto in image32
     procedure setUpDefaultColors;
@@ -100,6 +106,7 @@ type
 
     procedure loadScript;
     procedure saveScriptAs;
+    procedure saveScript;
   end;
 
   TRhodusWorker = class (TThread)
@@ -119,6 +126,7 @@ implementation
 {$R *.dfm}
 
 Uses IOUtils,
+     //Math,
      VCL.GraphUtil,
      ufAbout,
      uLoadRhodus,
@@ -366,6 +374,61 @@ begin
   );
 end;
 
+
+procedure gDrawCircle (x, y, radius : double);
+var path : TPathD;
+begin
+  TThread.Synchronize(nil,
+    procedure
+    begin
+//    frmMain.LBitmap.SkiaDraw(
+//      procedure (const ACanvas: ISkCanvas)
+//      begin
+//        frmMain.LPaint.Color := TAlphaColor($FF000000 or makeColor (pen_r, pen_g, pen_b));
+//        ACanvas.DrawRect(TRectF.Create(trunc (x), trunc (y), trunc (x + w), trunc (y + h)), frmMain.LPaint);
+//      end);
+//    frmMain.pnlDrawing.Picture.Assign(frmMain.LBitmap);
+
+    path := Circle(PointD (x, y), radius);
+    DrawLine(frmMain.img, path, penWidth, Color32($FF, pen_r, pen_g, pen_b), esPolygon);
+
+    if not updateStatus then
+       updateCanvas
+
+    //frmMain.pnlDrawing.Canvas.Pen.Width := trunc (penWidth);
+    //frmMain.pnlDrawing.Canvas.Pen.Color := RGB (pen_r, pen_g, pen_b);
+    //frmMain.pnlDrawing.Canvas.Rectangle(trunc (x), trunc (y), trunc (x + w), trunc(y + h));
+    end
+  );
+end;
+
+
+procedure gDrawFilledCircle (x, y, radius : double);
+var path : TPathD;
+begin
+  TThread.Synchronize(nil,
+    procedure
+    begin
+//    frmMain.LBitmap.SkiaDraw(
+//      procedure (const ACanvas: ISkCanvas)
+//      begin
+//        frmMain.LPaint.Color := TAlphaColor($FF000000 or makeColor (pen_r, pen_g, pen_b));
+//        ACanvas.DrawRect(TRectF.Create(trunc (x), trunc (y), trunc (x + w), trunc (y + h)), frmMain.LPaint);
+//      end);
+//    frmMain.pnlDrawing.Picture.Assign(frmMain.LBitmap);
+
+    path := Circle(PointD (x, y), radius);
+    DrawLine(frmMain.img, path, penWidth, Color32($FF, pen_r, pen_g, pen_b), esPolygon);
+    DrawPolygon(frmMain.img, path, frNonZero, Color32 ($FF, brush_r, brush_g, brush_b));
+
+    if not updateStatus then
+       updateCanvas
+    end
+  );
+end;
+
+
+
 procedure gDrawEllipse (x1, y1, x2, y2 : double);
 var
   //LOval: ISkRoundRect;
@@ -442,10 +505,12 @@ begin
 end;
 
 procedure gLineTo (x, y : double);
+
 begin
   TThread.Synchronize(nil,
     procedure
     begin
+
     DrawLine (frmMain.img, PointD(frmMain.previous_x, frmMain.previous_y),
                PointD (x, y), penWidth, Color32 ($FF, pen_r, pen_g, pen_b));
     frmMain.previous_x := x; frmMain.previous_y := y;
@@ -504,6 +569,16 @@ begin
 end;
 
 
+procedure TfrmMain.saveScript;
+begin
+  if currentFileName <> '' then
+     begin
+     synEditor.Lines.SaveToFile(currentFileName);
+     frmMain.Caption := 'Rhodus: ' + currentFileName;
+     end;
+end;
+
+
 procedure TfrmMain.mnuNewClick(Sender: TObject);
 begin
   synEditor.Clear;
@@ -550,6 +625,7 @@ end;
 
 procedure TfrmMain.btnSaveClick(Sender: TObject);
 begin
+
   if currentFileName <> '' then
      begin
      synEditor.Lines.SaveToFile(currentFileName);
@@ -675,6 +751,8 @@ end;
 procedure TfrmMain.FormCreate(Sender: TObject);
 var i : integer;
 begin
+  //SetExceptionMask([]);
+  //SetExceptionMask(exAllArithmeticExceptions);
   readControlPlacement;
   currentFileName := '';
   if not loadRhodusDll then
@@ -701,6 +779,8 @@ begin
     graphicsMethods.setBrushColor := gSetBrushColor;
     graphicsMethods.drawRectangle := gDrawRect;
     graphicsMethods.drawFilledRectangle := gDrawFilledRect;
+    graphicsMethods.drawCircle := gDrawCircle;
+    graphicsMethods.drawFilledCircle := gDrawFilledCircle;
     graphicsMethods.drawEllipse := gDrawEllipse;
     graphicsMethods.drawFilledEllipse := gDrawFilledEllipse;
     graphicsMethods.beginupdate := gBeginUpdate;
@@ -713,7 +793,7 @@ begin
     updateStatus := False;
 
     rhodus := rhodus_initialize (config);
-    lblVersion.caption := 'Running Version: ' + AnsiString (rhodus_getSettings(rhodus).versionStr);
+    lblVersion.caption := 'Running Rhodus Version: ' + AnsiString (rhodus_getSettings(rhodus).versionStr);
 
     // Load in the exmpel scripts
     examples := TExamples.Create;
@@ -774,6 +854,16 @@ begin
   lock.Free;
 end;
 
+procedure TfrmMain.mnuSaveAsClick(Sender: TObject);
+begin
+  saveScriptAs;
+end;
+
+procedure TfrmMain.mnuSaveClick(Sender: TObject);
+begin
+  saveScript
+end;
+
 procedure TfrmMain.N2Click(Sender: TObject);
 begin
   Application.Terminate;
@@ -784,6 +874,8 @@ begin
   img := TImage32.Create(pnlDrawing.Width, pnlDrawing.Height);
   pnlDrawing.Picture.Bitmap.SetSize(img.Width, img.Height);
 
+  gClearColor (brush_r, brush_g, brush_b);
+  gRefresh;
 //  pnlDrawing.Canvas.Brush.Color := RGB (brush_r, brush_g, brush_b);
 //  pnlDrawing.Picture.Bitmap.Width := pnlDrawing.Width;
 //  pnlDrawing.Picture.Bitmap.Height := pnlDrawing.Height;
@@ -796,6 +888,11 @@ begin
 //  setlength (line, Bmp.Height);
 //  for var i := 0 to Bmp.Height - 1 do
 //      line[i] :=  Bmp.ScanLine [i];
+end;
+
+procedure TfrmMain.Quit1Click(Sender: TObject);
+begin
+  loadScript;
 end;
 
 

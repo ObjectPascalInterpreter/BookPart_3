@@ -2,103 +2,107 @@ object frmMain: TfrmMain
   Left = 0
   Top = 0
   Caption = 'Rhodus IDE'
-  ClientHeight = 1074
-  ClientWidth = 1749
+  ClientHeight = 2309
+  ClientWidth = 3844
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -12
+  Font.Height = -18
   Font.Name = 'Segoe UI'
   Font.Style = []
   Menu = MainMenu
   Position = poDefault
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  PixelsPerInch = 144
-  TextHeight = 15
+  PixelsPerInch = 216
+  TextHeight = 25
   object Splitter2: TSplitter
-    Left = 1211
-    Top = 86
-    Width = 6
-    Height = 988
-    Margins.Left = 5
-    Margins.Top = 5
-    Margins.Right = 5
-    Margins.Bottom = 5
+    Left = 2764
+    Top = 128
+    Width = 9
+    Height = 2181
+    Margins.Left = 7
+    Margins.Top = 7
+    Margins.Right = 7
+    Margins.Bottom = 7
     Align = alRight
+    ExplicitLeft = 3596
+    ExplicitHeight = 2833
   end
   object Splitter4: TSplitter
-    Left = 321
-    Top = 86
-    Width = 5
-    Height = 988
-    Margins.Left = 5
-    Margins.Top = 5
-    Margins.Right = 5
-    Margins.Bottom = 5
+    Left = 482
+    Top = 128
+    Width = 6
+    Height = 2181
+    Margins.Left = 7
+    Margins.Top = 7
+    Margins.Right = 7
+    Margins.Bottom = 7
+    ExplicitHeight = 2833
   end
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 1749
-    Height = 86
-    Margins.Left = 5
-    Margins.Top = 5
-    Margins.Right = 5
-    Margins.Bottom = 5
+    Width = 3844
+    Height = 128
+    Margins.Left = 7
+    Margins.Top = 7
+    Margins.Right = 7
+    Margins.Bottom = 7
     Align = alTop
     TabOrder = 0
-    ExplicitWidth = 1735
     object Label1: TLabel
-      Left = 596
-      Top = 5
-      Width = 133
-      Height = 28
-      Margins.Left = 5
-      Margins.Top = 5
-      Margins.Right = 5
-      Margins.Bottom = 5
+      Left = 893
+      Top = 7
+      Width = 192
+      Height = 40
+      Margins.Left = 7
+      Margins.Top = 7
+      Margins.Right = 7
+      Margins.Bottom = 7
       Caption = 'Sample Scripts:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -20
+      Font.Height = -29
       Font.Name = 'Segoe UI'
       Font.Style = []
       ParentFont = False
     end
     object lblVersion: TLabel
-      Left = 1662
+      Left = 3719
       Top = 1
-      Width = 86
-      Height = 84
-      Margins.Left = 5
-      Margins.Top = 5
-      Margins.Right = 5
-      Margins.Bottom = 5
+      Width = 124
+      Height = 126
+      Margins.Left = 7
+      Margins.Top = 7
+      Margins.Right = 7
+      Margins.Bottom = 7
       Align = alRight
       Anchors = [akLeft, akTop, akBottom]
       Caption = 'lblVersion'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -20
+      Font.Height = -29
       Font.Name = 'Segoe UI'
       Font.Style = []
       ParentFont = False
-      ExplicitHeight = 28
+      ExplicitLeft = 4545
+      ExplicitTop = 2
+      ExplicitHeight = 40
     end
     object btnRun: TButton
-      Left = 456
-      Top = 15
-      Width = 99
-      Height = 54
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
+      Left = 684
+      Top = 23
+      Width = 149
+      Height = 81
+      Margins.Left = 11
+      Margins.Top = 11
+      Margins.Right = 11
+      Margins.Bottom = 11
       Caption = 'Run'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -20
+      Font.Height = -29
       Font.Name = 'Segoe UI'
       Font.Style = []
       ParentFont = False
@@ -106,18 +110,18 @@ object frmMain: TfrmMain
       OnClick = btnRunClick
     end
     object btnLoad: TButton
-      Left = 122
-      Top = 15
-      Width = 99
-      Height = 54
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
+      Left = 182
+      Top = 23
+      Width = 149
+      Height = 81
+      Margins.Left = 11
+      Margins.Top = 11
+      Margins.Right = 11
+      Margins.Bottom = 11
       Caption = 'Load'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -20
+      Font.Height = -29
       Font.Name = 'Segoe UI'
       Font.Style = []
       ParentFont = False
@@ -125,18 +129,18 @@ object frmMain: TfrmMain
       OnClick = btnLoadClick
     end
     object cboExamples: TComboBox
-      Left = 594
-      Top = 39
-      Width = 225
-      Height = 36
-      Margins.Left = 5
-      Margins.Top = 5
-      Margins.Right = 5
-      Margins.Bottom = 5
+      Left = 891
+      Top = 59
+      Width = 338
+      Height = 48
+      Margins.Left = 7
+      Margins.Top = 7
+      Margins.Right = 7
+      Margins.Bottom = 7
       DropDownCount = 16
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -20
+      Font.Height = -29
       Font.Name = 'Segoe UI'
       Font.Style = []
       ParentFont = False
@@ -145,18 +149,18 @@ object frmMain: TfrmMain
       OnChange = cboExamplesChange
     end
     object btnNew: TButton
-      Left = 8
-      Top = 15
-      Width = 97
-      Height = 54
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
+      Left = 11
+      Top = 23
+      Width = 147
+      Height = 81
+      Margins.Left = 11
+      Margins.Top = 11
+      Margins.Right = 11
+      Margins.Bottom = 11
       Caption = 'New'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -20
+      Font.Height = -29
       Font.Name = 'Segoe UI'
       Font.Style = []
       ParentFont = False
@@ -164,18 +168,18 @@ object frmMain: TfrmMain
       OnClick = mnuNewClick
     end
     object btnSave: TButton
-      Left = 236
-      Top = 15
-      Width = 99
-      Height = 54
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
+      Left = 353
+      Top = 23
+      Width = 149
+      Height = 81
+      Margins.Left = 11
+      Margins.Top = 11
+      Margins.Right = 11
+      Margins.Bottom = 11
       Caption = 'Save'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -20
+      Font.Height = -29
       Font.Name = 'Segoe UI'
       Font.Style = []
       ParentFont = False
@@ -183,18 +187,18 @@ object frmMain: TfrmMain
       OnClick = btnSaveClick
     end
     object btnSaveAs: TButton
-      Left = 347
-      Top = 15
-      Width = 99
-      Height = 54
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
+      Left = 520
+      Top = 23
+      Width = 148
+      Height = 81
+      Margins.Left = 11
+      Margins.Top = 11
+      Margins.Right = 11
+      Margins.Bottom = 11
       Caption = 'Save As'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -20
+      Font.Height = -29
       Font.Name = 'Segoe UI'
       Font.Style = []
       ParentFont = False
@@ -204,77 +208,75 @@ object frmMain: TfrmMain
   end
   object pnlLeftPanel: TPanel
     Left = 0
-    Top = 86
-    Width = 321
-    Height = 988
-    Margins.Left = 5
-    Margins.Top = 5
-    Margins.Right = 5
-    Margins.Bottom = 5
+    Top = 128
+    Width = 482
+    Height = 2181
+    Margins.Left = 7
+    Margins.Top = 7
+    Margins.Right = 7
+    Margins.Bottom = 7
     Align = alLeft
     TabOrder = 1
-    ExplicitHeight = 981
     object DirectoryListBox1: TDirectoryListBox
       Left = 1
-      Top = 40
-      Width = 319
-      Height = 348
-      Margins.Left = 5
-      Margins.Top = 5
-      Margins.Right = 5
-      Margins.Bottom = 5
+      Top = 60
+      Width = 480
+      Height = 522
+      Margins.Left = 7
+      Margins.Top = 7
+      Margins.Right = 7
+      Margins.Bottom = 7
       Align = alTop
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -20
+      Font.Height = -29
       Font.Name = 'Segoe UI'
       Font.Style = []
-      ItemHeight = 28
+      ItemHeight = 40
       ParentFont = False
       TabOrder = 0
       OnChange = DirectoryListBox1Change
     end
     object FileListBox1: TFileListBox
       Left = 1
-      Top = 388
-      Width = 319
-      Height = 599
-      Margins.Left = 5
-      Margins.Top = 5
-      Margins.Right = 5
-      Margins.Bottom = 5
+      Top = 582
+      Width = 480
+      Height = 1598
+      Margins.Left = 7
+      Margins.Top = 7
+      Margins.Right = 7
+      Margins.Bottom = 7
       Align = alClient
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -20
+      Font.Height = -29
       Font.Name = 'Segoe UI'
       Font.Style = []
-      ItemHeight = 28
+      ItemHeight = 40
       ParentFont = False
       TabOrder = 1
       OnClick = FileListBox1Click
-      ExplicitHeight = 592
     end
     object pnlSideControls: TPanel
       Left = 1
       Top = 1
-      Width = 319
-      Height = 39
-      Margins.Left = 5
-      Margins.Top = 5
-      Margins.Right = 5
-      Margins.Bottom = 5
+      Width = 480
+      Height = 59
+      Margins.Left = 7
+      Margins.Top = 7
+      Margins.Right = 7
+      Margins.Bottom = 7
       Align = alTop
       TabOrder = 2
       object btnCloseSidePanel: TSpeedButton
-        Left = 14
-        Top = 5
-        Width = 37
-        Height = 30
-        Margins.Left = 5
-        Margins.Top = 5
-        Margins.Right = 5
-        Margins.Bottom = 5
+        Left = 20
+        Top = 7
+        Width = 57
+        Height = 45
+        Margins.Left = 7
+        Margins.Top = 7
+        Margins.Right = 7
+        Margins.Bottom = 7
         Glyph.Data = {
           DE000000424DDE0000000000000076000000280000000D0000000D0000000100
           0400000000006800000000000000000000001000000010000000000000000000
@@ -289,91 +291,85 @@ object frmMain: TfrmMain
     end
   end
   object pnlEditor: TPanel
-    Left = 326
-    Top = 86
-    Width = 885
-    Height = 988
-    Margins.Left = 5
-    Margins.Top = 5
-    Margins.Right = 5
-    Margins.Bottom = 5
+    Left = 488
+    Top = 128
+    Width = 2276
+    Height = 2181
+    Margins.Left = 7
+    Margins.Top = 7
+    Margins.Right = 7
+    Margins.Bottom = 7
     Align = alClient
     TabOrder = 2
-    ExplicitWidth = 871
-    ExplicitHeight = 981
     object pblBottomBase: TPanel
       Left = 1
-      Top = 657
-      Width = 883
-      Height = 330
-      Margins.Left = 5
-      Margins.Top = 5
-      Margins.Right = 5
-      Margins.Bottom = 5
+      Top = 1685
+      Width = 2274
+      Height = 495
+      Margins.Left = 7
+      Margins.Top = 7
+      Margins.Right = 7
+      Margins.Bottom = 7
       Align = alBottom
       TabOrder = 0
-      ExplicitTop = 650
-      ExplicitWidth = 869
       object Splitter1: TSplitter
         Left = 1
         Top = 1
-        Width = 881
-        Height = 3
+        Width = 2272
+        Height = 5
         Cursor = crVSplit
-        Margins.Left = 5
-        Margins.Top = 5
-        Margins.Right = 5
-        Margins.Bottom = 5
+        Margins.Left = 7
+        Margins.Top = 7
+        Margins.Right = 7
+        Margins.Bottom = 7
         Align = alTop
         ExplicitLeft = 2
         ExplicitTop = 2
-        ExplicitWidth = 879
+        ExplicitWidth = 3099
       end
       object memoOutput: TMemo
         Left = 1
-        Top = 4
-        Width = 881
-        Height = 262
-        Margins.Left = 5
-        Margins.Top = 5
-        Margins.Right = 5
-        Margins.Bottom = 5
+        Top = 6
+        Width = 2272
+        Height = 393
+        Margins.Left = 7
+        Margins.Top = 7
+        Margins.Right = 7
+        Margins.Bottom = 7
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -20
+        Font.Height = -29
         Font.Name = 'Courier New'
         Font.Style = []
         ParentFont = False
         ScrollBars = ssBoth
         TabOrder = 0
-        ExplicitWidth = 867
       end
       object pnlMemoButtons: TPanel
         Left = 1
-        Top = 266
-        Width = 881
-        Height = 63
-        Margins.Left = 5
-        Margins.Top = 5
-        Margins.Right = 5
-        Margins.Bottom = 5
+        Top = 399
+        Width = 2272
+        Height = 95
+        Margins.Left = 7
+        Margins.Top = 7
+        Margins.Right = 7
+        Margins.Bottom = 7
         Align = alBottom
         TabOrder = 1
-        ExplicitWidth = 867
         object btnClear: TButton
-          Left = 8
-          Top = 5
-          Width = 99
-          Height = 54
-          Margins.Left = 8
-          Margins.Top = 8
-          Margins.Right = 8
-          Margins.Bottom = 8
+          Left = 11
+          Top = 7
+          Width = 149
+          Height = 81
+          Margins.Left = 11
+          Margins.Top = 11
+          Margins.Right = 11
+          Margins.Bottom = 11
           Caption = 'Clear'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
-          Font.Height = -20
+          Font.Height = -29
           Font.Name = 'Segoe UI'
           Font.Style = []
           ParentFont = False
@@ -385,33 +381,48 @@ object frmMain: TfrmMain
     object SynEditor: TSynEdit
       Left = 1
       Top = 1
-      Width = 883
-      Height = 656
-      Margins.Left = 5
-      Margins.Top = 5
-      Margins.Right = 5
-      Margins.Bottom = 5
+      Width = 2274
+      Height = 1684
+      Margins.Left = 7
+      Margins.Top = 7
+      Margins.Right = 7
+      Margins.Bottom = 7
       Align = alClient
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -30
+      Font.Height = -45
       Font.Name = 'Consolas'
       Font.Style = []
       Font.Quality = fqClearTypeNatural
       TabOrder = 1
       UseCodeFolding = False
-      BookMarkOptions.LeftMargin = 3
-      BookMarkOptions.Xoffset = 18
+      BookMarkOptions.LeftMargin = 5
+      BookMarkOptions.Xoffset = 27
       Gutter.Font.Charset = DEFAULT_CHARSET
       Gutter.Font.Color = clWindowText
-      Gutter.Font.Height = -24
+      Gutter.Font.Height = -36
       Gutter.Font.Name = 'Consolas'
       Gutter.Font.Style = []
-      Gutter.LeftOffset = 24
-      Gutter.RightOffset = 3
-      Gutter.RightMargin = 3
+      Gutter.Font.Quality = fqClearTypeNatural
       Gutter.ShowLineNumbers = True
-      Gutter.Width = 45
+      Gutter.Bands = <
+        item
+          Kind = gbkMarks
+          Width = 13
+        end
+        item
+          Kind = gbkLineNumbers
+        end
+        item
+          Kind = gbkFold
+        end
+        item
+          Kind = gbkTrackChanges
+        end
+        item
+          Kind = gbkMargin
+          Width = 3
+        end>
       Highlighter = SynGeneralSyn1
       Lines.Strings = (
         'import graphics'
@@ -440,79 +451,75 @@ object frmMain: TfrmMain
         '    forward (200)'
         '    heading = heading + 150 '
         'end')
-      ExplicitWidth = 869
-      ExplicitHeight = 649
+      SelectedColor.Alpha = 0.400000005960464500
     end
   end
   object pnlRight: TPanel
-    Left = 1217
-    Top = 86
-    Width = 532
-    Height = 988
-    Margins.Left = 5
-    Margins.Top = 5
-    Margins.Right = 5
-    Margins.Bottom = 5
+    Left = 2773
+    Top = 128
+    Width = 1071
+    Height = 2181
+    Margins.Left = 7
+    Margins.Top = 7
+    Margins.Right = 7
+    Margins.Bottom = 7
     Align = alRight
     TabOrder = 3
     OnResize = pnlRightResize
-    ExplicitLeft = 1203
-    ExplicitHeight = 981
     object Splitter3: TSplitter
       Left = 1
-      Top = 528
-      Width = 530
-      Height = 3
+      Top = 1491
+      Width = 1069
+      Height = 5
       Cursor = crVSplit
-      Margins.Left = 5
-      Margins.Top = 5
-      Margins.Right = 5
-      Margins.Bottom = 5
+      Margins.Left = 7
+      Margins.Top = 7
+      Margins.Right = 7
+      Margins.Bottom = 7
       Align = alBottom
       ExplicitLeft = 2
-      ExplicitWidth = 529
+      ExplicitTop = 2142
+      ExplicitWidth = 1067
     end
     object pnlInfo: TPanel
       Left = 1
-      Top = 531
-      Width = 530
-      Height = 456
-      Margins.Left = 5
-      Margins.Top = 5
-      Margins.Right = 5
-      Margins.Bottom = 5
+      Top = 1496
+      Width = 1069
+      Height = 684
+      Margins.Left = 7
+      Margins.Top = 7
+      Margins.Right = 7
+      Margins.Bottom = 7
       Align = alBottom
       TabOrder = 0
-      ExplicitTop = 524
     end
     object pnlImage: TPanel
       Left = 1
       Top = 1
-      Width = 530
-      Height = 527
-      Margins.Left = 5
-      Margins.Top = 5
-      Margins.Right = 5
-      Margins.Bottom = 5
+      Width = 1069
+      Height = 1490
+      Margins.Left = 7
+      Margins.Top = 7
+      Margins.Right = 7
+      Margins.Bottom = 7
       Align = alClient
       Caption = 'pnlImage'
       TabOrder = 1
       OnResize = pnlRightResize
-      ExplicitHeight = 520
       object pnlDrawing: TImage
         Left = 1
         Top = 1
-        Width = 528
-        Height = 525
-        Margins.Left = 5
-        Margins.Top = 5
-        Margins.Right = 5
-        Margins.Bottom = 5
+        Width = 1067
+        Height = 1488
+        Margins.Left = 7
+        Margins.Top = 7
+        Margins.Right = 7
+        Margins.Bottom = 7
         Align = alClient
         ExplicitLeft = 2
         ExplicitTop = 2
-        ExplicitWidth = 526
-        ExplicitHeight = 523
+        ExplicitWidth = 1062
+        ExplicitHeight = 2136
       end
     end
   end
@@ -535,9 +542,15 @@ object frmMain: TfrmMain
       end
       object Quit1: TMenuItem
         Caption = 'Open'
+        OnClick = Quit1Click
       end
       object mnuSave: TMenuItem
         Caption = 'Save'
+        OnClick = mnuSaveClick
+      end
+      object mnuSaveAs: TMenuItem
+        Caption = 'Save As...'
+        OnClick = mnuSaveAsClick
       end
       object N1: TMenuItem
         Caption = '-'
@@ -566,9 +579,6 @@ object frmMain: TfrmMain
     end
   end
   object SynGeneralSyn1: TSynGeneralSyn
-    Options.AutoDetectEnabled = False
-    Options.AutoDetectLineLimit = 0
-    Options.Visible = False
     DetectPreprocessor = False
     KeyAttri.Foreground = clMenuHighlight
     KeyWords.Strings = (

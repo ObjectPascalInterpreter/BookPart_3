@@ -1,0 +1,6 @@
+
+m = math.dir()
+l = m.len()
+for i =  0 to l - 1 do
+    println (m[i], help(m[i]))
+end

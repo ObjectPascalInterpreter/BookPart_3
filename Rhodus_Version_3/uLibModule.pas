@@ -45,7 +45,7 @@ begin
   self.symbolTable.addSymbol (f, True); // // locked = True
 
   f := TUserFunction.Create ('contains', 1, callContains);
-  f.helpStr := 'Returns true if the module contains is the given symbol: mod.contains ("cos")';
+  f.helpStr := 'Returns true if the module contains the given symbol, e.g mod.contains ("cos")';
   self.symbolTable.addSymbol (f, True); // // locked = True
 end;
 

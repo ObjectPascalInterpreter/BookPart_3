@@ -1,11 +1,19 @@
 unit uBuiltInRandom;
 
-// This source is distributed under Apache 2.0
+{
+  Unit:    uBuiltInRandom.pas
+  Author:  Herbert M sauro
+  Date:    10/2021
+  Purpose: This file implements the random number library for the Rhodus interpreter.
 
-// Copyright (C) 2019-2021 Herbert M Sauro
+  Ths source is distributed under Apache 2.0
+  See https://www.apache.org/licenses/LICENSE-2.0.txt for further information
 
-// Author Contact Information:
-// email: hsauro@gmail.com
+  Copyright (C)  2019-2024 Herbert M Sauro
+
+  Author Contact Information:
+  email: hsauro@gmail.com
+}
 
 interface
 

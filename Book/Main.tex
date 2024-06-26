@@ -1,0 +1,290 @@
+%\RequirePackage{atbegshi} % Incompatibility between pgf and hyperref
+\documentclass[11pt,twosided]{book}
+
+\usepackage{Ambrosius}
+\usepackage[italicdiff]{physics}
+\usepackage{etex}
+\usepackage{etoolbox}
+\usepackage{blox}
+\usepackage{upquote}
+\usepackage{mathtools}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{alltt} % use math inside verbatim
+\usepackage{tcolorbox}
+\usepackage{fancyvrb}
+%\usepackage{appendix}
+\usepackage{lipsum}
+\usepackage{pgfornament}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\AtBeginEnvironment{subappendices}{%
+\chapter*{Appendix}
+\addcontentsline{toc}{chapter}{Appendices}
+\counterwithin{figure}{section}
+\counterwithin{table}{section}
+}
+
+
+%\usepackage{multicol}
+\usepackage{lettrine}
+
+\usepackage{verbatim}
+\newenvironment{numbenv}{\refstepcounter{equation}\medskip\par\noindent
+\begin{minipage}{0.9\textwidth}}
+{\end{minipage}\hfill(\thechapter.\arabic{equation})\medskip\par\noindent\ignorespacesafterend}
+
+\definecolor{BrickRed}{rgb}{0.72,0.0,0.0}
+\definecolor{burgundy}{rgb}{0.5, 0.0, 0.13}
+\definecolor{cardinal}{rgb}{0.77, 0.12, 0.23}
+
+% Book size changed to 7 by 10
+\geometry{paperwidth=7in,paperheight=10in,textheight=8in,top=1in,left=0.66in,right=0.66in,bindingoffset=5mm,twoside}
+
+\usepgflibrary{shapes}
+\usepackage[hang,flushmargin]{footmisc}
+\usetikzlibrary{calc}
+
+\usepackage{ifsym}
+\usepackage{mdframed}
+
+\usepackage[pdftex,
+            pdfauthor={HerbertM Sauro},
+            pdftitle={Write an Interpreter using Object Pascal},
+            pdfsubject={Computer Programming},
+            pdfkeywords={Interpreter Object Pascal},
+            pdfproducer={LaTeX with hyperref},
+            pdfcreator={pdflatex}]{hyperref}
+
+% -------------------------------------------------------------------------
+% |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
+\providetoggle{printVersion}
+\settoggle{printVersion}{true}
+
+% |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+% -------------------------------------------------------------------------
+
+
+\iftoggle{printVersion}{
+\hypersetup{backref,
+colorlinks=true,
+citecolor=black,
+linkcolor=black,
+pdfauthor={Copyright \textcopyright\ Herbert M Sauro}}}{
+% For ebook
+\hypersetup{backref,
+colorlinks=true,
+citecolor=blue,
+linkcolor=brickRed,
+pdfauthor={Copyright \textcopyright\ Herbert M Sauro}}}
+
+\lstset{
+  basicstyle=\footnotesize\ttfamily,
+  %morekeywords={begin,finally,then,except,procedure},
+  keywordstyle=\color{black}
+}
+
+%\definecolor{sbmlblue}{rgb}{0.07,0.50,0.78}
+%\definecolor{sbmlgray}{gray}{0.7}
+%\definecolor{sbmlrowgray}{gray}{0.96}
+%\definecolor{extremelylightgray}{gray}{0.97}
+%\definecolor{veryverylightgray}{gray}{0.95}
+%\definecolor{verylightgray}{gray}{0.9}
+%\definecolor{lightgray}{gray}{0.8}
+%\definecolor{mediumgray}{gray}{0.5}
+%\definecolor{darkgray}{gray}{0.3}
+%\definecolor{almostblack}{gray}{0.23}
+%\definecolor{normaltextcolor}{gray}{0.23} % Synonym for 'almostblack'
+%\definecolor{lightyellow}{rgb}{0.98,0.94,0.7}
+%\definecolor{verylightyellow}{rgb}{0.97,0.95,0.85}
+%\definecolor{darkblue}{rgb}{0.1,0.4,0.55}
+%\definecolor{mediumgreen}{rgb}{0.1,0.6,0.3}
+
+\newcommand{\diff}[2]{\ensuremath{d\!{#1}\hspace{-0.75pt}/\hspace{-0.75pt}d\!{#2}}}
+\newcommand{\diffdisp}[2]{\ensuremath{\frac{d\!{#1}}{d\!{#2}}}}
+
+\newcommand{\vt}[1]{{\tt #1}}
+
+\lstdefinestyle{smallListing}{
+  basicstyle=\ttfamily\scriptsize,
+  language=python,
+  tabsize=4,
+  showspaces=false,
+  showstringspaces=false
+}
+
+\lstdefinestyle{defaultListing}{
+  basicstyle=\ttfamily\footnotesize,
+  language=python,
+  tabsize=4,
+  showspaces=false,
+  showstringspaces=false
+}
+
+% Preserve spaces in final pdf listing
+\makeatletter
+\def\lst@outputspace{{\ifx\lst@bkgcolor\empty\color{white}\else\lst@bkgcolor\fi\lst@visiblespace}}
+\makeatother
+
+% Stop a figure from taking up the entire page with loads of room left to spare
+\renewcommand{\floatpagefraction}{0.75}
+
+
+\listfiles
+
+% -----------------------------------------------------------------------------------------------
+\begin{document}
+
+
+\frontmatter
+
+\thispagestyle{empty}
+
+\begin{center}
+\textbf{\sffamily\Large \phantom{Ix}}\\
+\textbf{\sffamily\Large Writing an Interpreter in Object Pascal:\\[6pt]\large Part 2: The Runtime System}
+\rule{\linewidth}{0.5mm}
+\end{center}
+
+\vspace{0.7in}
+
+\begin{center}
+{\em\hfill Herbert M. Sauro}\\
+{\em\hfill Seattle, WA}
+
+\vfill
+
+\begin{center} \input{mosaic} \end{center}
+\vskip-20pt
+{\Large Ambrosius Publishing}
+\end{center}
+
+\newpage
+\thispagestyle{empty} {\normalsize Copyright \copyright{2018-2019} Herbert M. Sauro. All rights reserved.\\
+First Edition, version 1.01 \\
+Published by Ambrosius Publishing and Future Skill Software\\
+\url{books.analogmachine.org}
+
+\vskip5pt
+
+Typeset using \LaTeX\ 2$_\varepsilon$, TikZ, PGFPlots, WinEdt,\\
+and 11pt Math Time Professional 2 Fonts
+\vskip10pt
+
+pgf version is: \pgfversion
+
+pgfplots version is \pgfplotsversion
+
+{\small Limit of Liability/Disclaimer of Warranty: While the author has used his best efforts in preparing this book, he makes no representations or warranties with respect to the accuracy or completeness of the contents of this book and specifically disclaim any implied warranties of merchantability or fitness for a particular purpose.  The advice and strategies contained herein may not be suitable for your situation. Neither the author nor publisher shall be liable for any loss of profit or any other commercial damages, including but not limited to special, incidental, consequential, or other damages. No part of this book may be reproduced by any means without written permission of the author.} \vskip6pt
+%{\bfseries Library of Congress Cataloging-in-Publication Data:}
+
+ISBN 10: 1-7325486-2-5 (paperback) \\
+ISBN 13: 978-1-7325486-2-6 (paperback) \\
+\vskip-6pt
+Printed in the United States of America.\\
+}
+
+Mosaic image modified from Daniel Steger's Tikz image (\url{http://www.texample.net/tikz/examples/mosaic-from-pompeii/}
+
+\bigskip\bigskip
+
+\iftoggle{printVersion}{
+\begin{tcolorbox}
+If you've purchased the printed copy you can get a 50\% discount for the pdf version using the following code:
+
+\bigskip
+{\Large
+PDF Discount code: cambrian\$
+
+\medskip
+at https://gum.co/oYxzK
+}
+\end{tcolorbox}}
+
+%This copy belongs to: XXX
+
+\tableofcontents
+
+
+\include{preface}
+
+\mainmatter
+
+\pagestyle{fancy}
+
+%\setcounter{chapter}{-1}
+{\bfseries\slshape\sffamily\color{ChapterTitleColor} \chapter*{\Huge Source Code} \label{chap:sourceCode}}
+
+{\large
+All source code is licensed under the open source license Apache 2.0.
+
+\smallskip
+http://www.apache.org/licenses/LICENSE-2.0
+
+\medskip
+The source code can be obtained from GitHub at:
+
+\medskip
+\url{https://github.com/penavon/BookPart2}}
+
+\include{chapter1}
+\include{chapter2}
+\include{chapter3}
+\include{chapter4}
+\include{chapter5}
+\include{chapter6}
+\include{chapter7}
+\include{chapter8}
+\include{chapter9}
+\include{chapter10}
+
+\appendix
+\include{AppendixA}
+\include{AppendixB}
+
+\cleardoublepage
+%\phantomsection
+%\addcontentsline{toc}{chapter}{References}
+%\bibliography{SauroBib}
+%\bibliographystyle{jbactNew}
+
+\pagebreak
+
+\cleardoublepage
+{\bfseries\slshape\sffamily \chapter*{History} \label{chap:History} }
+\addcontentsline{toc}{chapter}{History}
+
+\begin{enumerate}
+
+\item VERSION: 1.0
+\begin{description}
+\item[Date:] 2020-3-1
+\item[Author(s):] Herbert M. Sauro
+\item[Title:] Writing an Interpreter in Object Pascal: Part 2
+\item[Modification(s):] First Release to Printing Press
+\end{description}
+
+\item VERSION: 1.01
+\begin{description}
+\item[Date:] 2020-3-17
+\item[Author(s):] Herbert M. Sauro
+\item[Title:] Writing an Interpreter in Object Pascal: Part 2
+\item[Modification(s):] Updated Appendix B with CTRL-C discussion
+\end{description}
+
+
+\end{enumerate}
+
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{Index}
+\fancypagestyle{plain}{}
+\printindex
+
+% Make pages divisible by 4
+\myclearpage
+
+\end{document}

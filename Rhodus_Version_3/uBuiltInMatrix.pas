@@ -1,3 +1,19 @@
+{
+  Unit:    uBuiltInMatrix.pas
+  Author:  Herbert M sauro
+  Date:    10/2021
+  Purpose: This file implements the Matrix type for the Rhodus interpreter.
+
+  Ths source is distributed under Apache 2.0
+  See https://www.apache.org/licenses/LICENSE-2.0.txt for further information
+
+  Copyright (C)  2019-2024 Herbert M Sauro
+
+  Author Contact Information:
+  email: hsauro@gmail.com
+}
+
+
 unit uBuiltInMatrix;
 
 interface
@@ -291,12 +307,19 @@ end;
 procedure TBuiltInMatrix.getInverse (vm : TObject);
 var m, cpy : TArrayObject;
     det : double;
-    n : integer;
+    nr, nc : integer;
 begin
   m := TVM (vm).popArray;
   cpy := m.clone();
-  n := m.dim[0];
-  GaussJordan(cpy, 0, n-1, n-1, det);
+  if length (m.dim) < 2 then
+     raise ERuntimeException.Create('Matrix must be two-dimensional to compute the inverse');
+
+  nr := m.dim[0];
+  nc := m.dim[1];
+  if nr <> nc then
+     raise ERuntimeException.Create('Matrix must be square to compute the inverse (' + inttostr (nr) + ', ' + inttostr (nc) + ')');
+
+  GaussJordan(cpy, 0, nr-1, nr-1, det);
 
   TVM (vm).push(cpy);
 end;

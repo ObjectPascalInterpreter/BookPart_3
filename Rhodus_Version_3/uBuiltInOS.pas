@@ -1,13 +1,19 @@
 unit uBuiltInOS;
 
+{
+  Unit:    uBuiltInOS.pas
+  Author:  Herbert M sauro
+  Date:    10/2021
+  Purpose: This file implements the OS library for the Rhodus interpreter.
 
-// This source is distributed under Apache 2.0
+  Ths source is distributed under Apache 2.0
+  See https://www.apache.org/licenses/LICENSE-2.0.txt for further information
 
-// Copyright (C) 2019-2021 Herbert M Sauro
+  Copyright (C)  2019-2024 Herbert M Sauro
 
-// Author Contact Information:
-// email: hsauro@gmail.com
-
+  Author Contact Information:
+  email: hsauro@gmail.com
+}
 
 interface
 

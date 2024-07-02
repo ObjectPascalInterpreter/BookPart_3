@@ -111,8 +111,9 @@ begin
               if symbol1.mValue.symbolTable.find (astr[1], symbol2)  then
                  case symbol2.symbolType of
                      symUserFunc : result := symbol2.fValue.helpStr;
+                     symValueObject : result := symbol2.voValue.helpStr;
                  else
-                    result := symbol2.helpStr
+                    result := 'There is no help for these kinds of objects'; // HMS symbol2.helpStr
                  end;
               end;
            end

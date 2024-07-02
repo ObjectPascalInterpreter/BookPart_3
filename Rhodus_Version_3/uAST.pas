@@ -71,6 +71,22 @@ type
       destructor  Destroy; override;
    end;
 
+   TASTCreateVector = class (TASTNodeList)
+      constructor Create (lineNumber : integer);
+      destructor  Destroy; override;
+   end;
+
+   //TASTAddVectorItem = class (TASTNodeList)
+   //   constructor Create;
+   //   destructor  Destroy; override;
+   //end;
+
+
+   TASTCreateMatrix = class (TASTNodeList)
+      constructor Create (lineNumber : integer);
+      destructor  Destroy; override;
+   end;
+
    TASTIdentifier = class (TASTNode)
       symbolName : string;
       constructor Create (symbolName : string; lineNumber : integer);
@@ -142,6 +158,16 @@ type
         constructor Create (subscripts : TASTNodeList; lineNumber : integer);
         destructor  Destroy; override;
    end;
+
+   TASTAddVector = class (TASTNode)
+
+   end;
+
+   TASTAddMatrix = class (TASTNode)
+        //constructor Create (node : TASTNode; lineNumber : integer);
+   end;
+
+
 
    TASTBinOp = class (TASTNode)
       left : TASTNode;
@@ -558,7 +584,45 @@ begin
   inherited Create (ntCreateList);
 end;
 
+
 destructor TASTCreateList.Destroy;
+begin
+  inherited;
+end;
+
+
+constructor TASTCreateVector.Create (lineNumber : integer);
+begin
+  inherited Create (ntCreateVector);
+end;
+
+
+destructor TASTCreateVector.Destroy;
+begin
+  inherited;
+end;
+
+
+//constructor TASTAddVectorItem.Create;
+//begin
+//  inherited Create (ntAddVectorItem);
+//end;
+//
+//
+//destructor TASTAddVectorItem.Destroy;
+//begin
+//  inherited;
+//end;
+
+
+
+constructor TASTCreateMatrix.Create (lineNumber : integer);
+begin
+  inherited Create (ntCreateMatrix);
+end;
+
+
+destructor TASTCreateMatrix.Destroy;
 begin
   inherited;
 end;
@@ -1126,6 +1190,10 @@ begin
         (node as TASTGlobal).free;
     ntCreateList:
          (node as TASTCreateList).free;
+    ntCreateVector:
+         (node as TASTCreateVector).free;
+    ntCreateMatrix:
+         (node as TASTCreateMatrix).free;
     ntPrint:
          (node as TASTPrint).free;
     ntPrintln:
@@ -1285,6 +1353,12 @@ begin
            begin
            for i := 0 to (node as TASTCreateList).list.Count - 1 do
               result := result + print ((node as TASTCreateList).list[i], prefix + '|  ');
+           end;
+       ntCreateMatrix :
+           begin
+           raise Exception.Create ('Error: AST print not implemented for Newmatrix');
+           //for i := 0 to (node as TASTNewMatrix).list.Count - 1 do
+           //   result := result + print ((node as TASTNewMatrix).list[i], prefix + '|  ');
            end;
        ntAdd, ntSub, ntMult, ntDiv, ntDivI, ntDotProduct, ntLT, ntLE, ntGT, ntGE, ntNE, ntEQ,
        ntAnd, ntOr, ntXor :

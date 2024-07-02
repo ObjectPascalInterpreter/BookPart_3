@@ -67,7 +67,12 @@ uses
   uBuiltInGraphics in '..\Rhodus_Version_3\uBuiltInGraphics.pas',
   uIntStack in '..\VirtualMachine\uIntStack.pas',
   uJumpTables in '..\VirtualMachine\uJumpTables.pas',
-  uEnvironment in '..\Rhodus_Version_3\uEnvironment.pas';
+  uEnvironment in '..\Rhodus_Version_3\uEnvironment.pas',
+  uMatrixObject in '..\VirtualMachine\uMatrixObject.pas',
+  uValueObject in '..\VirtualMachine\uValueObject.pas',
+  uVectorObject in '..\VirtualMachine\uVectorObject.pas',
+  uBuiltInMatrix2 in '..\Rhodus_Version_3\uBuiltInMatrix2.pas',
+  uMatrixFunctions in '..\Rhodus_Version_3\uMatrixFunctions.pas';
 
 {$R *.res}
 

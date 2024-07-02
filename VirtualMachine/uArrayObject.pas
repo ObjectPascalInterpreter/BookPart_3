@@ -29,9 +29,6 @@ type
      dataf : TFloatArray;
      dim  : TIndexArray;
 
-     class function arrayIntMult (m1 : TArrayObject; alpha : integer) : TArrayObject;
-     class function arrayDoubleMult (m1 : TArrayObject; alpha : double) : TArrayObject;
-
      function        getNumDimensions : integer;
      function        getIndex (const dim, idx : array of integer) : integer;
 
@@ -57,18 +54,21 @@ type
      property        ndims : integer read getNumDimensions;
      property        item[index1, index2: Integer]: double read getValue2D write setValue2D; default;
 
-     function        slice (slices : TSliceObjectList) : TArrayObject;
+     function        slice (var slices : TSliceObjectList) : TArrayObject;
 
      procedure       append (mat : TArrayObject);
      class function  isEqualTo (a1, a2 : TArrayObject) : boolean;
      function        applyUniFunction (func : TUniFunction) : TArrayObject;
      class function  add (a1, a2 : TArrayObject) : TArrayObject;
      class function  sub (a1, a2 : TArrayObject) : TArrayObject;
+     class function  arrayScalarIntMult (m1 : TArrayObject; alpha : integer) : TArrayObject;
+     class function  arrayScalarDoubleMult (m1 : TArrayObject; alpha : double) : TArrayObject;
      class function  mult (m1, m2 : TArrayObject) : TArrayObject;
      class function  getMax (a1 : TArrayObject) : double;
      class function  getMin (a1 : TArrayObject) : double;
      constructor     Create; overload;
      constructor     Create (dim : TIndexArray); overload;
+     constructor     CreateDim;
      destructor      Destroy; override;
   end;
 
@@ -119,11 +119,13 @@ begin
   methodList.Add(TMethodDetails.Create ('rows',   0, 'get the number of rows of a matrix: var.rows()', getNumRows));
   methodList.Add(TMethodDetails.Create ('cols',   0, 'get the number of columns of a matrix: var.cols()', getNumCols));
 
-  methodList.Add(TMethodDetails.Create('append',  1, 'append row', appendRow));
+  methodList.Add(TMethodDetails.Create('appendrow',  1, 'append rows', appendRow));
+  methodList.Add(TMethodDetails.Create('appendcol',  1, 'append columns', appendCol));
+  //methodList.Add(TMethodDetails.Create('append',  1, 'append columns', append));
 
   methodList.Add(TMethodDetails.Create ('tr',     0, 'Transpose the matrix: var.tr ()', getTranspose));
   methodList.Add(TMethodDetails.Create ('sqr',    0, 'square each element in the array: var.sqr ()', getSqr));
-  methodList.Add(TMethodDetails.Create ('add',    1, 'add an array argument ot the array: c = a.add (b)', add));
+  methodList.Add(TMethodDetails.Create ('add',    1, 'add an array argument to the array: c = a.add (b)', add));
   methodList.Add(TMethodDetails.Create ('sub',    1, 'subtract an array argument from the array: c = a.sub (b)', sub));
   methodList.Add(TMethodDetails.Create ('trunc',  0, 'Truncate all entries to whole numbers: c = a.trunc ()', getTrunc));
   methodList.Add(TMethodDetails.Create ('max',    0, 'Find the maximum value in an array: c = a.max ()', getMax));
@@ -245,7 +247,28 @@ begin
 end;
 
 
-// m1.append (m2)
+//procedure TArrayObject.append (mat : TArrayObject);
+//var i : integer;
+//begin
+//  if length (self.dim) <> 2 then
+//     raise ERuntimeException.Create('Only 2D arrays are currently supported in append');
+//
+//  // Check that the number of columns is compatible
+//  if self.dim[1] = mat.dim[1] then
+//     begin
+//     inc (self.dim[0]);
+//     setLength (dataf, self.dim[0] * self.dim[1]);
+//
+//     for i := 0 to mat.dim[1] - 1 do
+//         self.setValue2D (self.dim[0]-1, i, mat.getValue2D (0, i));
+//
+//     setLength (mat.dataf, 0);
+//     end
+//  else
+//    raise ERuntimeException.Create(' column dimensions must match for each row of the matrix');
+//end;
+
+// m1.append (appendee)
 procedure TArrayMethods.appendRow (vm : TObject);
 var s, appendee : TArrayObject;
     target : TArrayObject;
@@ -269,21 +292,42 @@ begin
         for i := 0 to appendee.dim[0] - 1 do
             for j := 0 to appendee.dim[1] - 1 do
                 target.setValue2D (sRows + i, j, appendee.getValue2D (i, j));
+        s.Free;
+        s := target;
         end
      else
-        raise ERuntimeException.Create('method <appendRow> column sizes don''t match');
+        raise ERuntimeException.Create('method <appendrow> column sizes don''t match');
      end
   else
-     raise ERuntimeException.Create('The method <appendRow> only applies to 2D matrices');
-  TVM (vm).push (target);
+     raise ERuntimeException.Create('The method <appendrow> only applies to 2D matrices');
+  //TVM (vm).push (target);
+  TVM (vm).push (@noneStackType);
 end;
 
 
 procedure TArrayMethods.appendCol (vm : TObject);
-//var s :TArrayObject;
-//    md : TMethodDetails;
+var s,appendee :TArrayObject;
+    md : TMethodDetails;
+    target : TArrayObject;
 begin
+  appendee := TVM (vm).popArray;
 
+   md := TVM (vm).popMethodDetails;
+   s := TArrayObject (md.self);
+
+  if (s.getNumDimensions() = 2) and (appendee.getNumDimensions() = 2) then
+     begin
+    if s.dim[0] = appendee.dim[0] then
+        begin
+
+
+        end
+     else
+        raise ERuntimeException.Create('method <appendcol> rows sizes don''t match');
+     end
+  else
+     raise ERuntimeException.Create('The method <appendcol> only applies to 2D matrices');
+  TVM (vm).push (target);
 end;
 
 
@@ -295,6 +339,8 @@ var s, tmp :TArrayObject;
 begin
   md := TVM (vm).popMethodDetails;
   s := TArrayObject (md.self);
+  if s.ndims < 2 then
+     raise ERuntimeException.Create('The array must be 2-dimensional to evaluate the transpose');
 
   r := s.dim[0];
   c := s.dim[1];
@@ -327,6 +373,7 @@ begin
 end;
 
 
+// eg c = a.add (b)
 procedure TArrayMethods.add (vm : TObject);
 var i, n : integer;
     s1, s2 : TArrayObject;
@@ -337,20 +384,13 @@ begin
 
   md := TVM (vm).popMethodDetails;
   s1 := TArrayObject (md.self);
-  s2 := s1.clone;
 
-  if sameDimensions (s1, argument) then
-     begin
-     n := s1.getNumDimensions() - 1;
-     for i := 0 to n do
-         s2.setValue(i, s1.getValue(i) + s1.getValue(i));
-     end
-  else
-     raise ERuntimeException.Create('Arrays must have the same dimension when summing');
+  s2 := TArrayObject.add (s1, argument);
   TVM (vm).push (s2);
 end;
 
 
+// c = a.sub (b)
 procedure TArrayMethods.sub (vm : TObject);
 var i, n : integer;
     s1, s2 : TArrayObject;
@@ -361,16 +401,8 @@ begin
 
   md := TVM (vm).popMethodDetails;
   s1 := TArrayObject (md.self);
-  s2 := s1.clone;
 
-  if sameDimensions (s1, argument) then
-     begin
-     n := s1.getNumDimensions() - 1;
-     for i := 0 to n do
-         s2.setValue(i, s1.getValue(i) - s1.getValue(i));
-     end
-  else
-     raise ERuntimeException.Create('Arrays must have the same dimensions when summing');
+  s2 := TArrayObject.sub (s1, argument);
   TVM (vm).push (s2);
 end;
 
@@ -414,13 +446,22 @@ begin
 end;
 
 
-// ----------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
 constructor TArrayObject.Create;
 begin
   blockType := btGarbage;
   objectType := symArray;
   self.methods := arrayMethods;
   memoryList.addNode (self);
+end;
+
+
+constructor TArrayObject.CreateDim;
+begin
+  Create;
+
+
 end;
 
 
@@ -589,7 +630,7 @@ var i, j, n : integer;
 begin
   if length (dim) = 1 then
      begin
-     result := '[';
+     result := '(';
      for i := 0 to self.getNthDimension(0) - 1 do
          begin
          if i = 0 then
@@ -600,16 +641,16 @@ begin
          if i < self.getNthDimension(0) - 1 then
              result := result + ', ';
          end;
-     result := result + ']';
+     result := result + ')';
      exit;
      end;
 
   if length (dim) = 2 then
      begin
-     result := '[';
+     result := '(';
      for i := 0 to self.getNthDimension(0) - 1 do
          begin
-         result := result + '[';
+         result := result + '(';
          for j := 0 to self.getNthDimension(1) - 1 do
              begin
              if (i = 0) and (j=0) then formatStr := '%9.4f'
@@ -620,43 +661,25 @@ begin
                 result := result + ', ';
             end;
         if i < self.getNthDimension(0) - 1 then
-           result := result + '], ' + sLineBreak;
+           result := result + '), ' + sLineBreak;
         end;
-     result := result + ']]';
+     result := result + '))';
      exit;
      end;
 
 
   // temporary affair for n-dim arrays
   n := getNumberOfElements();
-  result := '[';
+  result := '(';
   for i := 0 to n - 1 do
       begin
       if i mod 8 = 0 then
          result := result + sLineBreak;
       result := result + Format('%10.4f', [self.dataf[i]]);
       end;
-  result := result + ']';
+  result := result + ')';
 end;
 
-
-//procedure TArrayObject.append (mat : TArrayObject);
-//var i : integer;
-//begin
-//  // Check that the number of columns is compatible
-//  if self.dim[1] = mat.dim[1] then
-//     begin
-//     inc (self.dim[0]);
-//     setLength (data, self.dim[0], self.dim[1]);
-//
-//     for i := 0 to mat.dim[1] - 1 do
-//         self.setValue2D(self.dim[0]-1, i, mat.getValue2D (0, i));
-//
-//     setLength (mat.data, 0);
-//     end
-//  else
-//    raise ERuntimeException.Create(' column dimensions must match for each row of the matrix');
-//end;
 
 
 procedure TArrayObject.append (mat : TArrayObject);
@@ -700,7 +723,7 @@ end;
 // a SLICE_ALL
 // eg [:,0] is converted to [:,0:0]
 //
-function TArrayObject.slice (slices : TSliceObjectList) : TArrayObject;
+function TArrayObject.slice (var slices : TSliceObjectList) : TArrayObject;
 var i, j : integer;
     slicesize : integer;
     inputLists : TIntLists;
@@ -839,7 +862,7 @@ begin
 end;
 
 
-class function TArrayObject.arrayIntMult (m1 : TArrayObject; alpha : integer) : TArrayObject;
+class function TArrayObject.arrayScalarIntMult (m1 : TArrayObject; alpha : integer) : TArrayObject;
 var n : integer;
 begin
   result := TArrayObject.Create ([m1.dim[0], m1.dim[1]]);
@@ -849,7 +872,7 @@ begin
 end;
 
 
-class function TArrayObject.arrayDoubleMult (m1 : TArrayObject; alpha : double) : TArrayObject;
+class function TArrayObject.arrayScalarDoubleMult (m1 : TArrayObject; alpha : double) : TArrayObject;
 var n : integer;
 begin
   result := TArrayObject.Create ([m1.dim[0], m1.dim[1]]);

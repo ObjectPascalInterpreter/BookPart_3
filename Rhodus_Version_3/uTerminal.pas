@@ -314,8 +314,8 @@ var
 begin
   ConsoleHwnd := GetConsoleWindow;
 
-  Coord.X := 120; // Width
-  Coord.y := 512;  // Height
+  Coord.X := 120;  // Width
+  Coord.y := 712;  // Height
   SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), Coord);
 
   Rect.Left := 0;   //  must be zero

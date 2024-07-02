@@ -59,6 +59,8 @@ type
     function  parseIndexedVariable : TASTNode;
     function  parseFunctionCall: TASTNode;
 
+    function parseVector : TASTNode;
+    function parseMatrix : TASTNode;
     function primary : TASTNode;
     function factor : TASTNode;
     function primaryPlus : TASTNode;
@@ -293,6 +295,51 @@ begin
 end;
 
 
+// Scan a vector of the form '{' 1, 2, 3 '}'
+// Note the first bracket has been scanned in already
+function TConstructAST.parseVector : TASTNode;
+begin
+  // Scan in Vector
+  result := TASTCreateVector.Create(sc.tokenRecord.lineNumber);
+  if sc.token = tRightCurleyBracket then
+     begin
+     nextToken;
+     Exit;
+     end;
+
+  (result as TASTCreateVector).list.Add(expression);
+  while sc.token = tComma do
+        begin
+        nextToken;
+       (result as TASTCreateVector).list.Add(expression);
+        end;
+end;
+
+
+// Scan in a matrix of the form: {{1,2,3},{4,5,6}} etc
+function TConstructAST.parseMatrix : TASTNode;
+begin
+  nextToken;
+  if sc.token = tLeftCurleyBracket then
+     begin
+     result := TASTCreateMatrix.Create(sc.tokenRecord.lineNumber);
+     nextToken;
+     (result as TASTCreateMatrix).list.Add(parseVector);
+     expect(tRightCurleyBracket);
+     while sc.token = tComma do
+           begin
+           nextToken;
+           nextToken;
+           (result as TASTCreateMatrix).list.Add(parseVector);
+           expect(tRightCurleyBracket);
+           end;
+     end
+  else
+     // Else it's just a vector
+     result := parseVector;
+end;
+
+
 function TConstructAST.factor : TASTNode;
 var node : TASTNode;
 begin
@@ -359,12 +406,12 @@ begin
       expect(tRightBracket);
       end;
 
-     // Reserve for maps
-//     tLeftCurleyBracket:
-//        begin
-//        sc.nextToken;
-//        expect(tRightCurleyBracket);
-//        end;
+     // Reserved for maps
+     tLeftCurleyBracket :
+       begin
+       result := parseMatrix;
+       expect(tRightCurleyBracket);
+       end;
 
     tError:
        begin
@@ -428,7 +475,7 @@ begin
      begin
      sc.nextToken;
      rightNode := power;
-     leftNode := TAstPowerOp.Create(leftNode, rightNode, sc.tokenRecord.lineNumber);
+     leftNode := TASTPowerOp.Create(leftNode, rightNode, sc.tokenRecord.lineNumber);
      end;
   for i := 0 to unaryMinus_count - 1 do
       leftNode := TASTUniOp.Create(leftNode, TASTNodeType.ntUnaryMinus, sc.tokenRecord.lineNumber);
@@ -1252,7 +1299,7 @@ end;
 function TConstructAST.importStatement: TASTNode;
 begin
   sc.nextToken();
-  if (sc.token = tIdentifier) then
+  if (sc.token = tIdentifier) or (sc.token = tString) then
       begin
       result := TASTImport.Create(sc.tokenString, sc.tokenRecord.lineNumber);
       sc.nextToken();

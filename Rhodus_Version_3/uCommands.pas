@@ -92,12 +92,13 @@ begin
       else
          writeln (listOfCommands[i].name + #9#9 + listOfCommands[i].helpStr);
 
-  writeln ('symbols'#9#9'Display symbols in main module');
+  writeln ('symbols'#9#9'Display symbols in a module, eg symbols(lists) or symbols (getMain())');
   writeln ('#p'#9#9'Start a multi-line program (q or return to finish)');
   writeln ('');
   writeln ('?X or ?M.X'#9'Get help about a symbol, X, or a symbol in a module, M');
   writeln ('Type modules() to get a list of loaded modules');
   writeln ('Type dir() on any module to get the list of methods, eg math.dir()');
+  writeln ('Type symbol.help() to get more help');
   writeln;
 
   writeln ('To run a script, type run followed by its filename. Note: there is no need to specify the .rh extension');

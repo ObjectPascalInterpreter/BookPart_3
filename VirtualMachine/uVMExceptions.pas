@@ -14,7 +14,22 @@ Uses SysUtils, Classes;
 
 type
   ERuntimeException = class(Exception);
+  EInternalException = class(Exception);
+
+  procedure raiseError (msg : string; lineNumber : integer);
+  procedure raiseInternalError (msg : string);
 
 implementation
+
+procedure raiseError (msg : string; lineNumber : integer);
+begin
+  raise ERuntimeException.Create(msg + ' at line number: ' + inttostr (lineNumber));
+end;
+
+procedure raiseInternalError (msg : string);
+begin
+  raise EInternalException.Create(msg);
+end;
+
 
 end.

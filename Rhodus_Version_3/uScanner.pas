@@ -779,7 +779,7 @@ begin
 
         tEndofStream : result := 'End of Stream';
   else
-       result := 'unrecognised token in tokenToString: ' + inttostr (integer(token));
+       result := 'unrecognised token in tokenToString: ' +  (char(token));
   end;
 end;
 

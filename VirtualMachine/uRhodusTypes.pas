@@ -29,6 +29,9 @@ type
           symString,
           symList,
           symArray,
+          symVector,
+          symMatrix,
+          symValueObject,
           symUserFunc,
           symModule);
 
@@ -45,6 +48,7 @@ type
    TSliceObject = class
      lower, upper : integer;
      constructor Create (lower, upper : integer);
+     destructor Destroy; override;
   end;
   TSliceObjectList = array of TSliceObject;
 
@@ -57,5 +61,10 @@ begin
   self.upper := upper;
 end;
 
+
+destructor TSliceObject.Destroy;
+begin
+  inherited;
+end;
 
 end.

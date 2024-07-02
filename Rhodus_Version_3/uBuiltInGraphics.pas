@@ -99,11 +99,13 @@ begin
   addMethod(refresh, 0, 'refresh', 'Copy the background canvas to the GUI image');
 end;
 
+
 procedure TBuiltInGraphics.checkGraphicsSubsystem;
 begin
   if graphicsMethodsPtr = nil then
     raise ERuntimeException.Create('No graphics subsystem detected.');
 end;
+
 
 procedure TBuiltInGraphics.clear(vm: TObject);
 var

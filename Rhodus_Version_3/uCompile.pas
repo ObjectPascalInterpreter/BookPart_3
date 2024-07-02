@@ -61,6 +61,8 @@ type
     procedure compileAssignment(node: TASTAssignment);
     procedure compileUserFunction(node: TASTNode);
     procedure compileList(node: TASTCreatelist);
+    procedure compileCreateVector(node: TASTCreateVector);
+    procedure compileCreateMatrix(node: TASTCreateMatrix);
     procedure compileGlobalVariable(node: TASTNode);
     procedure compileStatementList(node: TASTNode);
     procedure compilePowerOperator(node: TASTPowerOp);
@@ -420,7 +422,9 @@ begin
      try
        compileCode (node.leftSide);
      finally
-       inAssignment := False
+       inAssignment := False;
+       // Reset this back to false in case it was set to true.
+       inAssignment_NextToEquals := False;
      end;
      end
   else
@@ -594,7 +598,7 @@ begin
 end;
 
 
-procedure TCompiler.compileList(node: TASTCreatelist);
+procedure TCompiler.compileList(node: TASTCreateList);
 var i: integer;
 begin
   if node <> nil then
@@ -605,6 +609,34 @@ begin
     end
   else
     code.addByteCode(oCreateList, 0, node.lineNumber); // empty list
+end;
+
+
+procedure TCompiler.compileCreateVector(node: TASTCreateVector);
+var i: integer;
+begin
+  if node <> nil then
+    begin
+      for i := 0 to node.list.Count - 1 do
+        compileCode(node.list[i]);
+      code.addByteCode(oCreateVector, node.list.Count, node.lineNumber);
+    end
+  else
+    code.addByteCode(oCreateVector, 0, node.lineNumber); // empty list
+end;
+
+
+procedure TCompiler.compileCreateMatrix(node: TASTCreateMatrix);
+var i: integer;
+begin
+  if node <> nil then
+    begin
+      for i := 0 to node.list.Count - 1 do
+        compileCode(node.list[i]);
+      code.addByteCode(oCreateMatrix, node.list.Count, node.lineNumber);
+    end
+  else
+    code.addByteCode(oCreateMatrix, 0, node.lineNumber); // empty list
 end;
 
 
@@ -815,6 +847,7 @@ var
   syntaxError : TSyntaxError;
   compilerError : TCompilerError;
 begin
+  // Check for leading '.'
   // Check if it's a builtin first
   if listofBuiltIns.find (node.importName, index) then
      begin
@@ -1088,7 +1121,11 @@ begin
     ntSliceEqual:
        code.addByteCode(oPushi, SLICE_EQUAL, 0);
     ntCreateList:
-      compileList(node as TASTCreatelist);
+      compileList(node as TASTCreateList);
+    ntCreateVector:
+      compileCreateVector(node as TASTCreateVector);
+    ntCreateMatrix:
+      compileCreateMatrix(node as TASTCreateMatrix);
     ntAssignment:
       compileAssignment (node as TASTAssignment);
     // An expression on its own, has to be dealt with separately

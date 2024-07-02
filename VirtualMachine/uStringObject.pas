@@ -191,7 +191,8 @@ begin
   TVM (vm).push(alist);
 end;
 
-// ---------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+
 function createStringObject (value : string) : TStringObject;
 begin
   result := TStringObject.Create (value);
@@ -271,7 +272,7 @@ end;
 // -----------------------------------------------------------------------
 
 initialization
-   stringMethods := TStringMethods.Create;
+  stringMethods := TStringMethods.Create;
 finalization
   stringMethods.Free;
 end.

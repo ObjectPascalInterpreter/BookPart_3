@@ -58,10 +58,12 @@ Uses Math,
      uVM,
      uStringObject,
      uListObject,
+     uValueObject,
      uMachineStack,
      uVMExceptions,
      uMemoryManager;
 
+var default_epsilon : double = 1e-6;
 
 procedure raiseMathError (functionName : string);
 begin
@@ -95,11 +97,17 @@ begin
   addMethod (getTrunc, 1, 'trunc', 'Returns the integer part of floating point number: trunc (3.13)');
   addMethod (getMax,   2, 'max',   'Returns the maximunm of two numbers: max (3, 5)');
   addMethod (getMin,   2, 'min',   'Returns the minimum of two numbers: min (3, 5)');
+  //addMethod (getEpsilon, 'Values below this are considered zero', False);
 
   //addMethod (getComb,  2, 'comb',   'Returns the number of ways to choose k items from n items without repetition or order: comb (5, 2)');
 
-  addDoubleValue ('pi', Pi,      'The value of pi', True);  // True = locked
-  addDoubleValue ('e',  exp (1), 'The value of e', True);
+  addObjectValue ('pi', TValueObject.Create (Pi), 'The value of Pi', True);    // True = locked
+  addObjectValue ('e', TValueObject.Create (exp(1)), 'The value of e', True);
+
+  //addDoubleValue ('pi', Pi,      'The value of pi', True);  // True = locked
+  //addDoubleValue ('e',  exp (1), 'The value of e', True);
+  addDoubleValue ('eps', default_epsilon, 'Values below this are considered zero', False);
+
 end;
 
 
@@ -110,6 +118,7 @@ begin
    case st.stackType of
        stInteger : TVM (vm).push(sin (st.iValue));
        stDouble  : TVM (vm).push (sin (st.dValue));
+       stValueObject : TVM (vm).push (sin (TValueObject.getValue(st.voValue)));
        stArray   : begin
                    TVM (vm).push(st.aValue.applyUniFunction(sin));
                    end
@@ -126,6 +135,7 @@ begin
    case st.stackType of
        stInteger : TVM (vm).push(cos (st.iValue));
        stDouble : TVM (vm).push (cos (st.dValue));
+       stValueObject : TVM (vm).push (cos (TValueObject.getValue(st.voValue)));
        stArray : begin
                  TVM (vm).push(st.aValue.applyUniFunction(cos));
                  end
@@ -142,6 +152,7 @@ begin
    case st.stackType of
        stInteger : TVM (vm).push(tan (st.iValue));
        stDouble : TVM (vm).push (tan (st.dValue));
+       stValueObject : TVM (vm).push (tan (TValueObject.getValue(st.voValue)));
        stArray : begin
                  TVM (vm).push(st.aValue.applyUniFunction(tan));
                  end
@@ -158,6 +169,7 @@ begin
    case st.stackType of
        stInteger : TVM (vm).push(arcsin (st.iValue));
        stDouble : TVM (vm).push (arcsin (st.dValue));
+  stValueObject : TVM (vm).push (arcsin (TValueObject.getValue(st.voValue)));
        stArray : begin
                  TVM (vm).push(st.aValue.applyUniFunction(arcsin));
                  end
@@ -174,6 +186,7 @@ begin
    case st.stackType of
        stInteger : TVM (vm).push(arccos (st.iValue));
        stDouble : TVM (vm).push (arccos (st.dValue));
+       stValueObject : TVM (vm).push (arccos (TValueObject.getValue(st.voValue)));
        stArray : begin
                  TVM (vm).push(st.aValue.applyUniFunction(arccos));
                  end
@@ -190,6 +203,7 @@ begin
    case st.stackType of
        stInteger : TVM (vm).push(arctan (st.iValue));
        stDouble : TVM (vm).push (arctan (st.dValue));
+       stValueObject : TVM (vm).push (arctan (TValueObject.getValue(st.voValue)));
        stArray : begin
                  TVM (vm).push(st.aValue.applyUniFunction(arctan));
                  end
@@ -206,6 +220,7 @@ begin
    case st.stackType of
        stInteger : TVM (vm).push(sqrt (st.iValue));
        stDouble : TVM (vm).push (sqrt (st.dValue));
+       stValueObject : TVM (vm).push (sqrt (TValueObject.getValue(st.voValue)));
        stArray : begin
                  TVM (vm).push(st.aValue.applyUniFunction(sqrt));
                  end
@@ -220,6 +235,7 @@ begin
   result := sqr (value);
 end;
 
+
 procedure TBuiltInMath.getSqr (vm : TObject);
 var st : PMachineStackRecord;
 begin
@@ -227,6 +243,7 @@ begin
    case st.stackType of
        stInteger : TVM (vm).push(sqr (st.iValue));
        stDouble : TVM (vm).push (sqr (st.dValue));
+       stValueObject : TVM (vm).push (sqr (TValueObject.getValue(st.voValue)));
        stArray : begin
                  TVM (vm).push(st.aValue.applyUniFunction(dSqr));
                  end
@@ -243,6 +260,7 @@ begin
    case st.stackType of
        stInteger : TVM (vm).push(exp (st.iValue));
        stDouble : TVM (vm).push (exp (st.dValue));
+       stValueObject : TVM (vm).push (exp (TValueObject.getValue(st.voValue)));
        stArray : begin
                  TVM (vm).push(st.aValue.applyUniFunction(exp));
                  end
@@ -259,6 +277,7 @@ begin
    case st.stackType of
        stInteger : TVM (vm).push(ln (st.iValue));
        stDouble : TVM (vm).push (ln (st.dValue));
+       stValueObject : TVM (vm).push(ln (st.voValue.dValue));
        stArray : begin
                  TVM (vm).push(st.aValue.applyUniFunction(ln));
                  end
@@ -275,6 +294,7 @@ begin
    case st.stackType of
        stInteger : TVM (vm).push(log10 (st.iValue));
        stDouble : TVM (vm).push (log10 (st.dValue));
+       stValueObject : TVM (vm).push (log10 (TValueObject.getValue(st.voValue)));
        stArray : begin
                  TVM (vm).push(st.aValue.applyUniFunction(log10));
                  end
@@ -301,6 +321,7 @@ begin
    case st.stackType of
        stInteger : TVM (vm).push(iabs (st.iValue));
        stDouble : TVM (vm).push (dAbs (st.dValue));
+       stValueObject : TVM (vm).push (dAbs (TValueObject.getValue(st.voValue)));
        stArray : begin
                  TVM (vm).push(st.aValue.applyUniFunction(dabs));
                  end
@@ -322,6 +343,7 @@ begin
    case st.stackType of
        stInteger : TVM (vm).push(round (st.iValue));
        stDouble : TVM (vm).push (round (st.dValue));
+       stValueObject : TVM (vm).push (dround (TValueObject.getValue(st.voValue)));
        stArray : begin
                  TVM (vm).push(st.aValue.applyUniFunction(dRound));
                  end
@@ -343,6 +365,7 @@ begin
    case st.stackType of
        stInteger : TVM (vm).push(ceil (st.iValue));
        stDouble : TVM (vm).push (ceil (st.dValue));
+       stValueObject : TVM (vm).push (ceil (TValueObject.getValue(st.voValue)));
        stArray : begin
                  TVM (vm).push(st.aValue.applyUniFunction(dCeil));
                  end
@@ -365,6 +388,7 @@ begin
    case st.stackType of
        stInteger : TVM (vm).push(floor (st.iValue));
        stDouble : TVM (vm).push (floor (st.dValue));
+       stValueObject : TVM (vm).push (floor (TValueObject.getValue(st.voValue)));
        stArray : begin
                  TVM (vm).push(st.aValue.applyUniFunction(dFloor));
                  end
@@ -387,6 +411,7 @@ begin
    case st.stackType of
        stInteger : TVM (vm).push(trunc (st.iValue));
        stDouble : TVM (vm).push (trunc (st.dValue));
+       stValueObject : TVM (vm).push (trunc (TValueObject.getValue(st.voValue)));
        stArray : begin
                  TVM (vm).push(st.aValue.applyUniFunction(dTrunc));
                  end

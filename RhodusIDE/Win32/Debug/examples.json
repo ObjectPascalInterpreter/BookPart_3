@@ -227,6 +227,48 @@ drawTree(dims[0]/2, dims[1]/2, -90, 9)
 "
 },
 {
+"name": "Koch Curve",
+"src":	
+"
+import graphics
+import math
+
+function kochCurve(x1, y1, x2, y2, order)
+    if order == 0 then
+       graphics.moveto (x1, y1)
+       graphics.lineto (x2, y2)
+    else
+       dx = (x2 - x1) / 3.0
+       dy = (y2 - y1) / 3.0
+
+       x3 = x1 + dx
+       y3 = y1 + dy
+
+       x5 = x2 - dx
+       y5 = y2 - dy    
+       
+       x4 = (x1 + x2) / 2 + math.sqrt(3) * (y1 - y2) / 6
+       y4 = (y1 + y2) / 2 + math.sqrt(3) * (x2 - x1) / 6
+       
+       kochCurve(x1, y1, x3, y3, order - 1)
+       kochCurve(x3, y3, x4, y4, order - 1)
+       kochCurve(x4, y4, x5, y5, order - 1)
+       kochCurve(x5, y5, x2, y2, order - 1)       
+    end
+end
+
+graphics.clear()
+graphics.setPenColor (\"blue\")
+graphics.beginUpdate()
+x_start = 100;y_start = 400
+x_end  = 700; y_end = 400
+
+order = 4  // Change this to increase/decrease the complexity
+kochCurve(x_start, y_start, x_end, y_end, order)
+graphics.endUpdate()
+"
+},
+{
 "name": "Dragon Curve",
 "src":
 "

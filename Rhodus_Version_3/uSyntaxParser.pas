@@ -71,7 +71,10 @@ type
     procedure parseIndexedVariable;
     procedure parseFunctionCall;
 
+    function  parseVector : integer;
+    procedure parseMatrix;
     procedure parseList;
+
     procedure primary;
     procedure factor;
     procedure primaryPlus;
@@ -290,6 +293,66 @@ begin
 end;
 
 
+// Scan a vector of the form '{' 1, 2, 3 '}'
+// Note the first bracket has been scanned in already
+// WE need t record the number of elements and return the number
+function TSyntaxParser.parseVector : integer;
+begin
+  result := 0;
+  // Scan in Vector
+  if tokenVector.token = tRightCurleyBracket then
+     begin
+     nextToken;
+     Exit;
+     end;
+
+  expression(); inc (result);
+  while tokenVector.token = tComma do
+        begin
+        nextToken;
+        expression(); inc (result);
+        end;
+
+  if tokenVector.token <> tRightCurleyBracket then
+     raise ESyntaxException.Create ('Curley right bracket ''}'' expected' + tokenVector.tokenRecord.FTokenCharacter, tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
+end;
+
+
+// Scan in a matrix of the form: {{1,2,3},{4,5,6}} etc
+procedure TSyntaxParser.parseMatrix;
+var n1, n2 : integer;
+begin
+  nextToken;
+  if tokenVector.token = tLeftCurleyBracket then
+     begin
+     nextToken;
+     n1 := parseVector;
+     expect(tRightCurleyBracket);
+     while tokenVector.token = tComma do
+           begin
+           nextToken;
+           if tokenVector.token <> tLeftCurleyBracket then
+              raise ESyntaxException.Create ('Expecting inner left curley bracket' + tokenVector.tokenRecord.FTokenCharacter, tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
+           nextToken;
+           n2 := parseVector;
+           if n2 <> n1 then
+             raise ESyntaxException.Create ('A matrix must have rows with an equal number of elements', tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber)
+           else
+              n1 := n2;
+
+           expect(tRightCurleyBracket);
+           end;
+     if tokenVector.token <> tRightCurleyBracket then
+        raise ESyntaxException.Create  ('Expecting outer right curley right bracket' + tokenVector.tokenRecord.FTokenCharacter, tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
+     end
+  else
+     // Else it's just a vector which we no longer support !
+    raise ESyntaxException.Create  ('Vectors such as {1,2,3} are not supported, use a list or an array.' +
+      ' If you need a genuine vector define a column or row matrix such as {{1},{2},{3}} or {{1,2,3}}', tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
+    //parseVector;
+end;
+
+
 procedure TSyntaxParser.factor;
 begin
   case tokenVector.token of
@@ -334,11 +397,11 @@ begin
       end;
 
      // Reserved for maps
-     //tLeftCurleyBracket :
-     //  begin
-     //  nextToken;
-     //  expect(tRightCurleyBracket);
-     //  end;
+     tLeftCurleyBracket :
+       begin
+       parseMatrix;
+       expect(tRightCurleyBracket);
+       end;
     tError:
        begin
        raise ESyntaxException.Create ('Expecting a factor [literal, identifier, or ''[''] but found ' + tokenVector.tokenRecord.FTokenCharacter, tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
@@ -987,7 +1050,7 @@ end;
 procedure TSyntaxParser.importStatement;
 begin
   nextToken();
-  if (tokenVector.token = tIdentifier) then
+  if (tokenVector.token = tIdentifier) or (tokenVector.token = tString) then
       nextToken()
   else
       raise ESyntaxException.Create ('Expecting name of import file after import keyword', tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);

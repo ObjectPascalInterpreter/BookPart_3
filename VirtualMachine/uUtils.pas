@@ -25,7 +25,6 @@ type
        argc : integer;
        function getIthCartesianProduct (index : integer): TIntList;
        constructor Create (arg : TIntLists);
-
   end;
 
 

@@ -9,7 +9,11 @@ unit uSymbolTable;
 
 interface
 
-Uses Classes, SysUtils, Generics.Collections, uListObject, uStringObject, uArrayObject,
+Uses Classes, SysUtils, Generics.Collections, uListObject, uStringObject,
+     uArrayObject,
+     uVectorObject,
+     uMatrixObject,
+     uValueObject,
      uOpCodes, uConstantTable, uVMExceptions, uProgramCode, uMemoryManager, uRhodusTypes,
      uObjectSupport, uRhodusObject;
 
@@ -32,7 +36,8 @@ type
        compiled : boolean;   // Not currently used
 
        function    getSize : integer;
-       function    find (name : string) : TSymbol;
+       function    find (name : string) : TSymbol; overload;
+       function    find (moduleName, symbolName : string) : TSymbol; overload;
        procedure   clearCode;
        constructor Create (name : string);
        destructor  Destroy; override;
@@ -76,7 +81,7 @@ type
    TSymbol = class (TObject)
        symbolType : TSymbolElementType;
        symbolName : string;
-       helpStr : string;
+       //helpStr : string;
        locked  : boolean;  // If true, symbol is read only
 
        // The following fields could be replaced with a single
@@ -87,6 +92,9 @@ type
        sValue  : TStringObject;
        lValue  : TListObject;
        aValue  : TArrayObject;
+       vValue  : TVectorObject;
+       matValue : TMatrixObject;
+       voValue : TValueObject;
        fValue  : TUserFunction;
        mValue  : TModule;
 
@@ -116,6 +124,10 @@ type
         procedure addSymbol (name : string; sValue : TStringObject; locked : boolean; helpStr : string); overload;
         procedure addSymbol (name : string; lValue : TListObject; locked : boolean; helpStr : string); overload;
         procedure addSymbol (name : string; aValue : TArrayObject; locked : boolean; helpStr : string); overload;
+        procedure addSymbol (name : string; vValue : TVectorObject; locked : boolean; helpStr : string); overload;
+        procedure addSymbol (name : string; matValue : TMatrixObject; locked : boolean; helpStr : string); overload;
+        procedure addSymbol (name : string; voValue : TValueObject; locked : boolean; helpStr : string); overload;
+
         procedure addSymbol (fValue : TUserFunction; locked : boolean); overload;
 
         function  find (name : string; var symbol : TSymbol) : boolean;
@@ -126,6 +138,9 @@ type
         procedure storeString (symbol : TSymbol; sValue : TStringObject);
         procedure storeList   (symbol : TSymbol; lValue : TListObject);
         procedure storeArray  (symbol : TSymbol; aValue : TArrayObject);
+        procedure storeVector  (symbol : TSymbol; vValue : TVectorObject);
+        procedure storeMatrix  (symbol : TSymbol; matValue : TMatrixObject);
+        procedure storeValueObject  (symbol : TSymbol; voValue : TValueObject);
 
         procedure storeFunction (symbol : TSymbol; fValue : TUserFunction);
         procedure storeModule (symbol : TSymbol; mValue : TObject);
@@ -140,7 +155,6 @@ type
       private
       public
         function addSymbol (name : string) : integer; overload;
-        function addSymbol (name : string; dValue : double;  locked : boolean; helpStr : string) : integer; overload;
         function addSymbol (fValue : TUserFunction; locked : boolean) : integer; overload;
         function find (name : string; var index : integer) : boolean;
         function isUserFunction (name : string; var index : integer) : boolean;
@@ -203,7 +217,8 @@ begin
   // Needed by the compiler to access the path variable
   SysLibraryRef := TBuiltInSys.Create; addModule (module, SysLibraryRef);
 
-  //addLib (module, TBuiltInTurtle.Create);
+  // Uncomment if you want to enable turtle support.
+  //addModule (module, TBuiltInTurtle.Create);
 end;
 
 // -------------------------------------------------------------------------------
@@ -239,6 +254,15 @@ begin
   symbolTable.find(name, result);
 end;
 
+
+function TModule.find (moduleName, symbolName : string) : TSymbol;
+var symbol : TSymbol;
+begin
+  symbolTable.find(moduleName, symbol);
+  result := symbol.mValue.find(symbolName);
+  if result = nil then
+     raise ERuntimeException.Create ('Internal erro, unable to locate: ' + moduleName + ':' + symbolName);
+end;
 
 function TModule.getSize : integer;
 begin
@@ -394,6 +418,7 @@ begin
   result := TUserFunction.Create;
   result.nArgs := self.nArgs;
   result.name := self.name;
+  result.helpStr := self.helpStr;
   result.blockType := btBound;
   result.moduleRef := self.moduleRef;
   if self.isbuiltInFunction then
@@ -440,7 +465,7 @@ begin
   fValue := nil;
   symbolType := symUndefined;
   locked := False;   // used for things that shouldn't be changed, eg math.pi
-  helpStr := 'No help on this symbol';
+  //helpStr := 'No help on this symbol';
 end;
 
 
@@ -450,6 +475,9 @@ begin
     symString      : sValue.blockType := btGarbage;
     symList        : lValue.blockType := btGarbage;
     symArray       : aValue.blockType := btGarbage;
+    symVector      : vValue.blockType := btGarbage;
+    symMatrix      : matValue.blockType := btGarbage;
+    symValueObject : voValue.blockType := btGarbage;
     symNonExistant : begin end;
     symBoolean     : begin end;
     symInteger     : begin end;
@@ -479,14 +507,17 @@ end;
 function TSymbol.convertToString : string;
 begin
   case symbolType of
-    symBoolean   : result := 'boolean';
-    symInteger   : result := 'integer';
-    symDouble    : result := 'float';
-    symString    : result := 'string';
-    symList      : result := 'list';
-    symArray     : result := 'array';
-    symUserFunc  : result := 'function';
-    symUndefined : result := 'Undefined variable';
+    symBoolean    : result := 'boolean';
+    symInteger    : result := 'integer';
+    symDouble     : result := 'float';
+    symString     : result := 'string';
+    symList       : result := 'list';
+    symArray      : result := 'array';
+    symVector     : result := 'vector';
+    symMatrix     : result := 'matrix';
+    symValueObject: result := 'valueObject';
+    symUserFunc   : result := 'function';
+    symUndefined  : result := 'Undefined variable';
   else
     raise Exception.Create('toString type in TSymbol not implemented: ' + inttostr (integer (symbolType)));
   end;
@@ -541,7 +572,7 @@ begin
   symbol.dValue := dValue;
   symbol.symbolName := name;
   symbol.symbolType := symDouble;
-  symbol.helpStr := helpStr;
+  //symbol.helpStr := helpStr;
   symbol.locked := locked;;
   Add (name, symbol);
 end;
@@ -554,7 +585,7 @@ begin
   symbol.lValue := lValue;
   symbol.symbolName := name;
   symbol.symbolType := symList;
-  symbol.helpStr := helpStr;
+  //symbol.helpStr := helpStr;
   symbol.locked := locked;;
   Add (name, symbol);
 end;
@@ -568,7 +599,7 @@ begin
   symbol.sValue.blockType := btBound;  // protect the string object from the garbage collector.
   symbol.symbolName := name;
   symbol.symbolType := symString;
-  symbol.helpStr := helpStr;
+  //symbol.helpStr := helpStr;
   symbol.locked := locked;;
   Add (name, symbol);
 end;
@@ -581,7 +612,47 @@ begin
   symbol.aValue := aValue;
   symbol.symbolName := name;
   symbol.symbolType := symArray;
-  symbol.helpStr := helpStr;
+  //symbol.helpStr := helpStr;
+  symbol.locked := locked;;
+  Add (name, symbol);
+end;
+
+
+procedure TSymbolTable.addSymbol (name : string; vValue : TVectorObject; locked : boolean; helpStr : string);
+var symbol : TSymbol;
+begin
+  symbol := TSymbol.Create;
+  symbol.vValue := vValue;
+  symbol.symbolName := name;
+  symbol.symbolType := symVector;
+  //symbol.helpStr := helpStr;
+  symbol.locked := locked;;
+  Add (name, symbol);
+end;
+
+
+procedure TSymbolTable.addSymbol (name : string; matValue : TMatrixObject; locked : boolean; helpStr : string);
+var symbol : TSymbol;
+begin
+  symbol := TSymbol.Create;
+  symbol.matValue := matValue;
+  symbol.symbolName := name;
+  symbol.symbolType := symMatrix;
+  //symbol.helpStr := helpStr;
+  symbol.locked := locked;;
+  Add (name, symbol);
+end;
+
+
+procedure TSymbolTable.addSymbol (name : string; voValue : TValueObject; locked : boolean; helpStr : string);
+var symbol : TSymbol;
+begin
+  symbol := TSymbol.Create;
+  voValue.helpStr := helpStr;
+  symbol.voValue := voValue;
+  symbol.symbolName := name;
+  symbol.symbolType := symValueObject;
+  //symbol.helpStr := helpStr;
   symbol.locked := locked;;
   Add (name, symbol);
 end;
@@ -635,7 +706,25 @@ begin
                    else
                        raise ERuntimeException.Create('Internal Error: checkingForExistingData (array)');
                    end;
-       symUserFunc:begin
+       symVector : begin
+                   if symbol.vValue <> nil then
+                      symbol.vValue.blockType := btGarbage
+                   else
+                       raise ERuntimeException.Create('Internal Error: checkingForExistingData (vector)');
+                   end;
+      symMatrix : begin
+                  if symbol.matValue <> nil then
+                      symbol.matValue.blockType := btGarbage
+                   else
+                       raise ERuntimeException.Create('Internal Error: checkingForExistingData (matrix)');
+                   end;
+ symValueObject : begin
+                  if symbol.voValue <> nil then
+                      symbol.voValue.blockType := btGarbage
+                   else
+                       raise ERuntimeException.Create('Internal Error: checkingForExistingData (value object)');
+                   end;
+     symUserFunc : begin
                    if symbol.fValue <> nil then
                       begin
                       symbol.fValue.blockType := btGarbage
@@ -718,6 +807,51 @@ begin
 end;
 
 
+procedure TSymbolTable.storeVector  (symbol : TSymbol; vValue : TVectorObject);
+begin
+  checkForExistingData (symbol);
+
+  if  (vValue.blockType = btConstant) or
+      (vValue.blockType = btBound) or
+      (vValue.blockType = btOwned) then
+         symbol.vValue := vValue.clone
+  else
+     symbol.vValue := vValue;
+  symbol.vValue.blockType := btBound;
+  symbol.symbolType := symVector;
+end;
+
+
+procedure TSymbolTable.storeMatrix  (symbol : TSymbol; matValue : TMatrixObject);
+begin
+  checkForExistingData (symbol);
+
+  if  (matValue.blockType = btConstant) or
+      (matValue.blockType = btBound) or
+      (matValue.blockType = btOwned) then
+         symbol.matValue := matValue.clone
+  else
+     symbol.matValue := matValue;
+  symbol.matValue.blockType := btBound;
+  symbol.symbolType := symMatrix;
+end;
+
+
+procedure TSymbolTable.storeValueObject  (symbol : TSymbol; voValue : TValueObject);
+begin
+  checkForExistingData (symbol);
+
+  if  (voValue.blockType = btConstant) or
+      (voValue.blockType = btBound) or
+      (voValue.blockType = btOwned) then
+         symbol.voValue := voValue.clone
+  else
+     symbol.voValue := voValue;
+  symbol.voValue.blockType := btBound;
+  symbol.symbolType := symValueObject;
+end;
+
+
 procedure TSymbolTable.storeFunction (symbol : TSymbol; fValue : TUserFunction);
 begin
   checkForExistingData (symbol);
@@ -776,10 +910,13 @@ begin
       begin
       if self[i] <> nil then
         case self[i].symbolType of
-           symList   : self[i].lValue.blockType := btGarbage;
-           symString : self[i].sValue.blockType := btGarbage;
-           symArray  : self[i].aValue.blockType := btGarbage;
-           symUserFunc : self[i].fValue.blockType := btGarbage;
+           symList        : self[i].lValue.blockType := btGarbage;
+           symString      : self[i].sValue.blockType := btGarbage;
+           symArray       : self[i].aValue.blockType := btGarbage;
+           symVector      : self[i].vValue.blockType := btGarbage;
+           symMatrix      : self[i].matValue.blockType := btGarbage;
+           symValueObject : self[i].voValue.blockType := btGarbage;
+           symUserFunc    : self[i].fValue.blockType := btGarbage;
         end;
       self[i].free;
       end;
@@ -795,19 +932,6 @@ begin
   symbol.symbolName := fValue.name;
   symbol.symbolType := symUserFunc;
   symbol.locked := locked;
-  result := Add (symbol);
-end;
-
-
-function TLocalSymbolTable.addSymbol (name : string; dValue : double; locked : boolean; helpStr : string) : integer;
-var symbol : TSymbol;
-begin
-  symbol := TSymbol.Create;
-  symbol.dValue := dValue;
-  symbol.symbolName := name;
-  symbol.symbolType := symDouble;
-  symbol.helpStr := helpStr;
-  symbol.locked := locked;;
   result := Add (symbol);
 end;
 
@@ -912,6 +1036,22 @@ begin
             result.addSymbol (self[i].symbolName);
             result[i].symbolType := symArray;
             self[i].aValue := self[i].aValue.clone;
+            end;
+         symVector :
+            begin
+            result.addSymbol (self[i].symbolName);
+            result[i].symbolType := symVector;
+            self[i].vValue := self[i].vValue.clone;
+            end;
+         symMatrix :
+            begin
+            result.addSymbol (self[i].symbolName);
+            result[i].symbolType := symMatrix;
+            self[i].matValue := self[i].matValue.clone;
+            end;
+         symValueObject :
+            begin
+            raise ERuntimeException.Create('valueObject, clone not implemented');
             end
        else
            raise Exception.Create('Unsupported type in function clone');
@@ -943,6 +1083,24 @@ begin
                       self[index].aValue.blockType := btGarbage
                    else
                        raise ERuntimeException.Create('Internal Error: checkingForExistingData (array)');
+                   end;
+      symVector  : begin
+                   if self[index].vValue <> nil then
+                      self[index].vValue.blockType := btGarbage
+                   else
+                       raise ERuntimeException.Create('Internal Error: checkingForExistingData (vector)');
+                   end;
+      symMatrix : begin
+                   if self[index].matValue <> nil then
+                      self[index].matValue.blockType := btGarbage
+                   else
+                       raise ERuntimeException.Create('Internal Error: checkingForExistingData (matrix)');
+                   end;
+ symValueObject : begin
+                   if self[index].voValue <> nil then
+                      self[index].voValue.blockType := btGarbage
+                   else
+                       raise ERuntimeException.Create('Internal Error: checkingForExistingData (matrix)');
                    end;
        symUserFunc:begin
                    if self[index].fValue <> nil then
@@ -981,7 +1139,7 @@ begin
   if self[index].locked then
      raise ERuntimeException.Create ('Value is locked, you cannot change it');
 
- checkForExistingData (index);
+  checkForExistingData (index);
 
   self[index].symbolType := symBoolean;
   self[index].bValue := bValue;

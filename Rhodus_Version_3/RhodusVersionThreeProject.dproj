@@ -213,6 +213,11 @@
         <DCCReference Include="..\librhodus\uRhodusLibTypes.pas"/>
         <DCCReference Include="..\VirtualMachine\uIntStack.pas"/>
         <DCCReference Include="..\VirtualMachine\uJumpTables.pas"/>
+        <DCCReference Include="..\VirtualMachine\uMatrixObject.pas"/>
+        <DCCReference Include="..\VirtualMachine\uVectorObject.pas"/>
+        <DCCReference Include="uBuiltInMatrix2.pas"/>
+        <DCCReference Include="uMatrixFunctions.pas"/>
+        <DCCReference Include="..\VirtualMachine\uValueObject.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -246,12 +251,12 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="$(BDS)\Redist\iossimulator\libpcre.dylib" Class="DependencyModule">
+                <DeployFile LocalName="$(BDS)\Redist\iossimulator\libPCRE.dylib" Class="DependencyModule">
                     <Platform Name="iOSSimulator">
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="$(BDS)\Redist\iossimulator\libPCRE.dylib" Class="DependencyModule">
+                <DeployFile LocalName="$(BDS)\Redist\iossimulator\libpcre.dylib" Class="DependencyModule">
                     <Platform Name="iOSSimulator">
                         <Overwrite>true</Overwrite>
                     </Platform>

@@ -74,10 +74,6 @@ begin
   addMethod(getColors,    0, 'getcolors', '');
   addMethod(setPenWidth,  1, 'penwidth', '');
 
-
-  //addValue ('pi', Pi,      'The value of pi');
-  //addValue ('e',  exp (1), 'The value of e');
-
   // Try snd connect to the turtle server
   t := TTurtle.Create;
   if not t.connect then

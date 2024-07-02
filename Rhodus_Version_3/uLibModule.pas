@@ -11,7 +11,7 @@ unit uLibModule;
 
 interface
 
-Uses SysUtils, Classes, uSymbolTable, uListObject, uStringObject;
+Uses SysUtils, Classes, uSymbolTable, uListObject, uStringObject, uValueObject;
 
 type
   TModuleLib = class (TModule)
@@ -20,7 +20,9 @@ type
     procedure   addDoubleValue (name : string; value : double; helpStr : string; locked : boolean);
     procedure   addStringValue (name, value, helpStr : string; locked : boolean);
     procedure   addListValue  (name : string; value : TListObject; helpStr : string; locked : boolean);
+    procedure   addObjectValue (name : string; value : TValueObject; helpStr : string; locked : boolean);
 
+    procedure   findSymbol (vmObj : TObject);
     procedure   callDir (vmObj : TObject);
     procedure   callContains (vmObj : TObject);
     constructor Create (name : string; helpStr : string);
@@ -30,7 +32,7 @@ type
 
 implementation
 
-Uses uVM, uMemoryManager, uVMExceptions, uMachineStack;
+Uses uRhodusTypes, uVM, uMemoryManager, uVMExceptions, uMachineStack;
 
 
 constructor TModuleLib.Create (name : string; helpStr : string);
@@ -47,12 +49,38 @@ begin
   f := TUserFunction.Create ('contains', 1, callContains);
   f.helpStr := 'Returns true if the module includes the given symbol, e.g math.contains ("cos")';
   self.symbolTable.addSymbol (f, True); // // locked = True
+
+  f := TUserFunction.Create ('find', 1, findSymbol);
+  f.helpStr := 'Returns true if the module includes the given symbol, e.g math.contains ("cos")';
+  self.symbolTable.addSymbol (f, True); // // locked = True
+
 end;
 
 
 destructor TModuleLib.Destroy;
 begin
   inherited;
+end;
+
+
+procedure TModuleLib.findSymbol (vmObj : TObject);
+var astr : TStringObject;
+    sym : TSymbol;
+begin
+  astr := TVM (vmObj).popString();
+
+  sym := self.find(astr.value);
+  if sym = nil then
+     raise ERuntimeException.Create('Unable to locate symbol: ' + astr.value);
+
+  case sym.symbolType of
+    symInteger : TVM (vmObj).push(sym.iValue);
+    symDouble : TVM (vmObj).push(sym.dValue);
+    symUserFunc : TVM (vmObj).push(sym.fValue);
+  else
+     raise ERuntimeException.Create('Type not supported in findSymbol');
+  end;
+
 end;
 
 
@@ -119,6 +147,10 @@ begin
   self.symbolTable.addSymbol(name, value, locked, helpStr);
 end;
 
+procedure TModuleLib.addObjectValue (name : string; value : TValueObject; helpStr : string; locked : boolean);
+begin
+  self.symbolTable.addSymbol(name, value, locked, helpStr);
+end;
 
 procedure TModuleLib.addListValue  (name : string; value : TListObject; helpStr : string; locked : boolean);
 begin
@@ -137,6 +169,7 @@ var f : TUserFunction;
 begin
   f := TUserFunction.Create(name, nArgs, methodPtr);
   f.helpStr := helpStr;
+  f.moduleRef := self;
   self.symbolTable.addSymbol (f, True);  // locked = True
 end;
 

@@ -895,7 +895,6 @@ begin
   loadScript;
 end;
 
-
 initialization
   // Ensures that the TSybEdit is corectly themed
   TStyleManager.Engine.RegisterStyleHook(TCustomSynEdit, TScrollBoxStyleHook);

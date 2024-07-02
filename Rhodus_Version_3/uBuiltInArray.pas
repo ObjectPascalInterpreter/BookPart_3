@@ -4,7 +4,26 @@ unit uBuiltInArray;
   Unit:    uBuiltInArray.pas
   Author:  Herbert M sauro
   Date:    10/2021
-  Purpose: This file implements the array type for the Rhodus interpreter.
+  Purpose: This file implements the arrays module for the Rhodus interpreter.
+           Arrays can have any number of dimensions. There is a separate
+           object type for 2D matrices
+
+           Array are creatde from lists using the array function:
+           eg
+              x = array ([[1,2,3,4], [6,5,4,2]])
+
+           If the array is 2D, it can be converted to a matrix type using
+
+           m = x.toMatrix()
+
+           If matrix can be converted to a 2D array:
+
+           a = m.toArray()
+
+           Both arrays and matricies can beconvert to lists:
+
+           l = a.toList()
+           l = m.toList()
 
   Ths source is distributed under Apache 2.0
   See https://www.apache.org/licenses/LICENSE-2.0.txt for further information
@@ -50,6 +69,7 @@ begin
   addMethod(getRndu,    -1, 'rand',  'Create an array of uniformly random numbers: ar = arrays.rand (4,4,2)');
   addMethod(getRndi,     3, 'randi', 'Create a list of uniformly random integers: ar = arrays.randi (lower, upper, [3,3])');
   addMethod(isEqual,     2, 'equal', 'Return true if the two arrays are equal: arrays.equal (m1,m2)');
+  addMethod(isEqual,     2, 'appendrow', 'Return true if the two arrays are equal: arrays.equal (m1,m2)');
   end;
 
 

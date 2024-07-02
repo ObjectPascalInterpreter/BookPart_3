@@ -13,7 +13,16 @@ var
 
 implementation
 
-Uses uStringObject, uListObject, uArrayObject, uSymbolTable, uRhodusTypes, uVMExceptions;
+Uses uStringObject,
+     uListObject,
+     uArrayObject,
+     uVectorObject,
+     uMatrixObject,
+     uValueObject,
+     uSymbolTable,
+     uRhodusTypes,
+     uVMExceptions;
+
 
 procedure errorFunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
@@ -42,6 +51,30 @@ end;
 procedure addDoubleDoublefunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
   result.dValue := d1.dValue + d2.dValue;
+  result.stackType := stdouble;
+end;
+
+procedure addIntegerValueObjectfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
+begin
+  result.dValue := TValueObject.getValue(d1.voValue) + d2.iValue;
+  result.stackType := stdouble;
+end;
+
+procedure addValueObjectIntegerfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
+begin
+  result.dValue := TValueObject.getValue(d2.voValue) + d1.iValue;
+  result.stackType := stdouble;
+end;
+
+procedure addDoubleValueObjectfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
+begin
+  result.dValue := TValueObject.getValue(d1.voValue) + d2.dValue;
+  result.stackType := stdouble;
+end;
+
+procedure addValueObjectDoublefunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
+begin
+  result.dValue := TValueObject.getValue(d2.voValue) + d1.dValue;
   result.stackType := stdouble;
 end;
 
@@ -170,6 +203,36 @@ begin
   result.stackType := stArray;
 end;
 
+procedure addVectorVectorfunc  (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
+begin
+  result.vValue := TVectorObject.add(d2.vValue, d1.vValue);
+  result.stackType := stVector;
+end;
+
+
+procedure addMatrixMatrixfunc  (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
+begin
+  result.mValue := TMatrixObject.add(d2.mValue, d1.mValue);
+  result.stackType := stMatrix;
+end;
+
+
+procedure addIntegerMatrixfunc  (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
+begin
+
+end;
+
+
+procedure addMatrixDoublefunc  (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
+begin
+
+end;
+
+
+procedure addDoubleMatrixfunc  (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
+begin
+
+end;
 
 procedure create_addJumpTable;
 var s1, s2 : TStackType;
@@ -182,6 +245,11 @@ begin
   addJumpTable[stInteger, stDouble]  := addIntDoublefunc;
   addJumpTable[stDouble,  stInteger] := addDoubleIntfunc;
   addJumpTable[stDouble,  stDouble]  := addDoubleDoublefunc;
+  addJumpTable[stInteger,  stValueObject] := addIntegerValueObjectfunc;
+  addJumpTable[stValueObject, stInteger] := addValueObjectIntegerfunc;
+  addJumpTable[stDouble,  stValueObject] := addDoubleValueObjectfunc;
+  addJumpTable[stValueObject, stDouble] := addValueObjectDoublefunc;
+
   addJumpTable[stString,  stString]  := addStringStringfunc;
   addJumpTable[stList,    stInteger] := addListIntfunc;
   addJumpTable[stInteger, stList]    := addIntListfunc;
@@ -199,6 +267,13 @@ begin
   addJumpTable[stList,    stArray]   := addListArrayfunc;
   addJumpTable[stArray,   stList]    := addArrayListfunc;
   addJumpTable[stArray,   stArray]   := addArrayArrayfunc;
+  addJumpTable[stVector,  stVector]  := addVectorVectorfunc;
+
+  addJumpTable[stMatrix,  stMatrix]  := addMatrixMatrixfunc;
+  //addJumpTable[stMatrix,  stVector] := addMatrixIntegerfunc;
+  //addJumpTable[stInteger, stMatrix]  := addIntegerMatrixfunc;
+  //addJumpTable[stDouble, stMatrix]   := addMatrixDoublefunc;
+  //addJumpTable[stMatrix, stInteger]  := addDoubleMatrixfunc;
 end;
 
 

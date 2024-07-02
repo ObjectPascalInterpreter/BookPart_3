@@ -7,6 +7,8 @@ unit uRhodusObject;
 // Author Contact Information:
 // email: hsauro@gmail.com
 
+// Top level class for all data objects like string objects, lists objects etc.
+
 
 interface
 
@@ -29,6 +31,7 @@ type
    end;
 
 implementation
+
 
 constructor TRhodusObject.Create;
 begin

@@ -96,7 +96,12 @@ uses
   uBuiltInGraphics in 'uBuiltInGraphics.pas',
   uRhodusLibTypes in '..\librhodus\uRhodusLibTypes.pas',
   uIntStack in '..\VirtualMachine\uIntStack.pas',
-  uJumpTables in '..\VirtualMachine\uJumpTables.pas';
+  uJumpTables in '..\VirtualMachine\uJumpTables.pas',
+  uMatrixObject in '..\VirtualMachine\uMatrixObject.pas',
+  uVectorObject in '..\VirtualMachine\uVectorObject.pas',
+  uBuiltInMatrix2 in 'uBuiltInMatrix2.pas',
+  uMatrixFunctions in 'uMatrixFunctions.pas',
+  uValueObject in '..\VirtualMachine\uValueObject.pas';
 
 begin
   ReportMemoryLeaksOnShutdown := True;

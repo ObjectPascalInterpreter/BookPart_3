@@ -56,7 +56,7 @@ const outOfRangeMsg = 'Index out of range while accessing array element';
 
 constructor TBuiltInMatrix.Create;
 begin
-  inherited Create ('mat', 'Matrix Module, deals with 2-dimensional arrays');
+  inherited Create ('mat2', 'Matrix Module, deals with 2-dimensional arrays');
 
   addMethod(getIdent,          1, 'ident', 'Create an identity matrix: m = mat.ident (4)');
   addMethod(getMult,           2, 'mult',  'Multiply two 2D matrices: m = mat.mult (m1, m2)');
@@ -215,8 +215,8 @@ var nDim1, nDim2, n, i, j : integer;
     ar : TArrayObject;
 begin
    case x.stackType of
-        stInteger : TVM (vm).push (TArrayObject.arrayIntMult (m, x.iValue));
-        stDouble  : TVM (vm).push (TArrayObject.arrayDoubleMult (m, x.dValue));
+        stInteger : TVM (vm).push (TArrayObject.arrayScalarIntMult (m, x.iValue));
+        stDouble  : TVM (vm).push (TArrayObject.arrayScalarDoubleMult (m, x.dValue));
         stArray   : begin
                     nDim1 := m.getNumDimensions();
                     nDim2 := x.aValue.getNumDimensions();
@@ -289,13 +289,13 @@ begin
    case m1.stackType of
       stInteger :
          case m2.stackType of
-             stArray : TVM (vm).push (TArrayObject.arrayIntMult (m2.aValue, m1.iValue));
+             stArray : TVM (vm).push (TArrayObject.arrayScalarIntMult (m2.aValue, m1.iValue));
          else
              raise ERuntimeException.Create('Unsupported type in matrix multiply');
          end;
       stDouble :
         case m2.stackType of
-             stArray : TVM (vm).push (TArrayObject.arrayDoubleMult (m2.aValue, m1.dValue));
+             stArray : TVM (vm).push (TArrayObject.arrayScalarDoubleMult (m2.aValue, m1.dValue));
          else
              raise ERuntimeException.Create('Unsupported type in matrix multiply');
          end;
@@ -319,7 +319,7 @@ begin
   if nr <> nc then
      raise ERuntimeException.Create('Matrix must be square to compute the inverse (' + inttostr (nr) + ', ' + inttostr (nc) + ')');
 
-  GaussJordan(cpy, 0, nr-1, nr-1, det);
+  //GaussJordan(cpy, 0, nr-1, nr-1, det);
 
   TVM (vm).push(cpy);
 end;

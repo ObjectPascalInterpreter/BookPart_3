@@ -14,7 +14,7 @@ interface
 Uses SysUtils, Classes, uLibModule, System.Diagnostics;
 
 const
-   RHODUS_VERSION : AnsiString = '3.0.4.0';
+   RHODUS_VERSION : AnsiString = '3.1.0.0';
 
 type
   TBuiltInConfig= class (TModuleLib)

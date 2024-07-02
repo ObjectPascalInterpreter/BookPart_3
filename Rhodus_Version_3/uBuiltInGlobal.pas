@@ -19,7 +19,7 @@ unit uBuiltInGlobal;
 interface
 
 
-Uses SysUtils, Classes, uLibModule, uSymbolTable;
+Uses SysUtils, Classes, uLibModule, uSymbolTable, uListObject, uArrayObject;
 
 function  getMainModule : TModule;
 procedure computeBaseLineMemoryAllocated;
@@ -29,6 +29,7 @@ var mainModule : TModuleLib;
     baseLineMemoryAllocated : UInt64;
 
     procedure createGlobalBuiltIns;
+    function convertListToArray (alist : TListObject) : TArrayObject;
 
 implementation
 
@@ -37,8 +38,7 @@ Uses Math,
      uVM,
      uVMExceptions,
      uStringObject,
-     uListObject,
-     uArrayObject,
+     uValueObject,
      uMemoryManager,
      uMachineStack,
      uCompile,
@@ -51,6 +51,7 @@ type
         //readCallback : TVMReadStringCallBack;
      public
        procedure createArray (vm : TObject);
+       procedure createDictionary (vm : TObject);
        procedure myInt (vm : TObject);
        procedure myIntToHex (vm : TObject);
        procedure myFloat (vm : TObject);
@@ -93,8 +94,9 @@ end;
 
 procedure addGlobalMethodsToModule (module : TModuleLib);
 begin
-  module.addMethod (builtInGlobal.createArray, VARIABLE_ARGS, 'array',         'Create an array: x = array (3, 4)');
-  module.addMethod (builtInGlobal.myInt,          1, 'int',           'Convert float to integer: int (3.4)');
+  module.addMethod (builtInGlobal.createArray, VARIABLE_ARGS, 'array',      'Create an array: x = array (3, 4)');
+  module.addMethod (builtInGlobal.createDictionary, VARIABLE_ARGS, 'dict',  'Create a dictionary: x = dict (["Red", 67], ["Green", 87], ["Blue", 34])');
+  module.addMethod (builtInGlobal.myInt,          1, 'int',           'Convert float to integer: int (3.4XXX)');
   module.addMethod (builtInGlobal.myIntToHex,     1, 'hex',           'Convert integer to hex string: hex (56)');
   module.addMethod (builtInGlobal.myFloat,        1, 'float',         'Convert and integer to a float: float (3)');
   module.addMethod (builtInGlobal.readNumber,    VARIABLE_ARGS, 'readNumber',  'Read an integer from the input channel: : str = readNumber ("Enter answer: ")');
@@ -152,25 +154,26 @@ constructor TBuiltInGlobal.Create;
 begin
   inherited Create (TSymbol.globalId, 'Global Module');
 
-  // -1  means variable arguments, call function pushes the actual number of arguments provided
-  addMethod (createArray,   -1, 'array',         'Create an array of a given size: a = array(4,5,2)');
-  addMethod (myInt,          1, 'int',           'Convert float to integer: int (3.4)');
-  addMethod (myIntTohex,     1, 'hex',           'Convert integer to hex string: hex(56)');
-  addMethod (myFloat,        1, 'float',         'Convert an integer to a float: float (3)');
-  addMethod (readNumber,     0, 'readNumber',    'Read an integer from the console');
-  addMethod (readString,     0, 'readString',    'Rread a string from the console');
-  addMethod (listSymbols,    1, 'symbols',       'Returns list of symbols in the specified module: symbols(math). Use ' + TSymbol.mainModuleId + ' to get the symbols for the main module');
-  addMethod (getType,        1, 'type',          'Returns the type of a given variable: type (x)');
-  addMethod (getAttr,        2, 'getAttr',       'Returns the value attached to the symbol attribute: getAttr (mylib, "x")');
-  addMethod (listModules,    0, 'modules',       'Get a list of all currently loaded mdules');
-  addMethod (getMemoryUsed,  0, 'mem',           'Get the amount of memory currently in use.');
-  addMethod (myAssertTrueEx, 1, 'assertTrueEx',  'Assert argument is true, return . of F');
-  addMethod (myAssertFalseEx,1, 'assertFalseEx', 'Assert argument is false, return . of F');
-  addMethod (myMain,         0, 'main',          'Returns a reference to the main module');
-  addMethod (dis,            1, 'dis',           'dissassemble module or function');
-  addMethod (stackInfo,      0, 'stackInfo',     'Get the current state of the VM stack');
-  addMethod (getChar,        1, 'chr',           'Get the character equivalent of an integer value');
-  addMethod (getAsc,         1, 'asc',           'Get the ascii equivalent of a single character');
+//  // -1  means variable arguments, call function pushes the actual number of arguments provided
+//  addMethod (createArray,   -1, 'array',         'Create an array of a given size: a = array(4,5,2)');
+//  addMethod (createDictionary,-1, 'dict',        'Create a dictionary: a = dict (["Red", 67], ["Green", 87], ["Blue", 34])');
+//  //addMethod (myInt,          1, 'int',           'Convert float to integer: int (3.4)');
+//  addMethod (myIntTohex,     1, 'hex',           'Convert integer to hex string: hex(56)');
+//  addMethod (myFloat,        1, 'float',         'Convert an integer to a float: float (3)');
+//  addMethod (readNumber,     0, 'readNumber',    'Read an integer from the console');
+//  addMethod (readString,     0, 'readString',    'Read a string from the console');
+//  addMethod (listSymbols,    1, 'symbols',       'Returns list of symbols in the specified module: symbols(math). Use ' + TSymbol.mainModuleId + ' to get the symbols for the main module');
+//  addMethod (getType,        1, 'type',          'Returns the type of a given variable: type (x)');
+//  addMethod (getAttr,        2, 'getAttr',       'Returns the value attached to the symbol attribute: getAttr (mylib, "x")');
+//  addMethod (listModules,    0, 'modules',       'Get a list of all currently loaded mdules');
+//  addMethod (getMemoryUsed,  0, 'mem',           'Get the amount of memory currently in use.');
+//  addMethod (myAssertTrueEx, 1, 'assertTrueEx',  'Assert argument is true, return . of F');
+//  addMethod (myAssertFalseEx,1, 'assertFalseEx', 'Assert argument is false, return . of F');
+//  addMethod (myMain,         0, 'main',          'Returns a reference to the main module');
+//  addMethod (dis,            1, 'dis',           'dissassemble module or function');
+//  addMethod (stackInfo,      0, 'stackInfo',     'Get the current state of the VM stack');
+//  addMethod (getChar,        1, 'chr',           'Get the character equivalent of an integer value');
+//  addMethod (getAsc,         1, 'asc',           'Get the ascii equivalent of a single character');
 end;
 
 
@@ -379,6 +382,12 @@ begin
 end;
 
 
+procedure TBuiltInGlobal.createDictionary (vm : TObject);
+begin
+  raise ERuntimeException.Create('dict not yet implemented');
+end;
+
+
 procedure TBuiltInGlobal.listSymbols (vm : TObject);
 var module : TModule;
 begin
@@ -389,6 +398,7 @@ end;
 
 function getModuleHelp (m : TModule) : string;
 var f : TUserFunction;
+    vo : TValueObject;
     key : string;
 begin
   result := 'Module: ' + m.name + ', ' + m.helpStr + sLineBreak;
@@ -401,10 +411,18 @@ begin
              f := m.symbolTable.Items[key].fValue;
              result := result + Format('%-12s', ['Function:']) +
                         Format('%-12s', [f.name])  +  f.helpStr + sLineBreak;
+             end;
+         symValueObject :
+             begin
+             vo := m.symbolTable.Items[key].voValue;
+             result := result + Format('%-12s', ['Function:']) +
+                        Format('%-12s', [f.name])  +  f.helpStr + sLineBreak;
+
              end
       else
-         result := result + Format('%-12s', ['Variable:']) +
-                Format ('%-12s', [m.symbolTable.Items[key].symbolName])  + m.symbolTable.Items[key].helpStr + sLineBreak;
+         result := 'Ther is no help for these kinds of objects'; // HMS
+         //result := result + Format('%-12s', ['Variable:']) +
+         //       Format ('%-12s', [m.symbolTable.Items[key].symbolName])  + m.symbolTable.Items[key].helpStr + sLineBreak;
       end;
       end;
 end;
@@ -604,11 +622,13 @@ begin
     stString : TVM (vm).push (TStringObject.Create ('string'));
     stList : TVM (vm).push (TStringObject.Create ('list'));
     stArray : TVM (vm).push (TStringObject.Create ('array'));
+    stVector : TVM (vm).push (TStringObject.Create ('vector'));
+    stMatrix : TVM (vm).push (TStringObject.Create ('matrix'));
     stFunction : TVM (vm).push (TStringObject.Create ('function'));
     stModule : TVM (vm).push (TStringObject.Create ('module'));
     stNone :  TVM (vm).push (TStringObject.Create ('none'));
   else
-    TVM (vm).push (TStringObject.Create ('not sure'));
+    TVM (vm).push (TStringObject.Create ('I''m not sure'));
   end;
 end;
 
@@ -716,11 +736,11 @@ end;
 
 procedure createGlobalBuiltIns;
 begin
-  builtInGlobal := TBuiltInGlobal.Create;
+  //builtInGlobal := TBuiltInGlobal.Create;
 end;
 
 initialization
 
 finalization
-  builtInGlobal.Free;
+  //builtInGlobal.Free;
 end.

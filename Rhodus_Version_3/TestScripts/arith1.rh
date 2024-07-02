@@ -6,7 +6,7 @@ import math
 setColor ("yellow")
 println ("------------------- Arithmetic Tests ---------------------")
 setColor ("white")
-testUtils.beginTests ("")
+testUtils.beginTests ("Equality")
   testUtils.runtestTrue (1E2 == 100);
   testUtils.runtestTrue (1.2E2 == 120); 
   testUtils.runtestTrue (0.1E2 == 10); 
@@ -14,20 +14,22 @@ testUtils.beginTests ("")
   testUtils.runtestTrue (1.2E-2 == 0.012); 
   testUtils.runtestTrue (-1E-2 == -0.01);
 
+  testUtils.runtestTrue (10 / 2 == 5);
+  testUtils.runtestTrue (2^4 == 16);
+
+  a = 2; b = 5;
+  testUtils.runtestTrue  (a == 2);
+  testUtils.runtestTrue  (b == 5);
+testUtils.endTests()
+
+
+testUtils.beginTests ("Integer Operators")
+ // Integer tests
+ a = 2; b = 5;
   testUtils.runtestTrue (2 + 3 == 5);
   testUtils.runtestTrue (2 - 3 == -1);
   testUtils.runtestTrue (3 - 2 == 1);
   testUtils.runtestTrue (2 * 3 == 6);
-  testUtils.runtestTrue (10 / 2 == 5);
-  testUtils.runtestTrue (2^4 == 16);
-testUtils.endTests()
-
-
-testUtils.beginTests ("")
- // Integer tests
- a = 2; b = 5;
- testUtils.runtestTrue  (a == 2);
- testUtils.runtestTrue  (b == 5);
  testUtils.runtestTrue  (a + b == 7);
  testUtils.runtestTrue  (b + a == 7);  
  testUtils.runtestTrue  (a - b == -3); 
@@ -42,7 +44,7 @@ testUtils.beginTests ("")
  testUtils.runtestTrue  (b mod 3 == 2);
 testUtils.endTests() 
 
-testUtils.beginTests ("")
+testUtils.beginTests ("Double")
   // Double tests
   a = 2.5; b = 5.5;
   testUtils.runtestTrue (a + b == 8.0);  
@@ -71,10 +73,30 @@ testUtils.beginTests ("")
   // Mixed
   testUtils.runtestTrue (8 / 2.5 == 3.2);
   testUtils.runtestTrue (2.5 / 8 == 0.3125);
+
+  testUtils.runtestTrue (2.0 + math.pi == 5.14159265358979); 
+  testUtils.runtestTrue (math.pi + 2.0 == 5.14159265358979); 
+  testUtils.runtestTrue (2 + math.pi == 5.14159265358979); 
+  testUtils.runtestTrue (math.pi + 2 == 5.14159265358979);
+
+  testUtils.runtestTrue (math.pi - 2 == 1.14159265358979); 
+  testUtils.runtestTrue (math.pi - 2.0 == 1.14159265358979); 
+  testUtils.runtestTrue (2 - math.pi == -1.14159265358979); 
+  testUtils.runtestTrue (2.0 - math.pi == -1.14159265358979); 
+
+  testUtils.runtestTrue (math.pi * 2 == 6.28318530717959);  
+  testUtils.runtestTrue (2 * math.pi == 6.28318530717959); 
+  testUtils.runtestTrue (math.pi * 2.0 == 6.28318530717959);  
+  testUtils.runtestTrue (2.0 * math.pi == 6.28318530717959); 
+
+  testUtils.runtestTrue (math.pi / 2 == 1.5707963267949); 
+  testUtils.runtestTrue (math.pi / 2.0 == 1.5707963267949); 
+  testUtils.runtestTrue (2/math.pi == 0.636619772367581); 
+  testUtils.runtestTrue (2.0/math.pi == 0.636619772367581); 
 testUtils.endTests()
 
 
-testUtils.beginTests ("")
+testUtils.beginTests ("Precendence")
   // Precendence Tests
   testUtils.runtestTrue (5 * 4 + 2 == 22);
   testUtils.runtestTrue (2 + 5 * 4 == 22);
@@ -85,7 +107,7 @@ testUtils.beginTests ("")
 testUtils.endTests()
 
 
-testUtils.beginTests ("")
+testUtils.beginTests ("Relational")
   // Relational
 
   x = 2;
@@ -97,9 +119,7 @@ testUtils.beginTests ("")
   testUtils.runtestTrue(True == (x <= y))
   testUtils.runtestTrue(False == (x >= y))
   testUtils.runtestTrue(False == (x == y))
-testUtils.endTests()
 
-testUtils.beginTests ("")
   // Relational when dealing with int and float
   x = 95.6
   y = int (40)
@@ -113,7 +133,7 @@ testUtils.beginTests ("")
 testUtils.endTests()
 
 
-testUtils.beginTests ("")
+testUtils.beginTests ("Math Lib")
   // Math library test
   testUtils.runtestTrue (math.log (1000) == 3)
   testUtils.runtestTrue (math.log (100000) == 5)
@@ -161,6 +181,12 @@ testUtils.beginTests ("")
   testUtils.runtestTrue (math.acos (0.2) == 1.36943840600457)  
   testUtils.runtestTrue (math.asin (0.2) == 0.201357920790331)
   testUtils.runtestTrue (math.atan (0.2) == 0.197395559849881)
+
+  testUtils.runtestTrue (math.cos (math.pi) == -1)
+  testUtils.runtestTrue (math.sin (math.pi) == 0)
+  testUtils.runtestTrue (math.tan (math.pi) == 0)
+  testUtils.runtestTrue (math.sqrt (math.pi) == 1.77245385090552)
+  testUtils.runtestTrue (math.sqr (math.pi) == 9.86960440108936)
 testUtils.endTests()
 
 setColor ("yellow")

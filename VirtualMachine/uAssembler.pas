@@ -323,7 +323,7 @@ begin
         oBuildSlice   : result := result + '  ' + opCodeNames[oBuildSlice] + sLineBreak;
         oSliceAll     : result := result + '  ' + opCodeNames[oSliceAll] + sLineBreak;
 
-        oCreateArray  : result := result + '  ' + opCodeNames[oCreateArray] + ' ' + inttostr (aProgram.code[i].index) + sLineBreak;
+        //oCreateArray  : result := result + '  ' + opCodeNames[oCreateArray] + ' ' + inttostr (aProgram.code[i].index) + sLineBreak;
         oCall       : result := result + '  ' + opCodeNames[oCall]  + sLineBreak;
         oBuiltin    : result := result + '  ' + opCodeNames[oBuiltin] + ' ' + inttostr (aProgram.code[i].index) + sLineBreak;
         oRet        : result := result + '  ' + opCodeNames[oRet]     + ' ' + sLineBreak;

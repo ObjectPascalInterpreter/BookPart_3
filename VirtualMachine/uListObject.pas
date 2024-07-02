@@ -11,11 +11,18 @@ unit uListObject;
 
 interface
 
-Uses System.SysUtils, uUtils, System.generics.Collections, uObjectSupport,
-     uMemoryManager, uStringObject, uArrayObject, uRhodusObject;
+Uses System.SysUtils, uUtils, System.generics.Collections,
+     uObjectSupport,
+     uMemoryManager,
+     uStringObject,
+     uArrayObject,
+     uMatrixObject,
+     uValueObject,
+     uRhodusObject;
 
 type
-  TListItemType = (liInteger, liBoolean, liDouble, liString, liList, liArray, liFunction, liModule);
+  TListItemType = (liInteger, liBoolean, liDouble, liString, liList,
+                   liArray, liMatrix, liValueObject, liFunction, liModule);
   TListItem = class;
 
   TListMethods = class (TMethodsBase)
@@ -40,6 +47,8 @@ type
   public
     list: TListContainer;          // Contains the data
 
+    listToArray : boolean;
+
     class function addLists(list1, list2: TListObject): TListObject;
     class function multiply(value: integer; aList: TListObject): TListObject;
     class function listEquals(list1, list2: TListObject): boolean;
@@ -50,6 +59,7 @@ type
     procedure append(sValue: TStringObject); overload;
     procedure append(lValue: TListObject); overload;
     procedure append(aValue: TArrayObject); overload;
+    procedure append(mValue: TMatrixObject); overload;
     procedure appendUserFunction(fValue: TObject);
     procedure appendModule(mValue: TObject);
 
@@ -60,6 +70,7 @@ type
     procedure insert(index: integer; lValue: TListObject); overload;
     procedure insert(index: integer; sValue: TStringObject); overload;
     procedure insert(index: integer; aValue: TArrayObject); overload;
+    procedure insert(index: integer; mValue: TMatrixObject); overload;
     procedure insertUserFunction(index : integer; fValue: TObject);
     procedure insertModule(index: integer; mValue: TObject);
     function  findMin : double;
@@ -84,8 +95,10 @@ type
     sValue: TStringObject;
     lValue: TListObject;
     aValue: TArrayObject;
+    mValue : TMatrixObject;
+    voValue : TValueObject;
     fValue: TObject; // User function
-    mValue: TObject; // Module
+    moduleValue: TObject; // Module
     function elementToString: string;
     class function listEquals(list1: TListItem; list2: TListItem): boolean;
     function getsize(): integer;
@@ -100,6 +113,7 @@ type
     constructor Create(sValue: TStringObject); overload;
     constructor Create(lValue: TListObject); overload;
     constructor Create(aValue: TArrayObject); overload;
+    constructor Create(mValue: TMatrixObject); overload;
     constructor CreateUserFunction(fValue: TObject);
     constructor CreateModule(mValue: TObject);
 
@@ -129,7 +143,7 @@ constructor TListMethods.Create;
 begin
   methodList := TMethodList.Create;
 
-  methodList.Add(TMethodDetails.Create ('len',    0, 'Return the length of a list: var.len (mylist)', getLength));
+  methodList.Add(TMethodDetails.Create ('len',    0, 'Return the length of a list: var.len ()', getLength));
   methodList.Add(TMethodDetails.Create ('append', 1, 'Append the element to the list: var.append (a, 3.14)', append));
   methodList.Add(TMethodDetails.Create ('remove', 1, 'Remove an element from a list with given index: var.remove (4)', remove));
   methodList.Add(TMethodDetails.Create ('sum',    0, 'Find the sum of values in a list. var.sum ()', getSum));
@@ -171,6 +185,7 @@ var s : TListObject;
     ts : TStringObject;
     ls : TListObject;
     ar : TArrayObject;
+    mat : TMatrixObject;
     fs : TUserFunction;
     md : TMethodDetails;
 begin
@@ -196,6 +211,11 @@ begin
                      ar := value.aValue.clone;
                      ar.blockType := btOwned;
                      s.append (ar);
+                     end;
+      stmatrix  :    begin
+                     mat := value.mValue.clone;
+                     mat.blockType := btOwned;
+                     s.append (mat);
                      end;
       stFunction:    begin
                      fs := value.fValue.clone;
@@ -264,6 +284,8 @@ begin
       liBoolean  : TVM (vm).push (r.bValue);
       liString   : TVM (vm).push (r.sValue.clone);
       liList     : TVM (vm).push (r.lValue.clone);
+      liArray    : TVM (vm).push (r.aValue.clone);
+      liMatrix   : TVM (vm).push (r.mValue.clone);
       liFunction : TVM (vm).push (TUserFunction (r.fValue));
       liModule   : TVM (vm).pushModule (TModule (r.mValue));
    end;
@@ -292,6 +314,8 @@ begin
       stBoolean :    s.insert (index+1, value.bValue);
       stString  :    s.insert (index+1, value.sValue);
       stList    :    s.insert (index+1, value.lValue);
+      stArray   :    s.insert (index+1, value.aValue);
+      stMatrix  :    s.insert (index+1, value.mValue);
       stFunction:    s.insertUserFunction (index+1, value.fValue);
       stModule  :    s.insertModule (index+1, value.module)
    else
@@ -353,6 +377,7 @@ end;
 
 // ---------------------------------------------------------------------------------------------------
 
+
 destructor TListContainer.Destroy;
 begin
   inherited;
@@ -365,6 +390,7 @@ var
 begin
   inherited Create;
 
+  listToArray  := False;
   objectType := symList;
   list := TListContainer.Create;
   methods := listMethods;
@@ -421,6 +447,18 @@ begin
           result.list[i].lValue := self.list[i].lValue.clone;
           result.list[i].lValue.blockType := btOwned;
         end;
+      liArray:
+        begin
+          result.list[i].itemType := liArray;
+          result.list[i].aValue := self.list[i].aValue.clone;
+          result.list[i].aValue.blockType := btOwned;
+        end;
+      liMatrix:
+        begin
+          result.list[i].itemType := liMatrix;
+          result.list[i].mValue := self.list[i].mValue.clone;
+          result.list[i].mValue.blockType := btOwned;
+        end;
       liFunction:
         begin
           result.list[i].itemType := liFunction;
@@ -450,6 +488,7 @@ begin
   result := result + ']';
 end;
 
+
 function TListObject.getsize: integer;
 var
   i: integer;
@@ -460,6 +499,7 @@ begin
     result := result + list[i].getsize();
 end;
 
+
 procedure TListObject.remove(index: integer);
 begin
   if (index < 0) or (index > list.count - 1) then
@@ -467,6 +507,7 @@ begin
   list[index].Free;
   list.Delete(index);
 end;
+
 
 procedure TListObject.insert(index, iValue: integer);
 begin
@@ -505,6 +546,15 @@ begin
      aValue.blockType := btOwned;
 
   list.insert(index, TListItem.Create(aValue));
+end;
+
+
+procedure TListObject.insert(index: integer; mValue: TMatrixObject);
+begin
+  if mValue.blockType = btGarbage then
+     mValue.blockType := btOwned;
+
+  list.insert(index, TListItem.Create(mValue));
 end;
 
 procedure TListObject.insertUserFunction(index: integer; fValue: TObject);
@@ -611,6 +661,7 @@ begin
             liString  : obj.append(list[i].sValue.clone);
             liList    : obj.append(list[i].lValue.clone);
             liArray   : obj.append(list[i].aValue.clone);
+            liMatrix  : obj.append(list[i].mValue.clone);
             liFunction: obj.appendUserFunction(TUserFunction (list[i].fValue).clone);
             liModule  : obj.appendModule(TModule (list[i].mValue));
          end;
@@ -650,6 +701,7 @@ begin
             liString  : obj.append(alist.list[i].sValue.clone);
             liList    : obj.append(alist.list[i].lValue.clone);
             liArray   : obj.append(alist.list[i].aValue.clone);
+            liMatrix  : obj.append(alist.list[i].mValue.clone);
             liFunction: obj.appendUserFunction(TUserFunction (alist.list[i].fValue).clone);
             liModule  : obj.appendModule(TModule (alist.list[i].mValue));
          end;
@@ -743,6 +795,16 @@ begin
   list.add(TListItem.Create(aValue));
 end;
 
+
+procedure TListObject.append(mValue: TMatrixObject);
+begin
+  if mValue.blockType = btGarbage then
+     mValue.blockType := btOwned;
+
+  list.add(TListItem.Create(mValue));
+end;
+
+
 procedure TListObject.append(lValue: TListObject);
 begin
   if lValue.blockType = btGarbage then
@@ -790,6 +852,16 @@ begin
       begin
         self.lValue := item.lValue.clone;
         self.lValue.blockType := btOwned;
+      end;
+    liArray:
+      begin
+        self.aValue := item.aValue.clone;
+        self.aValue.blockType := btOwned;
+      end;
+    liMatrix:
+      begin
+        self.mValue := item.mValue.clone;
+        self.mValue.blockType := btOwned;
       end;
     liFunction:
       begin
@@ -841,6 +913,13 @@ begin
   self.aValue := aValue;
 end;
 
+constructor TListItem.Create(mValue: TMatrixObject);
+begin
+  itemType := liMatrix;
+  self.mValue := mValue;
+end;
+
+
 constructor TListItem.CreateUserFunction(fValue: TObject);
 begin
   itemType := liFunction;
@@ -850,7 +929,7 @@ end;
 constructor TListItem.CreateModule(mValue: TObject);
 begin
   itemType := liModule;
-  self.mValue := mValue;
+  self.moduleValue := mValue;
 end;
 
 destructor TListItem.Destroy;
@@ -889,6 +968,7 @@ begin
     liString: result := TListItem.Create(sValue.clone);
     liList: begin result := TListItem.Create(lValue.clone); result.lValue.blockType := btOwned; end;
     liArray: result := TListItem.Create(aValue.clone);
+    liMatrix: result := TListItem.Create(mValue.clone);
     liFunction: result := TListItem.CreateUserFunction(TUSerFunction (fValue).clone);
     liModule: raise ERuntimeException.Create('can''t clone module');
   else
@@ -912,6 +992,12 @@ begin
       result := result + sValue.getsize();
     liList:
       result := result + lValue.getsize();
+    liMatrix:
+      result := result + mValue.numRows*mValue.numCols;
+    liArray:
+      result := result + aValue.getMemorySize();
+  else
+    raise ERuntimeException.Create('Error in size not implement for this type');
   end;
 end;
 
@@ -959,6 +1045,10 @@ begin
       result := result + (self.fValue as TUserFunction).name;
     liModule:
       result := result + TModule(self.mValue).name;
+    liArray:
+      result := result + self.aValue.arrayToString;
+    liMatrix:
+      result := result + self.mValue.matrixToString;
   else
     raise ERuntimeException.Create('Unknown type in elementToString');
   end;
@@ -966,7 +1056,6 @@ end;
 
 class function TListItem.listEquals(list1: TListItem; list2: TListItem) : boolean;
 begin
-  //result := False;
   if (list1.itemType = liInteger) and (list2.itemType = liInteger) then
     if list1.iValue = list2.iValue then
       exit(True)
@@ -992,9 +1081,22 @@ begin
       exit(False);
 
   if (list1.itemType = liList) and (list2.itemType = liList) then
-    exit(TListObject.listEquals(list1.lValue, list2.lValue))
-  else
-    exit(False);
+      if TListObject.listEquals(list1.lValue, list2.lValue) then
+         exit (True)
+      else
+         exit(False);
+
+  if (list1.itemType = liArray) and (list2.itemType = liArray) then
+      if TArrayObject.isEqualTo(list1.aValue, list2.aValue) then
+         exit (True)
+      else
+         exit(False);
+
+  if (list1.itemType = liMatrix) and (list2.itemType = liMatrix) then
+      if TMatrixObject.isEqualTo(list1.mValue, list2.mValue) then
+         exit (True)
+      else
+         exit(False);
 end;
 
 

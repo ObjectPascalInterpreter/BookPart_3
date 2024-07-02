@@ -1,0 +1,483 @@
+unit uMatrixObject;
+
+// This source is distributed under Apache 2.0
+
+// Copyright (C)  2019-2021 Herbert M Sauro
+
+// Author Contact Information:
+// email: hsauro@gmail.com
+
+interface
+
+uses SysUtils, Classes,
+     uMemoryManager,
+     uObjectSupport,
+     uRhodusObject,
+     uVectorObject,
+     Generics.Collections,
+     uVMExceptions,
+     uRhodusTypes;
+
+type
+  TRow = TArray<double>;
+  TMatrixObject = class (TRhodusObject)
+    private
+       data : TArray<TRow>;
+    public
+
+    function  numRows : integer;
+    function  numCols : integer;
+    procedure setval (ri, ci : integer; value : double);
+    function  getval (ri, ci : integer) : double;
+
+    class function  add (m1, m2 : TMatrixObject) : TMatrixObject;
+    class function  sub (m1, m2 : TMatrixObject) : TMatrixObject;
+    class function  minus (m : TMatrixObject) : TMatrixObject;
+    class function  scalarMult (m1 : TMatrixObject; alpha : double) : TMatrixObject;
+    class function  dotmult (m1, m2 : TMatrixObject) : TMatrixObject;
+    class function  mult (m1, m2 : TMatrixObject) : TMatrixObject;
+    class function  isEqualTo (m1, m2 : TMatrixObject) : boolean;
+    class function  transpose (m : TMatrixObject) : TMatrixObject;
+
+    procedure setNumRows (n : integer);
+    procedure swapRows (i, j : integer);
+    procedure addRow (index : integer; vec : TVectorObject);
+    function  clone : TMatrixObject;
+    function  matrixToString: string;
+
+    function  slice (slices : TSliceObjectList) : TMatrixObject;
+
+    constructor     Create (numrows, numcols : integer); overload;
+    constructor     CreateIdent (n : integer);
+    constructor     Create; overload;
+    destructor      Destroy; override;
+
+    property Item[index1, index2: Integer]: double read getval write setval; default;
+  end;
+
+
+  TMatrixMethods = class (TMethodsBase)
+     procedure   getNumRows (vm: TObject);
+     procedure   getNumCols (vm: TObject);
+     procedure   getShape (vm : TObject);
+
+     constructor Create;
+     destructor  Destroy; override;
+  end;
+
+
+implementation
+
+Uses Math, uVM, uUtils, uListObject, uBuiltInMath, uBuiltInGlobal, uSymbolTable;
+
+var matrixMethods : TMatrixMethods;
+
+constructor TMatrixMethods.Create;
+begin
+  methodList := TMethodList.Create;
+
+  // -1 means variable arguments, use the constant VARIABLE_ARGS for this
+
+  methodList.Add(TMethodDetails.Create ('rows',   0, 'get the number of rows in the matrix var.rows()', getNumRows));
+  methodList.Add(TMethodDetails.Create ('cols',   0, 'get the number of columns in the matrix var.cols()', getNumCols));
+  methodList.Add(TMethodDetails.Create ('shape',   0, 'get the shape of the matrix var.shape()', getShape));
+
+  methodList.Add(TMethodDetails.Create ('dir',    0, 'dir of matrixt methods', dir));
+end;
+
+destructor TMatrixMethods.Destroy;
+begin
+  inherited;
+end;
+
+
+procedure TMatrixMethods.getNumRows (vm : TObject);
+var m : TMatrixObject;
+    md : TMethodDetails;
+begin
+   md := TVM (vm).popMethodDetails;
+   m := TMatrixObject (md.self);
+
+  TVM (vm).push(m.numRows);
+end;
+
+
+procedure TMatrixMethods.getNumCols (vm : TObject);
+var m : TMatrixObject;
+    md : TMethodDetails;
+begin
+   md := TVM (vm).popMethodDetails;
+   m := TMatrixObject (md.self);
+
+  TVM (vm).push(m.numCols);
+end;
+
+
+procedure TMatrixMethods.getShape (vm : TObject);
+var s : TMatrixObject;
+    r : TListObject;
+    i : integer;
+    md : TMethodDetails;
+begin
+   md := TVM (vm).popMethodDetails;
+   s := TMatrixObject (md.self);
+
+  r := TListObject.Create(2);
+  r.list[0].itemType := liInteger;
+  r.list[0].iValue := s.numRows;
+  r.list[1].itemType := liInteger;
+  r.list[1].iValue := s.numCols;
+  TVM (vm).push(r);
+end;
+
+
+// -----------------------------------------------------------------------------------
+
+constructor TMatrixObject.Create;
+begin
+  blockType := btGarbage;
+  objectType := symMatrix;
+  self.methods := matrixMethods;
+  memoryList.addNode (self);
+end;
+
+
+constructor TMatrixObject.Create (numrows, numcols : integer);
+var i : integer;
+begin
+  Create;
+  setLength (self.data, numrows);
+  for i := 0 to numrows - 1 do
+      begin
+      setlength (self.data[i], numcols);
+      end;
+end;
+
+
+constructor  TMatrixObject.CreateIdent (n : integer);
+var i : integer;
+begin
+  Create (n, n);
+  for i := 0 to n - 1 do
+      self[i,i] := 1;
+end;
+
+
+destructor TMatrixObject.Destroy;
+begin
+  inherited;
+end;
+
+
+function TMatrixObject.numRows : integer;
+begin
+  result := length (data);
+end;
+
+
+function TMatrixObject.numCols : integer;
+begin
+ result := length (data[0]);
+end
+
+;
+procedure TMatrixObject.setval (ri, ci : integer; value : double);
+begin
+  data[ri][ci] := value;
+end;
+
+
+function TMatrixObject.getval (ri, ci : integer) : double;
+begin
+  result := data[ri,ci];
+end;
+
+
+class function TMatrixObject.add (m1, m2 : TMatrixObject) : TMatrixObject;
+var i, j : integer;
+begin
+  if (m1.numRows = m2.numRows) and (m1.numcols = m2.numCols) then
+     begin
+     result := TMatrixObject.Create (m1.numRows, m2.numCols);
+    for i := 0 to m1.numrows - 1 do
+       for j := 0 to m1.numcols - 1 do
+          result.setval(i, j, m1.getval(i, j) + m2.getval(i, j));
+    end
+ else
+   raise ERuntimeException.Create ('Matrices must have the same dimensions in add');
+end;
+
+
+class function TMatrixObject.sub (m1, m2 : TMatrixObject) : TMatrixObject;
+var i, j : integer;
+begin
+  if (m1.numRows = m2.numRows) and (m1.numcols = m2.numCols) then
+     begin
+     result := TMatrixObject.Create (m1.numRows, m2.numCols);
+     for i := 0 to m1.numrows - 1 do
+       for j := 0 to m1.numcols - 1 do
+          result.setval(i, j, m1.getval(i, j) - m2.getval(i, j));
+     end
+ else
+   raise ERuntimeException.Create ('Matrices must have the same dimensions in sub');
+end;
+
+
+class function TMatrixObject.minus (m : TMatrixObject) : TMatrixObject;
+var i, j : integer;
+begin
+   result := TMatrixObject.Create(m.numRows, m.numCols);
+   for i := 0 to m.numrows - 1 do
+       for j := 0 to m.numcols - 1 do
+          result.setval(i, j, -m.getval(i, j));
+end;
+
+
+class function TMatrixObject.scalarMult (m1 : TMatrixObject; alpha : double) : TMatrixObject;
+var n : integer;
+    i, j : integer;
+begin
+  result := TMatrixObject.Create (m1.numRows, m1.numCols);
+  for i := 0 to m1.numrows - 1 do
+     for j := 0 to m1.numcols - 1 do
+         result.data[i,j] := alpha*m1.data[i,j];
+end;
+
+
+// This does a dot product
+class function TMatrixObject.dotmult (m1, m2 : TMatrixObject) : TMatrixObject;
+var i, j, k : integer;
+    sum : double;
+begin
+  result := TMatrixObject.Create (m1.numRows, m2.numCols);
+  if (m1.numCols = m2.numRows) then  // if cols = row?
+     begin
+	   for i := 0 to m1.numRows - 1 do
+		     for j := 0 to m2.numCols - 1 do
+           begin
+           sum := 0;
+           for k := 0 to m1.numCols - 1 do
+					      sum := sum + m1.getval(i,k) * m2.getval(k,j);
+           result.setval(i,j, sum);
+					end;
+		end
+  else
+     raise ERuntimeException.Create ('Incompatible matrix operands to multiply');
+end;
+
+
+// This does a term by term multiplication
+class function TMatrixObject.mult (m1, m2 : TMatrixObject) : TMatrixObject;
+var i, j : integer;
+    sum : double;
+begin
+  if (m1.numRows = m2.numRows) and (m1.numCols = m2.numCols) then  // if cols = row?
+     begin
+     result := TMatrixObject.Create (m1.numRows, m1.numCols);
+	   for i := 0 to m1.numRows - 1 do
+		     for j := 0 to m1.numCols - 1 do
+					   result.setval(i,j, m1.getval(i,j) * m2.getval(i,j));
+		end
+  else
+     raise ERuntimeException.Create ('Incompatible matrix operands to multiply term by term');
+end;
+
+
+class function TMatrixObject.isEqualTo (m1, m2 : TMatrixObject) : boolean;
+var i, j : integer;
+    index : integer;
+    epsSymbol : TSymbol;
+begin
+  epsSymbol := mainModule.find('math', 'eps');
+
+  result := True;
+  if (m1.numRows = m1.numRows) and (m1.numCols = m2.numCols) then
+     begin
+     for i := 0 to m1.numrows - 1 do
+       for j := 0 to m1.numcols - 1 do
+           begin
+           if not sameValue (m1.data[i,j], m2.data[i,j], epsSymbol.dValue) then
+              exit (False);
+           end;
+
+     exit (True);
+     end
+  else
+     exit (False);
+end;
+
+
+
+// -----------------------------------------------------------------------------------------------
+procedure TMatrixObject.setNumRows (n : integer);
+begin
+  setlength (data, n);
+end;
+
+
+procedure TMatrixObject.swapRows (i, j : integer);
+var r : TRow;
+begin
+  if i = j then
+     exit;
+
+  r := self.data[i];
+  self.data[i] := self.data[j];
+  self.data[j] := r;
+end;
+
+// We must call setNumRows first
+// Copy the numbers in vec to row index
+procedure TMatrixObject.addRow (index : integer; vec : TVectorObject);
+begin
+  setlength (data[index], vec.size);
+  self.data[index] := Copy (vec.data, 0);
+end;
+
+
+function TMatrixObject.clone : TMatrixObject;
+var i : integer;
+    len : NativeInt;
+begin
+   result := TMatrixObject.Create (self.numRows, self.numCols);
+   for i := 0 to length (self.data) - 1 do
+       begin
+       len := length (self.data[i]);
+       result.data[i] := Copy (self.data[i], 0);
+       //TArray.Copy(self.data[i].data, result.data[i].data, 0, 0,  len);
+       end;
+end;
+
+
+// If we've got this far it means there is at least one slice
+// in the index. it is possible that the nunber of slices is
+// less then the number of dimensions of the array, this means
+// we must fill out the remining slices as :
+// eg 3D array where the user has provided the following slice
+// [1:3,4:10] must be expanded to [1:3,4:10,:]
+//
+// Slices are encoded  with SLICE_ALL to represent : or SLICE_EQUAL
+// for something line [3:3]
+// For a mix slices with slices and indexes, the index must be turned into
+// a SLICE_ALL
+// eg [:,0] is converted to [:,0:0]
+//
+function TMatrixObject.slice (slices : TSliceObjectList) : TMatrixObject;
+var i, j : integer;
+    slicesize, count : integer;
+    inputLists : TIntLists;
+    alist : TIntList;
+    cp : TCartesianProduct;
+    dim : array of integer;
+    coord : TArray<integer>;
+begin
+  // Check for missing slices
+  if 2 > length (slices) then
+     begin
+     // fill out the missing slices which should all be ':' (SLICE_ALL)
+     for i := length (slices) to 2 - 1 do
+         begin
+         setLength (slices, length (slices)+1);
+         slices[length (slices)-1] := TSliceObject.Create(0, SLICE_ALL);
+         end;
+     end;
+
+  setlength (dim, 2);
+  dim[0] := self.numRows;
+  dim[1] := self.numCols;
+
+  // Create space for the number of dimensions of the slice.
+  // setlength (result.dim, length (slices));
+  // Compute the number of elements that will be in the slice
+  // eg [1:2,3:5] will have 6 elements
+  // At this point we also convert the SLICE_ALL and SLICE_EQUAL to coordinates
+  slicesize := 1;
+  for i := 0 to length (slices) - 1 do
+      begin
+      if slices[i].lower = SLICE_ALL then
+         slices[i].lower := 0;
+      if slices[i].upper = SLICE_ALL then
+         slices[i].upper := dim[i] - 1;
+      if slices[i].upper = SLICE_EQUAL then
+         slices[i].upper := slices[i].lower;
+
+      if slices[i].lower < 0 then
+         slices[i].lower := 0;
+      if slices[i].upper > self.numRows - 1 then
+         slices[i].upper := dim[i] - 1;
+
+
+      // Sotre the size of the dimension in dim[i]
+      dim[i] := slices[i].upper - slices[i].lower+1;
+      slicesize := slicesize * (slices[i].upper - slices[i].lower+1);
+      end;
+//  // Allocate space for the slice
+     result := TMatrixObject.Create (dim[0], dim[1]);
+   //setlength (result.dataf, slicesize);
+//  // Generate the coordinates for each item that we need to copy from the source array
+  setlength (inputLists, length (slices));
+  for i := 0 to length (slices) - 1 do
+      begin
+      setLength (alist, dim[i]);
+      for j := slices[i].lower to slices[i].upper do
+          alist[j-slices[i].lower] := j;
+      inputLists[i] := alist;
+      end;
+  cp := TCartesianProduct.Create (inputlists);
+  try
+    // Copy all data over to target
+    count := 0;
+    for i := 0 to dim[0] - 1 do
+        for j := 0 to dim[1] - 1 do
+            begin
+            coord := cp.getIthCartesianProduct(count);
+            result.data[i, j] := self.getVal(coord[0], coord[1]);
+            inc (count);
+            end;
+  finally
+    cp.free;
+  end;
+end;
+
+
+class function TMatrixObject.transpose (m : TMatrixObject) : TMatrixObject;
+var i, j : integer;
+begin
+  result := TMatrixObject.Create (m.numCols, m.numRows);
+  for i := 0 to m.numRows - 1 do
+      for j := 0 to m.numCols - 1 do
+          result.setval(j,i, m.getval(i,j));
+end;
+
+
+
+function  TMatrixObject.matrixToString: string;
+var i, j, n : integer;
+    formatStr : string;
+begin
+  result := '{';
+  for i := 0 to length (self.data) - 1 do
+      begin
+      result := result + '{';
+         for j := 0 to length (self.data[i]) - 1 do
+             begin
+             if (i = 0) and (j=0) then formatStr := '%9.4f'
+             else
+                formatStr := '%10.9f';
+             result := result + Format(formatStr, [self.data[i,j]]);
+             if j < length (self.data[i]) - 1 then
+                result := result + ', ';
+            end;
+        if i < length (self.data) - 1 then
+           result := result + '}, ' + sLineBreak;
+     end;
+  result := result + '}}';
+end;
+
+
+initialization
+   matrixMethods := TMatrixMethods.Create;
+finalization
+   matrixMethods.Free;
+end.
+

@@ -81,6 +81,9 @@ type
       ntSlice,
       ntSliceAll,
       ntSliceEqual,
+      ntCreateVector,
+      ntAddVectorItem,
+      ntCreateMatrix,
       ntNull
    );
 

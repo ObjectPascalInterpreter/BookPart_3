@@ -9,11 +9,17 @@ unit uMachineStack;
 
 interface
 
-Uses Classes, SysUtils, uListObject, uStringObject, uArrayObject, uSymbolTable, uMemoryManager, uObjectSupport;
+Uses Classes, SysUtils, uListObject, uStringObject,
+     uArrayObject,
+     uVectorObject,
+     uValueObject,
+     uMatrixObject,
+     uSymbolTable,
+     uMemoryManager, uObjectSupport;
 
 type
-  TStackType = (stNone, stInteger, stDouble, stBoolean, stString, stArray, stSymbol,
-                stLocalSymbol, stList, stModule, stFunction, stObjectMethod, stObject);
+  TStackType = (stNone, stInteger, stDouble, stBoolean, stString, stArray, stVector, stMatrix, stSymbol,
+                stLocalSymbol, stList, stModule, stFunction, stObjectMethod, stObject, stValueObject);
 
   TMachineStackRecord = record
      stackType : TStackType;  // 1 byte
@@ -24,7 +30,9 @@ type
        stString      : (sValue : TStringObject);
        stList        : (lValue : TListObject);
        stArray       : (aValue : TArrayObject);
-
+       stVector      : (vValue : TVectorObject);
+       stMatrix      : (mValue : TMatrixObject);
+       stValueObject : (voValue : TValueObject);
        stFunction    : (fValue : TUserFunction);
        stObjectMethod: (oValue : TMethodDetails);
 
@@ -51,6 +59,9 @@ begin
      stString   : result := 'string';
      stList     : result := 'list';
      stArray    : result := 'array';
+     stVector   : result := 'vector';
+     stMatrix   : result := 'matrix';
+  stValueObject : result := 'builtin value';
      stModule   : result := 'module';
      stFunction : result := 'function';
      stSymbol   : result := 'symbol';

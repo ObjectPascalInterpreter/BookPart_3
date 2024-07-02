@@ -78,7 +78,9 @@ const
    oSliceAll     = byte (96);
    oSliceObj     = byte (97);
 
-   oCreateArray  = byte (100);
+   oCreateVector = byte (100);
+   oCreateMatrix    = byte (101);
+   oAddMatrixItem= byte (102);
 
    // Calling routines
    oCall         = byte (110);  // Call a user defined function
@@ -164,8 +166,6 @@ initialization
   opCodeNames[oSvecIdx]      := 'svecIdx';
   opCodeNames[oLocalLvecIdx] := 'locallvecIdx';
   opCodeNames[oLocalSvecIdx] := 'localsvecIdx';
-
-  opCodeNames[oCreateArray]  := 'createArray';
 
   opCodeNames[oCall]         := 'call';
   opCodeNames[oBuiltIn]      := 'builtin';

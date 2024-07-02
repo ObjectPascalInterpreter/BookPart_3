@@ -381,6 +381,9 @@ begin
                 stString  : printLnCallBack (AnsiString (st.sValue.value));
                 stList    : printLnCallBack (AnsiString (st.lValue.listToString()));
                 stArray   : printLnCallBack (AnsiString (st.aValue.arrayToString()));
+                stVector  : printLnCallBack (AnsiString (st.vValue.vectorToString()));
+                stMatrix  : printLnCallBack (AnsiString (st.mValue.matrixToString()));
+                stValueObject : printLnCallBack (AnsiString (st.voValue.valueToString()));
                 stModule  : printLnCallBack (AnsiString ('Module: ' + st.module.name + ' ' + st.module.helpStr));
                 stFunction: printLnCallBack (AnsiString ('Function: ' + st.fValue.moduleRef.name + '.' + st.fValue.name));
                 stObjectMethod : begin

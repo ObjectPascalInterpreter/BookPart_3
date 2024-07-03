@@ -29,7 +29,7 @@ type
           symString,
           symList,
           symArray,
-          symVector,
+          symVector, // Not actually exposed to the user, used internally
           symMatrix,
           symValueObject,
           symUserFunc,
@@ -57,6 +57,7 @@ implementation
 
 constructor TSliceObject.Create (lower, upper : integer);
 begin
+  inherited Create;
   self.lower := lower;
   self.upper := upper;
 end;

@@ -179,6 +179,7 @@
         <DCCReference Include="..\VirtualMachine\uVectorObject.pas"/>
         <DCCReference Include="..\Rhodus_Version_3\uBuiltInMatrix2.pas"/>
         <DCCReference Include="..\Rhodus_Version_3\uMatrixFunctions.pas"/>
+        <DCCReference Include="..\Rhodus_Version_3\uBuiltInPlotter.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

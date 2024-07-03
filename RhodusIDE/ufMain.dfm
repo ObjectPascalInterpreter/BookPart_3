@@ -184,7 +184,7 @@ object frmMain: TfrmMain
     TabOrder = 1
     object DirectoryListBox1: TDirectoryListBox
       Left = 1
-      Top = 28
+      Top = 27
       Width = 212
       Height = 232
       Align = alTop
@@ -200,9 +200,9 @@ object frmMain: TfrmMain
     end
     object FileListBox1: TFileListBox
       Left = 1
-      Top = 260
+      Top = 259
       Width = 212
-      Height = 305
+      Height = 306
       Align = alClient
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -218,7 +218,7 @@ object frmMain: TfrmMain
       Left = 1
       Top = 1
       Width = 212
-      Height = 27
+      Height = 26
       Align = alTop
       TabOrder = 2
       object btnCloseSidePanel: TSpeedButton
@@ -257,18 +257,16 @@ object frmMain: TfrmMain
         Left = 1
         Top = 1
         Width = 439
-        Height = 3
+        Height = 2
         Cursor = crVSplit
         Align = alTop
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 1010
+        ExplicitWidth = 440
       end
       object memoOutput: TMemo
         Left = 1
-        Top = 4
+        Top = 3
         Width = 439
-        Height = 172
+        Height = 173
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -393,9 +391,6 @@ object frmMain: TfrmMain
       Height = 2
       Cursor = crVSplit
       Align = alBottom
-      ExplicitLeft = 0
-      ExplicitTop = 663
-      ExplicitWidth = 476
     end
     object pnlInfo: TPanel
       Left = 1
@@ -403,6 +398,7 @@ object frmMain: TfrmMain
       Width = 474
       Height = 304
       Align = alBottom
+      ParentBackground = False
       TabOrder = 0
     end
     object pnlImage: TPanel
@@ -420,10 +416,8 @@ object frmMain: TfrmMain
         Width = 472
         Height = 256
         Align = alClient
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 475
-        ExplicitHeight = 662
+        ExplicitWidth = 473
+        ExplicitHeight = 257
       end
     end
   end

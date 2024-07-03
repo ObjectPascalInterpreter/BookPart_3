@@ -307,7 +307,6 @@ begin
 end;
 
 
-
 // -----------------------------------------------------------------------------------------------
 procedure TMatrixObject.setNumRows (n : integer);
 begin
@@ -455,15 +454,13 @@ function  TMatrixObject.matrixToString: string;
 var i, j, n : integer;
     formatStr : string;
 begin
+  formatStr := SysLibraryRef.find ('doubleFormat').sValue.value;
   result := '{';
   for i := 0 to length (self.data) - 1 do
       begin
       result := result + '{';
          for j := 0 to length (self.data[i]) - 1 do
              begin
-             if (i = 0) and (j=0) then formatStr := '%9.4f'
-             else
-                formatStr := '%10.9f';
              result := result + Format(formatStr, [self.data[i,j]]);
              if j < length (self.data[i]) - 1 then
                 result := result + ', ';

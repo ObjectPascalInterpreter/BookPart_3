@@ -72,7 +72,8 @@ uses
   uValueObject in '..\VirtualMachine\uValueObject.pas',
   uVectorObject in '..\VirtualMachine\uVectorObject.pas',
   uBuiltInMatrix2 in '..\Rhodus_Version_3\uBuiltInMatrix2.pas',
-  uMatrixFunctions in '..\Rhodus_Version_3\uMatrixFunctions.pas';
+  uMatrixFunctions in '..\Rhodus_Version_3\uMatrixFunctions.pas',
+  uBuiltInPlotter in '..\Rhodus_Version_3\uBuiltInPlotter.pas';
 
 {$R *.res}
 

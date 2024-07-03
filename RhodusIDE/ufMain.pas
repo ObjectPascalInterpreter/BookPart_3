@@ -8,7 +8,9 @@ uses
   Vcl.ExtCtrls, Vcl.FileCtrl, Vcl.ComCtrls, Vcl.Themes, System.UIConsts, System.UITypes,
   uExamples, Vcl.Menus, SyncObjs, SynEdit, SynEditHighlighter, SynEditCodeFolding, SynHighlighterPython, SynHighlighterGeneral,
   SynEditMiscClasses, SynEditSearch, StrUtils, IniFiles, skia,
-  Img32, Img32.Fmt.PNG, Img32.vector, Img32.Draw, Vcl.Buttons, uRhodusLibTypes;
+  Img32, Img32.Fmt.PNG, Img32.vector, Img32.Draw, Vcl.Buttons,
+  uRhodusLibTypes,
+  uPlotPanel, SDL_rchart;
 
 const RHODUS_IDE_VERSION = 0.5;
 
@@ -95,6 +97,7 @@ type
     LPaint : ISkPaint;
     Line: array of pRGBTripleArray;
     previous_x, previous_y : double;  // Used to implementmoveto, lineto in image32
+    plotPanel : TPlotPanel;
     procedure setUpDefaultColors;
     procedure writeControlPlacement;
     procedure readControlPlacement;
@@ -545,7 +548,36 @@ begin
   );
 end;
 
-// ----------------------------------------------------------------
+// ---------------------------------------------------------------------
+
+procedure pClear;
+begin
+  frmMain.plotPanel.clear;
+end;
+
+
+procedure pPlotSinWave;
+var x : double;
+    i, j : integer;
+    hstep : double;
+begin
+  frmMain.plotPanel.setXAxisColumn (0);
+  frmMain.plotPanel.setDataColumnVisibility (0, False);
+
+  x := -10; hstep := 0.2;
+  for i := 0 to 500 - 1 do
+      begin
+      frmMain.plotPanel.setData (i, 0, x);
+      frmMain.plotPanel.setData (i, 1, 10*sin (x));
+
+      x := x + hstep;
+      end;
+  frmMain.plotpanel.Redraw;
+end;
+
+
+// ---------------------------------------------------------------------
+
 
 procedure TfrmMain.loadScript;
 begin
@@ -789,13 +821,19 @@ begin
     // Assign the graphics handler list
     config.graphicsHandlerPtr := @graphicsMethods;
 
+    plottingMethods.clear := pClear;
+    plottingMethods.plotSineWave := pPlotSinWave;
+
+    // Assign the plotting handler list
+    config.plottingHandlerPtr := @plottingMethods;
+
     // Use to control whether after a drawing command the screen is updated
     updateStatus := False;
 
     rhodus := rhodus_initialize (config);
     lblVersion.caption := 'Running Rhodus Version: ' + AnsiString (rhodus_getSettings(rhodus).versionStr);
 
-    // Load in the exmpel scripts
+    // Load in the exmple scripts
     examples := TExamples.Create;
     for i := 0 to examples.Count - 1 do
         cboExamples.AddItem(examples[i].name, examples[i]);
@@ -841,6 +879,19 @@ begin
 
     gClearColor (brush_r, brush_g, brush_b);
     gRefresh;
+
+    plotPanel := TPlotPanel.Create(self);
+    plotPanel.Parent := pnlInfo;
+    plotPanel.Align := alClient;
+
+    plotPanel.x_wmin := -20;
+    plotPanel.x_wmax := 20;
+    plotPanel.y_wmin := -20;
+    plotPanel.y_wmax := 20;
+
+    plotPanel.allocateSpace(100, 2);
+
+    plotpanel.Redraw;
   except
     on e: exception do
       showmessage ('Error in FormCreate: ' + e.message);

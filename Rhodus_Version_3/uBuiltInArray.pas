@@ -40,9 +40,11 @@ Uses SysUtils, Classes, uLibModule;
 
 type
   TBuiltInArray = class (TModuleLib)
+     procedure   getMake (vm : TObject);
      procedure   getRndu (vm : TObject);
      procedure   getRndi (vm : TObject);
      procedure   isEqual (vm : TObject);
+     procedure   getRange (vm : TObject);
      constructor Create;
      destructor  Destroy; override;
   end;
@@ -66,7 +68,9 @@ constructor TBuiltInArray.Create;
 begin
   inherited Create ('arrays', 'Array Module, deals with n-dimensional arrays');
 
-  addMethod(getRndu,    -1, 'rand',  'Create an array of uniformly random numbers: ar = arrays.rand (4,4,2)');
+  addMethod(getMake,     1, 'make',  'Create an array of given length: ar = arrays.make (10, [10])');
+  addMethod(getRange,    3, 'range', 'Create an array of evenly spaced values: ar = arrays.make (0, 5, 10)');
+  addMethod(getRndu,    VARIABLE_ARGS, 'rand',  'Create an array of uniformly random numbers: ar = arrays.rand (4,4,2)');
   addMethod(getRndi,     3, 'randi', 'Create a list of uniformly random integers: ar = arrays.randi (lower, upper, [3,3])');
   addMethod(isEqual,     2, 'equal', 'Return true if the two arrays are equal: arrays.equal (m1,m2)');
   addMethod(isEqual,     2, 'appendrow', 'Return true if the two arrays are equal: arrays.equal (m1,m2)');
@@ -105,7 +109,7 @@ var lower, upper : integer;
     i : integer;
     idx : TIndexArray;
 begin
-  al := TVM (vm).popList;
+  al := TVM (vm).popList;       // dimensions
   upper := TVM (vm).popInteger;
   lower := TVM (vm).popInteger;
   setLength (idx, al.list.count);
@@ -124,6 +128,44 @@ begin
       end;
 
   TVM (vm).push (ar);
+end;
+
+
+procedure TBuiltInArray.getMake (vm : TObject);
+var numberOfElements : integer;
+    ar: TArrayObject;
+begin
+  numberOfElements := TVM (vm).popInteger;
+
+  ar := TArrayObject.Create (numberOfElements);
+
+  TVM (vm).push(ar);
+end;
+
+
+procedure TBuiltInArray.getRange (vm : TObject);
+var start, finish : double;
+    numberOfElements, i : integer;
+    hstep : double;
+    r : double;
+    ar: TArrayObject;
+begin
+  numberOfElements := TVM (vm).popInteger;
+  finish := TVM (vm).popScalar;
+  start := TVM (vm).popScalar;
+
+  hstep := (finish-start)/numberOfElements;
+
+  r := start;
+
+  ar := TArrayObject.Create (numberOfElements);
+
+  for i := 0 to numberOfElements - 1 do
+     begin
+      ar.setValue1D(i, r);
+      r := r + hstep;
+     end;
+  TVM (vm).push(ar);
 end;
 
 

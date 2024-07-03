@@ -17,7 +17,6 @@ type
   TModuleLib = class (TModule)
 
     procedure   addMethod(methodPtr : TxBuiltInFunction; nArgs : integer; name, helpStr : string);
-    procedure   addDoubleValue (name : string; value : double; helpStr : string; locked : boolean);
     procedure   addStringValue (name, value, helpStr : string; locked : boolean);
     procedure   addListValue  (name : string; value : TListObject; helpStr : string; locked : boolean);
     procedure   addObjectValue (name : string; value : TValueObject; helpStr : string; locked : boolean);
@@ -42,6 +41,8 @@ begin
   self.helpStr := helpStr;
   self.compiled := True;
 
+  // Add the builtin default methods every module has
+
   f := TUserFunction.Create('dir', 0, callDir);
   f.helpStr := 'Get a list of the supported methods and values';
   self.symbolTable.addSymbol (f, True); // // locked = True
@@ -53,7 +54,6 @@ begin
   f := TUserFunction.Create ('find', 1, findSymbol);
   f.helpStr := 'Returns true if the module includes the given symbol, e.g math.contains ("cos")';
   self.symbolTable.addSymbol (f, True); // // locked = True
-
 end;
 
 
@@ -142,15 +142,11 @@ begin
 end;
 
 
-procedure TModuleLib.addDoubleValue (name : string; value : double; helpStr : string; locked : boolean);
-begin
-  self.symbolTable.addSymbol(name, value, locked, helpStr);
-end;
-
 procedure TModuleLib.addObjectValue (name : string; value : TValueObject; helpStr : string; locked : boolean);
 begin
   self.symbolTable.addSymbol(name, value, locked, helpStr);
 end;
+
 
 procedure TModuleLib.addListValue  (name : string; value : TListObject; helpStr : string; locked : boolean);
 begin

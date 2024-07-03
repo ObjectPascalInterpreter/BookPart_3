@@ -28,9 +28,16 @@ type
   PGraphicsMethods = ^TGraphicsMethods;
 
 
+  TPlottingMethods = record
+     clear : procedure;
+     plotSineWave : procedure;
+  end;
+  PPlottingMethods = ^TPlottingMethods;
+
+
   TPrint = procedure (const astr : AnsiString);
   TReadString = function (const prompt : AnsiString) : PAnsiChar;
-  TGraphicsHandler = function : PGraphicsMethods;
+  //TGraphicsHandler = function : PGraphicsMethods;
 
   TRhodusConfig = record
       launchpath : AnsiString;
@@ -38,6 +45,7 @@ type
       printlnPtr : TPrint;
       readStringPtr : TReadString;
       graphicsHandlerPtr : PGraphicsMethods;
+      plottingHandlerPtr : PPlottingMethods;
   end;
 
   TRhodusSettings = record

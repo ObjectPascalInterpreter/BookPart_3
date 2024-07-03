@@ -31,7 +31,8 @@ Uses uBuiltInMath,
      uBuiltInFile,
      uBuiltInOS,
      uBuiltInStr,
-     uBuiltInGraphics;
+     uBuiltInGraphics,
+     uBuiltInPlotter;
 
 
 constructor TBuiltIn.Create (name, className : string);
@@ -73,6 +74,7 @@ initialization
   listofBuiltIns.Add (TBuiltIn.Create ('time',   'uBuiltInOS.'     + TBuiltInTime.ClassName));
   listofBuiltIns.Add (TBuiltIn.Create ('strings','uBuiltInStrings.' + TBuiltInStr.ClassName));
   listofBuiltIns.Add (TBuiltIn.Create ('graphics','uBuiltInGraphics.' + TBuiltInGraphics.ClassName));
+  listofBuiltIns.Add (TBuiltIn.Create ('plot','uBuiltInPlotter.' + TBuiltInPlotter.ClassName));
 finalization
   listOfBuiltIns.Free;
 end.

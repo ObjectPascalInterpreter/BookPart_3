@@ -137,35 +137,6 @@ begin
   setCurrentColors;
 end;
 
-
-procedure setCurrentColors;
-begin
-  if consoleMode then
-     begin
-     setForeGround (currentColor[0], currentColor[1], currentColor[2]);
-     write (#27'[48;2;' + '1' + ';' + '43' + ';' + '54' + 'm');
-     end;
-end;
-
-
-procedure writeText (str :string);
-begin
-  if consoleMode then
-     setCurrentColors;
-  write (str);
-end;
-
-
-procedure setRed;
-begin
-  currentColor[0] := 255;
-  currentColor[1] := 0;
-  currentColor[2] := 0;
-
-  setCurrentColors;
-end;
-
-
 procedure setWhite;
 begin
   currentColor[0] := 204;
@@ -182,6 +153,43 @@ begin
   currentColor[1] := 255;
   currentColor[2] := 0;
   setCurrentColors;
+end;
+
+
+procedure setOrange;
+begin
+  currentColor[0] := 255;
+  currentColor[1] := 165;
+  currentColor[2] := 0;
+  setCurrentColors;
+end;
+
+
+procedure setRed;
+begin
+  currentColor[0] := 255;
+  currentColor[1] := 0;
+  currentColor[2] := 0;
+
+  setCurrentColors;
+end;
+
+
+procedure setCurrentColors;
+begin
+  if consoleMode then
+     begin
+     setForeGround (currentColor[0], currentColor[1], currentColor[2]);
+     write (#27'[48;2;' + '1' + ';' + '43' + ';' + '54' + 'm');
+     end;
+end;
+
+
+procedure writeText (str :string);
+begin
+  if consoleMode then
+     setCurrentColors;
+  write (str);
 end;
 
 
@@ -231,7 +239,10 @@ procedure displayWelcome;
 begin
   uTerminal.setWhite;
   clearConsoleScreen;
-  writeln ('Welcome to Rhodus Language III Console, Version ', getRhodus().getVersion());
+  write ('Welcome to Rhodus Language III Console. Version: ');
+  setOrange;
+  writeln (getRhodus().getVersion());
+  setWhite;
   writeln ('Data and Time: ', dateToStr (Date), ', ', timeToStr (Time));
   displayHelp;
 end;
@@ -307,30 +318,31 @@ end;
 procedure setConsoleWindowPosition;
 var
   ConsoleHwnd: HWND;
+  stdOutHandle : THandle;
   R: TRect;
   Rect: TSmallRect;
   Coord: TCoord;
   x, y : integer;
 begin
   ConsoleHwnd := GetConsoleWindow;
+  stdOuthandle := GetStdHandle(STD_OUTPUT_HANDLE);
 
-  Coord.X := 120;  // Width
-  Coord.y := 712;  // Height
+  Rect.Left := 1;
+  Rect.Top := 1;
+  Rect.Right := 110;
+  Rect.Bottom := 40;
+  Coord.X := (Rect.Right + 1 - Rect.Left);
+  Coord.y := Rect.Bottom + 1 - Rect.Top;
   SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), Coord);
-
-  Rect.Left := 0;   //  must be zero
-  Rect.Top := 0;
-  Rect.Right := Coord.X - (Rect.Left + 1);
-  Rect.Bottom := Coord.y - (Rect.Top + 1);
   SetConsoleWindowInfo(GetStdHandle(STD_OUTPUT_HANDLE), True, Rect);
 
   GetWindowRect(ConsoleHwnd, R);
   x := (GetSystemMetrics(SM_CXSCREEN) - (R.Right - R.Left)) div 2;
-  y := (GetSystemMetrics(SM_CYSCREEN) - (R.Bottom - R.Top)) div 2;
+  y := (GetSystemMetrics(SM_CYSCREEN) - (R.Bottom - R.Top)) div 2 - 100;
   // Center the console window
   SetWindowPos(ConsoleHwnd, 0,  x, y, 0, 0, SWP_NOSIZE);
 
-  ShowScrollBar(ConsoleHwnd, SB_VERT, True);
+  //ShowScrollBar(ConsoleHwnd, SB_VERT, True);
 end;
 
 

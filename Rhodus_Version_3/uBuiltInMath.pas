@@ -103,11 +103,7 @@ begin
 
   addObjectValue ('pi', TValueObject.Create (Pi), 'The value of Pi', True);    // True = locked
   addObjectValue ('e', TValueObject.Create (exp(1)), 'The value of e', True);
-
-  //addDoubleValue ('pi', Pi,      'The value of pi', True);  // True = locked
-  //addDoubleValue ('e',  exp (1), 'The value of e', True);
-  addDoubleValue ('eps', default_epsilon, 'Values below this are considered zero', False);
-
+  addObjectValue ('eps', TValueObject.Create (default_epsilon), 'Values below this are considered zero', False);
 end;
 
 

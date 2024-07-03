@@ -39,6 +39,8 @@ begin
     rhodus.setReadStringCallBack(config.readStringPtr);
     if config.graphicsHandlerPtr <> nil then
        rhodus.setGraphicsMethodCallBack (config.graphicsHandlerPtr);
+    if config.plottingHandlerPtr <> nil then
+       rhodus.setPlottingMethodCallBack (config.plottingHandlerPtr);
   except
     on e: Exception do
       begin

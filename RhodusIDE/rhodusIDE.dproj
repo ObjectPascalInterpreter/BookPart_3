@@ -148,6 +148,7 @@
         </DCCReference>
         <DCCReference Include="uPreferences.pas"/>
         <DCCReference Include="VCLStyleSynEdit.pas"/>
+        <DCCReference Include="uPlotPanel.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

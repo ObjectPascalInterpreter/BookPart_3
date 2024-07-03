@@ -44,7 +44,7 @@ type
     constructor Create;
   end;
 
-procedure setGaphicsCallBackTable(graphicsMethods: PGraphicsMethods);
+procedure setGraphicsCallBackTable(graphicsMethods: PGraphicsMethods);
 
 implementation
 
@@ -67,7 +67,7 @@ type
 var
   graphicsMethodsPtr: PGraphicsMethods;
 
-procedure setGaphicsCallBackTable(graphicsMethods: PGraphicsMethods);
+procedure setGraphicsCallBackTable(graphicsMethods: PGraphicsMethods);
 begin
   graphicsMethodsPtr := graphicsMethods;
 end;

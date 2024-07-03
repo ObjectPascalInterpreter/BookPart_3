@@ -35,7 +35,8 @@ uses
   uLoadRhodus in 'uLoadRhodus.pas',
   ufPreferences in 'ufPreferences.pas' {frmPreferences},
   uPreferences in 'uPreferences.pas',
-  VCLStyleSynEdit in 'VCLStyleSynEdit.pas';
+  VCLStyleSynEdit in 'VCLStyleSynEdit.pas',
+  uPlotPanel in 'uPlotPanel.pas';
 
 {$R *.res}
 

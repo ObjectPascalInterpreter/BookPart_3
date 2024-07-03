@@ -9,7 +9,11 @@ unit uArrayObject;
 
 interface
 
-uses Classes, uMemoryManager, uObjectSupport, uRhodusObject, Generics.Collections, uRhodusTypes;
+uses Classes, uMemoryManager,
+     uObjectSupport,
+     uRhodusObject,
+     Generics.Collections,
+     uRhodusTypes;
 
 type
   TArrayMethods = class;
@@ -24,6 +28,8 @@ type
   TArrayObject = class (TRhodusObject)
     private
     // dataType : TArrayDataType;
+    function  arrayRecursiveToString (var Indices : TArray<integer>; depth : integer) : string;
+    function  dimensionalArrayToString : string;
     public
      datai : TIntArray;
      dataf : TFloatArray;
@@ -57,6 +63,7 @@ type
      function        slice (var slices : TSliceObjectList) : TArrayObject;
 
      procedure       append (mat : TArrayObject);
+
      class function  isEqualTo (a1, a2 : TArrayObject) : boolean;
      function        applyUniFunction (func : TUniFunction) : TArrayObject;
      class function  add (a1, a2 : TArrayObject) : TArrayObject;
@@ -68,6 +75,7 @@ type
      class function  getMin (a1 : TArrayObject) : double;
      constructor     Create; overload;
      constructor     Create (dim : TIndexArray); overload;
+     constructor     Create (n : integer); overload;
      constructor     CreateDim;
      destructor      Destroy; override;
   end;
@@ -100,6 +108,7 @@ Uses SysUtils,
      uUtils,
      uMachineStack,
      uVM,
+     uSymbolTable,
      uListObject,
      uVMExceptions;
 
@@ -460,8 +469,15 @@ end;
 constructor TArrayObject.CreateDim;
 begin
   Create;
+end;
 
 
+constructor TArrayObject.Create (n : integer);
+begin
+  Create;
+  setlength (self.dim, 1);
+  self.dim[0] := n;
+  setlength (dataf, getNumberOfElements());
 end;
 
 
@@ -622,22 +638,70 @@ begin
 end;
 
 
+function TArrayObject.arrayRecursiveToString (var Indices : TArray<integer>; depth : integer) : string;
+var
+  i, Offset: Integer;
+  fmt : string;
+begin
+ fmt := SysLibraryRef.find ('doubleFormat').sValue.value;
+  if depth = High(dim) then
+  begin
+    result := result + '{';
+    for i := 0 to dim[depth] - 1 do
+    begin
+      if i > 0 then
+        result := result + ', ';
+      Offset := 0;
+      for var j := 0 to High(Indices) do
+        Offset := Offset * dim[j] + Indices[j];
+      Offset := Offset * dim[depth] + i;
+      result := result + (Format (fmt, [dataf[Offset]]));
+    end;
+    result := result + '}';
+  end
+  else
+  begin
+    result := result + '{';
+    for i := 0 to dim[Depth] - 1 do
+    begin
+      if i > 0 then
+        result := result + ', ';
+      SetLength(Indices, depth + 1);
+      Indices[depth] := i;
+      result := arrayRecursiveToString(Indices, depth + 1);
+    end;
+    result := result + '}';
+  end;
+end;
+
+
+function TArrayObject.dimensionalArrayToString : string;
+var Indices: TArray<integer>;
+    depth : integer;
+    i : integer;
+begin
+  depth := 0;
+  SetLength(Indices, 0);
+  for i := 0 to 8 - 1 do dataf[i] := i+1;
+
+  result := arrayRecursiveToString (Indices, depth);
+end;
+
+
 // This needs to be redone at some point so that n-dimensional
 // arrays are convert to string format correctly.
 function TArrayObject.arrayToString: string;
 var i, j, n : integer;
-    formatStr : string;
+    fmt : string;
 begin
+    fmt := SysLibraryRef.find ('doubleFormat').sValue.value;
+
   if length (dim) = 1 then
      begin
      result := '(';
      for i := 0 to self.getNthDimension(0) - 1 do
          begin
-         if i = 0 then
-            formatStr := '%9.4f'
-         else
-            formatStr := '%10.4f';
-         result := result + Format(formatStr, [self.getValue1D(i)]);
+         result := result + Format(fmt, [self.getValue1D(i)]);
          if i < self.getNthDimension(0) - 1 then
              result := result + ', ';
          end;
@@ -653,10 +717,7 @@ begin
          result := result + '(';
          for j := 0 to self.getNthDimension(1) - 1 do
              begin
-             if (i = 0) and (j=0) then formatStr := '%9.4f'
-             else
-                formatStr := '%10.4f';
-             result := result + Format(formatStr, [self.getValue2D(i, j)]);
+             result := result + Format(fmt, [self.getValue2D(i, j)]);
              if j < self.getNthDimension(1) - 1 then
                 result := result + ', ';
             end;
@@ -667,17 +728,8 @@ begin
      exit;
      end;
 
-
-  // temporary affair for n-dim arrays
-  n := getNumberOfElements();
-  result := '(';
-  for i := 0 to n - 1 do
-      begin
-      if i mod 8 = 0 then
-         result := result + sLineBreak;
-      result := result + Format('%10.4f', [self.dataf[i]]);
-      end;
-  result := result + ')';
+  // Print out for n-dim arrays
+  writeln (dimensionalArrayToString);
 end;
 
 

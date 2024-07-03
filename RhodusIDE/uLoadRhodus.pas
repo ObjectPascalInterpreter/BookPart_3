@@ -13,6 +13,7 @@ type
 
 var
     graphicsMethods : TGraphicsMethods;
+    plottingMethods : TPlottingMethods;
     rhodus_initialize : TRhodusInitialise;
     rhodus_run : TRhodusRun;
     rhodus_terminate : TRhodusTerminate;

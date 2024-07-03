@@ -86,8 +86,9 @@ end;
 constructor TValueObject.Create;
 begin
   inherited;
-  // Dont let the garbage collector claim these
+  // Don't let the garbage collector claim these
   self.blockType := btConstant;
+  self.objectType := symValueObject;
   memoryList.addNode (self);
   methods := valueMethods;
 end;

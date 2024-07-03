@@ -220,9 +220,19 @@ begin
                              end
                           else
                              dec (count);
-                          end
+                          end;
+            symArray : begin
+                        result := result + blockStr + ' : array' + sLineBreak;
+                        end;
+            symMatrix : begin
+                        result := result + blockStr + ' : matrix' + sLineBreak;
+                        end;
+            symValueObject :
+                      begin
+                      result := result + blockStr + ' : valueObject' + sLineBreak;
+                      end;
         else
-           result := result + ' : unknown';
+           result := result + 'Internal error in mapMemoryDetailed, detected unknown object type';
         end;
         cursor := cursor^.next;
         inc (count);

@@ -9,13 +9,21 @@ unit uSymbolTable;
 
 interface
 
-Uses Classes, SysUtils, Generics.Collections, uListObject, uStringObject,
+Uses Classes, SysUtils, Generics.Collections,
+     uListObject,
+     uStringObject,
      uArrayObject,
      uVectorObject,
      uMatrixObject,
      uValueObject,
-     uOpCodes, uConstantTable, uVMExceptions, uProgramCode, uMemoryManager, uRhodusTypes,
-     uObjectSupport, uRhodusObject;
+     uOpCodes,
+     uConstantTable,
+     uVMExceptions,
+     uProgramCode,
+     uMemoryManager,
+     uRhodusTypes,
+     uObjectSupport,
+     uRhodusObject;
 
 type
    // There are too many dependencies between these classes to separate them
@@ -197,7 +205,8 @@ Uses uVM,
      uBuiltInFile,
      uBuiltInConfig,
      uBuiltInSys,
-     uBuiltInTurtle;
+     uBuiltInTurtle,
+     uBuiltInPlotter;
 
 var _userFunctionMethods : TUserFunctionMethods;
      
@@ -219,6 +228,8 @@ begin
 
   // Uncomment if you want to enable turtle support.
   //addModule (module, TBuiltInTurtle.Create);
+
+  //addModule (module, TBuiltInPlotter.Create);
 end;
 
 // -------------------------------------------------------------------------------

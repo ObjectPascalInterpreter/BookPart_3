@@ -53,6 +53,7 @@ type
       function memAllocatedByVm : integer;
     public
       graphicsMethods : PGraphicsMethods;
+      plottingMethods : PPlottingMethods;
 
       class var bolShowTree : boolean;
       class var bolShowByteCode : boolean;
@@ -61,6 +62,7 @@ type
       procedure setPrintLnCallBack (printLnCallBack : TVMCaptureStringCallBack);
       procedure setReadStringCallBack (readStringCallBack : TVMReadStringCallBack);
       procedure setGraphicsMethodCallBack (graphicsMethodsCallback : PGraphicsMethods);
+      procedure setPlottingMethodCallBack (plottingMethodsCallback : PPLOTTINGMethods);
       procedure setSetColorCallBack (setColorCallBack : TVMCaptureStringCallBack);
 
       function  getVM : TVM;
@@ -88,6 +90,7 @@ uses uCommands,
      uBuiltInOS,
      uBuiltInConfig,
      uBuiltInGraphics,
+     uBuiltInPlotter,
      uTerminal,
      uRhodusTypes,
      uEnvironment,
@@ -335,7 +338,14 @@ end;
 procedure TRhodus.setGraphicsMethodCallBack (graphicsMethodsCallback : PGraphicsMethods);
 begin
   graphicsMethods := graphicsMethodsCallback;
-  setGaphicsCallBackTable (graphicsMethods);
+  setGraphicsCallBackTable (graphicsMethods);
+end;
+
+
+procedure TRhodus.setPlottingMethodCallBack (plottingMethodsCallback : PPLOTTINGMethods);
+begin
+  plottingMethods := plottingMethodsCallback;
+  setPlottingCallBackTable (plottingMethods);
 end;
 
 

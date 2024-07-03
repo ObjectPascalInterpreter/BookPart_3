@@ -101,7 +101,9 @@ uses
   uVectorObject in '..\VirtualMachine\uVectorObject.pas',
   uBuiltInMatrix2 in 'uBuiltInMatrix2.pas',
   uMatrixFunctions in 'uMatrixFunctions.pas',
-  uValueObject in '..\VirtualMachine\uValueObject.pas';
+  uValueObject in '..\VirtualMachine\uValueObject.pas',
+  uPlotterInterface in 'uPlotterInterface.pas',
+  uBuiltInPlotter in 'uBuiltInPlotter.pas';
 
 begin
   ReportMemoryLeaksOnShutdown := True;

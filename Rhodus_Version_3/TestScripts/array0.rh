@@ -1,26 +1,65 @@
+import testUtils
 
-a = array([1,2,3])
-if a.shape() == [3] then
-   println ("pass")
-end
+setColor("yellow")
+println ("--------------------- Array Tests ----------------------")
+setColor("white")
 
-a = array([[1,2,3]])
-if a.shape() == [1,3] then
-   println ("pass")
-end
+testUtils.beginTests ("Add tests")
+  a = array([1,2,3])
+  testUtils.runtestTrue(a + 1 == array([2,3,4]))  
+  testUtils.runtestTrue(a + 1.0 == array([2,3,4])) 
+  testUtils.runtestTrue(1 + a == array([2,3,4])) 
+  testUtils.runtestTrue(1.0 + a == array([2,3,4]))   
+  testUtils.runtestTrue(math.pi + a == array([4.14159265358979, 5.14159265358979, 6.14159265358979]))    
+  testUtils.runtestTrue(a + math.pi == array([4.14159265358979, 5.14159265358979, 6.14159265358979]))  
+testUtils.endTests()
 
-a = array([[1,2],[3,4]])
-if a.shape() == [2,2] then
-   println ("pass")
-end
+testUtils.beginTests ("Sub tests")
+  a = array([1,2,3])
+  testUtils.runtestTrue(a - 1 == array([0,1,2]))  
+  testUtils.runtestTrue(a - 1.0 == array([0,1,2])) 
+  testUtils.runtestTrue(1 - a == array([0,-1,-2])) 
+  testUtils.runtestTrue(1.0 - a == array([0,-1,-2])) 
+  testUtils.runtestTrue(1.0 - a == array([0,-1,-2])) 
+  testUtils.runtestTrue(math.pi - a == array([2.14159265358979, 1.14159265358979, 0.141592653589793]))    
+  testUtils.runtestTrue(a - math.pi == array([-2.14159265358979, -1.14159265358979, -0.141592653589793]))  
+testUtils.endTests()
 
-a = array([[1],[4],[5]])
-if a.shape() == [3,1] then
-   println ("pass")
-end
+testUtils.beginTests ("Mult tests")
+  a = array([1,2,3])
+  testUtils.runtestTrue(a * 2 == array([2,4,6]))  
+  testUtils.runtestTrue(a * 2.0 == array([2,4,6])) 
+  testUtils.runtestTrue(2 * a == array([2,4,6])) 
+  testUtils.runtestTrue(2.0 * a == array([2,4,6]))   
+  testUtils.runtestTrue(math.pi * a == array([3.14159265358979, 6.28318530717959, 9.42477796076938]))    
+  testUtils.runtestTrue(a * math.pi == array([3.14159265358979, 6.28318530717959, 9.42477796076938]))  
+testUtils.endTests()
 
-a = array([[1]])
-if a.shape() == [1,1] then
-   println ("pass")
-end
+testUtils.beginTests ("Div tests")
+  a = array([1,2,3])
+  testUtils.runtestTrue(a / 2 == array([0.5,1,1.5]))  
+  testUtils.runtestTrue(a / 2.0 == array([0.5,1,1.5])) 
+  testUtils.runtestTrue(2 / a == array([2,1,2/3])) 
+  testUtils.runtestTrue(2.0 / a == array([2,1,2/3]))   
+  testUtils.runtestTrue(math.pi / a == array([3.14159265358979, 1.5707963267949, 1.0471975511966]))    
+  testUtils.runtestTrue(a / math.pi == array([0.318309886183791, 0.636619772367581, 0.954929658551372]))  
+testUtils.endTests()
 
+testUtils.beginTests ("Shape tests")
+  a = array([1,2,3])
+  testUtils.runtestTrue(a.shape() == [3]);
+  a = array([[1,4,5]])
+  testUtils.runtestTrue(a.shape() == [1,3])
+  a = array([[1,2],[4,5]])
+  testUtils.runtestTrue(a.shape() == [2,2])
+  a = array([[1],[4],[5]])
+  testUtils.runtestTrue(a.shape() == [3,1])
+  a = array([[1]])
+  testUtils.runtestTrue(a.shape() == [1,1])
+testUtils.endTests()
+
+
+
+setColor ("yellow")
+println ("----------------------------------------------------------")
+setColor ("white")

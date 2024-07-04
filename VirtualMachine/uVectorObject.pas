@@ -46,16 +46,16 @@ const outOfRangeMsg = 'Index out of range while accessing vector element';
 // ----------------------------------------------------------------------
 constructor TVectorObject.Create;
 begin
-  blockType := btGarbage;
+  inherited Create;
+
   objectType := symVector;
   //self.methods := arrayMethods;
-  memoryList.addNode (self);
 end;
 
 
 constructor TVectorObject.Create(Size: Integer);
 begin
-  inherited Create;
+  Create;
   System.SetLength(data, Size)
 end;
 

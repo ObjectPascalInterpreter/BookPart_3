@@ -7,7 +7,7 @@ setColor("yellow")
 println ("--------------------- Boolean Tests ----------------------")
 setColor("white")
 x = 1; y1 = 6; w = 3; v = 4;
-testUtils.beginTests ("")
+testUtils.beginTests ("True/False Tests")
   testUtils.runtestTrue(True == True);
   testUtils.runtestTrue(True != False);
   testUtils.runtestFalse(True != True);
@@ -37,7 +37,7 @@ testUtils.beginTests ("")
 testUtils.endTests()
 
 
-testUtils.beginTests ("")
+testUtils.beginTests ("Realational Tests")
   testUtils.runtestFalse(x < x and x > x);
   testUtils.runtestFalse((x >= y1) and not (w <= v));
   testUtils.runtestFalse(y1 != 6);
@@ -51,7 +51,7 @@ testUtils.beginTests ("")
   testUtils.runtestTrue(1 != 2);
 testUtils.endTests()
 
-testUtils.beginTests ("")
+testUtils.beginTests ("Complex Tests")
   x = 1; y1 = 6; w = 3; v = 4;
   testUtils.runtestTrue(False xor True and True == True);
   testUtils.runtestTrue((x < x and x > x) == False);
@@ -59,7 +59,7 @@ testUtils.beginTests ("")
   testUtils.runtestTrue((y1 == 6) == True);
   testUtils.endTests()
 
-testUtils.beginTests ("")
+testUtils.beginTests ("Negation Tests")
   x = 1.2;
   testUtils.runtestFalse(x == 3.4);
   x = 3.4;
@@ -69,5 +69,4 @@ testUtils.endTests()
 setColor ("yellow")
 println ("----------------------------------------------------------")
 setColor ("white")
-
 

@@ -29,6 +29,7 @@ type
       function  valueToString : string;
 
       function  clone : TValueObject;
+      function  getScalar : double;
 
       constructor     Create; overload;
       constructor     Create (value : double); overload;
@@ -85,11 +86,10 @@ end;
 
 constructor TValueObject.Create;
 begin
-  inherited;
+  inherited Create;  // Adds object to the memory pool
   // Don't let the garbage collector claim these
   self.blockType := btConstant;
   self.objectType := symValueObject;
-  memoryList.addNode (self);
   methods := valueMethods;
 end;
 
@@ -97,6 +97,7 @@ end;
 constructor TValueObject.Create (value : double);
 begin
   Create;
+
   valueType := vtDouble;
   dValue := value;
 end;
@@ -114,6 +115,17 @@ begin
   result.valueType := self.valueType;
   result.iValue := self.iValue;
   result.dValue := self.dValue;
+end;
+
+
+function TValueObject.getScalar : double;
+begin
+  case valueType of
+    vtInteger : result := iValue;
+    vtDouble : result := dValue;
+  else
+   raiseInternalError('Internal error in getScalar (uValueObject), missing type: ' + inttostr (integer (valueType)));
+  end;
 end;
 
 

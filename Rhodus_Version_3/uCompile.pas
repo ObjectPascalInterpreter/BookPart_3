@@ -847,7 +847,6 @@ var
   syntaxError : TSyntaxError;
   compilerError : TCompilerError;
 begin
-  // Check for leading '.'
   // Check if it's a builtin first
   if listofBuiltIns.find (node.importName, index) then
      begin
@@ -875,7 +874,10 @@ begin
   // If a module of that name has already been loaded we just get out.
   if currentModule.symbolTable.find(node.importName, symbol) then
      if symbol.symbolType = symModule then
+        begin
+        //writeln ('Module ' + node.importName + ' is already loaded');
         exit;
+        end;
 
   // Check if we're trying to load the same module into itself
   if currentModule.name = node.importName then

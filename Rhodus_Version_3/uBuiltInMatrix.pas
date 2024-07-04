@@ -75,6 +75,7 @@ begin
   inherited;
 end;
 
+
 procedure TBuiltInMatrix.getRndu(vm: TObject);
 var ar : TArrayObject;
     n, m : integer;

@@ -201,6 +201,11 @@ end;
 
 constructor TStringObject.createConstantObj (value : string);
 begin
+  // There is no call to the inherited create which adds an object to
+  // the memory pool. Constant strings are handled differently and are
+  // freed separately when a module is freed.
+  //inherited Create;
+
   blockType := btConstant;
   self.value := value;
   methods := stringMethods;
@@ -209,11 +214,12 @@ end;
 
 constructor TStringObject.Create (value : string);
 begin
+  inherited Create; // Adds object to the memory pool
+
   blockType := btGarbage;
   objectType := symString;
   self.value := value;
   methods := stringMethods;
-  memoryList.addNode (self);
 end;
 
 

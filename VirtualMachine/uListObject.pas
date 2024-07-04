@@ -53,6 +53,11 @@ type
     class function multiply(value: integer; aList: TListObject): TListObject;
     class function listEquals(list1, list2: TListObject): boolean;
 
+    //procedure setItem (item : TListItem);
+    function  getItem (index : integer) : TListItem;
+
+    procedure setItemToDouble (index : integer; value : double);  // space must exist before you call this
+
     procedure append(iValue: integer); overload;
     procedure append(bValue: boolean); overload;
     procedure append(dValue: double); overload;
@@ -83,7 +88,11 @@ type
     function clone: TListObject;
     function listToString: string;
     function getsize: integer;
-    constructor Create(count: integer);
+
+    property Item[index : Integer]: TListItem read getItem; default; // write setItem; default;
+
+    constructor Create; overload;
+    constructor Create(count: integer); overload;
     destructor  Destroy; override;
   end;
 
@@ -375,7 +384,7 @@ begin
 end;
 
 
-// ---------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 
 
 destructor TListContainer.Destroy;
@@ -384,19 +393,27 @@ begin
 end;
 
 
-constructor TListObject.Create(count: integer);
-var
-  i: integer;
+// --------------------------------------------------------------------------------------------------
+// Create an empty list
+constructor TListObject.Create;
 begin
-  inherited Create;
+  inherited Create;    // Adds object to the memory pool
 
   listToArray  := False;
   objectType := symList;
   list := TListContainer.Create;
   methods := listMethods;
+end;
+
+
+constructor TListObject.Create(count: integer);
+var
+  i: integer;
+begin
+  Create;
+
   for i := 0 to count - 1 do
     list.add(TListItem.Create(0));
-  memoryList.addNode(self); // Add a reference to the memory manager
 end;
 
 
@@ -473,6 +490,7 @@ begin
     end;
 end;
 
+
 function TListObject.listToString: string;
 var
   i: integer;
@@ -486,6 +504,19 @@ begin
       result := result + ',' + self.list[i].elementToString;
     end;
   result := result + ']';
+end;
+
+
+function TListObject.getItem (index : integer) : TListItem;
+begin
+  result := self.list[index];
+end;
+
+
+procedure TListObject.setItemToDouble (index : integer; value : double);
+begin
+  list[index].dValue := value;
+  list[index].itemType := liDouble;
 end;
 
 

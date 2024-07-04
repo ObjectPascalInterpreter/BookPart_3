@@ -19,7 +19,7 @@ Uses Classes, SysUtils, uListObject, uStringObject,
 
 type
   TStackType = (stNone, stInteger, stDouble, stBoolean, stString, stArray, stVector, stMatrix, stSymbol,
-                stLocalSymbol, stList, stModule, stFunction, stObjectMethod, stObject, stValueObject);
+                stLocalSymbol, stList, stModule, stFunction, stObjectMethod, stValueObject, stObject);
 
   TMachineStackRecord = record
      stackType : TStackType;  // 1 byte

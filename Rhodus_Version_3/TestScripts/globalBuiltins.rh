@@ -3,7 +3,7 @@
 import testUtils
 
 setColor ("yellow")
-println ("---------------------- Global Builtins --------------------------")
+println ("------------------- Global Builtins ----------------------")
 setColor ("white")
 
 testUtils.beginTests ("int")

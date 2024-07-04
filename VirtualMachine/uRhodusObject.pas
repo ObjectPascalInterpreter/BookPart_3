@@ -32,11 +32,13 @@ type
 
 implementation
 
+Uses uMemoryManager;
 
 constructor TRhodusObject.Create;
 begin
   inherited;
   blockType := btGarbage;
+  memoryList.addNode(self);
 end;
 
 destructor TRhodusObject.destroy;

@@ -66,11 +66,19 @@ type
 
      class function  isEqualTo (a1, a2 : TArrayObject) : boolean;
      function        applyUniFunction (func : TUniFunction) : TArrayObject;
-     class function  add (a1, a2 : TArrayObject) : TArrayObject;
-     class function  sub (a1, a2 : TArrayObject) : TArrayObject;
+
+     class function  minus (a : TArrayObject) : TArrayObject;
+     class function  add (a1, a2 : TArrayObject) : TArrayObject; overload;
+     class function  add (a : TArrayObject; value : double) : TArrayObject; overload;
+     class function  sub (a1, a2 : TArrayObject) : TArrayObject; overload;
+     class function  subLeft (a : TArrayObject; value : double) : TArrayObject; overload;
+     class function  subRight (a : TArrayObject; value : double) : TArrayObject; overload;
      class function  arrayScalarIntMult (m1 : TArrayObject; alpha : integer) : TArrayObject;
-     class function  arrayScalarDoubleMult (m1 : TArrayObject; alpha : double) : TArrayObject;
+     class function  arrayScalarDoubleMult (m : TArrayObject; alpha : double) : TArrayObject;
+
      class function  mult (m1, m2 : TArrayObject) : TArrayObject;
+
+     class function  divide (a : TArrayObject; value : double; reciprocal : boolean) : TArrayObject;
      class function  getMax (a1 : TArrayObject) : double;
      class function  getMin (a1 : TArrayObject) : double;
      constructor     Create; overload;
@@ -104,13 +112,15 @@ implementation
 
 Uses SysUtils,
      StrUtils,
+     Math,
      System.Character,
      uUtils,
      uMachineStack,
      uVM,
      uSymbolTable,
      uListObject,
-     uVMExceptions;
+     uVMExceptions,
+     uBuiltInGlobal;
 
 const outOfRangeMsg = 'Index out of range while accessing array element';
       sameDimensionsMsg = 'Arrays must have the same dimensions';
@@ -459,10 +469,10 @@ end;
 
 constructor TArrayObject.Create;
 begin
-  blockType := btGarbage;
+  inherited Create;
+
   objectType := symArray;
   self.methods := arrayMethods;
-  memoryList.addNode (self);
 end;
 
 
@@ -511,6 +521,8 @@ begin
 end;
 
 
+// See
+//  https://stackoverflow.com/questions/33537595/how-to-calculate-the-element-addresses-of-an-n-dimensional-array
 function TArrayObject.getIndex (const dim, idx : array of integer) : integer;
 begin
   result := idx[0];
@@ -845,6 +857,15 @@ begin
 end;
 
 
+class function TArrayObject.minus (a : TArrayObject) : TArrayObject;
+var i, n : integer;
+begin
+  n := a.getNumberOfElements();
+  result := a.clone();
+  for i := 0 to n - 1 do
+      result.dataf[i] := -a.dataf[i];
+end;
+
 class function TArrayObject.add (a1, a2 : TArrayObject) : TArrayObject;
 var i, j : integer;
 begin
@@ -875,6 +896,16 @@ begin
      end
   else
      raise ERuntimeException.Create(sameDimensionsMsg);
+end;
+
+
+class function TArrayObject.add (a : TArrayObject; value : double) : TArrayObject;
+var i, n : integer;
+begin
+  n := a.getNumberOfElements;
+  result := a.clone;
+  for i := 0 to n - 1 do
+      result.dataf[i] := a.dataf[i] + value;
 end;
 
 
@@ -914,6 +945,26 @@ begin
 end;
 
 
+class function TArrayObject.subLeft (a : TArrayObject; value : double) : TArrayObject;
+var i, n : integer;
+begin
+  n := a.getNumberOfElements;
+  result := a.clone;
+  for i := 0 to n - 1 do
+      result.dataf[i] := a.dataf[i] - value;
+end;
+
+
+class function TArrayObject.subRight (a : TArrayObject; value : double) : TArrayObject;
+var i, n : integer;
+begin
+  n := a.getNumberOfElements;
+  result := a.clone;
+  for i := 0 to n - 1 do
+      result.dataf[i] := value - a.dataf[i];
+end;
+
+
 class function TArrayObject.arrayScalarIntMult (m1 : TArrayObject; alpha : integer) : TArrayObject;
 var n : integer;
 begin
@@ -924,13 +975,13 @@ begin
 end;
 
 
-class function TArrayObject.arrayScalarDoubleMult (m1 : TArrayObject; alpha : double) : TArrayObject;
+class function TArrayObject.arrayScalarDoubleMult (m : TArrayObject; alpha : double) : TArrayObject;
 var n : integer;
 begin
-  result := TArrayObject.Create ([m1.dim[0], m1.dim[1]]);
-  n := m1.getNumberOfElements;
+  result := m.clone;
+  n := m.getNumberOfElements;
   for var i := 0 to n - 1 do
-      result.dataf[i] := alpha*m1.dataf[i];
+      result.dataf[i] := alpha*m.dataf[i];
 end;
 
 
@@ -953,6 +1004,18 @@ begin
   n := m1.dim[0] * m1.dim[1];
   for var i := 0 to n - 1 do
       result.dataf[i] :=  m1.dataf[i] * m2.dataf[i];
+end;
+
+
+class function TArrayObject.divide (a : TArrayObject; value : double; reciprocal : boolean) : TArrayObject;
+var i : integer;
+begin
+  result := a.clone;
+  for i := 0 to a.getNumberOfElements() - 1 do
+      if reciprocal then
+         result.dataf[i] := value/a.dataf[i]
+      else
+         result.dataf[i] := a.dataf[i]/value;
 end;
 
 
@@ -992,7 +1055,10 @@ end;
      
 class function TArrayObject.isEqualTo (a1, a2 : TArrayObject) : boolean;
 var n: integer;
+    epsSymbol : TSymbol;
 begin
+  epsSymbol := mainModule.find('math', 'eps');
+
   result := True;
   n := a1.getNumDimensions() - 1;
   if not sameDimensions(a1, a2) then
@@ -1000,7 +1066,7 @@ begin
 
   for var i := 0 to n do
       begin
-      if a1.dataf[i] <> a2.dataf[i] then
+      if not sameValue (a1.dataf[i], a2.dataf[i], epsSymbol.voValue.dValue) then
          exit (False);
       end;
 end;

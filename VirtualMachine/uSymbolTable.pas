@@ -399,7 +399,7 @@ begin
   builtInPtr := nil;
   isbuiltInFunction := False;
   helpStr := 'No help on this function';
-  memoryList.addNode (self);
+  //memoryList.addNode (self);
 end;
 
 
@@ -411,7 +411,7 @@ begin
   name := functionName;
   self.builtInPtr := funcPtr;
   isbuiltInFunction := True;
-  memoryList.addNode (self);
+  //memoryList.addNode (self);
 end;
 
 
@@ -449,7 +449,7 @@ begin
      result.codeBlock := self.codeBlock.Clone;
    end;
    // Don't forget to add the clone to the heap memory pool
-   memoryList.addNode (result);
+   //memoryList.addNode (result);
 end;
 
 

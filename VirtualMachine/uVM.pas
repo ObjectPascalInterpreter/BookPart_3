@@ -1020,10 +1020,10 @@ begin
 end;
 
 
+// Addition
 procedure TVM.addOp;
 var
   st1, st2 : PMachineStackRecord;
-  //aList : TListObject; tmp : TStringObject;
   result : TMachineStackRecord;
 begin
   st2 := pop; // second operand
@@ -1031,85 +1031,6 @@ begin
 
   addJumpTable[st1.stackType, st2.stackType] (st2, st1, result);
   push (@result);
-
-  exit;
-
-// Old approach, will remove after a few more interations.
-//  case st2.stackType of
-//    stInteger: case st1.stackType of
-//        stInteger: push(st1.iValue + st2.iValue);
-//        stDouble: push(st1.dValue + st2.iValue);
-//      else
-//        compatibilityError('adding', st2, st1);
-//      end;
-//
-//    stBoolean: compatibilityError('adding', st2, st1); // Can't add booleans
-//
-//    stDouble: case st1.stackType of
-//        stInteger: push(st1.iValue + st2.dValue);
-//        stDouble: push(st1.dValue + st2.dValue);
-//      else
-//        compatibilityError('adding', st2, st1);
-//      end;
-//
-//    stString: case st1.stackType of
-//        stString: push(TStringObject.add(st2.sValue, st1.sValue));
-//      else
-//        compatibilityError('adding', st2, st1);
-//      end;
-//
-//    stList: case st1.stackType of
-//        stInteger:
-//          begin
-//          aList := st2.lValue.clone;
-//          aList.append(st1.iValue);
-//          push(aList);
-//          end;
-//        stBoolean:
-//          begin
-//          aList := st2.lValue.clone;
-//          aList.append(st1.bValue);
-//          push(aList);
-//          end;
-//        stDouble:
-//          begin
-//          aList := st2.lValue.clone;
-//          aList.append(st1.dValue);
-//          push(aList);
-//          end;
-//        stString:
-//          begin
-//          aList := st2.lValue.clone;
-//          tmp   := st1.sValue.clone;
-//          tmp.blockType := btOwned;
-//          aList.append(tmp);
-//          push(aList);
-//          end;
-//        stList: push(TListObject.addLists(st2.lValue, st1.lValue));
-//        stFunction:
-//          begin
-//          aList := st2.lValue.clone;
-//          aList.appendUserFunction (st1.fValue);
-//          push(aList);
-//          end;
-//        stModule:
-//          begin
-//          aList := st2.lValue.clone;
-//          aList.appendModule (st1.module);
-//          push(aList);
-//          end;      else
-//        compatibilityError('adding', st2, st1);
-//      end;
-//
-//    stArray:
-//      case st1.stackType of
-//        stArray: push(TArrayObject.add(st2.aValue, st1.aValue));
-//      else
-//        compatibilityError('adding', st2, st1);
-//      end;
-//  else
-//    raise ERuntimeException.Create ('Internal Error: Unsupported datatype in add');
-//  end
 end;
 
 
@@ -1117,49 +1038,15 @@ end;
 procedure TVM.subOp;
 var
   st1, st2: PMachineStackRecord;
+  result : TMachineStackRecord;
 begin
   st1 := pop;
   st2 := pop;
   if (st1.stackType = stNone) or (st2.stackType = stNone) then
      raiseError ('Variable undefined in sub');
 
-  case st2.stackType of
-    stInteger: case st1.stackType of
-        stInteger: push(st2.iValue - st1.iValue);
-        stDouble: push(st2.iValue - st1.dValue);
-  stValueObject : push (st2.iValue - TValueObject.getValue (st1.voValue));
-      else
-        compatibilityError('subtraction', st1, st2);
-      end;
-    stDouble: case st1.stackType of
-        stInteger: push(st2.dValue - st1.iValue);
-        stDouble: push(st2.dValue - st1.dValue);
-  stValueObject : push (st2.dValue - TValueObject.getValue (st1.voValue));
-      else
-        compatibilityError('subtraction', st2, st1);
-      end;
-    stArray:
-      case st1.stackType of
-        stArray: push(TArrayObject.sub(st2.aValue, st1.aValue));
-      else
-        compatibilityError('subracting', st2, st1);
-      end;
-    stMatrix:
-      case st1.stackType of
-         stMatrix: push (TMatrixObject.sub (st2.mValue, st1.mValue));
-      else
-        compatibilityError('subracting', st2, st1);
-      end;
-  stValueObject :
-      case st1.stackType of
-         stInteger : push (TValueObject.getValue (st2.voValue) - st1.iValue);
-         stDouble  : push (TValueObject.getValue (st2.voValue) - st1.dValue);
-       else
-         compatibilityError('multipying', st2, st1);
-       end
-  else
-    raiseError ('Only integers and floats can be subtracted from each other');
-  end;
+  subJumpTable[st1.stackType, st2.stackType] (st2, st1, result);
+  push (@result);
 end;
 
 
@@ -1167,100 +1054,18 @@ end;
 procedure TVM.multOp;
 var
   st1, st2: PMachineStackRecord;
-  i: integer;
-  ans: string;
+  result : TMachineStackRecord;
 begin
   st1 := pop;
   st2 := pop;
   if (st1.stackType = stNone) or (st2.stackType = stNone) then
      raiseError  ('Variable undefined in mult');
 
-  case st2.stackType of
-    stInteger:
-     case st1.stackType of
-        stInteger: push(st1.iValue * st2.iValue);
-        stDouble : push(st2.iValue * st1.dValue);
-        stString :
-        begin
-          ans := st1.sValue.value;
-          for i := 2 to st2.iValue do
-              ans := ans + st1.sValue.value;
-          push(TStringObject.Create(ans));
-        end;
-        stList  : push(TListObject.multiply(st2.iValue, st1.lValue));
-        stArray : push (TArrayObject.arrayScalarIntMult (st1.aValue, st2.iValue));
-       stMatrix : push (TMatrixObject.scalarMult (st1.mValue, st2.iValue));
-  stValueObject : push (st2.iValue * TValueObject.getValue (st1.voValue));
-      else
-        compatibilityError('multipying', st2, st1);
-      end;
-
-    stBoolean: compatibilityError('multiplying', st2, st1);
-
-    stDouble:
-      case st1.stackType of
-        stInteger : push(st2.dValue * st1.iValue);
-        stDouble  : push(st2.dValue * st1.dValue);
-        stArray   :  push (TArrayObject.arrayScalarDoubleMult (st1.aValue, st2.dValue));
-       stMatrix : push (TMatrixObject.scalarMult (st1.mValue, st2.dValue));
-  stValueObject : push (st2.dValue * TValueObject.getValue (st1.voValue));
-      else
-        compatibilityError('multipying', st2, st1);
-      end;
-
-    stString:
-      begin
-      if st1.stackType = stInteger then
-        begin
-        ans := st2.sValue.value;
-        for i := 2 to st1.iValue do
-          ans := ans + st2.sValue.value;
-        push(TStringObject.Create(ans));
-        end;
-      end;
-
-    stList:
-      begin
-      if st1.stackType = stInteger then
-        push(TListObject.multiply(st1.iValue, st2.lValue))
-      else
-        raiseError  ('Lists can only be multiplied by integers');
-      end;
-
-    stArray :
-       case st1.stackType of
-         stInteger : push (TArrayObject.arrayScalarIntMult (st2.aValue, st1.iValue));
-         stDouble  : push (TArrayObject.arrayScalarDoubleMult (st2.aValue, st1.dValue));
-         stArray   : push (TArrayObject.mult (st2.aValue, st1.aValue))
-       else
-         compatibilityError('multipying', st2, st1);
-       end;
-
-    stMatrix :
-       case st1.stackType of
-         stInteger : push (TMatrixObject.scalarMult (st2.mValue, st1.iValue));
-         stDouble  : push (TMatrixObject.scalarMult (st2.mValue, st1.dValue));
-    stValueObject  : push (TMatrixObject.scalarMult (st1.mValue, TValueObject.getValue (st2.voValue)));
-         stMatrix   : push (TMatrixObject.mult (st2.mValue, st1.mValue))
-       else
-         compatibilityError('multipying', st2, st1);
-       end;
-
-  stValueObject :
-      case st1.stackType of
-         stInteger : push (TValueObject.getValue (st2.voValue)* st1.iValue);
-         stDouble  : push (TValueObject.getValue (st2.voValue) * st1.dValue);
-         stMatrix   : push (TMatrixObject.scalarMult(st1.mValue, TValueObject.getValue (st2.voValue)))
-       else
-         compatibilityError('multipying', st2, st1);
-       end
-  else
-    raiseError  ('Data type not supported by multiplication operator')
-  end
+  multJumpTable[st1.stackType, st2.stackType] (st2, st1, result);
+  push (@result);
 end;
 
 
-// ####
 procedure TVM.dotProductOp;
 var m1, m2 : TMatrixObject;
     sum : double; 
@@ -1304,42 +1109,15 @@ end;
 procedure TVM.divOp;
 var
   st1, st2: PMachineStackRecord;
+  result : TMachineStackRecord;
 begin
   st1 := pop;
   st2 := pop;
   if (st1.stackType = stNone) or (st2.stackType = stNone) then
-     raise ERuntimeException.Create ('Variable undefined in div');
+     raise ERuntimeException.Create ('Variable undefined in division operation');
 
-  case st2.stackType of
-    stInteger:
-      case st1.stackType of
-        stInteger: push(st2.iValue / st1.iValue);
-        stDouble: push(st2.iValue / st1.dValue);
-        stValueObject : push (st2.iValue / TValueObject.getValue(st1.voValue));
-      else
-        compatibilityError('dividing', st2, st1);
-      end;
-
-    stDouble:
-      case st1.stackType of
-        stInteger: push(st2.dValue / st1.iValue);
-        stDouble: push(st2.dValue / st1.dValue);
-       stValueObject : push (st2.dValue / TValueObject.getValue(st1.voValue));
-      else
-        compatibilityError('dividing', st2, st1);
-      end;
-
-    stValueObject :
-     case st1.stackType of
-        stInteger: push(TValueObject.getValue(st2.voValue) / st1.iValue);
-        stDouble: push(TValueObject.getValue(st2.voValue) / st1.dValue);
-        stValueObject : push(TValueObject.getValue(st2.voValue) / TValueObject.getValue(st1.voValue));
-      else
-        compatibilityError('dividing', st2, st1);
-       end;
-  else
-    raiseError  ('Data type not supported by division operator');
-  end;
+  divJumpTable[st1.stackType, st2.stackType] (st2, st1, result);
+  push (@result);
 end;
 
 
@@ -1352,6 +1130,7 @@ begin
     stInteger: push(-st.iValue);
     stDouble: push(-st.dValue);
     stMatrix: push (TMatrixObject.minus (st.mValue));
+    stArray: push (TArrayObject.minus (st.aValue));
   else
     raiseError ('Data type not supported by unary operator');
   end;
@@ -3206,6 +2985,7 @@ begin
                 stNone : begin end;
                 stInteger : begin end;
                 stDouble : begin end;
+                stBoolean : begin end;
               else
                  raiseError('oRet not implemented for type');
               end;

@@ -31,7 +31,7 @@ type
           procedure checkSpace;
         public
            code : TCode;
-           constantValueTable : TConstantValueTable;
+           constantValueTable : TConstantValueTable;  // This memory is handled differently from the memorymanager
            function  count : integer;
            procedure clearCode;
            procedure append (byteCode : TByteCode);

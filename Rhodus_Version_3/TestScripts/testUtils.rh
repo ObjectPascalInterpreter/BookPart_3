@@ -49,3 +49,8 @@ function endTests()
    global nSuccess, nFail
    println (" ", 100*nSuccess/(nSuccess + nFail), "%")
 end
+
+function printSummary()
+   global nSuccess, nFail
+   println ("Success= ", nSuccess);
+end

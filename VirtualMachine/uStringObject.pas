@@ -56,7 +56,7 @@ var stringMethods : TStringMethods;
 
 constructor TStringMethods.Create;
 begin
-  methodList := TMethodList.Create;
+  methodList := TMethodList.Create (self);
 
   methodList.Add(TMethodDetails.Create ('len',     0, 'Return the length of a string: a.len()', getLength));
   methodList.Add(TMethodDetails.Create ('find',    1, 'Finds a substring in string. Returns -1 if it fails: a.find ("CD")', find));
@@ -67,8 +67,6 @@ begin
   methodList.Add(TMethodDetails.Create ('mid',     2, 'Returns a substring of string from start to count characters: a.mid (2, 4)', mid));
   methodList.Add(TMethodDetails.Create ('trim',    0, 'Removes any spaces from the start and end of the string: a.trim ()', trim));
   methodList.Add(TMethodDetails.Create ('split',   1, 'Splits at a given character into a list of strings: a.split (",")', split));
-
-  methodList.Add(TMethodDetails.Create ('dir',     0, 'dir of string object methods', dir));
 end;
 
 

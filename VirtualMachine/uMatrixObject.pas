@@ -17,6 +17,7 @@ uses SysUtils, Classes,
      uVectorObject,
      Generics.Collections,
      uVMExceptions,
+     uHelpUnit,
      uRhodusTypes;
 
 type
@@ -68,6 +69,8 @@ type
      procedure   getNumRows (vm: TObject);
      procedure   getNumCols (vm: TObject);
      procedure   getShape (vm : TObject);
+     procedure   getColumn (vm : TObject);
+     procedure   getRow (vm : TObject);
 
      procedure   getToArray (vm : TObject);
      procedure   getToList (vm : TObject);
@@ -88,21 +91,27 @@ Uses Math, uVM,
 
 var matrixMethods : TMatrixMethods;
 
+
+function help_rows : THelp;
+begin
+  //result := THelp.Create('get the number of rows in the matrix var.rows()');
+end;
+
+
 constructor TMatrixMethods.Create;
 begin
-  methodList := TMethodList.Create;
+  methodList := TMethodList.Create (self);
 
   // -1 means variable arguments, use the constant VARIABLE_ARGS for this
 
-  methodList.Add(TMethodDetails.Create ('rows',    0, 'get the number of rows in the matrix var.rows()', getNumRows));
+  methodList.Add(TMethodDetails.Create ('rows',    0, 'help', help_rows, getNumRows));
   methodList.Add(TMethodDetails.Create ('cols',    0, 'get the number of columns in the matrix var.cols()', getNumCols));
   methodList.Add(TMethodDetails.Create ('shape',   0, 'get the shape of the matrix var.shape()', getShape));
+  methodList.Add(TMethodDetails.Create ('ec',      1, 'extract a column: var.ec(n)', getColumn));
+  methodList.Add(TMethodDetails.Create ('er',      1, 'extract a row: var.er(n)', getRow));
 
   methodList.Add(TMethodDetails.Create ('toArray', 0, 'Convert a matrix to an array: m = mat.toArray()', getToArray));
-  methodList.Add(TMethodDetails.Create ('toList', 0, 'Convert a matrix to a list: m = mat.toList()', getToList));
-
-
-  methodList.Add(TMethodDetails.Create ('dir',     0, 'dir of matrixt methods', dir));
+  methodList.Add(TMethodDetails.Create ('toList',  0, 'Convert a matrix to a list: m = mat.toList()', getToList));
 end;
 
 destructor TMatrixMethods.Destroy;
@@ -148,6 +157,52 @@ begin
   r.list[1].itemType := liInteger;
   r.list[1].iValue := s.numCols;
   TVM (vm).push(r);
+end;
+
+
+procedure TMatrixMethods.getColumn (vm : TObject);
+var s : TMatrixObject;
+    m : TMatrixObject;
+    i : integer;
+    n : integer;
+    md : TMethodDetails;
+begin
+  n := TVM (vm).popInteger;
+
+  md := TVM (vm).popMethodDetails;
+  s := TMatrixObject (md.self);
+
+  if (n < 0) or (n > s.numCols) then
+     raise ERuntimeException.Create('Column index out of range');
+
+  m := TMatrixObject.Create (s.numRows, 1);
+  for i := 0 to s.numRows - 1 do
+      m[i, 0] := s[i, n];
+
+  TVM (vm).push(m);
+end;
+
+
+procedure TMatrixMethods.getRow (vm : TObject);
+var s : TMatrixObject;
+    m : TMatrixObject;
+    i : integer;
+    n : integer;
+    md : TMethodDetails;
+begin
+  n := TVM (vm).popInteger;
+
+  md := TVM (vm).popMethodDetails;
+  s := TMatrixObject (md.self);
+
+  if (n < 0) or (n > s.numRows) then
+     raise ERuntimeException.Create('Row index out of range');
+
+  m := TMatrixObject.Create (1, s.numCols);
+  for i := 0 to s.numRows - 1 do
+      m[0, i] := s[n, i];
+
+  TVM (vm).push(m);
 end;
 
 
@@ -258,6 +313,7 @@ begin
    raise ERuntimeException.Create ('Matrices must have the same dimensions in add');
 end;
 
+
 class function TMatrixObject.subLeft (m : TMatrixObject; value : double) : TMatrixObject;
 var i, j : integer;
 begin
@@ -266,6 +322,7 @@ begin
       for j := 0 to m.numcols - 1 do
           result.setval(i, j, m.getval(i, j) - value);
 end;
+
 
 class function TMatrixObject.subRight (m : TMatrixObject; value : double) : TMatrixObject;
 var i, j : integer;
@@ -383,11 +440,11 @@ var i, j : integer;
     item : TListItem;
     row : TListObject;
 begin
-  l := TListObject.Create (0);
+  l := TListObject.Create;
   // Create the rows, each row is numCols wide
   for i := 0 to m.numRows - 1 do
       l.append (TListObject.Create(m.numCols));
-  // Append items to each row
+  // Set each items that ow exists in each row to a value
   for i := 0 to m.numRows - 1 do
       begin
       row := l[i].lValue;
@@ -470,9 +527,13 @@ var i, j : integer;
     cp : TCartesianProduct;
     dim : array of integer;
     coord : TArray<integer>;
+    nr, nc : integer;
 begin
+  nr := self.numRows;
+  nc := self.numCols;
+
   // Check for missing slices
-  if 2 > length (slices) then
+  if length (slices) < 2 then
      begin
      // fill out the missing slices which should all be ':' (SLICE_ALL)
      for i := length (slices) to 2 - 1 do
@@ -483,8 +544,8 @@ begin
      end;
 
   setlength (dim, 2);
-  dim[0] := self.numRows;
-  dim[1] := self.numCols;
+  dim[0] := nr;
+  dim[1] := nc;
 
   // Create space for the number of dimensions of the slice.
   // setlength (result.dim, length (slices));
@@ -498,7 +559,7 @@ begin
          slices[i].lower := 0;
       if slices[i].upper = SLICE_ALL then
          slices[i].upper := dim[i] - 1;
-      if slices[i].upper = SLICE_EQUAL then
+      if slices[i].upper = SLICE_EQUAL then  // eg m[:,4] where the 4 means slice 4 to 4
          slices[i].upper := slices[i].lower;
 
       if slices[i].lower < 0 then
@@ -506,15 +567,17 @@ begin
       if slices[i].upper > self.numRows - 1 then
          slices[i].upper := dim[i] - 1;
 
-
-      // Sotre the size of the dimension in dim[i]
+      // Store the size of the dimension in dim[i]
       dim[i] := slices[i].upper - slices[i].lower+1;
+      if dim[i] <= 0  then
+         raise ERuntimeException.Create('Slice dimensions exceeding size of matrix');
       slicesize := slicesize * (slices[i].upper - slices[i].lower+1);
       end;
-//  // Allocate space for the slice
-     result := TMatrixObject.Create (dim[0], dim[1]);
-   //setlength (result.dataf, slicesize);
-//  // Generate the coordinates for each item that we need to copy from the source array
+
+  // Allocate space for the slice
+  result := TMatrixObject.Create (dim[0], dim[1]);
+
+  // Generate the coordinates for each item that we need to copy from the source array
   setlength (inputLists, length (slices));
   for i := 0 to length (slices) - 1 do
       begin

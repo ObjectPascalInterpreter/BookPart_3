@@ -12,13 +12,18 @@ unit uRhodusObject;
 
 interface
 
-Uses Classes, SysUtils, uRhodusTypes, uObjectSupport;
+Uses Classes,
+     SysUtils,
+     uRhodusTypes,
+     uHelpUnit,
+     uObjectSupport;
 
 type
    TRhodusObject = class (TObject)
       blockType : TBlockType;
       objectType : TSymbolElementType;
       methods : TMethodsBase;
+      help : THelp;
 
       function isConstant : boolean;
       function isBound : boolean;
@@ -26,23 +31,28 @@ type
       function isGarbage : boolean;
 
       function    getRhodusObjectSize : integer;
+      procedure   getHelp (vm : TObject);
       constructor Create;
       destructor  Destroy; override;
    end;
 
 implementation
 
-Uses uMemoryManager;
+Uses uMemoryManager,
+     uStringObject,
+     uVM;
 
 constructor TRhodusObject.Create;
 begin
   inherited;
+  help := nil;
   blockType := btGarbage;
   memoryList.addNode(self);
 end;
 
 destructor TRhodusObject.destroy;
 begin
+  help.Free;
   inherited
 end;
 
@@ -50,6 +60,23 @@ function TRhodusObject.getRhodusObjectSize : integer;
 begin
   result := sizeof (blockType);
 end;
+
+
+procedure TRhodusObject.getHelp (vm : TObject);
+var m : TMethodDetails;
+    obj : TRhodusObject;
+begin
+  m := TVM (vm).popMethodDetails();
+  obj := TRhodusObject (m.self);
+
+  if obj.help <> nil then
+     begin
+      TVM (vm).push(TStringObject.Create(obj.help.getHelp()));
+     end
+  else
+     TVM (vm).push (TStringObject.Create('No help'));
+end;
+
 
 
 function TRhodusObject.isConstant : boolean;

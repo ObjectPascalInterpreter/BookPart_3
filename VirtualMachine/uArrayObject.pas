@@ -29,7 +29,7 @@ type
     private
     // dataType : TArrayDataType;
     function  arrayRecursiveToString (var Indices : TArray<integer>; depth : integer) : string;
-    function  dimensionalArrayToString : string;
+    function  NdimensionalArrayToString : string;
     public
      datai : TIntArray;
      dataf : TFloatArray;
@@ -63,6 +63,9 @@ type
      function        slice (var slices : TSliceObjectList) : TArrayObject;
 
      procedure       append (mat : TArrayObject);
+
+    class function   toList (a : TArrayObject) : TRhodusObject;  // Due to circular reference issue
+    class function   toMatrix (a : TArrayObject) : TRhodusObject;
 
      class function  isEqualTo (a1, a2 : TArrayObject) : boolean;
      function        applyUniFunction (func : TUniFunction) : TArrayObject;
@@ -129,7 +132,7 @@ var arrayMethods : TArrayMethods;
 
 constructor TArrayMethods.Create;
 begin
-  methodList := TMethodList.Create;
+  methodList := TMethodList.Create (self);
 
   // -1 means variable arguments
   methodList.Add(TMethodDetails.Create ('len',   VARIABLE_ARGS, 'get the length of an array: var.len ()', getLength));
@@ -149,8 +152,6 @@ begin
   methodList.Add(TMethodDetails.Create ('trunc',  0, 'Truncate all entries to whole numbers: c = a.trunc ()', getTrunc));
   methodList.Add(TMethodDetails.Create ('max',    0, 'Find the maximum value in an array: c = a.max ()', getMax));
   methodList.Add(TMethodDetails.Create ('min',    0, 'Find the minimum value in an array: c = a.min ()', getMin));
-
-  methodList.Add(TMethodDetails.Create ('dir',    0, 'dir of array object methods', dir));
 end;
 
 
@@ -687,14 +688,14 @@ begin
 end;
 
 
-function TArrayObject.dimensionalArrayToString : string;
+function TArrayObject.NdimensionalArrayToString : string;
 var Indices: TArray<integer>;
     depth : integer;
     i : integer;
 begin
   depth := 0;
   SetLength(Indices, 0);
-  for i := 0 to 8 - 1 do dataf[i] := i+1;
+  //for i := 0 to 8 - 1 do dataf[i] := i+1;
 
   result := arrayRecursiveToString (Indices, depth);
 end;
@@ -740,8 +741,8 @@ begin
      exit;
      end;
 
-  // Print out for n-dim arrays
-  writeln (dimensionalArrayToString);
+  // Deal with the general case of an n-dim arrays
+  result := NdimensionalArrayToString;
 end;
 
 
@@ -1052,7 +1053,37 @@ begin
       end;  
 end;
 
-     
+
+// This is a tough one.
+class function TArrayObject.toList (a : TArrayObject) : TRhodusObject;  // Due to circular reference issue
+var i, j : integer;
+    l : TListObject;
+    item : TListItem;
+    row : TListObject;
+begin
+  l := TListObject.Create;
+
+  // Create the rows, each row is numCols wide
+//  for i := 0 to m.numRows - 1 do
+//      l.append (TListObject.Create(m.numCols));
+//  // Set each items that ow exists in each row to a value
+//  for i := 0 to m.numRows - 1 do
+//      begin
+//      row := a[i].lValue;
+//      for j := 0 to m.numCols - 1 do
+//          row.setItemToDouble(j, m[i,j]);
+//      end;
+//
+//  result := l;
+end;
+
+
+class function TArrayObject.toMatrix (a : TArrayObject) : TRhodusObject;
+begin
+
+end;
+
+
 class function TArrayObject.isEqualTo (a1, a2 : TArrayObject) : boolean;
 var n: integer;
     epsSymbol : TSymbol;

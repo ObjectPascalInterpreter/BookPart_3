@@ -1,77 +1,77 @@
-println ("Matrix LU Factorization, Determinant and Inverse Tests")
+println ("Matrix Arithmetic Tests")
 
 import testUtils
 import mat
-import math
 
-// LU Factorization Tests
+// Matrix Tests
 
-testUtils.beginTests ("LU factor")
-m = {{1,  3, -2},{3,  5,  6},{2,  4,  3}}
-lu = mat.lu (m)
+testUtils.runtestTrue (2.0 - {{1}} == {{1}})
+testUtils.runtestTrue ({{1}} - 2.0 == {{-1}})
+testUtils.runtestTrue (2 - {{1}} == {{1}})
+testUtils.runtestTrue ({{1}} - 2 == {{-1}})
+
+a = {{1,2,3},{4,5,6},{7,8,9}}
+b = {{4,5,6},{7,8,9},{10,11,12}}
+c = {{5,7, 9}, {11,13,15}, {17,19,21}}
+
+testUtils.runtestTrue (a + b == c)
+
+c = {{-3,-3, -3}, {-3, -3, -3}, {-3, -3, -3}}
+testUtils.runtestTrue (a - b == c)
+
+c = {{48, 54, 60}, {111, 126, 141}, {174, 198, 222}}
+testUtils.runtestTrue (a@b == c)
+
+testUtils.runtestTrue ({{1,2},{3,4}}*{{1,2},{3,4}} == {{1, 4},{9,16}})
+
+m = {{1},{2},{3}}
+m1 = mat.tr (m)
+m2 = mat.tr (m1)
+testUtils.runtestTrue (m == m2)
+
+a = {{1,2,3},{4,5,6},{7,8,9}}
+b = -a
+
+testUtils.runtestTrue (b == -a)
+
+m1 = {{1},{2},{3}}
+m2 = {{1,2,3}}
+
+testUtils.runtestTrue (m2@m1 == {{14}})
+
+// Addition
+testUtils.runtestTrue ({{1, 2}, {3, 4}} + {{5, 6}, {7, 8}} == {{6, 8}, {10, 12}})
+testUtils.runtestTrue ({{1, 1}, {1, 1}} + {{2, 2}, {2, 2}} == {{3, 3}, {3, 3}})
+testUtils.runtestTrue ({{0, 0}, {0, 0}} + {{1, 1}, {1, 1}} == {{1, 1}, {1, 1}})
+
+testUtils.runtestTrue({{5, 6}, {7, 8}} - {{1, 2}, {3, 4}} == {{4, 4}, {4, 4}})
+testUtils.runtestTrue({{3, 3}, {3, 3}} - {{1, 1}, {1, 1}} == {{2, 2}, {2, 2}})
+testUtils.runtestTrue({{1, 1}, {1, 1}} - {{1, 1}, {1, 1}} == {{0, 0}, {0, 0}})
+
+// More matrix mulitplication
+testUtils.runtestTrue({{1, 2, 3}} @ {{4}, {5}, {6}} == {{32}})  // 1x3 * 3x1 -> 1x1
+testUtils.runtestTrue({{1, 2}, {3, 4}, {5, 6}} @ {{7, 8, 9}, {10, 11, 12}} == {{27, 30, 33}, {61, 68, 75}, {95, 106, 117}})  // 3x2 * 2x3 -> 3x3
+testUtils.runtestTrue({{2}} @ {{3, 4}} == {{6, 8}})  // 1x1 * 1x2 -> 1x2
+testUtils.runtestTrue({{1, 2}} @ {{3}, {4}} == {{11}})  // 1x2 * 2x1 -> 1x1
+
+testUtils.runtestTrue({{1, 2, 3}, {4, 5, 6}} @ {{7, 8}, {9, 10}, {11, 12}} == {{58, 64}, {139, 154}}) // 2x3 * 3x2 -> 2x2
+testUtils.runtestTrue({{0}} @ {{0}} == {{0}}) //  1x1 * 1x1 -> 1x1
+testUtils.runtestTrue({{1, 0}, {0, 1}} @ {{0, 1}, {1, 0}} == {{0, 1}, {1, 0}})  // 2x2 * 2x2
+testUtils.runtestTrue({{1, 2}, {3, 4}} @ {{1, 0}, {0, 1}} == {{1, 2}, {3, 4}}) // Multiplying with identity matrix
+
+// Scalar Multiplication
+testUtils.runtestTrue(2 * {{1, 2}, {3, 4}} == {{2, 4}, {6, 8}})
+testUtils.runtestTrue (0 * {{1, 2}, {3, 4}} == {{0, 0}, {0, 0}})
+testUtils.runtestTrue (-1*{{1, 2}, {3, 4}} == {{-1, -2}, {-3, -4}})
+testUtils.runtestTrue({{1, 2}, {3, 4}}*2 == {{2, 4}, {6, 8}})
+testUtils.runtestTrue({{1, 2}}*math.pi == {{3.14159265358979, 6.28318530717959}})
+testUtils.runtestTrue(math.pi*{{1, 2}} == {{3.14159265358979, 6.28318530717959}})
+
+// Transposition
+testUtils.runtestTrue(mat.tr ({{1, 2}, {3, 4}}) == {{1, 3}, {2, 4}})
+testUtils.runtestTrue(mat.tr ({{1, 2, 3}, {4, 5, 6}}) == {{1, 4}, {2, 5}, {3, 6}})
+testUtils.runtestTrue(mat.tr ({{1}}) == {{1}})
 
 
-testUtils.runtestTrue(lu[2]@m == lu[0]@lu[1])
-m = {{2, 7, 1},{3,-2,0},{1,5,3}}
-lu = mat.lu (m)
-testUtils.runtestTrue(lu[2]@m == lu[0]@lu[1])
 
-m = {{4,5,6},{7,8,9},{10,11,12}}
-lu = mat.lu (m)
-testUtils.runtestTrue(lu[2]@m == lu[0]@lu[1])
-m = {{5,7, 9}, {11,13,15}, {17,19,21}}
-lu = mat.lu (m)
-testUtils.runtestTrue(lu[2]@m == lu[0]@lu[1])
-
-m = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}}
-lu = mat.lu (m)
-testUtils.runtestTrue(lu[2]@m == lu[0]@lu[1])
-
-m = {{4, 3, 2, 1}, {3, 2, 1, 4}, {2, 1, 4, 3}, {1, 4, 3, 2}}
-lu = mat.lu (m)
-testUtils.runtestTrue(lu[2]@m == lu[0]@lu[1])
-testUtils.endTests()
-
-
-
-// Determinant tests
-
-testUtils.beginTests ("Determinants")
-// 1x1 matrix
-testUtils.runtestTrue(mat.det ({{5}}) == 5)
-
-// 2x2 matrices
-testUtils.runtestTrue(mat.det ({{1, 2}, {3, 4}}) == -2)
-testUtils.runtestTrue(mat.det ({{2, 0}, {0, 2}}) == 4)
-testUtils.runtestTrue(mat.det ({{5, 3}, {2, 1}}) == -1)
-testUtils.runtestTrue(mat.det ({{2, 0}, {0, 3}}) == 6)
-testUtils.runtestTrue(mat.det ({{-1, 0}, {0, -1}}) == 1)
-
-// 3x3 matrices
-testUtils.runtestTrue(mat.det ({{6, 1, 1}, {4, -2, 5}, {2, 8, 7}}) == -306)
-testUtils.runtestTrue(mat.det ({{1, 0, 0}, {0, 1, 0}, {0, 0, 1}}) == 1)  // Identity matrix
-testUtils.runtestTrue(mat.det ({{2, 0, 0}, {0, 3, 0}, {0, 0, 4}}) == 24)
-
-// 4x4 matrices
-testUtils.runtestTrue(mat.det ({{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}}) == 1)  // Identity matrix
-testUtils.runtestTrue(mat.det ({{4, 3, 2, 1}, {3, 2, 1, 4}, {2, 1, 4, 3}, {1, 4, 3, 2}}) == -160)
-testUtils.endTests()
-
-testUtils.beginTests ("Inverse")
-testUtils.runtestTrue(mat.inv ({{1, 2}, {3, 4}}) == {{-2, 1}, {1.5, -0.5}})
-testUtils.runtestTrue(mat.inv ({{2, 0}, {0, 2}}) == {{0.5, 0}, {0, 0.5}})
-testUtils.runtestTrue(mat.inv ({{1, 0}, {0, 1}}) == {{1, 0}, {0, 1}})  // Identity matrix
-testUtils.runtestTrue(mat.inv ({{2, 1}, {1, 1}}) == {{1, -1}, {-1, 2}})  // 2x2 invertible matrix
-testUtils.runtestTrue(mat.inv ({{4, 7}, {2, 6}}) == {{0.6, -0.7}, {-0.2, 0.4}})  // 2x2 invertible matrix with non-integer elements
-testUtils.runtestTrue(mat.inv ({{1}}) == {{1}})  // Identity matrix (trivial case)
-testUtils.runtestTrue(mat.inv ({{-1}}) == {{-1}})  // Negative identity matrix (trivial case)
-
-m = {{3.0, 7.0, 2.0, 5.0},{1.0,  8.0,  4.0, 2.0},{2.0,1.0,9.0,3.0},{5.0, 4.0, 7.0, 1.0}}
-minv = {{ 0.09708738, -0.18270079, -0.11473963,  0.22418358}, 
-        {-0.01941748,  0.14563107, -0.06796117,  0.00970874}, 
-        {-0.08737864,  0.06443071,  0.10326567, -0.00176523}, 
-        { 0.2038835 , -0.1200353 ,  0.12268314, -0.14739629}}
-math.eps = 1E-8
-testUtils.runtestTrue(mat.inv (m) == minv)
-testUtils.endTests()
 

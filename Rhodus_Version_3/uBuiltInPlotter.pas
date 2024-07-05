@@ -53,7 +53,7 @@ implementation
 Uses Math, uSymbolTable, uVM, uStringObject, uListObject,
      uVMExceptions, uMachineStack, uMemoryManager,
      System.Types, Vcl.Graphics, StrUtils,
-     uArrayObject;
+     uArrayObject, uHelpUnit;
 
 const
    availableColors : TArray<String> = ['clRed', 'clBlue','clGreen', 'clBlack', 'clGray',
@@ -77,7 +77,7 @@ end;
 
 constructor TBuiltInPlotter.Create;
 begin
-  inherited Create ('plot', 'Plot Module');
+  inherited Create ('plot', THelp.Create ('Plot Module'));
 
   addMethod(plotsinewave, 0, 'sw',   'Return the sine of a radian value: sin (1.2)');
   addMethod(clear,        0, 'clear', 'Clear the plot: plot.clear ()');

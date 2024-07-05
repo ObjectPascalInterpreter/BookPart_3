@@ -23,6 +23,7 @@ Uses Classes, SysUtils, Generics.Collections,
      uMemoryManager,
      uRhodusTypes,
      uObjectSupport,
+     uHelpUnit,
      uRhodusObject;
 
 type
@@ -40,14 +41,15 @@ type
        name : string;
        moduleProgram : TProgram;      // Module level code
        symbolTable : TSymbolTable;
-       helpStr : string;
+       help : THelp;
        compiled : boolean;   // Not currently used
 
        function    getSize : integer;
+       procedure   getHelp (vm : TObject);
        function    find (name : string) : TSymbol; overload;
        function    find (moduleName, symbolName : string) : TSymbol; overload;
        procedure   clearCode;
-       constructor Create (name : string);
+       constructor Create (name : string; help : THelp);
        destructor  Destroy; override;
    end;
 
@@ -70,7 +72,7 @@ type
        moduleRef : TModule;
        globalVariableList : TStringList;
        codeBlock : TProgram;
-       helpStr : string;
+       //helpStr : string;
 
        isbuiltInFunction : boolean;
        builtInPtr : TxBuiltInFunction;
@@ -134,7 +136,7 @@ type
         procedure addSymbol (name : string; aValue : TArrayObject; locked : boolean; helpStr : string); overload;
         procedure addSymbol (name : string; vValue : TVectorObject; locked : boolean; helpStr : string); overload;
         procedure addSymbol (name : string; matValue : TMatrixObject; locked : boolean; helpStr : string); overload;
-        procedure addSymbol (name : string; voValue : TValueObject; locked : boolean; helpStr : string); overload;
+        procedure addSymbol (name : string; voValue : TValueObject; locked : boolean; help : THelp); overload;
 
         procedure addSymbol (fValue : TUserFunction; locked : boolean); overload;
 
@@ -234,13 +236,16 @@ end;
 
 // -------------------------------------------------------------------------------
 
-constructor TModule.Create (name : string);
+constructor TModule.Create (name : string; help : THelp);
 begin
   self.name := name;
   moduleProgram := TProgram.Create;
   symbolTable := TSymbolTable.Create;
   symbolTable.id := name;
-  helpStr := 'No help available on this module';
+  if help = nil then
+     self.help := THelp.Create ('No help available on this module')
+  else
+     self.help := help;
   compiled := False;
 end;
 
@@ -285,10 +290,21 @@ begin
       result := result + self.symbolTable.InstanceSize;
 end;
 
+
+procedure TModule.getHelp(vm: TObject);
+begin
+  if help <> nil then
+     begin
+      TVM (vm).push(TStringObject.Create(help.getHelp()));
+     end
+  else
+     TVM (vm).push (TStringObject.Create('No help'));
+end;
+
 // ------------------------------------------------------------------------------------------
 constructor TUserFunctionMethods.Create;
 begin
-  methodList := TMethodList.Create;
+  methodList := TMethodList.Create (self);
 
   methodList.Add(TMethodDetails.Create ('name',   0, 'Returns the name of the function: func.name ()', getName));
   methodList.Add(TMethodDetails.Create ('nargs',  0, 'Returns the number of arguments the function expects. Returns -1 if the number is variable', getnArgs));
@@ -371,7 +387,12 @@ begin
   m := TVM (vm).popMethodDetails();
   f := TUserFunction (m.self);
 
-  TVM (vm).push (TStringObject.Create(f.helpStr));
+  if f.help <> nil then
+     begin
+      TVM (vm).push(TStringObject.Create(f.help.getHelp()));
+     end
+  else
+     TVM (vm).push (TStringObject.Create(f.help.getHelp()));
 end;
       
 
@@ -398,20 +419,17 @@ begin
   globalVariableList.Sorted := True;
   builtInPtr := nil;
   isbuiltInFunction := False;
-  helpStr := 'No help on this function';
-  //memoryList.addNode (self);
 end;
 
 
 // Use this when creating a builtin function
 constructor TUserFunction.Create (functionName : string; nArgs : integer; funcPtr : TxBuiltInFunction);
 begin
-  Create;
+  Create;   // Adds object to memery manager
   self.nArgs := nArgs;
   name := functionName;
   self.builtInPtr := funcPtr;
   isbuiltInFunction := True;
-  //memoryList.addNode (self);
 end;
 
 
@@ -429,7 +447,7 @@ begin
   result := TUserFunction.Create;
   result.nArgs := self.nArgs;
   result.name := self.name;
-  result.helpStr := self.helpStr;
+  result.help := help.clone;
   result.blockType := btBound;
   result.moduleRef := self.moduleRef;
   if self.isbuiltInFunction then
@@ -440,7 +458,7 @@ begin
   else
      begin
      result.moduleName := self.moduleName;
-     result.helpStr := self.helpStr;
+     result.help := help.clone;
      result.isbuiltInFunction := False;
      result.builtInPtr := nil;
      result.localSymbolTable := self.localSymbolTable.clone;
@@ -655,15 +673,14 @@ begin
 end;
 
 
-procedure TSymbolTable.addSymbol (name : string; voValue : TValueObject; locked : boolean; helpStr : string);
+procedure TSymbolTable.addSymbol (name : string; voValue : TValueObject; locked : boolean; help : THelp);
 var symbol : TSymbol;
 begin
   symbol := TSymbol.Create;
-  voValue.helpStr := helpStr;
+  voValue.help := help;
   symbol.voValue := voValue;
   symbol.symbolName := name;
   symbol.symbolType := symValueObject;
-  //symbol.helpStr := helpStr;
   symbol.locked := locked;;
   Add (name, symbol);
 end;
@@ -1263,7 +1280,7 @@ end;
 
 
 initialization
-   TSymbol.mainModuleId := '_main_';
+   TSymbol.mainModuleId := '__main__';
    TSymbol.localModuleId := '_localScope_'; // inside functions
    TSymbol.globalId := 'globalSpace';
    _userFunctionMethods := TUserFunctionMethods.Create;

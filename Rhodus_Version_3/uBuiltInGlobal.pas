@@ -42,6 +42,7 @@ Uses Math,
      uMemoryManager,
      uMachineStack,
      uCompile,
+     uHelpUnit,
      uAssembler,
      uRhodusTypes;
 
@@ -50,31 +51,31 @@ type
      private
         //readCallback : TVMReadStringCallBack;
      public
-       procedure createArray (vm : TObject);
-       procedure createDictionary (vm : TObject);
-       procedure myInt (vm : TObject);
-       procedure myIntToHex (vm : TObject);
-       procedure myFloat (vm : TObject);
-       procedure readNumber (vm : TObject);
-       procedure readString (vm : TObject);
-       procedure getChar (vm : TObject);  // Convert int into character
-       procedure getAsc (vm : TObject);   // Convert char in to ascii
-       procedure listSymbols (vm : TObject);
-       procedure getType (vm : TObject);
-       procedure getAttr (vm : TObject);
-       procedure myAssertTrueEx (vm : TObject);
-       procedure myAssertFalseEx (vm : TObject);
-       procedure listModules (vm : TObject);
-       procedure getMemoryUsed (vm : TObject);
-       procedure myMain (vm : TObject);
-       procedure dis (vm : TObject);
-       procedure stackInfo (vm : TObject);
-       procedure getHelp (_vm : TObject);
-       procedure startDebug (vm : TObject);
-       procedure test (vm : TObject);
+       class procedure createArray (vm : TObject);
+       class procedure createDictionary (vm : TObject);
+       class procedure myInt (vm : TObject);
+       class procedure myIntToHex (vm : TObject);
+       class procedure myFloat (vm : TObject);
+       class procedure readNumber (vm : TObject);
+       class procedure readString (vm : TObject);
+       class procedure getChar (vm : TObject);  // Convert int into character
+       class procedure getAsc (vm : TObject);   // Convert char in to ascii
+       class procedure listSymbols (vm : TObject);
+       class procedure getType (vm : TObject);
+       class procedure getAttr (vm : TObject);
+       class procedure myAssertTrueEx (vm : TObject);
+       class procedure myAssertFalseEx (vm : TObject);
+       class procedure listModules (vm : TObject);
+       class procedure getMemoryUsed (vm : TObject);
+       class procedure myMain (vm : TObject);
+       class procedure dis (vm : TObject);
+       class procedure stackInfo (vm : TObject);
+       class procedure getHelp (_vm : TObject);
+       class procedure startDebug (vm : TObject);
+       class procedure test (vm : TObject);
 
-       constructor Create;
-       destructor  Destroy; override;
+       //constructor Create;
+       //destructor  Destroy; override;
   end;
 
 var  builtInGlobal : TBuiltInGlobal;
@@ -94,28 +95,28 @@ end;
 
 procedure addGlobalMethodsToModule (module : TModuleLib);
 begin
-  module.addMethod (builtInGlobal.createArray, VARIABLE_ARGS, 'array',      'Create an array: x = array (3, 4)');
-  module.addMethod (builtInGlobal.createDictionary, VARIABLE_ARGS, 'dict',  'Create a dictionary: x = dict (["Red", 67], ["Green", 87], ["Blue", 34])');
-  module.addMethod (builtInGlobal.myInt,          1, 'int',           'Convert float to integer: int (3.4XXX)');
-  module.addMethod (builtInGlobal.myIntToHex,     1, 'hex',           'Convert integer to hex string: hex (56)');
-  module.addMethod (builtInGlobal.myFloat,        1, 'float',         'Convert and integer to a float: float (3)');
-  module.addMethod (builtInGlobal.readNumber,    VARIABLE_ARGS, 'readNumber',  'Read an integer from the input channel: : str = readNumber ("Enter answer: ")');
-  module.addMethod (builtInGlobal.readString,    VARIABLE_ARGS, 'readString',  'Read a string from the input channel: str = readString ("Enter name")');
-  module.addMethod (builtInGlobal.listSymbols,    1, 'symbols',       'Returns list of symbols in the specified module: symbols(math). Use main() as the argument to get the symbols for the main module');
-  module.addMethod (builtInGlobal.getType,        1, 'type',          'Returns the type of a given variable: type (x)');
-  module.addMethod (builtInGlobal.getAttr,        2, 'getAttr',       'Returns the value attached to the symbol attribute: getAttr (mylib, "x")');
-  module.addMethod (builtInGlobal.listModules,    0, 'modules',       'Get a list of all currently loaded mdules');
-  module.addMethod (builtInGlobal.getMemoryUsed,  0, 'mem',           'Get the amount of memory currently in use.');
-  module.addMethod (builtInGlobal.myAssertTrueEx, 1, 'assertTrueEx',  'Assert argument is true, return . of F');
-  module.addMethod (builtInGlobal.myAssertFalseEx,1, 'assertFalseEx', 'Assert argument is false, return . of F');
-  module.addMethod (builtInGlobal.myMain,         0, 'getMain',       'Returns a reference to the main module');
-  module.addMethod (builtInGlobal.dis,            1, 'dis',           'dissassemble module or function');
-  module.addMethod (builtInGlobal.stackInfo,      0, 'stackInfo',     'Get the current state of the VM stack');
-  module.addMethod (builtInGlobal.getChar,        1, 'chr',           'Get the character equivalent of an integer value');
-  module.addMethod (builtInGlobal.getAsc,         1, 'asc',           'Get the ascii equivalent of a single character');
-  module.addMethod (builtInGlobal.getHelp,        1, 'help',          'Get the help associated with the object');
-  module.addMethod (builtInGlobal.startDebug,     1, 'debug',         'Attached method to the debugger: debug (fcn)');
-  module.addMethod (builtInGlobal.test,           2, 'test',          'Attached method to the debugger: debug (fcn)');
+  module.addMethod (TBuiltInGlobal.createArray, VARIABLE_ARGS, 'array',      'Create an array from a list or dimensions: eg a = array ([1,2,3]) or a = array(4,5,2)');
+  module.addMethod (TBuiltInGlobal.createDictionary, VARIABLE_ARGS, 'dict',  'Create a dictionary: x = dict (["Red", 67], ["Green", 87], ["Blue", 34])');
+  module.addMethod (TBuiltInGlobal.myInt,          1, 'int',           'Convert float to integer: int (3.4XXX)');
+  module.addMethod (TBuiltInGlobal.myIntToHex,     1, 'hex',           'Convert integer to hex string: hex (56)');
+  module.addMethod (TBuiltInGlobal.myFloat,        1, 'float',         'Convert and integer to a float: float (3)');
+  module.addMethod (TBuiltInGlobal.readNumber,    VARIABLE_ARGS, 'readNumber',  'Read an integer from the input channel: : str = readNumber ("Enter answer: ")');
+  module.addMethod (TBuiltInGlobal.readString,    VARIABLE_ARGS, 'readString',  'Read a string from the input channel: str = readString ("Enter name")');
+  module.addMethod (TBuiltInGlobal.listSymbols,    1, 'symbols',       'Returns list of symbols in the specified module: symbols(math). Use main() as the argument to get the symbols for the main module');
+  module.addMethod (TBuiltInGlobal.getType,        1, 'type',          'Returns the type of a given variable: type (x)');
+  module.addMethod (TBuiltInGlobal.getAttr,        2, 'getAttr',       'Returns the value attached to the symbol attribute: getAttr (mylib, "x")');
+  module.addMethod (TBuiltInGlobal.listModules,    0, 'modules',       'Get a list of all currently loaded mdules');
+  module.addMethod (TBuiltInGlobal.getMemoryUsed,  0, 'mem',           'Get the amount of memory currently in use.');
+  module.addMethod (TBuiltInGlobal.myAssertTrueEx, 1, 'assertTrueEx',  'Assert argument is true, return . of F');
+  module.addMethod (TBuiltInGlobal.myAssertFalseEx,1, 'assertFalseEx', 'Assert argument is false, return . of F');
+  module.addMethod (TBuiltInGlobal.myMain,         0, 'getMain',       'Returns a reference to the main module');
+  module.addMethod (TBuiltInGlobal.dis,            1, 'dis',           'dissassemble module or function');
+  module.addMethod (TBuiltInGlobal.stackInfo,      0, 'stackInfo',     'Get the current state of the VM stack');
+  module.addMethod (TBuiltInGlobal.getChar,        1, 'chr',           'Get the character equivalent of an integer value');
+  module.addMethod (TBuiltInGlobal.getAsc,         1, 'asc',           'Get the ascii equivalent of a single character');
+  //module.addMethod (builtInGlobal.getHelp,        1, 'help',          'Get the help associated with the object');
+  module.addMethod (TBuiltInGlobal.startDebug,     1, 'debug',         'Attached method to the debugger: debug (fcn)');
+  module.addMethod (TBuiltInGlobal.test,           2, 'test',          'Attached method to the debugger: debug (fcn)');
 
 end;
 
@@ -150,16 +151,16 @@ begin
 end;
 
 
-constructor TBuiltInGlobal.Create;
-begin
-  inherited Create (TSymbol.globalId, 'Global Module');
+//constructor TBuiltInGlobal.Create;
+//begin
+  //inherited Create (TSymbol.globalId, THelp.Create ('Global Module'));
 
 //  // -1  means variable arguments, call function pushes the actual number of arguments provided
-//  addMethod (createArray,   -1, 'array',         'Create an array of a given size: a = array(4,5,2)');
+//  addMethod (createArray,     -1, 'array',       'Create an array from a list or dimensions: eg a = array ([1,2,3]) or a = array(4,5,2)');
 //  addMethod (createDictionary,-1, 'dict',        'Create a dictionary: a = dict (["Red", 67], ["Green", 87], ["Blue", 34])');
-//  //addMethod (myInt,          1, 'int',           'Convert float to integer: int (3.4)');
-//  addMethod (myIntTohex,     1, 'hex',           'Convert integer to hex string: hex(56)');
-//  addMethod (myFloat,        1, 'float',         'Convert an integer to a float: float (3)');
+//  //addMethod (myInt,          1, 'int',         'Convert float to integer: int (3.4)');
+//  addMethod (myIntTohex,       1, 'hex',           'Convert integer to hex string: hex(56)');
+//  addMethod (myFloat,          1, 'float',         'Convert an integer to a float: float (3)');
 //  addMethod (readNumber,     0, 'readNumber',    'Read an integer from the console');
 //  addMethod (readString,     0, 'readString',    'Read a string from the console');
 //  addMethod (listSymbols,    1, 'symbols',       'Returns list of symbols in the specified module: symbols(math). Use ' + TSymbol.mainModuleId + ' to get the symbols for the main module');
@@ -174,13 +175,13 @@ begin
 //  addMethod (stackInfo,      0, 'stackInfo',     'Get the current state of the VM stack');
 //  addMethod (getChar,        1, 'chr',           'Get the character equivalent of an integer value');
 //  addMethod (getAsc,         1, 'asc',           'Get the ascii equivalent of a single character');
-end;
-
-
-destructor TBuiltInGlobal.Destroy;
-begin
-  inherited;
-end;
+//end;
+//
+//
+//destructor TBuiltInGlobal.Destroy;
+//begin
+//  inherited;
+//end;
 
 
 function getAllocatedSymbols (module : TModule) : string;
@@ -229,13 +230,13 @@ begin
 end;
 
 
-procedure TBuiltInGlobal.myMain (vm : TObject);
+class procedure TBuiltInGlobal.myMain (vm : TObject);
 begin
- TVM (vm).pushModule (getMainModule());
+ TVM (vm).push (getMainModule());
 end;
 
 
-procedure TBuiltInGlobal.getMemoryUsed (vm : TObject);
+class procedure TBuiltInGlobal.getMemoryUsed (vm : TObject);
 begin
   TVM (vm).push (memoryList.getMemoryListSize());
 end;
@@ -357,7 +358,9 @@ begin
 end;
 
 
-procedure TBuiltInGlobal.createArray (vm : TObject);
+// Can be used to create an array from a list or a sequence of dimensions,
+// eg a = array ([1,2,3,4]), or a = array(2,3,4)
+class procedure TBuiltInGlobal.createArray (vm : TObject);
 var nArgs, i : integer;
     ar : TArrayObject;
     dim : TIndexArray;
@@ -382,13 +385,13 @@ begin
 end;
 
 
-procedure TBuiltInGlobal.createDictionary (vm : TObject);
+class procedure TBuiltInGlobal.createDictionary (vm : TObject);
 begin
   raise ERuntimeException.Create('dict not yet implemented');
 end;
 
 
-procedure TBuiltInGlobal.listSymbols (vm : TObject);
+class procedure TBuiltInGlobal.listSymbols (vm : TObject);
 var module : TModule;
 begin
   module := TVM (vm).popModule;
@@ -401,7 +404,7 @@ var f : TUserFunction;
     vo : TValueObject;
     key : string;
 begin
-  result := 'Module: ' + m.name + ', ' + m.helpStr + sLineBreak;
+  result := 'Module: ' + m.name + ', ' + m.help.getHelp() + sLineBreak;
   result := result + Format('%-12s%-12s%-11s%', ['Type', 'Name', 'Help']) + sLineBreak;
   for key in m.symbolTable.keys do
       begin
@@ -410,13 +413,13 @@ begin
              begin
              f := m.symbolTable.Items[key].fValue;
              result := result + Format('%-12s', ['Function:']) +
-                        Format('%-12s', [f.name])  +  f.helpStr + sLineBreak;
+                        Format('%-12s', [f.name])  +  f.help.getHelp() + sLineBreak;
              end;
          symValueObject :
              begin
              vo := m.symbolTable.Items[key].voValue;
              result := result + Format('%-12s', ['Function:']) +
-                        Format('%-12s', [f.name])  +  f.helpStr + sLineBreak;
+                        Format('%-12s', [f.name])  +  f.help.getHelp() + sLineBreak;
 
              end
       else
@@ -446,7 +449,7 @@ end;
 //end;
 
 
-procedure TBuiltInGlobal.readString (vm : TObject);
+class procedure TBuiltInGlobal.readString (vm : TObject);
 var s : string;
     sObj : TStringObject;
     prompt : AnsiString;
@@ -467,7 +470,7 @@ begin
 end;
 
 
-procedure TBuiltInGlobal.readNumber (vm : TObject);
+class procedure TBuiltInGlobal.readNumber (vm : TObject);
 var s : string;
     iValue : integer;
     dValue : double;
@@ -499,7 +502,7 @@ begin
 end;
 
 
-procedure TBuiltInGlobal.myInt (vm : TObject);
+class procedure TBuiltInGlobal.myInt (vm : TObject);
 var x : PMachineStackRecord; tmp : int32;
 begin
   x := TVM (vm).pop;
@@ -517,7 +520,7 @@ begin
 end;
 
 
-procedure TBuiltInGlobal.myIntToHex (vm : TObject);
+class procedure TBuiltInGlobal.myIntToHex (vm : TObject);
 var value : integer;
 begin
   value := TVM (vm).popInteger;
@@ -525,7 +528,7 @@ begin
 end;
 
 
-procedure TBuiltInGlobal.myFloat (vm : TObject);
+class procedure TBuiltInGlobal.myFloat (vm : TObject);
 var x : PMachineStackRecord;
 begin
   x := TVM (vm).pop;
@@ -539,7 +542,7 @@ begin
 end;
 
 
-procedure TBuiltInGlobal.dis (vm : TObject);
+class procedure TBuiltInGlobal.dis (vm : TObject);
 var x : PMachineStackRecord;
 begin
   x := TVM (vm).pop;
@@ -558,7 +561,7 @@ begin
 end;
 
 
-procedure TBuiltInGlobal.listModules (vm : TObject);
+class procedure TBuiltInGlobal.listModules (vm : TObject);
 var ls : TListObject;
     s : TStringObject;
     m : TModule;
@@ -579,7 +582,7 @@ begin
 end;
 
 
-procedure TBuiltInGlobal.myAssertTrueEx (vm : TObject);
+class procedure TBuiltInGlobal.myAssertTrueEx (vm : TObject);
 var st : PMachineStackRecord;
 begin
   st := TVM (vm).pop;
@@ -595,7 +598,7 @@ begin
 end;
 
 
-procedure TBuiltInGlobal.myAssertFalseEx (vm : TObject);
+class procedure TBuiltInGlobal.myAssertFalseEx (vm : TObject);
 var st : PMachineStackRecord;
 begin
   st := TVM (vm).pop;
@@ -611,7 +614,7 @@ begin
 end;
 
 
-procedure TBuiltInGlobal.getType (vm : TObject);
+class procedure TBuiltInGlobal.getType (vm : TObject);
 var x : PMachineStackRecord;
 begin
   x := TVM (vm).pop;
@@ -633,7 +636,7 @@ begin
 end;
 
 
-procedure TBuiltInGlobal.getAttr (vm : TObject);
+class procedure TBuiltInGlobal.getAttr (vm : TObject);
 var strObj : TStringObject;
     attribute : string;
     module : TModule;
@@ -651,7 +654,7 @@ begin
        symString : TVM (vm).push (symbol.sValue);
        symList : TVM (vm).push (symbol.lValue);
        symUserFunc : TVM (vm).push (symbol.fValue);
-       symModule : TVM (vm).pushModule (symbol.mValue);
+       symModule : TVM (vm).push (symbol.mValue);
        symUndefined :  TVM (vm).push (TStringObject.create ('undefined'));
      end;
      end
@@ -661,7 +664,7 @@ end;
 
 
 // Convert int into character
-procedure TBuiltInGlobal.getChar (vm : TObject);
+class procedure TBuiltInGlobal.getChar (vm : TObject);
 var x : integer;
 begin
   x := TVM (vm).popInteger();
@@ -670,7 +673,7 @@ end;
 
 
  // Convert char in to ascii
-procedure TBuiltInGlobal.getAsc (vm : TObject);
+class procedure TBuiltInGlobal.getAsc (vm : TObject);
 var x: string;
 begin
   x := TVM (vm).popString().value;
@@ -680,7 +683,7 @@ begin
 end;
 
 
-procedure TBuiltInGlobal.stackInfo (vm : TObject);
+class procedure TBuiltInGlobal.stackInfo (vm : TObject);
 var vm1 : TVM;
 begin
   vm1 := TVM (vm);
@@ -688,7 +691,7 @@ begin
 end;
 
 
-procedure TBuiltInGlobal.getHelp (_vm : TObject);
+class procedure TBuiltInGlobal.getHelp (_vm : TObject);
 var st : PMachineStackRecord;
     vm : TVM;
 begin
@@ -701,10 +704,10 @@ begin
      stString  : vm.push(TStringObject.Create('string'));
      stList    : vm.push(TStringObject.Create('list'));
      stArray   : vm.push(TStringObject.Create('array'));
-     stModule  : vm.push(TStringObject.Create (st.module.helpStr));
+     stModule  : vm.push(TStringObject.Create (st.module.help.getHelp()));
 
      stFunction :
-           vm.push(TStringObject.Create (st.fValue.helpStr));
+           vm.push(TStringObject.Create (st.fValue.help.getHelp()));
      stObjectMethod :
            vm.push(TStringObject.Create (st.oValue.helpStr));
   else
@@ -713,7 +716,7 @@ begin
 end;
 
 
-procedure TBuiltInGlobal.startDebug (vm : TObject);
+class procedure TBuiltInGlobal.startDebug (vm : TObject);
 var f : TUserFunction;
 begin
   debugCallback := TVM (vm).popUserFunction();
@@ -724,7 +727,7 @@ begin
   TVM (vm).pushNone;
 end;
 
-procedure TBuiltInGlobal.test (vm : TObject);
+class procedure TBuiltInGlobal.test (vm : TObject);
 var f : TUserFunction;
     x, y: integer;
 begin

@@ -501,7 +501,9 @@ begin
   // We need to check if there are any slicing requests
   // among the subscripts. If there are then we will
   // treat all subscrupts as a slicing operation eg in a[1:2,3]
-  // the 3 is mot treated as a subscript but as the slice 3:3, ie a[1:2,3:3]
+  // the 3 is not treated as a subscript but as the slice 3:3, ie a[1:2,3:3]
+
+  // First find out if there is any slicing present in the subscript
   for i := 0 to subscripts.Count - 1 do
       if subscripts[i].nodeType = ntSlice then
          begin
@@ -509,7 +511,7 @@ begin
          // be slicing syntax in the slicing expressions themselves,
          // eg a[b[2:3]:4]
          slicingSubscripts.push (True);
-         slicing := True;
+         slicing := True;  // Yes we detected some slicing
          break;
          end;
 
@@ -524,10 +526,12 @@ begin
             slice := TASTSlice.Create (nil, nil, 0);
             slice.lower := subscripts[i];
             slice.upper := TASTSliceEqual.Create;
-            subscripts[i] := slice;
+            subscripts[i] := slice;  // Substitute the subscripting with slice info
             end;
 
       // Subscript expressions always use load opcodes, hence set inAssingmet = False
+      // If there was slice, we will compile that here
+      // If there is no slicing that subscript is what came in at the functi0on call above
       compileCode(subscripts[i]);
       inAssignment := old_inAssignment;
 

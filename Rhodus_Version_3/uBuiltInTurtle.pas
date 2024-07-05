@@ -44,7 +44,7 @@ implementation
 
 Uses Math, uSymbolTable, uVM, uStringObject, uListObject,
      uVMExceptions, uMachineStack, uMemoryManager,
-     System.Types, Vcl.Graphics, StrUtils;
+     System.Types, Vcl.Graphics, StrUtils, uHelpUnit;
 
 const
    availableColors : TArray<String> = ['clRed', 'clBlue','clGreen', 'clBlack', 'clGray',
@@ -52,7 +52,7 @@ const
 
 constructor TBuiltInTurtle.Create;
 begin
-  inherited Create ('tt', 'Turtle Module');
+  inherited Create ('tt', THelp.Create ('Turtle Module'));
 
   connectionMade := False;
 

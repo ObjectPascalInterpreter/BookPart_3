@@ -21,7 +21,6 @@ type
       valueType : TValueObjectType;
       iValue : integer;
       dValue : double;
-      helpStr : String;
 
       class function getValue(value : TValueObject) : double;
 
@@ -37,7 +36,7 @@ type
   end;
 
   TValueMethods = class (TMethodsBase)
-     procedure   getHelp (vm : TObject);
+     //procedure   getHelp (vm : TObject);
      constructor Create;
      destructor  Destroy; override;
   end;
@@ -57,10 +56,7 @@ var valueMethods : TValueMethods;
 
 constructor TValueMethods.Create;
 begin
-  methodList := TMethodList.Create;
-
-  methodList.Add(TMethodDetails.Create ('help',   0, 'Returns the help associated with this symbol', getHelp));
-  methodList.Add(TMethodDetails.Create ('dir',    0, 'dir of string object methods', dir));
+  methodList := TMethodList.Create (self);
 end;
 
 
@@ -68,19 +64,6 @@ destructor TValueMethods.Destroy;
 begin
   inherited;
 end;
-
-
-procedure TValueMethods.getHelp (vm : TObject);
-var vo : TValueObject;
-    m : TMethodDetails;
-begin
-  // No arguments for this method
-  m := TVM (vm).popMethodDetails();
-  vo := TValueObject (m.self);
-
-  TVM (vm).push (TStringObject.Create(vo.helpStr));
-end;
-
 
 // -------------------------------------------------------------------------------
 

@@ -37,13 +37,19 @@ type
 
 implementation
 
-Uses Windows, uSymboLTable, uVM, uStringObject, uListObject, uMemoryManager;
+Uses Windows,
+     uSymboLTable,
+     uVM,
+     uStringObject,
+     uListObject,
+     uHelpUnit,
+      uMemoryManager;
 
 // --------------------------------------------------------------------------------------------
 
 constructor TBuiltInOS.Create;
 begin
-  inherited Create ('os', 'Operating system module');
+  inherited Create ('os', THelp.Create ('Operating system module'));
 
   addMethod (getpwd, 0, 'getcwd', 'Return the path to the current working directory');
   addMethod (setpwd, 1, 'setcwd', 'Sets the current wroking dirctory');
@@ -70,7 +76,7 @@ end;
 
 constructor TBuiltInTime.Create;
 begin
-  inherited Create ('time', 'Time functions');
+  inherited Create ('time', THelp.Create ('Time functions'));
 
   QueryPerformanceFrequency(lFreq);
   addMethod (getTimeSeconds, 0, 'getTickCount', 'Return the eturns the number of milliseconds since the system was started');

@@ -37,7 +37,7 @@ type
        stObjectMethod: (oValue : TMethodDetails);
 
        stModule      : (module : TModule);
-       stObject      : (objValue : TObject); // not currently used
+       stObject      : (objValue : TObject); // Currently used to pass slice objects.
      end;
 
   PMachineStackRecord = ^TMachineStackRecord;

@@ -46,6 +46,7 @@ implementation
 Uses  Math,
       uMath,
       uVM,
+      uHelpUnit,
       uRhodusTypes,
       uVMExceptions;
 
@@ -56,7 +57,7 @@ const outOfRangeMsg = 'Index out of range while accessing array element';
 
 constructor TBuiltInMatrix.Create;
 begin
-  inherited Create ('mat2', 'Matrix Module, deals with 2-dimensional arrays');
+  inherited Create ('mat2', THelp.Create('Matrix Module, deals with 2-dimensional arrays'));
 
   addMethod(getIdent,          1, 'ident', 'Create an identity matrix: m = mat.ident (4)');
   addMethod(getMult,           2, 'mult',  'Multiply two 2D matrices: m = mat.mult (m1, m2)');

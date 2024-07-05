@@ -49,13 +49,14 @@ procedure setGraphicsCallBackTable(graphicsMethods: PGraphicsMethods);
 implementation
 
 Uses Math,
-  uSymbolTable,
-  uRhodusTypes,
-  uVM,
-  uStringObject,
-  uListObject,
-  uVMExceptions,
-  uMemoryManager;
+    uSymbolTable,
+    uRhodusTypes,
+    uVM,
+    uStringObject,
+    uListObject,
+    uVMExceptions,
+    uHelpUnit,
+    uMemoryManager;
 
 type
   TRGBTriple = packed record
@@ -74,7 +75,7 @@ end;
 
 constructor TBuiltInGraphics.Create;
 begin
-  inherited Create('graphics', 'Graphics module');
+  inherited Create('graphics', THelp.Create ('Graphics module'));
 
   addMethod(clear, VARIABLE_ARGS, 'clear', 'Clear the background canvas: clear () or clear ("red")');
   addMethod(getCanvasSize, 0, 'size', 'Returns the size of the canvas as a list: size ()');

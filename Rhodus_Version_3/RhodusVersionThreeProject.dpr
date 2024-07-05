@@ -103,7 +103,8 @@ uses
   uMatrixFunctions in 'uMatrixFunctions.pas',
   uValueObject in '..\VirtualMachine\uValueObject.pas',
   uPlotterInterface in 'uPlotterInterface.pas',
-  uBuiltInPlotter in 'uBuiltInPlotter.pas';
+  uBuiltInPlotter in 'uBuiltInPlotter.pas',
+  uHelpUnit in '..\Common\uHelpUnit.pas';
 
 begin
   ReportMemoryLeaksOnShutdown := True;

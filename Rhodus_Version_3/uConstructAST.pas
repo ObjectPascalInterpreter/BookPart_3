@@ -25,10 +25,13 @@ uses Classes,
      SysUtils,
      uScanner,
      uScannerTypes,
-     uSymbolTable, uLibModule,
+     uSymbolTable,
+     uLibModule,
      Generics.Collections,
      uTokenVector,
-     uAST, uASTNodeType, uVM;
+     uAST,
+     uASTNodeType,
+     uVM;
 
 type
   TBreakStack = TStack<integer>;
@@ -112,7 +115,15 @@ type
 
 implementation
 
-uses Math, IOUtils, uGlobal, uUtils, uOpCodes, uMachineStack, uCompile, uBuiltInGlobal;
+uses Math,
+     IOUtils,
+     uGlobal,
+     uUtils,
+     uOpCodes,
+     uMachineStack,
+     uCompile,
+     uHelpUnit,
+     uBuiltInGlobal;
 
 // ----------------------------------------------------------------------
 constructor ESemanticException.Create (errMsg : string; lineNumber, columnNumber : integer);
@@ -212,11 +223,11 @@ begin
 end;
 
 
-// Parse: x:y  :y  x:  :  x
+// Parse: five possible patters  x:y  :y  x:  :  x
 function TConstructAST.parseIndexOrSlice : TASTNode;
 var exp1 : TASTNode;
 begin
- // check for :x and :
+ // check for :x and :  A colon is translated to SliceAll, and x to expression
  if sc.token = tColon then
      begin
      sc.nextToken;
@@ -1329,7 +1340,7 @@ end;
 
 function TConstructAST.buildModuleAST(moduleName: string; var astRoot: TASTNode): TModuleLib;
 begin
-  result := TModulelib.Create(moduleName, '');
+  result := TModulelib.Create(moduleName, THelp.Create (''));
 
   sc.reset;
   sc.mode := vtReading;

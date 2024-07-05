@@ -56,6 +56,7 @@ implementation
 Uses Math,
      uSymbolTable,
      uVM,
+     uHelpUnit,
      uStringObject,
      uListObject,
      uValueObject,
@@ -70,13 +71,33 @@ begin
   raise ERuntimeException.Create('Argument to math function <' + functionName + '> can only be an integer, double or an array');
 end;
 
+function helpSin : THelp;
+begin
+  result := THelp.Create ('Math', 'sin', 'sin (int|float|array)',
+         'Returns the sine of a radian value',
+         ['x = math.sin (0.5)', 'y = math.sin (math.pi)', 'w = math.sin (array([1,2,3]))']);
+end;
+
+function helpCos : THelp;
+begin
+  result := THelp.Create ('Math', 'cos', 'cos (int|float|array)',
+         'Returns the cosine of a radian value',
+         ['x = math.cos (0.5)', 'y = math.cos (math.pi)', 'w = math.cos (array([1,2,3]))']);
+end;
+
+function helpPi : THelp;
+begin
+  result := THelp.Create ('Math', 'pi', 'p',
+         'Returns the value of pi',
+         ['x = math.pi']);
+end;
 
 constructor TBuiltInMath.Create;
 begin
-  inherited Create ('math', 'The Builtin Math Module');
+  inherited Create ('math', THelp.Create ('Math', 'The Builtin Math Module'));
 
-  addMethod (getSin,   1, 'sin',    'Returns the sine of a radian value: sin (1.2)');
-  addMethod (getCos,   1, 'cos',    'Returns the cosine of a radian value: cos (1.2)');
+  addMethod (getSin,   1, 'sin',    helpSin);
+  addMethod (getCos,   1, 'cos',    helpCos);
   addmethod (getTan,   1, 'tan',    'Computes tangent of a radian angle: tan (x)');
   addMethod (getASin,  1, 'asin',   'Returns in radians the arcsine of a value: asin (1.2)');
   addMethod (getACos,  1, 'acos',   'Returns in radians the arccosine of a value: acos (1.2)');
@@ -101,9 +122,9 @@ begin
 
   //addMethod (getComb,  2, 'comb',   'Returns the number of ways to choose k items from n items without repetition or order: comb (5, 2)');
 
-  addObjectValue ('pi', TValueObject.Create (Pi), 'The value of Pi', True);    // True = locked
-  addObjectValue ('e', TValueObject.Create (exp(1)), 'The value of e', True);
-  addObjectValue ('eps', TValueObject.Create (default_epsilon), 'Values below this are considered zero', False);
+  addObjectValue ('pi', TValueObject.Create (Pi), helpPi, True);    // True = locked
+  addObjectValue ('e', TValueObject.Create (exp(1)), THelp.Create ('The value of e'), True);
+  addObjectValue ('eps', TValueObject.Create (default_epsilon), THelp.Create ('Values below this are considered zero'), False);
 end;
 
 

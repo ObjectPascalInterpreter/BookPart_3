@@ -44,6 +44,7 @@ Uses Windows,
      uListObject,
      uMemoryManager,
      uRhodusTypes,
+     uHelpUnit,
      uBuiltInConfig;
 
 var
@@ -66,7 +67,7 @@ constructor TBuiltInSys.Create;
 var argv : TListObject;
     astr : TStringObject;
 begin
-  inherited Create ('sys', 'System module');
+  inherited Create ('sys', THelp.Create ('System module'));
 
   addStringValue ('version',  string (uBuiltInConfig.RHODUS_VERSION), 'returns the current version number for Rhodus', True);
   addStringValue ('doubleFormat',  TBuiltInSys.defaultDoubleFormat, 'default output format string for double values', False);

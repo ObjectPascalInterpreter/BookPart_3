@@ -94,6 +94,7 @@ uses uCommands,
      uTerminal,
      uRhodusTypes,
      uEnvironment,
+     uHelpUnit,
      uVMExceptions;
 
 
@@ -106,7 +107,8 @@ begin
   createGlobalBuiltIns;
   initialiseSysModuleVariables; // Creates the path variable
 
-  mainModule := TModuleLib.Create (TSymbol.mainModuleId, 'Main Module');  // mainModule is declared in uModule
+  // The mainModule is to added to teh list of modules.
+  mainModule := TModuleLib.Create (TSymbol.mainModuleId, THelp.Create ('Main Module'));  // mainModule is declared in uModule
 
   addGlobalMethodsToModule (mainModule);
 
@@ -394,7 +396,7 @@ begin
                 stVector  : printLnCallBack (AnsiString (st.vValue.vectorToString()));
                 stMatrix  : printLnCallBack (AnsiString (st.mValue.matrixToString()));
                 stValueObject : printLnCallBack (AnsiString (st.voValue.valueToString()));
-                stModule  : printLnCallBack (AnsiString ('Module: ' + st.module.name + ' ' + st.module.helpStr));
+                stModule  : printLnCallBack (AnsiString ('Module: ' + st.module.name));
                 stFunction: printLnCallBack (AnsiString ('Function: ' + st.fValue.moduleRef.name + '.' + st.fValue.name));
                 stObjectMethod : begin
                       printLnCallBack (AnsiString ('Object Method: ' + st.oValue.helpStr));
@@ -453,7 +455,7 @@ begin
                 stString  : printLnCallBack (AnsiString (st.sValue.value));
                 stList    : printLnCallBack (AnsiString (st.lValue.listToString()));
                 stArray   : printLnCallBack (AnsiString (st.aValue.arrayToString()));
-                stModule  : printLnCallBack (AnsiString ('Module: ' + st.module.name + ' ' + st.module.helpStr));
+                stModule  : printLnCallBack (AnsiString ('Module: ' + st.module.name + ' ' + st.module.help.getHelp()));
                 stFunction: printLnCallBack (AnsiString ('Function: ' + st.fValue.moduleRef.name + '.' + st.fValue.name));
                else
                  printLnCallBack ('Unrecognized type of value returned from virtual machine');

@@ -13,8 +13,8 @@ interface
 Uses SysUtils;
 
 const
-   SLICE_ALL = -1;
-   SLICE_EQUAL = -2;
+   SLICE_ALL   = -999999; //-1;   // Used to indicate :, ie all rows or all columns
+   SLICE_EQUAL = -888888; //-2;   // Used to indicate when a slices specifies a singlerow or column, eg m[:,2]
 
    VARIABLE_ARGS = -1;
 

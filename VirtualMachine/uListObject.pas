@@ -150,7 +150,7 @@ var listMethods : TListMethods;
 
 constructor TListMethods.Create;
 begin
-  methodList := TMethodList.Create;
+  methodList := TMethodList.Create (self);
 
   methodList.Add(TMethodDetails.Create ('len',    0, 'Return the length of a list: var.len ()', getLength));
   methodList.Add(TMethodDetails.Create ('append', 1, 'Append the element to the list: var.append (a, 3.14)', append));
@@ -159,8 +159,6 @@ begin
   methodList.Add(TMethodDetails.Create ('pop',    0, 'Remove the last element from a list: var.pop ()', removeLastElement));
   methodList.Add(TMethodDetails.Create ('max',    0, 'Find the maximum value is a 1D list of values: var.max ()', getMax));
   methodList.Add(TMethodDetails.Create ('min',    0, 'Find the minimum value is a 1D list of values: var.min ()', getMin));
-
-  methodList.Add(TMethodDetails.Create ('dir',    0, 'dir of string object methods', dir));
 end;
 
 
@@ -296,7 +294,7 @@ begin
       liArray    : TVM (vm).push (r.aValue.clone);
       liMatrix   : TVM (vm).push (r.mValue.clone);
       liFunction : TVM (vm).push (TUserFunction (r.fValue));
-      liModule   : TVM (vm).pushModule (TModule (r.mValue));
+      liModule   : TVM (vm).push (TModule (r.mValue));
    end;
    s.remove (s.list.Count - 1);
    // We don't push None as with the other methods because

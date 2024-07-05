@@ -78,7 +78,7 @@ begin
      if mainModule.symbolTable.find(astr[0], symbol1) then
         begin
         if symbol1.symbolType = symModule then
-           result := symbol1.mValue.helpStr
+           result := symbol1.mValue.help.getHelp()
         else
            begin
            result := symbol1.toString;
@@ -91,7 +91,7 @@ begin
            begin
            if symbol1.mValue.symbolTable.find(astr[0], symbol2) then
               begin
-              result := symbol2.fValue.helpStr;
+              result := symbol2.fValue.help.getHelp();
               end
            else
               result := 'Unable to locate symbol';
@@ -110,8 +110,8 @@ begin
               begin
               if symbol1.mValue.symbolTable.find (astr[1], symbol2)  then
                  case symbol2.symbolType of
-                     symUserFunc : result := symbol2.fValue.helpStr;
-                     symValueObject : result := symbol2.voValue.helpStr;
+                     symUserFunc : result := symbol2.fValue.help.getHelp();
+                     symValueObject : result := symbol2.voValue.help.getHelp();
                  else
                     result := 'There is no help for these kinds of objects'; // HMS symbol2.helpStr
                  end;

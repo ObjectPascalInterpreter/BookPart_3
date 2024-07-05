@@ -18,7 +18,11 @@ unit uBuiltInStr;
 
 interface
 
-Uses SysUtils, Classes, StrUtils, uLibModule;
+Uses SysUtils,
+     Classes,
+     StrUtils,
+     uLibModule,
+     uHelpUnit;
 
 type
   TBuiltInStr = class (TModuleLib)
@@ -37,7 +41,7 @@ Uses System.Character, Math, uSymbolTable, uVM, uStringObject,
 
 constructor TBuiltInStr.Create;
 begin
-  inherited Create ('strings', 'String Module');
+  inherited Create ('strings', THelp.Create ('String Module'));
 
   addStringValue('ascii_lower',  'abcdefghijklmnopqrstuv', 'lower ascii characters', true);
   addStringValue('ascii_upper', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'upper ascii characters', true);

@@ -34,11 +34,17 @@ type
 
 implementation
 
-Uses Math, uSymbolTable, uVM, uStringObject, uListObject, uMemoryManager;
+Uses Math,
+     uSymbolTable,
+     uVM,
+     uHelpUnit,
+     uStringObject,
+     uListObject,
+     uMemoryManager;
 
 constructor TBuiltInRandom.Create;
 begin
-  inherited Create ('random', 'Random Number Module');
+  inherited Create ('random', THelp.Create ('Random Number Module'));
 
   addMethod (setSeed,     0, 'seed',    'Set the seed for the random number generator: seed (23)');
   addMethod (getRandom,   0, 'random',  'Return a uniformly distributed random number: random()');

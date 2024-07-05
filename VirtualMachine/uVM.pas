@@ -213,7 +213,7 @@ type
     procedure   push (voValue: TValueObject);  overload; inline;
     procedure   push(fValue: TUserFunction); overload; inline;
     procedure   push(oValue : TMethodDetails); overload;
-    procedure   pushModule (module : TModule);
+    procedure   push (module : TModule); overload; inline;
     procedure   pushNone;
     procedure   pushObject (obj : TObject);
     function    peek : PMachineStackRecord;
@@ -984,7 +984,7 @@ begin
 end;
 
 
-procedure TVM.pushModule (module : TModule);
+procedure TVM.push (module : TModule);
 begin
   inc(stackTop);
 {$IFDEF STACKCHECK}
@@ -1337,10 +1337,11 @@ begin
     stArray:    module.symbolTable.storeArray   (symbol, value.aValue);
     stVector:   module.symbolTable.storeVector   (symbol, value.vValue);
     stMatrix:   module.symbolTable.storeMatrix   (symbol, value.mValue);
- stValueObject:   module.symbolTable.storeValueObject (symbol, value.voValue);
+ stValueObject: module.symbolTable.storeValueObject (symbol, value.voValue);
     stFunction: module.symbolTable.storeFunction (symbol, value.fValue);
 
     stModule:   begin
+                //module.symbolTable.storeModule(symbol, value.module);
                 raiseError ('You cannot store a module in a variable: ' + value.module.name);
                 end;
     stObjectMethod:
@@ -1372,7 +1373,7 @@ begin
                   symbol.fValue.moduleRef := module;
                   push(symbol.fValue);
                   end;
-    symModule:    pushModule(TModule (symbol.mValue));
+    symModule:    push(TModule (symbol.mValue));
   else
     raiseError('Unknown symbol type in loadSymbol: ' +  inttostr(integer(symbol.symbolType)));
   end;
@@ -1420,7 +1421,7 @@ begin
                                 symbol.fValue.moduleRef := m;
                                 push(symbol.fValue);
                                 end;
-                symModule:     pushModule(TModule (symbol.mValue));
+                symModule:     push(TModule (symbol.mValue));
               else
                 raiseError ('Unknown symbol type in loadAttr: ' +  inttostr(integer(symbol.symbolType)));
               end;
@@ -2713,7 +2714,7 @@ begin
   pushObject (TSliceObject.Create (lower, upper));
 end;
 
-
+ // Stack has a slice list followed by the object we want to slice (value)
 procedure TVM.evalSliceObject (numSlices : integer);
 var i : integer;
     sliceObjlist : TSliceObjectList;
@@ -2723,6 +2724,8 @@ begin
   for i := numSlices - 1 downto 0  do
       sliceObjlist[i] := TSliceObject (pop.objValue);
   value := pop;
+
+  try
 
   case value.stackType of
      stString :
@@ -2749,9 +2752,11 @@ begin
      raiseError ('You can only slice strings, arrays, or lists');
   end;
 
-  // Free slices
-  for i := 0 to length (sliceObjList) - 1 do
-      sliceObjlist[i].Free;
+  finally
+    // Free slices
+    for i := 0 to length (sliceObjList) - 1 do
+        sliceObjlist[i].Free;
+  end;
 end;
 
 

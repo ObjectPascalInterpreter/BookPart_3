@@ -342,6 +342,7 @@ begin
   // Center the console window
   SetWindowPos(ConsoleHwnd, 0,  x, y, 0, 0, SWP_NOSIZE);
 
+  clearConsoleScreen;  // This will position the horizonal scroll bar as well.
   //ShowScrollBar(ConsoleHwnd, SB_VERT, True);
 end;
 

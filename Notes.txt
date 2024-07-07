@@ -1,0 +1,28 @@
+
+math.sin.help()
+math.pi.help()
+
+math.help()
+
+m = {{1,2,3}}
+
+m.help("rows")
+
+
+A = {{1,2},{3,4}}
+v = {{1,2,3}}
+v = {{1},{2},{3}}
+
+a = array ([1,2,3])
+
+v = mat.cv ([1,2,3])
+v = mat.rv ([1,2,3])
+
+M.toList()   DONE
+M.toArray()  DONE
+
+L.toArray()   # Only if numeric
+L.toMatrix()  # If 2D
+
+A.toMatrix()  # If 2D
+A.toList()

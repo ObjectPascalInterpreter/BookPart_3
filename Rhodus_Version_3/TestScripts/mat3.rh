@@ -1,77 +1,88 @@
-println ("Matrix Arithmetic Tests")
 
 import testUtils
 import mat
 
-// Matrix Tests
+setColor ("yellow")
+println ("------------------- Matrix Arithmetic Tests ----------------------")
+setColor ("white")
 
-testUtils.runtestTrue (2.0 - {{1}} == {{1}})
-testUtils.runtestTrue ({{1}} - 2.0 == {{-1}})
-testUtils.runtestTrue (2 - {{1}} == {{1}})
-testUtils.runtestTrue ({{1}} - 2 == {{-1}})
+testUtils.beginTests ("Matrix Equality")
+  testUtils.runtestTrue (2.0 - {{1}} == {{1}})
+  testUtils.runtestTrue ({{1}} - 2.0 == {{-1}})
+  testUtils.runtestTrue (2 - {{1}} == {{1}})
+  testUtils.runtestTrue ({{1}} - 2 == {{-1}})
+  testUtils.runtestTrue ({{1,2},{3,4}}*{{1,2},{3,4}} == {{1, 4},{9,16}})
+testUtils.endTests()
 
-a = {{1,2,3},{4,5,6},{7,8,9}}
-b = {{4,5,6},{7,8,9},{10,11,12}}
-c = {{5,7, 9}, {11,13,15}, {17,19,21}}
 
-testUtils.runtestTrue (a + b == c)
+testUtils.beginTests ("Matrix Addition and Subtraction")
+  testUtils.runtestTrue ({{1, 2}, {3, 4}} + {{5, 6}, {7, 8}} == {{6, 8}, {10, 12}})
+  testUtils.runtestTrue ({{1, 1}, {1, 1}} + {{2, 2}, {2, 2}} == {{3, 3}, {3, 3}})
+  testUtils.runtestTrue ({{0, 0}, {0, 0}} + {{1, 1}, {1, 1}} == {{1, 1}, {1, 1}})
 
-c = {{-3,-3, -3}, {-3, -3, -3}, {-3, -3, -3}}
-testUtils.runtestTrue (a - b == c)
+  testUtils.runtestTrue({{5, 6}, {7, 8}} - {{1, 2}, {3, 4}} == {{4, 4}, {4, 4}})
+  testUtils.runtestTrue({{3, 3}, {3, 3}} - {{1, 1}, {1, 1}} == {{2, 2}, {2, 2}})
+  testUtils.runtestTrue({{1, 1}, {1, 1}} - {{1, 1}, {1, 1}} == {{0, 0}, {0, 0}})
 
-c = {{48, 54, 60}, {111, 126, 141}, {174, 198, 222}}
-testUtils.runtestTrue (a@b == c)
+  a = {{1,2,3},{4,5,6},{7,8,9}}
+  b = {{4,5,6},{7,8,9},{10,11,12}}
+  c = {{5,7, 9}, {11,13,15}, {17,19,21}}
 
-testUtils.runtestTrue ({{1,2},{3,4}}*{{1,2},{3,4}} == {{1, 4},{9,16}})
+  testUtils.runtestTrue (a + b == c)
+  c = {{-3,-3, -3}, {-3, -3, -3}, {-3, -3, -3}}
+  testUtils.runtestTrue (a - b == c)
+testUtils.endTests()
 
-m = {{1},{2},{3}}
-m1 = mat.tr (m)
-m2 = mat.tr (m1)
-testUtils.runtestTrue (m == m2)
 
-a = {{1,2,3},{4,5,6},{7,8,9}}
-b = -a
+testUtils.beginTests ("Matrix Addition and Subtraction")
+  c = {{48, 54, 60}, {111, 126, 141}, {174, 198, 222}}
+  testUtils.runtestTrue (a@b == c)
+testUtils.endTests()
 
-testUtils.runtestTrue (b == -a)
 
-m1 = {{1},{2},{3}}
-m2 = {{1,2,3}}
+testUtils.beginTests ("Matrix Transpose")
+  m = {{1},{2},{3}}
+  m1 = mat.tr (m)
+  m2 = mat.tr (m1)
+  testUtils.runtestTrue (m == m2)
+  testUtils.runtestTrue(mat.tr ({{1, 2}, {3, 4}}) == {{1, 3}, {2, 4}})
+  testUtils.runtestTrue(mat.tr ({{1, 2, 3}, {4, 5, 6}}) == {{1, 4}, {2, 5}, {3, 6}})
+  testUtils.runtestTrue(mat.tr ({{1}}) == {{1}})  
+testUtils.endTests()
 
-testUtils.runtestTrue (m2@m1 == {{14}})
 
-// Addition
-testUtils.runtestTrue ({{1, 2}, {3, 4}} + {{5, 6}, {7, 8}} == {{6, 8}, {10, 12}})
-testUtils.runtestTrue ({{1, 1}, {1, 1}} + {{2, 2}, {2, 2}} == {{3, 3}, {3, 3}})
-testUtils.runtestTrue ({{0, 0}, {0, 0}} + {{1, 1}, {1, 1}} == {{1, 1}, {1, 1}})
+testUtils.beginTests ("Matrix Unary Minus")
+  a = {{1,2,3},{4,5,6},{7,8,9}}
+  b = -a
+  testUtils.runtestTrue (b == -a)
+testUtils.endTests()
 
-testUtils.runtestTrue({{5, 6}, {7, 8}} - {{1, 2}, {3, 4}} == {{4, 4}, {4, 4}})
-testUtils.runtestTrue({{3, 3}, {3, 3}} - {{1, 1}, {1, 1}} == {{2, 2}, {2, 2}})
-testUtils.runtestTrue({{1, 1}, {1, 1}} - {{1, 1}, {1, 1}} == {{0, 0}, {0, 0}})
 
-// More matrix mulitplication
-testUtils.runtestTrue({{1, 2, 3}} @ {{4}, {5}, {6}} == {{32}})  // 1x3 * 3x1 -> 1x1
-testUtils.runtestTrue({{1, 2}, {3, 4}, {5, 6}} @ {{7, 8, 9}, {10, 11, 12}} == {{27, 30, 33}, {61, 68, 75}, {95, 106, 117}})  // 3x2 * 2x3 -> 3x3
-testUtils.runtestTrue({{2}} @ {{3, 4}} == {{6, 8}})  // 1x1 * 1x2 -> 1x2
-testUtils.runtestTrue({{1, 2}} @ {{3}, {4}} == {{11}})  // 1x2 * 2x1 -> 1x1
+testUtils.beginTests ("Matrix Mult")
+  m1 = {{1},{2},{3}}
+  m2 = {{1,2,3}}
 
-testUtils.runtestTrue({{1, 2, 3}, {4, 5, 6}} @ {{7, 8}, {9, 10}, {11, 12}} == {{58, 64}, {139, 154}}) // 2x3 * 3x2 -> 2x2
-testUtils.runtestTrue({{0}} @ {{0}} == {{0}}) //  1x1 * 1x1 -> 1x1
-testUtils.runtestTrue({{1, 0}, {0, 1}} @ {{0, 1}, {1, 0}} == {{0, 1}, {1, 0}})  // 2x2 * 2x2
-testUtils.runtestTrue({{1, 2}, {3, 4}} @ {{1, 0}, {0, 1}} == {{1, 2}, {3, 4}}) // Multiplying with identity matrix
+  testUtils.runtestTrue (m2@m1 == {{14}})
+  testUtils.runtestTrue({{1, 2, 3}} @ {{4}, {5}, {6}} == {{32}})  // 1x3 * 3x1 -> 1x1
+  testUtils.runtestTrue({{1, 2}, {3, 4}, {5, 6}} @ {{7, 8, 9}, {10, 11, 12}} == {{27, 30, 33}, {61, 68, 75}, {95, 106, 117}})  // 3x2 * 2x3 -> 3x3
+  testUtils.runtestTrue({{2}} @ {{3, 4}} == {{6, 8}})  // 1x1 * 1x2 -> 1x2
+  testUtils.runtestTrue({{1, 2}} @ {{3}, {4}} == {{11}})  // 1x2 * 2x1 -> 1x1
 
-// Scalar Multiplication
-testUtils.runtestTrue(2 * {{1, 2}, {3, 4}} == {{2, 4}, {6, 8}})
-testUtils.runtestTrue (0 * {{1, 2}, {3, 4}} == {{0, 0}, {0, 0}})
-testUtils.runtestTrue (-1*{{1, 2}, {3, 4}} == {{-1, -2}, {-3, -4}})
-testUtils.runtestTrue({{1, 2}, {3, 4}}*2 == {{2, 4}, {6, 8}})
-testUtils.runtestTrue({{1, 2}}*math.pi == {{3.14159265358979, 6.28318530717959}})
-testUtils.runtestTrue(math.pi*{{1, 2}} == {{3.14159265358979, 6.28318530717959}})
+  testUtils.runtestTrue({{1, 2, 3}, {4, 5, 6}} @ {{7, 8}, {9, 10}, {11, 12}} == {{58, 64}, {139, 154}}) // 2x3 * 3x2 -> 2x2
+  testUtils.runtestTrue({{0}} @ {{0}} == {{0}}) //  1x1 * 1x1 -> 1x1
+  testUtils.runtestTrue({{1, 0}, {0, 1}} @ {{0, 1}, {1, 0}} == {{0, 1}, {1, 0}})  // 2x2 * 2x2
+  testUtils.runtestTrue({{1, 2}, {3, 4}} @ {{1, 0}, {0, 1}} == {{1, 2}, {3, 4}}) // Multiplying with identity matrix
+testUtils.endTests()
 
-// Transposition
-testUtils.runtestTrue(mat.tr ({{1, 2}, {3, 4}}) == {{1, 3}, {2, 4}})
-testUtils.runtestTrue(mat.tr ({{1, 2, 3}, {4, 5, 6}}) == {{1, 4}, {2, 5}, {3, 6}})
-testUtils.runtestTrue(mat.tr ({{1}}) == {{1}})
 
+testUtils.beginTests ("Matrix Scalar Mult")
+  testUtils.runtestTrue(2 * {{1, 2}, {3, 4}} == {{2, 4}, {6, 8}})
+  testUtils.runtestTrue (0 * {{1, 2}, {3, 4}} == {{0, 0}, {0, 0}})
+  testUtils.runtestTrue (-1*{{1, 2}, {3, 4}} == {{-1, -2}, {-3, -4}})
+  testUtils.runtestTrue({{1, 2}, {3, 4}}*2 == {{2, 4}, {6, 8}})
+  testUtils.runtestTrue({{1, 2}}*math.pi == {{3.14159265358979, 6.28318530717959}})
+  testUtils.runtestTrue(math.pi*{{1, 2}} == {{3.14159265358979, 6.28318530717959}})
+testUtils.endTests()
 
 
 

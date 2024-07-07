@@ -77,7 +77,7 @@ end;
 
 constructor TBuiltInPlotter.Create;
 begin
-  inherited Create ('plot', THelp.Create ('Plot Module'));
+  inherited Create ('plot');
 
   addMethod(plotsinewave, 0, 'sw',   'Return the sine of a radian value: sin (1.2)');
   addMethod(clear,        0, 'clear', 'Clear the plot: plot.clear ()');

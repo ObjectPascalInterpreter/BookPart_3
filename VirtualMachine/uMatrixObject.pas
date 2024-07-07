@@ -2,7 +2,7 @@ unit uMatrixObject;
 
 // This source is distributed under Apache 2.0
 
-// Copyright (C)  2019-2021 Herbert M Sauro
+// Copyright (C)  2019-2024 Herbert M Sauro
 
 // Author Contact Informion:
 // email: hsauro@gmail.com
@@ -11,8 +11,8 @@ interface
 
 uses SysUtils, Classes,
      uMemoryManager,
-     uObjectSupport,
-     uRhodusObject,
+     uDataObjectMethods,
+     uDataObject,
      uArrayObject,
      uVectorObject,
      Generics.Collections,
@@ -21,11 +21,28 @@ uses SysUtils, Classes,
      uRhodusTypes;
 
 type
+  TMatrixMethods = class (TMethodsBase)
+     procedure   getNumRows (vm: TObject);
+     procedure   getNumCols (vm: TObject);
+     procedure   getShape (vm : TObject);
+     procedure   getColumn (vm : TObject);
+     procedure   getRow (vm : TObject);
+
+     procedure   getToArray (vm : TObject);
+     procedure   getToList (vm : TObject);
+
+     constructor Create;
+     destructor  Destroy; override;
+  end;
+
+
   TRow = TArray<double>;
-  TMatrixObject = class (TRhodusObject)
+  TMatrixObject = class (TDataObject)
     private
        data : TArray<TRow>;
     public
+
+    class var matrixMethods : TMatrixMethods;
 
     function  numRows : integer;
     function  numCols : integer;
@@ -44,8 +61,9 @@ type
     class function  mult (m1, m2 : TMatrixObject) : TMatrixObject;
     class function  isEqualTo (m1, m2 : TMatrixObject) : boolean;
     class function  transpose (m : TMatrixObject) : TMatrixObject;
+    class function  applyUniFunction (m : TMatrixObject; func : TUniFunction) : TMatrixObject;
 
-    class function  toList (m : TMatrixObject) : TRhodusObject;  // Due to circular reference issue
+    class function  toList (m : TMatrixObject) : TDataObject;  // Due to circular reference issue
     class function  toArray (m : TMatrixObject) : TArrayObject;
 
     procedure setNumRows (n : integer);
@@ -65,20 +83,6 @@ type
   end;
 
 
-  TMatrixMethods = class (TMethodsBase)
-     procedure   getNumRows (vm: TObject);
-     procedure   getNumCols (vm: TObject);
-     procedure   getShape (vm : TObject);
-     procedure   getColumn (vm : TObject);
-     procedure   getRow (vm : TObject);
-
-     procedure   getToArray (vm : TObject);
-     procedure   getToList (vm : TObject);
-
-     constructor Create;
-     destructor  Destroy; override;
-  end;
-
 
 implementation
 
@@ -89,7 +93,6 @@ Uses Math, uVM,
      uBuiltInGlobal,
      uSymbolTable;
 
-var matrixMethods : TMatrixMethods;
 
 
 function help_rows : THelp;
@@ -104,11 +107,11 @@ begin
 
   // -1 means variable arguments, use the constant VARIABLE_ARGS for this
 
-  methodList.Add(TMethodDetails.Create ('rows',    0, 'help', help_rows, getNumRows));
+  methodList.Add(TMethodDetails.Create ('rows',    0, 'get the number of rows in the matrix var.cols()', help_rows, getNumRows));
   methodList.Add(TMethodDetails.Create ('cols',    0, 'get the number of columns in the matrix var.cols()', getNumCols));
   methodList.Add(TMethodDetails.Create ('shape',   0, 'get the shape of the matrix var.shape()', getShape));
-  methodList.Add(TMethodDetails.Create ('ec',      1, 'extract a column: var.ec(n)', getColumn));
-  methodList.Add(TMethodDetails.Create ('er',      1, 'extract a row: var.er(n)', getRow));
+  methodList.Add(TMethodDetails.Create ('row',      1, 'extract a column: var.ec(n)', getColumn));
+  methodList.Add(TMethodDetails.Create ('col',      1, 'extract a row: var.er(n)', getRow));
 
   methodList.Add(TMethodDetails.Create ('toArray', 0, 'Convert a matrix to an array: m = mat.toArray()', getToArray));
   methodList.Add(TMethodDetails.Create ('toList',  0, 'Convert a matrix to a list: m = mat.toList()', getToList));
@@ -234,7 +237,7 @@ begin
   inherited Create; // Adds object to the memory pool
   blockType := btGarbage;
   objectType := symMatrix;
-  self.methods := matrixMethods;
+  self.methods := TMatrixObject.matrixMethods;
 end;
 
 
@@ -434,7 +437,7 @@ begin
 end;
 
 
-class function TMatrixObject.toList (m : TMatrixObject) : TRhodusObject;
+class function TMatrixObject.toList (m : TMatrixObject) : TDataObject;
 var i, j : integer;
     l : TListObject;
     item : TListItem;
@@ -464,6 +467,7 @@ begin
       for j := 0 to m.numCols - 1 do
           result.setValue2D(i, j, m[i,j]);
 end;
+
 
 // -----------------------------------------------------------------------------------------------
 procedure TMatrixObject.setNumRows (n : integer);
@@ -602,6 +606,16 @@ begin
   end;
 end;
 
+class function TMatrixObject.applyUniFunction (m : TMatrixObject; func : TUniFunction) : TMatrixObject;
+var i, j : integer;
+begin
+  result := TMatrixObject.Create (m.numCols, m.numRows);
+  for i := 0 to m.numRows - 1 do
+      for j := 0 to m.numCols - 1 do
+          result.setval(i, j, func (m[i,j]));
+end;
+
+
 
 class function TMatrixObject.transpose (m : TMatrixObject) : TMatrixObject;
 var i, j : integer;
@@ -637,8 +651,9 @@ end;
 
 
 initialization
-   matrixMethods := TMatrixMethods.Create;
+   // Initialize the class varialbe tha tpoints to the methods list
+   TMatrixObject.matrixMethods := TMatrixMethods.Create;
 finalization
-   matrixMethods.Free;
+   TMatrixObject.matrixMethods.Free;
 end.
 

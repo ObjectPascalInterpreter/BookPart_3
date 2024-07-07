@@ -67,7 +67,3 @@ testUtils.runtestTrue (test_10() == "abc123")
 
 testUtils.endTests()
 
-
-setColor ("yellow")
-println ("-----------------------------------------------------------")
-setColor ("white")

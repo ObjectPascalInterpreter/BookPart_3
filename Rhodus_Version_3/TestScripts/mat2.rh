@@ -4,13 +4,13 @@ import mat
 testUtils.beginTests ("Matrix Tests")
   m = {{1, 2, 3},{4, 5, 6},{7, 8, 9}}
 
-  testUtils.runtestTrue (m.ec(0) == {{1}, {4}, {7}})
-  testUtils.runtestTrue (m.ec(1) == {{2}, {5}, {8}})
-  testUtils.runtestTrue (m.ec(2) == {{3}, {6}, {9}})
+  testUtils.runtestTrue (m.col(0) == {{1}, {4}, {7}})
+  testUtils.runtestTrue (m.col(1) == {{2}, {5}, {8}})
+  testUtils.runtestTrue (m.col(2) == {{3}, {6}, {9}})
 
-  testUtils.runtestTrue (m.er(0) == {{1, 2, 3}})
-  testUtils.runtestTrue (m.er(1) == {{4, 5, 6}})
-  testUtils.runtestTrue (m.er(2) == {{7, 8, 9}})
+  testUtils.runtestTrue (m.row(0) == {{1, 2, 3}})
+  testUtils.runtestTrue (m.row(1) == {{4, 5, 6}})
+  testUtils.runtestTrue (m.row(2) == {{7, 8, 9}})
 testUtils.endTests()
 
 

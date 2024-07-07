@@ -7,28 +7,29 @@ println ("------------------- Global Builtins ----------------------")
 setColor ("white")
 
 testUtils.beginTests ("int")
-
-testUtils.runtestTrue (int (3.14) == 3);
-testUtils.runtestTrue (int (-3.14) == -3);
-testUtils.runtestTrue (int (0.4) == 0);
-testUtils.runtestTrue (int (-2.7) == -2);
-testUtils.runtestTrue (int (2.7) == 2);
+  testUtils.runtestTrue (int (3.14) == 3);
+  testUtils.runtestTrue (int (-3.14) == -3);
+  testUtils.runtestTrue (int (0.4) == 0);
+  testUtils.runtestTrue (int (-2.7) == -2);
+  testUtils.runtestTrue (int (2.7) == 2);
 testUtils.endTests()
 
 
 testUtils.beginTests ("type")
-testUtils.runtestTrue (type (2) == "int");
-testUtils.runtestTrue (type ("abc") == "string");
-testUtils.runtestTrue (type (2.34) == "float");
-testUtils.runtestTrue (type (True) == "bool");
-testUtils.runtestTrue (type (False) == "bool");
-testUtils.runtestTrue (type ([1,2,3]) == "list");
-
-
+  testUtils.runtestTrue (type (2) == "int");
+  testUtils.runtestTrue (type ("abc") == "string");
+  testUtils.runtestTrue (type (2.34) == "float");
+  testUtils.runtestTrue (type (False) == "bool");
+  testUtils.runtestTrue (type ([1,2,3]) == "list");
 testUtils.endTests()
 
-
-setColor ("yellow")
-println ("----------------------------------------------------------")
-setColor ("white")
+testUtils.beginTests ("asc, chr and hex")
+   testUtils.runtestTrue (asc ("a") == 97);
+   testUtils.runtestTrue (asc ("A") == 65);   
+   testUtils.runtestTrue (chr (65) == "A");     
+   testUtils.runtestTrue (chr (97) == "a");  
+   testUtils.runtestTrue (hex (asc ("a")) == "00000061");  
+   testUtils.runtestTrue (hex (asc ("A")) == "00000041"); 
+   testUtils.runtestTrue (hex (1234) == "000004D2"); 
+   testUtils.runtestTrue (hex (8756734) == "00859DFE");    
 testUtils.endTests()

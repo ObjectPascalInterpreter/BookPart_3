@@ -227,6 +227,3 @@ testUtils.runtestTrue(a == 22)
 
 testUtils.endTests()
 
-setColor ("yellow")
-println ("----------------------------------------------------------")
-setColor ("white")

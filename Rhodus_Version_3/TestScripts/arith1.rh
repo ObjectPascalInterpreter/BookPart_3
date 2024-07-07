@@ -93,11 +93,14 @@ testUtils.beginTests ("Double")
   testUtils.runtestTrue (math.pi / 2.0 == 1.5707963267949); 
   testUtils.runtestTrue (2/math.pi == 0.636619772367581); 
   testUtils.runtestTrue (2.0/math.pi == 0.636619772367581); 
+
+  a = math.pi
+  testUtils.runtestTrue (math.pi == a); 
 testUtils.endTests()
 
 
-testUtils.beginTests ("Precendence")
-  // Precendence Tests
+testUtils.beginTests ("Precedence")
+  // Precedence Tests
   testUtils.runtestTrue (5 * 4 + 2 == 22);
   testUtils.runtestTrue (2 + 5 * 4 == 22);
   testUtils.runtestTrue ((2 + 5) * 4 == 28);
@@ -188,8 +191,3 @@ testUtils.beginTests ("Math Lib")
   testUtils.runtestTrue (math.sqrt (math.pi) == 1.77245385090552)
   testUtils.runtestTrue (math.sqr (math.pi) == 9.86960440108936)
 testUtils.endTests()
-
-setColor ("yellow")
-println ("----------------------------------------------------------")
-setColor ("white")
-

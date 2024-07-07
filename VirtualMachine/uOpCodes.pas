@@ -23,8 +23,8 @@ const
    oDivi           = byte (5);   // Integer division
    oMod            = byte (6);   // Modulus of two integer values
    oDivide         = byte (7);
-   oDotProduct     = byte (8);
-   oUmi            = byte (9);
+   oDotProduct     = byte (8);   // @ symbol for matgrix multiplication
+   oUmi            = byte (9);   // Unary minus
    oPower          = byte (10);
    oInc            = byte (11);  // Increment stack entry by arg
    oLocalInc       = byte (12);

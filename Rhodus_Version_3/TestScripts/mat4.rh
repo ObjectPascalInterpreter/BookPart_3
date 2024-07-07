@@ -1,8 +1,10 @@
-println ("Matrix LU Factorization, Determinant and Inverse Tests")
-
 import testUtils
 import mat
 import math
+
+setColor("yellow")
+println ("--------------------- Matrix Functions ----------------------")
+setColor("white")
 
 // LU Factorization Tests
 

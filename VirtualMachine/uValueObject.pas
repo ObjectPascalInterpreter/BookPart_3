@@ -12,12 +12,14 @@ unit uValueObject;
 
 interface
 
-uses Classes, SysUtils, uMemoryManager, uObjectSupport, uRhodusObject;
+uses Classes, SysUtils, uMemoryManager,
+     uDataObjectMethods,
+     uDataObject;
 
 type
   TValueObjectType = (vtInteger, vtDouble);
 
-  TValueObject = class (TRhodusObject)
+  TValueObject = class (TDataObject)
       valueType : TValueObjectType;
       iValue : integer;
       dValue : double;

@@ -31,7 +31,7 @@ Uses Generics.Collections,
      uBuiltInSys,
      uBuiltInTurtle,
      uMemoryManager,
-     uObjectSupport,
+     uDataObjectMethods,
      uSyntaxParser;
 
 type
@@ -107,12 +107,24 @@ begin
   createGlobalBuiltIns;
   initialiseSysModuleVariables; // Creates the path variable
 
+    try
+    uHelpUnit.buildHelpDb;
+  except
+    on e:exception do
+       begin
+       writeln ('Errors while loading help: ' + e.Message + '. Type any key to continue');
+       readln;
+       end;
+  end;
+
   // The mainModule is to added to teh list of modules.
-  mainModule := TModuleLib.Create (TSymbol.mainModuleId, THelp.Create ('Main Module'));  // mainModule is declared in uModule
+  mainModule := TModuleLib.Create (TSymbol.mainModuleId);  // mainModule is declared in uModule
+  mainModule.help.description := 'This is the main module, is available at all times. Type dir() to list the methods';
 
   addGlobalMethodsToModule (mainModule);
 
   addAllBuiltInLibraries (mainModule);
+
 
   sc  := TScanner.Create;             // Create the lexical scanner
   syntaxParser := TSyntaxParser.Create (sc);  // This only does a syntax analysis
@@ -126,7 +138,8 @@ begin
      try
        if not compileCode(astr, mainModule, False) then
           begin
-          printLnCallBack ('Errors while compiling startup script, startup.rh (correct the startup script). Type any key to continue.');
+          writeln ('Errors while compiling startup script, startup.rh (correct the startup script). Type any key to continue.');
+          readln;
           end
        else
           begin
@@ -396,8 +409,8 @@ begin
                 stVector  : printLnCallBack (AnsiString (st.vValue.vectorToString()));
                 stMatrix  : printLnCallBack (AnsiString (st.mValue.matrixToString()));
                 stValueObject : printLnCallBack (AnsiString (st.voValue.valueToString()));
-                stModule  : printLnCallBack (AnsiString ('Module: ' + st.module.name));
-                stFunction: printLnCallBack (AnsiString ('Function: ' + st.fValue.moduleRef.name + '.' + st.fValue.name));
+                stModule  : printLnCallBack (AnsiString ('Module: ' + st.module.moduleName));
+                stFunction: printLnCallBack (AnsiString ('Function: ' + st.fValue.moduleRef.moduleName + '.' + st.fValue.methodName));
                 stObjectMethod : begin
                       printLnCallBack (AnsiString ('Object Method: ' + st.oValue.helpStr));
                       // This pop causes a stack underflow
@@ -455,8 +468,8 @@ begin
                 stString  : printLnCallBack (AnsiString (st.sValue.value));
                 stList    : printLnCallBack (AnsiString (st.lValue.listToString()));
                 stArray   : printLnCallBack (AnsiString (st.aValue.arrayToString()));
-                stModule  : printLnCallBack (AnsiString ('Module: ' + st.module.name + ' ' + st.module.help.getHelp()));
-                stFunction: printLnCallBack (AnsiString ('Function: ' + st.fValue.moduleRef.name + '.' + st.fValue.name));
+                stModule  : printLnCallBack (AnsiString ('Module: ' + st.module.moduleName + ' ' + st.module.help.getHelp()));
+                stFunction: printLnCallBack (AnsiString ('Function: ' + st.fValue.moduleRef.moduleName + '.' + st.fValue.methodName));
                else
                  printLnCallBack ('Unrecognized type of value returned from virtual machine');
                end;

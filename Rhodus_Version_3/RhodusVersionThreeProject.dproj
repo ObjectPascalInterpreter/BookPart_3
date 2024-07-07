@@ -169,7 +169,6 @@
         <DCCReference Include="..\VirtualMachine\uMachineStack.pas"/>
         <DCCReference Include="..\VirtualMachine\uMemoryManager.pas"/>
         <DCCReference Include="..\VirtualMachine\uOpCodes.pas"/>
-        <DCCReference Include="..\VirtualMachine\uRhodusObject.pas"/>
         <DCCReference Include="..\VirtualMachine\uStringObject.pas"/>
         <DCCReference Include="..\VirtualMachine\uSymbolTable.pas"/>
         <DCCReference Include="..\VirtualMachine\uUtils.pas"/>
@@ -197,7 +196,6 @@
         <DCCReference Include="uProgramCode.pas"/>
         <DCCReference Include="..\VirtualMachine\uRhodusTypes.pas"/>
         <DCCReference Include="uEnvironment.pas"/>
-        <DCCReference Include="uObjectSupport.pas"/>
         <DCCReference Include="uBuiltInConfig.pas"/>
         <DCCReference Include="uBuiltInSys.pas"/>
         <DCCReference Include="uListOfBuiltIns.pas"/>
@@ -215,12 +213,18 @@
         <DCCReference Include="..\VirtualMachine\uJumpTables.pas"/>
         <DCCReference Include="..\VirtualMachine\uMatrixObject.pas"/>
         <DCCReference Include="..\VirtualMachine\uVectorObject.pas"/>
-        <DCCReference Include="uBuiltInMatrix2.pas"/>
         <DCCReference Include="uMatrixFunctions.pas"/>
         <DCCReference Include="..\VirtualMachine\uValueObject.pas"/>
         <DCCReference Include="uPlotterInterface.pas"/>
         <DCCReference Include="uBuiltInPlotter.pas"/>
         <DCCReference Include="..\Common\uHelpUnit.pas"/>
+        <DCCReference Include="..\VirtualMachine\uDataObjectMethods.pas"/>
+        <DCCReference Include="..\VirtualMachine\uDataObject.pas"/>
+        <RcItem Include="Win32\Debug\HelpDb.json">
+            <ContainerId>ResourceItem</ContainerId>
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>HelpDb</ResourceId>
+        </RcItem>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -254,12 +258,12 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="$(BDS)\Redist\iossimulator\libPCRE.dylib" Class="DependencyModule">
+                <DeployFile LocalName="$(BDS)\Redist\iossimulator\libpcre.dylib" Class="DependencyModule">
                     <Platform Name="iOSSimulator">
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="$(BDS)\Redist\iossimulator\libpcre.dylib" Class="DependencyModule">
+                <DeployFile LocalName="$(BDS)\Redist\iossimulator\libPCRE.dylib" Class="DependencyModule">
                     <Platform Name="iOSSimulator">
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -276,6 +280,12 @@
                 </DeployFile>
                 <DeployFile LocalName="$(BDS)\Redist\osx64\libcgsqlite3.dylib" Class="DependencyModule">
                     <Platform Name="OSX64">
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Win32\Debug\HelpDb.json" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

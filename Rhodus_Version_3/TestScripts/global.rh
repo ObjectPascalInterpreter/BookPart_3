@@ -2,7 +2,7 @@
 import testUtils
 
 setColor ("yellow")
-println ("---------------------- Globals----------------------------")
+println ("---------------------- Function Globals----------------------------")
 setColor ("white")
 
 testUtils.beginTests ("")
@@ -34,9 +34,3 @@ testUtils.runtestTrue  (a == -1);
 testUtils.runtestTrue  (b == -4);
 
 testUtils.endTests()
-
-
-setColor ("yellow")
-println ("----------------------------------------------------------")
-setColor ("white")
-

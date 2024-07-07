@@ -61,7 +61,7 @@ Uses Math,
     
 constructor TBuiltInFile.Create;
 begin
-  inherited Create ('file', THelp.Create ('File IO Module'));
+  inherited Create ('file');
 
   addMethod (readAllText,   1, 'readAllText',   'Opens a text file, reads all the text in the file into a string, and then closes the file.');
   addMethod (writeAllText,  2, 'writeAllText',  'file.writeAllText ("myfile.txt", variable) Creates a new file, write the contents to the file, and then closes the file. If the target file already exists, it is overwritten.');

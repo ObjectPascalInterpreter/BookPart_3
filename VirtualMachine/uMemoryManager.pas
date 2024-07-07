@@ -9,7 +9,8 @@ unit uMemoryManager;
 
 interface
 
-Uses Classes, SysUtils, uRhodusTypes, uObjectSupport, uRhodusObject;
+Uses Classes, SysUtils, uRhodusTypes, uDataObjectMethods,
+     uDataObject;
 
 type
    // btTemporary is only used if a function is called
@@ -33,7 +34,7 @@ type
    // Allocated nodes are stored using a linked list
    PMemoryNodePtr = ^TMemoryNode;
    TMemoryNode = record
-      robj : TRhodusObject;
+      robj : TDataObject;
       next : PMemoryNodePtr;
    end;
 
@@ -51,8 +52,8 @@ type
           procedure freeLastNode  (var cursor, previous : PMemoryNodePtr);
           procedure freeMiddleNode (var cursor, previous : PMemoryNodePtr);
        public
-          function  newNode (obj : TRhodusObject) : PMemoryNodePtr;
-          function  addNode (robj : TRhodusObject) : PMemoryNodePtr;
+          function  newNode (obj : TDataObject) : PMemoryNodePtr;
+          function  addNode (robj : TDataObject) : PMemoryNodePtr;
           function  mapMemory : string;
           function  mapMemoryDetailed : string;
           function  getMemoryListSize : integer;
@@ -139,7 +140,7 @@ begin
 end;
 
 
-function TMemoryList.newNode (obj : TRhodusObject) : PMemoryNodePtr;
+function TMemoryList.newNode (obj : TDataObject) : PMemoryNodePtr;
 begin
   new (result);
   result^.robj := obj;
@@ -147,7 +148,7 @@ begin
 end;
 
 
-function TMemoryList.addNode (robj : TRhodusObject) : PMemoryNodePtr;
+function TMemoryList.addNode (robj : TDataObject) : PMemoryNodePtr;
 var cursor : PMemoryNodePtr;
 begin
    inc (sizeOfList);
@@ -215,7 +216,7 @@ begin
                           if not (cursor^.robj as TUserFunction).isbuiltInFunction then
                              begin
                              result := result + blockStr + ' : userFunction <';
-                             result := result + (cursor^.robj as TUserFunction).name + '>';
+                             result := result + (cursor^.robj as TUserFunction).methodName + '>';
                              result := result + sLineBreak;
                              end
                           else

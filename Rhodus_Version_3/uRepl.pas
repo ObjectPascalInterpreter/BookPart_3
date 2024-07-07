@@ -225,7 +225,7 @@ begin
 end;
 
 
-procedure startRepl;
+procedure startUpRhodus;
 begin
   rhodus := TRhodus.Create;
 
@@ -235,6 +235,12 @@ begin
   rhodus.setPrintLnCallBack(println);
   rhodus.setReadStringCallBack(myRead);
   rhodus.setSetColorCallBack (setColor);
+end;
+
+
+procedure startRepl;
+begin
+  startUpRhodus;
 
   try
     displayWelcome;
@@ -250,6 +256,13 @@ begin
 
           if sourceCode = 'quit' then
              break;
+
+          if sourceCode = 'restart' then
+             begin
+             writeln ('Restarting kernel.....');
+             rhodus.Free;
+             startUpRhodus;
+             end;
 
           if sourceCode = '#p' then
              sourceCode := readBlockOfcode;

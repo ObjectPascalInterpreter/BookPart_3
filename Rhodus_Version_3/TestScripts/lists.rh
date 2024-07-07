@@ -5,7 +5,7 @@ setColor ("yellow")
 println ("---------------------- List Tests ------------------------")
 setColor ("white")
 
-testUtils.beginTests ("")
+testUtils.beginTests ("Addition")
   a = [1,2,3,4];
   a = 1;
   testUtils.runtestTrue(a == 1);
@@ -35,7 +35,7 @@ testUtils.beginTests ("")
 testUtils.endTests()
 
 
-testUtils.beginTests ("")
+testUtils.beginTests ("Scalar Multipliction")
   a = [1];
   testUtils.runtestTrue (3*a == [1,1,1]);
 
@@ -51,7 +51,7 @@ testUtils.beginTests ("")
   testUtils.runtestTrue (alist == [1, True, 3]);
 testUtils.endTests()
  
-testUtils.beginTests ("")
+testUtils.beginTests ("Equality")
   alist = [1,2,3,4];
   testUtils.runtestTrue (alist[1] == 2);
   testUtils.runtestTrue (alist[2] == 3);
@@ -78,7 +78,7 @@ testUtils.beginTests ("")
   testUtils.runtestTrue (a == [1,2,[3,[99,5]]]);
 testUtils.endTests()
 
-testUtils.beginTests ("")
+testUtils.beginTests ("Multiply")
   // Memmory leak tests for multipying lists
   a = [1,2,3];
   b = 3*a;
@@ -91,7 +91,7 @@ testUtils.endTests()
 
 
 
-testUtils.beginTests ("")
+testUtils.beginTests ("Period Syntax")
 // --------------------------------------------------------
 // Test period syntax and index of lists containing methods
 //println ("\nList containing methods")
@@ -109,7 +109,8 @@ end
 testUtils.endTests()
 
 
-testUtils.beginTests ("")
+
+testUtils.beginTests ("Add User Functions")
   // And user defined funtions
   function test (x) return x*x; end
 
@@ -122,7 +123,3 @@ testUtils.beginTests ("")
 
   testUtils.runtestTrue (runtest (math.sin, 30) == math.sin (30))
 testUtils.endTests()
-
-setColor ("yellow")
-println ("---------------------- List Tests ------------------------")
-setColor ("white")

@@ -1,0 +1,105 @@
+{
+  "modules": [
+    {
+      "name": "math",
+      "description": "This is the math module",
+      "methods": [
+        {
+          "methodType": "method",
+          "methodName": "sin",
+          "signature": "sin (a)",
+          "description": "It works out the sin",
+          "examples": [
+            "x = math.sin (1.2)",
+            "x = math.sin (math.pi)",
+            "x = math.sin ([1,2,3])"
+          ]
+        },
+        {
+          "methodType": "method",
+          "methodName": "cos",
+          "signature": "cos (a)",
+          "description": "It works out the cos",
+          "examples": [
+            "x = math.cos (1.2)",
+            "x = math.cos (math.pi)",
+            "x = math.cos ([1,2,3])"
+          ]
+        },
+        {
+          "methodType": "method",
+          "methodName": "tan",
+          "signature": "tan (a)",
+          "description": "It works out the tan",
+          "examples": [
+            "x = math.tan (1.2)",
+            "x = math.tan (math.pi)",
+            "x = math.tan ([1,2,3])"
+          ]
+        },
+        {
+          "methodType": "method",
+          "methodName": "asin",
+          "signature": "asin (a)",
+          "description": "It works out the asin",
+          "examples": [
+            "x = math.asin (1.2)",
+            "x = math.asin (math.pi)",
+            "x = math.asin ([1,2,3])"
+          ]
+        },
+        {
+          "methodType": "method",
+          "methodName": "acos",
+          "signature": "acos (a)",
+          "description": "It works out the acos",
+          "examples": [
+            "x = math.acos (1.2)",
+            "x = math.acos (math.pi)",
+            "x = math.acos ([1,2,3])"
+          ]
+        },
+        {
+          "methodType": "value",
+          "valueName": "pi",
+          "description": "Returns the value of pi",
+          "examples": [
+            "x = math.pi"
+          ]
+        },
+        {
+          "methodType": "value",
+          "valueName": "eps",
+          "description": "Values below this are considered zero.",
+          "examples": [
+            "x = math.eps"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "random",
+      "description": "This is the random module",
+      "methods": [
+        {
+          "methodType": "method",
+          "methodName": "seed",
+          "signature": "seed()",
+          "description": "Set the seed for the random number generator",
+          "examples": [
+            "seed (23)"
+          ]
+        },
+        {
+          "methodType": "method",
+          "methodName": "random",
+          "signature": "random()",
+          "description": "Return a uniformly distributed random number:",
+          "examples": [
+            "random()"
+          ]
+        }
+      ]
+    }
+  ]
+}

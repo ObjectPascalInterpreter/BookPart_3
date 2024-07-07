@@ -4,7 +4,7 @@ import testUtils
 setColor ("yellow")
 println ("---------------------- String Tests -----------------------")
 setColor ("white")
-testUtils.beginTests ("")
+testUtils.beginTests ("Equality")
 
 testUtils.runtestTrue (3*"abc" == "abcabcabc");
 testUtils.runtestTrue ("abc"*3 == "abcabcabc");
@@ -21,7 +21,7 @@ testUtils.runtestTrue (not (str1*3 != "123451234512345"));
 testUtils.runtestTrue (not (3*str1 != "123451234512345"));
 testUtils.endTests()
 
-testUtils.beginTests ("")
+testUtils.beginTests ("Indexing")
 str1 = "1234";
 str2 = "1234";
 
@@ -58,7 +58,7 @@ testUtils.endTests()
 //b = 1;
 
 
-testUtils.beginTests ("")
+testUtils.beginTests ("string Library")
 // String library tests
 
 str = "ABCDEFGHIJKLMMNOPQRStUVWXYZ"
@@ -88,7 +88,3 @@ testUtils.runtestTrue (strings.str ("12.34") == 12.34)
 
 testUtils.runtestTrue ("  1234   ABCDEF    ".trim () == "1234   ABCDEF")
 testUtils.endTests()
-
-setColor ("yellow")
-println ("-----------------------------------------------------------")
-setColor ("white")

@@ -30,6 +30,8 @@
 {$define LogErrorsToFile}
 {$define LogMemoryLeakDetailToFile}
 
+{$R *.dres}
+
 uses
   {$IFDEF DEBUG}
   {$ENDIF }
@@ -53,7 +55,6 @@ uses
   uMachineStack in '..\VirtualMachine\uMachineStack.pas',
   uMemoryManager in '..\VirtualMachine\uMemoryManager.pas',
   uOpCodes in '..\VirtualMachine\uOpCodes.pas',
-  uRhodusObject in '..\VirtualMachine\uRhodusObject.pas',
   uStringObject in '..\VirtualMachine\uStringObject.pas',
   uSymbolTable in '..\VirtualMachine\uSymbolTable.pas',
   uUtils in '..\VirtualMachine\uUtils.pas',
@@ -81,7 +82,6 @@ uses
   uProgramCode in 'uProgramCode.pas',
   uRhodusTypes in '..\VirtualMachine\uRhodusTypes.pas',
   uEnvironment in 'uEnvironment.pas',
-  uObjectSupport in 'uObjectSupport.pas',
   uBuiltInConfig in 'uBuiltInConfig.pas',
   uBuiltInSys in 'uBuiltInSys.pas',
   uListOfBuiltIns in 'uListOfBuiltIns.pas',
@@ -99,12 +99,13 @@ uses
   uJumpTables in '..\VirtualMachine\uJumpTables.pas',
   uMatrixObject in '..\VirtualMachine\uMatrixObject.pas',
   uVectorObject in '..\VirtualMachine\uVectorObject.pas',
-  uBuiltInMatrix2 in 'uBuiltInMatrix2.pas',
   uMatrixFunctions in 'uMatrixFunctions.pas',
   uValueObject in '..\VirtualMachine\uValueObject.pas',
   uPlotterInterface in 'uPlotterInterface.pas',
   uBuiltInPlotter in 'uBuiltInPlotter.pas',
-  uHelpUnit in '..\Common\uHelpUnit.pas';
+  uHelpUnit in '..\Common\uHelpUnit.pas',
+  uDataObjectMethods in '..\VirtualMachine\uDataObjectMethods.pas',
+  uDataObject in '..\VirtualMachine\uDataObject.pas';
 
 begin
   ReportMemoryLeaksOnShutdown := True;

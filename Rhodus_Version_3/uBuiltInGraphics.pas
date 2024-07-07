@@ -75,7 +75,7 @@ end;
 
 constructor TBuiltInGraphics.Create;
 begin
-  inherited Create('graphics', THelp.Create ('Graphics module'));
+  inherited Create('graphics');
 
   addMethod(clear, VARIABLE_ARGS, 'clear', 'Clear the background canvas: clear () or clear ("red")');
   addMethod(getCanvasSize, 0, 'size', 'Returns the size of the canvas as a list: size ()');

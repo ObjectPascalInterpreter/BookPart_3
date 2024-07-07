@@ -22,16 +22,16 @@ Uses SysUtils,
 type
   TModuleLib = class (TModule)
 
-    procedure   addMethod(methodPtr : TxBuiltInFunction; nArgs : integer; name, helpStr : string); overload;
-    procedure   addMethod (methodPtr : TxBuiltInFunction; nArgs : integer; name : string; helpObj : THelp); overload;
+    procedure   addMethod(methodPtr : TxBuiltInFunction; nArgs : integer; methodName, helpStr : string); overload;
+    procedure   addMethod (methodPtr : TxBuiltInFunction; nArgs : integer; methodName : string);  overload;
     procedure   addStringValue (name, value, helpStr : string; locked : boolean);
     procedure   addListValue  (name : string; value : TListObject; helpStr : string; locked : boolean);
-    procedure   addObjectValue (name : string; value : TValueObject; help : THelp; locked : boolean);
+    procedure   addObjectValue (name : string; value : TValueObject; locked : boolean);
 
     procedure   findSymbol (vm : TObject);
     procedure   callDir (vm : TObject);
     procedure   callContains (vm : TObject);
-    constructor Create (name : string; help : THelp);
+    constructor Create (moduleName : string);
     destructor  Destroy; override;
   end;
 
@@ -46,10 +46,10 @@ Uses uRhodusTypes,
      uMachineStack;
 
 
-constructor TModuleLib.Create (name : string; help : THelp);
+constructor TModuleLib.Create (modulename : string);
 var f : TUserFunction;
 begin
-  inherited Create (name, help);
+  inherited Create (moduleName);
   self.compiled := True;
 
   // Add the builtin default methods every module has
@@ -110,7 +110,7 @@ var l : TListObject;
     key : string;
 begin
   l := TListObject.create (0);
-  if name = TSymbol.globalId then
+  if moduleName = TSymbol.globalId then
      begin
      for key in self.symbolTable.keys do
          l.append (TStringObject.create (key));
@@ -133,7 +133,7 @@ var key, arg : string;
 begin
   vm := TVM (vm);
   arg := TVM (vm).popString.value;
-  if name = TSymbol.globalId then
+  if moduleName = TSymbol.globalId then
      begin
      for key in self.symbolTable.keys do
          if key = arg then
@@ -160,9 +160,9 @@ begin
 end;
 
 
-procedure TModuleLib.addObjectValue (name : string; value : TValueObject; help : THelp; locked : boolean);
+procedure TModuleLib.addObjectValue (name : string; value : TValueObject; locked : boolean);
 begin
-  self.symbolTable.addSymbol(name, value, locked, help);
+  self.symbolTable.addSymbol(name, value, locked, THelp.CreateValue (moduleName, name));
 end;
 
 
@@ -178,27 +178,25 @@ begin
 end;
 
 
-procedure TModuleLib.addMethod (methodPtr : TxBuiltInFunction; nArgs : integer; name, helpStr : string);
+procedure TModuleLib.addMethod (methodPtr : TxBuiltInFunction; nArgs : integer; methodName, helpStr : string);
 var f : TUserFunction;
 begin
-  f := TUserFunction.Create(name, nArgs, methodPtr);
-  // HMS f.helpStr := helpStr;
+  f := TUserFunction.Create(methodName, nArgs, methodPtr);
   f.help := THelp.Create (helpStr);
   f.moduleRef := self;
   self.symbolTable.addSymbol (f, True);  // locked = True
 end;
 
-procedure TModuleLib.addMethod (methodPtr : TxBuiltInFunction; nArgs : integer; name : string; helpObj : THelp);
+
+procedure TModuleLib.addMethod (methodPtr : TxBuiltInFunction; nArgs : integer; methodName : string);
 var f : TUserFunction;
 begin
-  f := TUserFunction.Create(name, nArgs, methodPtr);
-  //f.helpStr := '';
-  if helpObj <> nil then
-     f.help := helpObj
-  else
-     f.help := nil;
+  f := TUserFunction.Create(methodName, nArgs, methodPtr);
+  f.help := THelp.CreateMethod(moduleName, methodName);
   f.moduleRef := self;
   self.symbolTable.addSymbol (f, True);  // locked = True
 end;
+
+
 
 end.

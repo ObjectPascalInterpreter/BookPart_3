@@ -1,4 +1,4 @@
-unit uObjectSupport;
+unit uDataObjectMethods;
 
 // This source is distributed under Apache 2.0
 
@@ -7,14 +7,16 @@ unit uObjectSupport;
 // Author Contact Information:
 // email: hsauro@gmail.com
 
-// Base class for all mathods and constants attached to objects, eg math.sin (3) or math.pi
-// Methods automatically get dir and help support
+// Base class for all methods and constants attached to objects, eg math.sin (3) or math.pi
+// Objects automatically get dir and help support
 
 
 
 interface
 
-Uses Generics.Collections, uHelpUnit;
+Uses Generics.Collections,
+     uRhodusTypes,
+     uHelpUnit;
 
 type
    TObjectMethod = procedure (vm : TObject) of object;
@@ -40,6 +42,7 @@ type
    // methodlist is a reference to the list of methods.
    // Note, don't free methodlist as TMethodBase doesn't own it.
    // MethodsBase automatically provides dir() and help() methods
+   // in the object, eg math.sin.dir()
    TMethodsBase = class (TObject)
      methodList : TMethodList;
      procedure   dir (vm : TObject);
@@ -52,8 +55,8 @@ implementation
 
 Uses uListObject,
      uStringObject,
-     uRhodusObject,
      uMachineStack,
+     uDataObject,
      uVM;
 
 constructor TMethodsBase.Create;
@@ -87,17 +90,30 @@ end;
 
 procedure TMethodsBase.getHelp(vm: TObject);
 var m : TMethodDetails;
-    obj : TRhodusObject;
+    obj : TDataObject;
+    nArgs, i : integer;
+    methodName : TStringObject;
 begin
+  nArgs := TVM (vm).popInteger();
+  if nArgs > 0 then
+     methodName := TVM (vm).popString();
   m := TVM (vm).popMethodDetails();
-  obj := TRhodusObject (m.self);
-
-  if obj.help <> nil then
+  obj := TDataObject (m.self);
+  if nArgs > 0 then
      begin
-      TVM (vm).push(TStringObject.Create(obj.help.getHelp()));
+      for i := 0 to obj.methods.methodList.Count - 1 do
+         if obj.methods.methodList[i].name = methodName.value then
+            TVM (vm).push(TStringObject.Create(obj.methods.methodList[i].helpStr));
      end
   else
-     TVM (vm).push (TStringObject.Create('No help'));
+     begin
+     if obj.help <> nil then
+        begin
+         TVM (vm).push(TStringObject.Create(obj.help.getHelp()));
+        end
+     else
+        TVM (vm).push (TStringObject.Create('Use the string name of the method in the help argumet, e.g "abc".help("len")'));
+     end;
 end;
 
 
@@ -105,7 +121,7 @@ constructor TMethodList.Create (methodBase : TMethodsBase);
 begin
   inherited Create;
 
-  self.Add(TMethodDetails.Create ('help',   0, 'Returns the help associated with this symbol', methodBase.getHelp));
+  self.Add(TMethodDetails.Create ('help',  VARIABLE_ARGS, 'Returns the help associated with this symbol', methodBase.getHelp));
   self.Add(TMethodDetails.Create ('dir',    0, 'dir of string object methods', methodBase.dir));
 end;
 

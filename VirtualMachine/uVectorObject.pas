@@ -9,10 +9,15 @@ unit uVectorObject;
 
 interface
 
-uses SysUtils, Classes, uMemoryManager, uObjectSupport, uRhodusObject, Generics.Collections, uRhodusTypes;
+uses SysUtils, Classes,
+     uMemoryManager,
+     uDataObjectMethods,
+     Generics.Collections,
+     uDataObject,
+     uRhodusTypes;
 
 type
-  TVectorObject = class (TRhodusObject)
+  TVectorObject = class (TDataObject)
      private
        function  getValue (index : Integer) : double;
        procedure setValue (index : integer; value : double);

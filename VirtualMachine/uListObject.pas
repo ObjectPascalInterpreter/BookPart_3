@@ -2,7 +2,7 @@
 
 // This source is distributed under Apache 2.0
 
-// Copyright (C) 2019-2021 Herbert M Sauro
+// Copyright (C) 2019-2024 Herbert M Sauro
 
 // Author Contact Information:
 // email: hsauro@gmail.com
@@ -12,13 +12,13 @@ unit uListObject;
 interface
 
 Uses System.SysUtils, uUtils, System.generics.Collections,
-     uObjectSupport,
+     uDataObjectMethods,
      uMemoryManager,
      uStringObject,
      uArrayObject,
      uMatrixObject,
      uValueObject,
-     uRhodusObject;
+     uDataObject;
 
 type
   TListItemType = (liInteger, liBoolean, liDouble, liString, liList,
@@ -42,12 +42,14 @@ type
     destructor Destroy; override;
   end;
 
-  TListObject = class(TRhodusObject)
+  TListObject = class(TDataObject)
   private
   public
     list: TListContainer;          // Contains the data
 
     listToArray : boolean;
+
+    class var listMethods : TListMethods;
 
     class function addLists(list1, list2: TListObject): TListObject;
     class function multiply(value: integer; aList: TListObject): TListObject;
@@ -87,7 +89,7 @@ type
 
     function clone: TListObject;
     function listToString: string;
-    function getsize: integer;
+    function getsize: integer;  override;
 
     property Item[index : Integer]: TListItem read getItem; default; // write setItem; default;
 
@@ -144,9 +146,6 @@ Uses Math,
 type
   TIntArray = array of integer;
   TDoubleArray = array of double;
-
-var listMethods : TListMethods;
-
 
 constructor TListMethods.Create;
 begin
@@ -400,7 +399,7 @@ begin
   listToArray  := False;
   objectType := symList;
   list := TListContainer.Create;
-  methods := listMethods;
+  methods := TListObject.listMethods;
 end;
 
 
@@ -522,8 +521,7 @@ function TListObject.getsize: integer;
 var
   i: integer;
 begin
-  result := getRhodusObjectSize;
-  result := result + self.InstanceSize;
+  result := self.InstanceSize;
   for i := 0 to self.list.count - 1 do
     result := result + list[i].getsize();
 end;
@@ -1071,9 +1069,9 @@ begin
     liList:
       result := result + self.lValue.listToString;
     liFunction:
-      result := result + (self.fValue as TUserFunction).name;
+      result := result + (self.fValue as TUserFunction).methodName;
     liModule:
-      result := result + TModule(self.mValue).name;
+      result := result + TModule(self.mValue).moduleName;
     liArray:
       result := result + self.aValue.arrayToString;
     liMatrix:
@@ -1132,8 +1130,8 @@ end;
 // -----------------------------------------------------------------------
 
 initialization
-   listMethods := TListMethods.Create;
+   TListObject.listMethods := TListMethods.Create;
 finalization
-   listMethods.Free;
+   TListObject.listMethods.Free;
 end.
 

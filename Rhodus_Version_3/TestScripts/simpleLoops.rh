@@ -98,6 +98,3 @@ for i = 1 to 10 do
 end
 testUtils.endTests()
 
-setColor ("yellow")
-println ("-----------------------------------------------------------")
-setColor ("white")

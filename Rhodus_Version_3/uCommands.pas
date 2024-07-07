@@ -112,6 +112,11 @@ begin
 end;
 
 
+function reStartCommand (argument : string) : boolean;
+begin
+  // Executed in the reply itself. This is used to get the command in the help system
+end;
+
 function helpCommand (argument : string) : boolean;
 begin
   displayHelp;
@@ -381,6 +386,7 @@ end;
 initialization
    listOfCommands := TListOfCommand.Create;
    listOfCommands.Add (TCommand.Create ('pwd',        'Print the current working directory', pwdCommand));
+   listOfCommands.Add (TCommand.Create ('restart',    'Restat the interpreter kernel', reStartCommand));
    listOfCommands.Add (TCommand.Create ('help',       'Print out the help screen', helpCommand));
    listOfCommands.Add (TCommand.Create ('cls',        'Clear the screen', clearCommand));
    listOfCommands.Add (TCommand.Create ('startPath',  'Print out the startup path', startPathCommand));

@@ -25,7 +25,7 @@ Uses System.SysUtils, System.Diagnostics, System.TimeSpan, uUtils,
   uConstantTable,
   uProgramCode,
   uMemoryManager,
-  uObjectSupport,
+  uDataObjectMethods,
   uIntStack,
   uJumpTables;
 
@@ -394,6 +394,7 @@ begin
   setLength(frameStack, 0);
 end;
 
+
 function TVM.toStr (st : PMachineStackRecord) : AnsiString;
 var fmt : string;
 begin
@@ -423,10 +424,10 @@ begin
       stValueObject : result := AnsiString (st.voValue.valueToString());
 
           stModule  : begin
-                      result := AnsiString (st.module.name);
+                      result := AnsiString (st.module.moduleName);
                       end;
           stFunction: begin
-                      result := AnsiString (st.fValue.name);
+                      result := AnsiString (st.fValue.methodName);
                       end
      else
         result := 'Unrecognized value type from print' + sLineBreak;
@@ -436,7 +437,9 @@ end;
 
 procedure TVM.raiseError (msg : string);
 begin
-  raise ERuntimeException.Create(msg + ' at line number: ' + inttostr (lineNumber));
+  raise ERuntimeException.Create('Runtime Error' + sLineBreak +
+                '        --- at line number: ' + inttostr (lineNumber) + sLineBreak +
+                '        --- in ' + module.moduleName + sLineBreak + msg);
 end;
 
 
@@ -1029,8 +1032,13 @@ begin
   st2 := pop; // second operand
   st1 := pop; // first operand
 
-  addJumpTable[st1.stackType, st2.stackType] (st2, st1, result);
-  push (@result);
+  try
+    addJumpTable[st1.stackType, st2.stackType] (st2, st1, result);
+    push (@result);
+  except
+     on e: exception do
+        raiseError(e.message);
+  end;
 end;
 
 
@@ -1040,13 +1048,18 @@ var
   st1, st2: PMachineStackRecord;
   result : TMachineStackRecord;
 begin
-  st1 := pop;
-  st2 := pop;
+  st1 := pop;  // second operand
+  st2 := pop;  // first operand
   if (st1.stackType = stNone) or (st2.stackType = stNone) then
      raiseError ('Variable undefined in sub');
 
-  subJumpTable[st1.stackType, st2.stackType] (st2, st1, result);
-  push (@result);
+  try
+    subJumpTable[st1.stackType, st2.stackType] (st2, st1, result);
+    push (@result);
+  except
+     on e: exception do
+        raiseError(e.message);
+  end;
 end;
 
 
@@ -1061,14 +1074,19 @@ begin
   if (st1.stackType = stNone) or (st2.stackType = stNone) then
      raiseError  ('Variable undefined in mult');
 
-  multJumpTable[st1.stackType, st2.stackType] (st2, st1, result);
-  push (@result);
+  try
+    multJumpTable[st1.stackType, st2.stackType] (st2, st1, result);
+    push (@result);
+  except
+     on e: exception do
+        raiseError(e.message);
+  end;
 end;
 
 
 procedure TVM.dotProductOp;
 var m1, m2 : TMatrixObject;
-    sum : double; 
+    sum : double;
     st1, st2: PMachineStackRecord;
 begin
   st1 := pop;
@@ -1079,6 +1097,8 @@ begin
          case st2.stackType of
            stMatrix :
               push (TMatrixObject.dotmult (st2.mValue, st1.mValue));
+      else
+         raiseError ('Dot product must be between two matrices');
          end;
   end;
 
@@ -1097,7 +1117,7 @@ begin
 //        exit;
 //        end
 //     else
-//        raiseError ('Dot product requires both vectros to be the same size');
+//        raiseError ('Dot product requires both vectors to be the same size');
 //     end;
 //
 //  // Otherwise its matrix-matrix multiplication
@@ -1116,8 +1136,13 @@ begin
   if (st1.stackType = stNone) or (st2.stackType = stNone) then
      raise ERuntimeException.Create ('Variable undefined in division operation');
 
-  divJumpTable[st1.stackType, st2.stackType] (st2, st1, result);
-  push (@result);
+  try
+    divJumpTable[st1.stackType, st2.stackType] (st2, st1, result);
+    push (@result);
+  except
+     on e: exception do
+        raiseError(e.message);
+  end;
 end;
 
 
@@ -1325,7 +1350,7 @@ begin
   value := pop();
 
   if not module.symbolTable.find (symbolName, symbol) then
-     raiseError ('Undeclared variable: ' + symbolName + ' in module: ' + module.name);
+     raiseError ('Undeclared variable: ' + symbolName + ' in module: ' + module.moduleName);
 
    case value.stackType of
     stNone:     begin symbol.symbolType := symUndefined; end;
@@ -1342,7 +1367,7 @@ begin
 
     stModule:   begin
                 //module.symbolTable.storeModule(symbol, value.module);
-                raiseError ('You cannot store a module in a variable: ' + value.module.name);
+                raiseError ('You cannot store a module in a variable: ' + value.module.moduleName);
                 end;
     stObjectMethod:
        raiseError ('You cannot store an object method in a variable: ' + value.oValue.name);
@@ -1360,15 +1385,16 @@ begin
      raiseError ('Undefined symbol: ' + symbolName);
 
  case symbol.symbolType of
-    symUndefined: raiseError('Variable has no assigned value: ' + symbol.symbolName);
-    symInteger:   push(symbol.iValue);
-    symDouble:    push(symbol.dValue);
-    symBoolean:   push(symbol.bValue);
-    symString:    push(symbol.sValue);
-    symList:      push(symbol.lValue);
-    symArray:     push(symbol.aValue);
+    symUndefined:  raiseError('Variable has no assigned value: ' + symbol.symbolName);
+    symInteger:    push(symbol.iValue);
+    symDouble:     push(symbol.dValue);
+    symBoolean:    push(symbol.bValue);
+    symString:     push(symbol.sValue);
+    symList:       push(symbol.lValue);
+    symArray:      push(symbol.aValue);
     symVector:     push(symbol.vValue);
     symMatrix:     push(symbol.matValue);
+    symValueObject:push(symbol.voValue.getScalar());
     symUserFunc:  begin
                   symbol.fValue.moduleRef := module;
                   push(symbol.fValue);
@@ -1399,6 +1425,7 @@ var m : TModule;
     symbol : TSymbol;
     primary : PMachineStackRecord;
     f : TMethodDetails;
+    methodDetails : TMethodDetails;
 begin
   primary := pop();
   case primary.stackType of
@@ -1504,7 +1531,12 @@ stValueObject : begin
                  end
               else
                  raiseError('No method <' + symbolName + '> associated with object');
-              end
+              end;
+   stObjectMethod :
+             begin
+             methodDetails := primary.oValue;
+             push (methodDetails);
+             end
   else
      raiseError ('The attribute has no associated help. Only modules, functions, builtin constants, strings, arrays, matrices or lists have attributes');
   end;
@@ -1944,10 +1976,17 @@ end;
 
 // Call something like a.len()
 procedure TVM.callObjectMethod (actualNumArgs : integer; p : PMachineStackRecord);
+var argMsg : string;
 begin
   if p.oValue.nArgs <> VARIABLE_ARGS then
      if actualNumArgs <> p.oValue.nArgs then
-        raiseError ('Expecting ' + inttostr (p.oValue.nArgs) + ' arguments in function call [' + p.oValue.name + '] but received ' + inttostr (actualNumArgs) + ' arguments');
+        begin
+        if p.oValue.nArgs > 1 then
+           argMsg := ' arguments'
+        else
+           argMsg := ' argument';
+        raiseError ('Expecting ' + inttostr (p.oValue.nArgs) + argMsg + ' in function call [' + p.oValue.name + '] but received ' + inttostr (actualNumArgs) + ' arguments');
+        end;
 
   if p.oValue.nArgs = VARIABLE_ARGS then
      push(actualNumArgs);
@@ -1985,6 +2024,7 @@ var
   symTableCount : integer;
   p: PMachineStackRecord;
   oldModule : TModule;
+  argMsg : string;
 begin
   // Get the function object
   p := @stack[stackTop-actualNumArgs];
@@ -2006,9 +2046,15 @@ begin
   // number of arguments are avaiable to the function
   if expectedNumArgs <> VARIABLE_ARGS then
      if actualNumArgs <> expectedNumArgs then
-        raiseError ('Expecting ' + inttostr (functionObject.nArgs) + ' arguments in function call but received ' + inttostr (actualNumArgs) + ' arguments');
+        begin
+        if p.oValue.nArgs > 1 then
+           argMsg := ' arguments'
+        else
+           argMsg := ' argument';
+        raiseError ('Expecting ' + inttostr (p.oValue.nArgs) + argMsg + ' in function call [' + p.oValue.name + '] but received ' + inttostr (actualNumArgs) + ' arguments');
+        end;
 
-  // Support for special builtins, eg Math
+   // Support for special builtins, eg Math
   if functionObject.isBuiltInFunction then
      begin
      callBuiltIn (expectedNumArgs, actualNumArgs, functionObject);
@@ -2898,7 +2944,7 @@ begin
             oMult:       multOp;
             oDivide:     divOp;
             oDivi:       divideIntOp;
-            oDotProduct: dotProductOp;
+            oDotProduct: dotProductOp;  // To support the '@' operator, eg a@b
             oUmi:        unaryMinusOp;
             oMod:        modOp;
             oPower:      powerOp;

@@ -58,8 +58,37 @@ testUtils.beginTests ("Shape tests")
   testUtils.runtestTrue(a.shape() == [1,1])
 testUtils.endTests()
 
+a = array([1, 2, 3]); 
+b = array ([8, 6, 4])
+c = array ([9, 8, 7])
 
 
-setColor ("yellow")
-println ("----------------------------------------------------------")
-setColor ("white")
+testUtils.beginTests ("Complex Arithmetic")
+  testUtils.runtestTrue(a.len() == 3)  
+  testUtils.runtestTrue(a + b - c == array([0, 0, 0]))
+  a = array([1, 2, 3]); 
+  b = array([8, 6, 4])
+  c = array([-7, -4, -1])
+  testUtils.runtestTrue(a - b - c == array([0, 0, 0]))
+  a = array([1, 2, 3]); 
+  b = array([8, 6, 4]);
+  c = array([8, 12, 12])
+  testUtils.runtestTrue(a * b == c)  
+
+  a = array([[1,2,3],[4,5,6],[7,8,9]])
+  b = array([[4,5,6],[7,8,9],[10,11,12]])
+  c = array([[5,  7,  9],
+            [11, 13, 15],
+            [17, 19, 21]])
+  testUtils.runtestTrue(a + b == c)              
+
+  c = array([[-3,-3, -3],
+            [-3, -3, -3],
+            [-3, -3, -3]])
+  testUtils.runtestTrue(a - b == c)   
+
+  c = array([[4,  10,  18],
+            [28, 40, 54],
+            [70, 88, 108]])
+  testUtils.runtestTrue(a * b == c)  
+testUtils.endTests()

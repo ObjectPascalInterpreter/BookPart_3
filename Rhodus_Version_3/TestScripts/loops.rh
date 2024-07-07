@@ -146,7 +146,3 @@ testUtils.runtestTrue (principal == 805.255);
 testUtils.endTests()
 
 
-setColor ("yellow")
-println ("----------------------------------------------------------")
-setColor ("white")
-

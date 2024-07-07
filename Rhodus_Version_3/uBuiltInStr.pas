@@ -41,7 +41,7 @@ Uses System.Character, Math, uSymbolTable, uVM, uStringObject,
 
 constructor TBuiltInStr.Create;
 begin
-  inherited Create ('strings', THelp.Create ('String Module'));
+  inherited Create ('strings');
 
   addStringValue('ascii_lower',  'abcdefghijklmnopqrstuv', 'lower ascii characters', true);
   addStringValue('ascii_upper', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'upper ascii characters', true);

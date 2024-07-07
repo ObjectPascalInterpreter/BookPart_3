@@ -2,14 +2,17 @@ unit uStringObject;
 
 // This source is distributed under Apache 2.0
 
-// Copyright (C)  2019-2021 Herbert M Sauro
+// Copyright (C)  2019-2024 Herbert M Sauro
 
 // Author Contact Information:
 // email: hsauro@gmail.com
 
 interface
 
-uses Classes, uMemoryManager, uObjectSupport, uRhodusObject;
+uses Classes,
+     uMemoryManager,
+     uDataObjectMethods,
+     uDataObject;
 
 type
   TStringMethods = class (TMethodsBase)
@@ -26,7 +29,7 @@ type
      destructor  Destroy; override;
   end;
 
-  TStringObject = class (TRhodusObject)
+  TStringObject = class (TDataObject)
 
      value : string;
 
@@ -34,7 +37,7 @@ type
      class function  add (str1, str2 : TStringObject) : TStringObject;
      function        clone : TStringObject;
      constructor     createConstantObj (value : string);
-     function        getSize() : integer;
+     function        getSize() : integer; override;
      function        slice (lower, upper : integer) : TStringObject;
      constructor     Create (value : string);
      destructor      Destroy; override;
@@ -66,7 +69,7 @@ begin
   methodList.Add(TMethodDetails.Create ('right',   1, 'Returns the right n chars of a string: a.right (5)', right));
   methodList.Add(TMethodDetails.Create ('mid',     2, 'Returns a substring of string from start to count characters: a.mid (2, 4)', mid));
   methodList.Add(TMethodDetails.Create ('trim',    0, 'Removes any spaces from the start and end of the string: a.trim ()', trim));
-  methodList.Add(TMethodDetails.Create ('split',   1, 'Splits at a given character into a list of strings: a.split (",")', split));
+  methodList.Add(TMethodDetails.Create ('split',   1, 'Splits at a string at a given character into a list of strings: a.split (",")', split));
 end;
 
 

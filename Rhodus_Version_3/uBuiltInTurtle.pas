@@ -52,7 +52,7 @@ const
 
 constructor TBuiltInTurtle.Create;
 begin
-  inherited Create ('tt', THelp.Create ('Turtle Module'));
+  inherited Create ('tt');
 
   connectionMade := False;
 

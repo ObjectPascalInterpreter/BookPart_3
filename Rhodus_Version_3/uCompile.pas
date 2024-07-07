@@ -884,7 +884,7 @@ begin
         end;
 
   // Check if we're trying to load the same module into itself
-  if currentModule.name = node.importName then
+  if currentModule.moduleName = node.importName then
      raise ECompilerException.Create('Warning: Attempted import module <' + node.importName + '> into itself.', 0, 0);
 
   // Otherwise lets read it in

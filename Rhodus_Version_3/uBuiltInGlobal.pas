@@ -404,7 +404,7 @@ var f : TUserFunction;
     vo : TValueObject;
     key : string;
 begin
-  result := 'Module: ' + m.name + ', ' + m.help.getHelp() + sLineBreak;
+  result := 'Module: ' + m.moduleName + ', ' + m.help.getHelp() + sLineBreak;
   result := result + Format('%-12s%-12s%-11s%', ['Type', 'Name', 'Help']) + sLineBreak;
   for key in m.symbolTable.keys do
       begin
@@ -413,13 +413,13 @@ begin
              begin
              f := m.symbolTable.Items[key].fValue;
              result := result + Format('%-12s', ['Function:']) +
-                        Format('%-12s', [f.name])  +  f.help.getHelp() + sLineBreak;
+                        Format('%-12s', [f.methodName])  +  f.help.getHelp() + sLineBreak;
              end;
          symValueObject :
              begin
              vo := m.symbolTable.Items[key].voValue;
              result := result + Format('%-12s', ['Function:']) +
-                        Format('%-12s', [f.name])  +  f.help.getHelp() + sLineBreak;
+                        Format('%-12s', [f.methodName])  +  f.help.getHelp() + sLineBreak;
 
              end
       else
@@ -551,7 +551,7 @@ begin
     stFunction :
       begin
       if x.fValue.isbuiltInFunction then
-         TVM (vm).push (TStringObject.create (x.fValue.name + ' is a builtin function'))
+         TVM (vm).push (TStringObject.create (x.fValue.methodName + ' is a builtin function'))
       else
          TVM (vm).push (TStringObject.create (dissassemble (x.fValue.moduleRef, x.fValue.codeBlock)));
       end;

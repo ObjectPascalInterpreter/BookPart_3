@@ -67,7 +67,7 @@ Uses Math,
 
 constructor TBuiltInArray.Create;
 begin
-  inherited Create ('arrays', THelp.Create ('Array Module, deals with n-dimensional arrays'));
+  inherited Create ('arrays');
 
   addMethod(getMake,     1, 'make',  'Create an array of given length: ar = arrays.make (10, [10])');
   addMethod(getRange,    3, 'range', 'Create an array of evenly spaced values: ar = arrays.make (0, 5, 10)');

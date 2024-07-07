@@ -1340,7 +1340,7 @@ end;
 
 function TConstructAST.buildModuleAST(moduleName: string; var astRoot: TASTNode): TModuleLib;
 begin
-  result := TModulelib.Create(moduleName, THelp.Create (''));
+  result := TModulelib.Create(moduleName);
 
   sc.reset;
   sc.mode := vtReading;

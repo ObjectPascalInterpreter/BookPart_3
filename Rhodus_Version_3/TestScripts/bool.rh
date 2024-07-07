@@ -65,8 +65,3 @@ testUtils.beginTests ("Negation Tests")
   x = 3.4;
   testUtils.runtestTrue(x == 3.4);
 testUtils.endTests()
-
-setColor ("yellow")
-println ("----------------------------------------------------------")
-setColor ("white")
-

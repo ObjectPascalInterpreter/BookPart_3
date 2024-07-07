@@ -334,10 +334,6 @@ testUtils.runtestTrue (t2 (25) == [1,2,3,25])
 
 testUtils.endTests()
 
-setColor ("yellow")
-println ("----------------------------------------------------------")
-setColor ("white")
-
 
 /*------------------------------------
 /* There is no way to test memory leaks?

@@ -9,10 +9,11 @@ unit uArrayObject;
 
 interface
 
-uses Classes, uMemoryManager,
-     uObjectSupport,
-     uRhodusObject,
+uses Classes,
+     uMemoryManager,
+     uDataObjectMethods,
      Generics.Collections,
+     uDataObject,
      uRhodusTypes;
 
 type
@@ -25,7 +26,7 @@ type
 
   TArrayDataType = (adtInteger, adtDouble);
 
-  TArrayObject = class (TRhodusObject)
+  TArrayObject = class (TDataObject)
     private
     // dataType : TArrayDataType;
     function  arrayRecursiveToString (var Indices : TArray<integer>; depth : integer) : string;
@@ -34,6 +35,8 @@ type
      datai : TIntArray;
      dataf : TFloatArray;
      dim  : TIndexArray;
+
+     class var arrayMethods : TArrayMethods;
 
      function        getNumDimensions : integer;
      function        getIndex (const dim, idx : array of integer) : integer;
@@ -64,8 +67,8 @@ type
 
      procedure       append (mat : TArrayObject);
 
-    class function   toList (a : TArrayObject) : TRhodusObject;  // Due to circular reference issue
-    class function   toMatrix (a : TArrayObject) : TRhodusObject;
+    class function   toList (a : TArrayObject) : TDataObject;  // Due to circular reference issue
+    class function   toMatrix (a : TArrayObject) : TDataObject;
 
      class function  isEqualTo (a1, a2 : TArrayObject) : boolean;
      function        applyUniFunction (func : TUniFunction) : TArrayObject;
@@ -128,7 +131,7 @@ Uses SysUtils,
 const outOfRangeMsg = 'Index out of range while accessing array element';
       sameDimensionsMsg = 'Arrays must have the same dimensions';
 
-var arrayMethods : TArrayMethods;
+// var arrayMethods : TArrayMethods;
 
 constructor TArrayMethods.Create;
 begin
@@ -473,7 +476,7 @@ begin
   inherited Create;
 
   objectType := symArray;
-  self.methods := arrayMethods;
+  self.methods := TArrayObject.arrayMethods;
 end;
 
 
@@ -1055,7 +1058,7 @@ end;
 
 
 // This is a tough one.
-class function TArrayObject.toList (a : TArrayObject) : TRhodusObject;  // Due to circular reference issue
+class function TArrayObject.toList (a : TArrayObject) : TDataObject;  // Due to circular reference issue
 var i, j : integer;
     l : TListObject;
     item : TListItem;
@@ -1078,7 +1081,7 @@ begin
 end;
 
 
-class function TArrayObject.toMatrix (a : TArrayObject) : TRhodusObject;
+class function TArrayObject.toMatrix (a : TArrayObject) : TDataObject;
 begin
 
 end;
@@ -1106,9 +1109,11 @@ end;
 // -----------------------------------------------------------------------
 
 initialization
-   arrayMethods := TArrayMethods.Create;
+   TArrayObject.arrayMethods := TArrayMethods.Create;
+   //arrayMethods := TArrayMethods.Create;
 finalization
-   arrayMethods.Free;
+   TArrayObject.arrayMethods.free;
+   //arrayMethods.Free;
 end.
 
 

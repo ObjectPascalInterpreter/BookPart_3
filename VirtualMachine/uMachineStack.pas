@@ -9,13 +9,16 @@ unit uMachineStack;
 
 interface
 
-Uses Classes, SysUtils, uListObject, uStringObject,
+Uses Classes, SysUtils,
+     uListObject,
+     uStringObject,
      uArrayObject,
      uVectorObject,
      uValueObject,
      uMatrixObject,
      uSymbolTable,
-     uMemoryManager, uObjectSupport;
+     uMemoryManager,
+     uDataObjectMethods;
 
 type
   TStackType = (stNone, stInteger, stDouble, stBoolean, stString, stArray, stVector, stMatrix, stSymbol,

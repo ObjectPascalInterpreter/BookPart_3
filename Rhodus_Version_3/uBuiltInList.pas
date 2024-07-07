@@ -46,7 +46,7 @@ Uses Math,
 
 constructor TBuiltInList.Create;
 begin
-  inherited Create ('lists', THelp.Create ('List Module'));
+  inherited Create ('lists');
 
   addMethod(range,       3, 'range', 'Create a list based on the range arguments: l = lists.range (0, 10, 2)');
   addMethod(getRndu,     1, 'rndu',  'Create a list if uniformly random numbers: l = lists.rndu (10)');

@@ -1,0 +1,188 @@
+module
+math
+This is the math module
+startMethod
+method
+sin
+sin (int|float|array)
+It works out the sin
+x = math.sin (1.2)
+x = math.sin (math.pi)
+x = math.sin ([1,2,3])
+##########
+startMethod
+method
+cos
+cos (int|float|array))
+It works out the cos
+x = math.cos (1.2)
+x = math.cos (math.pi)
+x = math.cos ([1,2,3])
+##########
+startMethod
+method
+tan
+tan (int|float|array))
+It works out the tan
+x = math.tan (1.2)
+x = math.tan (math.pi)
+x = math.tan ([1,2,3])
+##########
+startMethod
+method
+asin
+asin (int|float|array))
+It works out the asin
+x = math.asin (1.2)
+x = math.asin (math.pi)
+x = math.asin ([1,2,3])
+##########
+startMethod
+method
+acos
+acos (int|float|array))
+It works out the acos
+x = math.acos (1.2)
+x = math.acos (math.pi)
+x = math.acos ([1,2,3])
+##########
+startMethod
+method
+atan
+atan (int|float|array))
+It works out the atan
+x = math.atan (1.2)
+x = math.atan (math.pi)
+x = math.atan ([1,2,3])
+##########
+startMethod
+method
+toDegrees
+toDegrees (int|float))
+Use this method to convert radians to degrees.
+x = math.toDegrees (math.pi)
+x = math.toDegrees (6.5)
+##########
+startMethod
+method
+toRadians
+toRadians(int|float))
+Use this method to convert degrees to radians.
+x = math.toRadians (90)
+x = math.toRadians (45)
+##########
+startMethod
+method
+sqr
+sqr(int|float))
+Computes the square of a number.
+x = math.sqr (9)
+##########
+startMethod
+method
+sqrt
+sqrt(int|float))
+Computes the square root of a number. Negative values are not supported.
+x = math.sqrt (9)
+##########
+startMethod
+method
+exp
+exp(int|float))
+Computes e raised to the power of a value
+x = math.exp (9)
+##########
+startMethod
+method
+ln
+ln(int|float))
+Computes the natural logarithm of a value.
+x = math.ln (9)
+##########
+startMethod
+method
+log
+log(int|float))
+Computes the logarithm to base 10 of a value
+x = math.llog (1000)
+##########
+startMethod
+method
+abs
+abs(int|float))
+Returns the absolute value of a number.
+x = math.abs (9)
+##########
+startMethod
+method
+round
+round(int|float))
+Returns a value to the nearest whole number.
+x = math.abs (2.3)
+##########
+startMethod
+method
+ceil
+ceil(int|float))
+Rounds variables up toward positive infinity.
+x = math.ceil (4.3)
+##########
+startMethod
+method
+floor
+floor(int|float))
+Returns the largest integer less than or equal to a given number.
+x = math.floor (4.3)
+##########
+startMethod
+method
+trunc
+trunc(int|float))
+Returns the integer part of floating point number.
+x = math.trunc (4.3)
+##########
+startMethod
+method
+max
+max(int|float))
+Returns the maximunm of two numbers
+x = math.max (2,4)
+##########
+startMethod
+method
+min
+min(int|float))
+Returns the minimum of two numbers.
+x = math.min (4, 3)
+##########
+startMethod
+value
+pi
+Returns the value of pi
+x = math.pi
+##########
+startMethod
+value
+eps
+Values below this are considered zero.
+x = math.eps
+##########
+module
+random
+This is the random module
+startMethod
+method
+seed
+seed()
+Set the seed for the random number generator
+seed (23)
+##########
+startMethod
+method
+random
+random()
+Return a uniformly distributed random number:
+random()
+##########
+end
+

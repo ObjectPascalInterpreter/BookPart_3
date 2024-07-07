@@ -60,6 +60,7 @@ Uses Math,
      uStringObject,
      uListObject,
      uValueObject,
+     uMatrixObject,
      uMachineStack,
      uVMExceptions,
      uMemoryManager;
@@ -71,60 +72,40 @@ begin
   raise ERuntimeException.Create('Argument to math function <' + functionName + '> can only be an integer, double or an array');
 end;
 
-function helpSin : THelp;
-begin
-  result := THelp.Create ('Math', 'sin', 'sin (int|float|array)',
-         'Returns the sine of a radian value',
-         ['x = math.sin (0.5)', 'y = math.sin (math.pi)', 'w = math.sin (array([1,2,3]))']);
-end;
 
-function helpCos : THelp;
-begin
-  result := THelp.Create ('Math', 'cos', 'cos (int|float|array)',
-         'Returns the cosine of a radian value',
-         ['x = math.cos (0.5)', 'y = math.cos (math.pi)', 'w = math.cos (array([1,2,3]))']);
-end;
-
-function helpPi : THelp;
-begin
-  result := THelp.Create ('Math', 'pi', 'p',
-         'Returns the value of pi',
-         ['x = math.pi']);
-end;
 
 constructor TBuiltInMath.Create;
 begin
-  inherited Create ('math', THelp.Create ('Math', 'The Builtin Math Module'));
+  inherited Create ('math');
 
-  addMethod (getSin,   1, 'sin',    helpSin);
-  addMethod (getCos,   1, 'cos',    helpCos);
-  addmethod (getTan,   1, 'tan',    'Computes tangent of a radian angle: tan (x)');
-  addMethod (getASin,  1, 'asin',   'Returns in radians the arcsine of a value: asin (1.2)');
-  addMethod (getACos,  1, 'acos',   'Returns in radians the arccosine of a value: acos (1.2)');
-  addmethod (getATan,  1, 'atan',   'Computes in radians arctangent of a angle: atan (x)');
+  addMethod (getSin,   1, 'sin');
+  addMethod (getCos,   1, 'cos');
+  addmethod (getTan,   1, 'tan');
+  addMethod (getASin,  1, 'asin');
+  addMethod (getACos,  1, 'acos');
+  addmethod (getATan,  1, 'atan');
 
-  addmethod (getDegrees, 1, 'toDegrees',  'Converts radians to degrees: toDegrees(radians)');
-  addmethod (getRadians, 1, 'toRadians',  'Converts degrees to radians: toRadians(degrees)');
+  addmethod (getDegrees, 1, 'toDegrees');
+  addmethod (getRadians, 1, 'toRadians');
 
-  addMethod (getSqr,   1, 'sqr',   'Computes the square number or array: sqr (5)');
-  addMethod (getSqrt,  1, 'sqrt',  'Computes the square root of a number or array. Negative values are not supported: sqrt (9)');
-  addMethod (getExp,   1, 'exp',   'Computes e raised to the power of a value: exp (10)');
-  addMethod (getLn,    1, 'ln',    'Computes the natural logarithm of a value: ln (123)');
-  addMethod (getLog10, 1, 'log',   'Computes the logarithm to base 10 of a value: log (1000)');
-  addMethod (getAbs,   1, 'abs',   'Returns the absolute value of a number:: abs (-1.2)');
-  addMethod (getRound, 1, 'round', 'Returns a value to the nearest whole number: round (3.4)');
-  addMethod (getCeil,  1, 'ceil',  'Rounds variables up toward positive infinity: ceil (-1.2)');
-  addMethod (getFloor, 1, 'floor', 'Returns the largest integer less than or equal to a given number: floor (2.3');
-  addMethod (getTrunc, 1, 'trunc', 'Returns the integer part of floating point number: trunc (3.13)');
-  addMethod (getMax,   2, 'max',   'Returns the maximunm of two numbers: max (3, 5)');
-  addMethod (getMin,   2, 'min',   'Returns the minimum of two numbers: min (3, 5)');
-  //addMethod (getEpsilon, 'Values below this are considered zero', False);
+  addMethod (getSqr,   1, 'sqr');
+  addMethod (getSqrt,  1, 'sqrt');
+  addMethod (getExp,   1, 'exp');
+  addMethod (getLn,    1, 'ln');
+  addMethod (getLog10, 1, 'log');
+  addMethod (getAbs,   1, 'abs');
+  addMethod (getRound, 1, 'round');
+  addMethod (getCeil,  1, 'ceil');
+  addMethod (getFloor, 1, 'floor');
+  addMethod (getTrunc, 1, 'trunc');
+  addMethod (getMax,   2, 'max');
+  addMethod (getMin,   2, 'min');
 
   //addMethod (getComb,  2, 'comb',   'Returns the number of ways to choose k items from n items without repetition or order: comb (5, 2)');
 
-  addObjectValue ('pi', TValueObject.Create (Pi), helpPi, True);    // True = locked
-  addObjectValue ('e', TValueObject.Create (exp(1)), THelp.Create ('The value of e'), True);
-  addObjectValue ('eps', TValueObject.Create (default_epsilon), THelp.Create ('Values below this are considered zero'), False);
+  addObjectValue ('pi', TValueObject.Create (Pi), True);    // True = locked
+  addObjectValue ('e', TValueObject.Create (exp(1)), True);
+  addObjectValue ('eps', TValueObject.Create (default_epsilon), False);
 end;
 
 
@@ -136,6 +117,8 @@ begin
        stInteger : TVM (vm).push(sin (st.iValue));
        stDouble  : TVM (vm).push (sin (st.dValue));
        stValueObject : TVM (vm).push (sin (TValueObject.getValue(st.voValue)));
+       stMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.mValue, sin));
+
        stArray   : begin
                    TVM (vm).push(st.aValue.applyUniFunction(sin));
                    end
@@ -153,6 +136,7 @@ begin
        stInteger : TVM (vm).push(cos (st.iValue));
        stDouble : TVM (vm).push (cos (st.dValue));
        stValueObject : TVM (vm).push (cos (TValueObject.getValue(st.voValue)));
+       stMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.mValue, cos));
        stArray : begin
                  TVM (vm).push(st.aValue.applyUniFunction(cos));
                  end
@@ -170,6 +154,8 @@ begin
        stInteger : TVM (vm).push(tan (st.iValue));
        stDouble : TVM (vm).push (tan (st.dValue));
        stValueObject : TVM (vm).push (tan (TValueObject.getValue(st.voValue)));
+      stMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.mValue, tan));
+
        stArray : begin
                  TVM (vm).push(st.aValue.applyUniFunction(tan));
                  end
@@ -187,6 +173,7 @@ begin
        stInteger : TVM (vm).push(arcsin (st.iValue));
        stDouble : TVM (vm).push (arcsin (st.dValue));
   stValueObject : TVM (vm).push (arcsin (TValueObject.getValue(st.voValue)));
+      stMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.mValue, arcsin));
        stArray : begin
                  TVM (vm).push(st.aValue.applyUniFunction(arcsin));
                  end
@@ -204,6 +191,8 @@ begin
        stInteger : TVM (vm).push(arccos (st.iValue));
        stDouble : TVM (vm).push (arccos (st.dValue));
        stValueObject : TVM (vm).push (arccos (TValueObject.getValue(st.voValue)));
+      stMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.mValue, arccos));
+
        stArray : begin
                  TVM (vm).push(st.aValue.applyUniFunction(arccos));
                  end
@@ -221,6 +210,7 @@ begin
        stInteger : TVM (vm).push(arctan (st.iValue));
        stDouble : TVM (vm).push (arctan (st.dValue));
        stValueObject : TVM (vm).push (arctan (TValueObject.getValue(st.voValue)));
+       stMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.mValue, arctan));
        stArray : begin
                  TVM (vm).push(st.aValue.applyUniFunction(arctan));
                  end
@@ -238,6 +228,8 @@ begin
        stInteger : TVM (vm).push(sqrt (st.iValue));
        stDouble : TVM (vm).push (sqrt (st.dValue));
        stValueObject : TVM (vm).push (sqrt (TValueObject.getValue(st.voValue)));
+      stMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.mValue, sqrt));
+
        stArray : begin
                  TVM (vm).push(st.aValue.applyUniFunction(sqrt));
                  end
@@ -261,6 +253,8 @@ begin
        stInteger : TVM (vm).push(sqr (st.iValue));
        stDouble : TVM (vm).push (sqr (st.dValue));
        stValueObject : TVM (vm).push (sqr (TValueObject.getValue(st.voValue)));
+      stMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.mValue, dsqr));
+
        stArray : begin
                  TVM (vm).push(st.aValue.applyUniFunction(dSqr));
                  end
@@ -278,6 +272,8 @@ begin
        stInteger : TVM (vm).push(exp (st.iValue));
        stDouble : TVM (vm).push (exp (st.dValue));
        stValueObject : TVM (vm).push (exp (TValueObject.getValue(st.voValue)));
+      stMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.mValue, exp));
+
        stArray : begin
                  TVM (vm).push(st.aValue.applyUniFunction(exp));
                  end
@@ -295,6 +291,8 @@ begin
        stInteger : TVM (vm).push(ln (st.iValue));
        stDouble : TVM (vm).push (ln (st.dValue));
        stValueObject : TVM (vm).push(ln (st.voValue.dValue));
+       stMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.mValue, ln));
+
        stArray : begin
                  TVM (vm).push(st.aValue.applyUniFunction(ln));
                  end
@@ -312,6 +310,8 @@ begin
        stInteger : TVM (vm).push(log10 (st.iValue));
        stDouble : TVM (vm).push (log10 (st.dValue));
        stValueObject : TVM (vm).push (log10 (TValueObject.getValue(st.voValue)));
+      stMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.mValue, log10));
+
        stArray : begin
                  TVM (vm).push(st.aValue.applyUniFunction(log10));
                  end
@@ -339,6 +339,8 @@ begin
        stInteger : TVM (vm).push(iabs (st.iValue));
        stDouble : TVM (vm).push (dAbs (st.dValue));
        stValueObject : TVM (vm).push (dAbs (TValueObject.getValue(st.voValue)));
+      stMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.mValue, dabs));
+
        stArray : begin
                  TVM (vm).push(st.aValue.applyUniFunction(dabs));
                  end
@@ -361,6 +363,8 @@ begin
        stInteger : TVM (vm).push(round (st.iValue));
        stDouble : TVM (vm).push (round (st.dValue));
        stValueObject : TVM (vm).push (dround (TValueObject.getValue(st.voValue)));
+      stMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.mValue, dRound));
+
        stArray : begin
                  TVM (vm).push(st.aValue.applyUniFunction(dRound));
                  end
@@ -383,6 +387,8 @@ begin
        stInteger : TVM (vm).push(ceil (st.iValue));
        stDouble : TVM (vm).push (ceil (st.dValue));
        stValueObject : TVM (vm).push (ceil (TValueObject.getValue(st.voValue)));
+      stMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.mValue, dCeil));
+
        stArray : begin
                  TVM (vm).push(st.aValue.applyUniFunction(dCeil));
                  end
@@ -406,6 +412,8 @@ begin
        stInteger : TVM (vm).push(floor (st.iValue));
        stDouble : TVM (vm).push (floor (st.dValue));
        stValueObject : TVM (vm).push (floor (TValueObject.getValue(st.voValue)));
+      stMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.mValue, dFloor));
+
        stArray : begin
                  TVM (vm).push(st.aValue.applyUniFunction(dFloor));
                  end
@@ -429,6 +437,8 @@ begin
        stInteger : TVM (vm).push(trunc (st.iValue));
        stDouble : TVM (vm).push (trunc (st.dValue));
        stValueObject : TVM (vm).push (trunc (TValueObject.getValue(st.voValue)));
+      stMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.mValue, dtrunc));
+
        stArray : begin
                  TVM (vm).push(st.aValue.applyUniFunction(dTrunc));
                  end

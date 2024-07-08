@@ -1,4 +1,4 @@
-module
+---------- module
 math
 This is the math module
 startMethod
@@ -167,7 +167,7 @@ eps
 Values below this are considered zero.
 x = math.eps
 ##########
-module
+---------- module
 random
 This is the random module
 startMethod
@@ -180,9 +180,110 @@ seed (23)
 startMethod
 method
 random
+randm()
+Return a uniformly distributed random number
 random()
-Return a uniformly distributed random number:
-random()
+##########
+---------- module
+strings
+This is the string module
+startMethod
+method
+str
+str(string)
+Converts a string into a number
+value = strings.str ("1.23")
+##########
+startMethod
+method
+val
+val(int|double)
+Converts a number into a string
+astr = strings.val(23)
+##########
+startMethod
+method
+format
+format(int|double, string)
+Formats a number and returns a string
+astr = strings.format (2.3456, "%3.2f")
+##########
+startMethod
+value
+ascii_lower
+Returns the lower ascii characters as a string
+x = strings.ascii_lower
+##########
+startMethod
+value
+ascii_upper
+Returns the upper ascii characters as a string
+x = strings.ascii_upper
+##########
+startMethod
+value
+digits
+Returns the digit characters as a string
+x = strings.digits
+##########
+---------- module
+sys
+This is the sys module
+startMethod
+value
+version
+Returns the current verison of the interpreter
+x = sys.version
+##########
+startMethod
+value
+doubleFormat
+Default output format string for double values
+x = sys.doubleFormat
+##########
+startMethod
+value
+integerFormat
+Default output format string for integer values
+x = sys.integerFormat
+##########
+startMethod
+value
+argv
+The list of command line arguments passed
+x = sys.argv
+##########
+startMethod
+value
+path
+Search path for Rhodus import libraries
+x = sys.path
+##########
+---------- module
+lists
+This is the lists module
+startMethod
+method
+range
+range(start, finish, stepsize)
+Create a list based on the range arguments
+l = lists.range (0, 10, 0.5)
+##########
+startMethod
+method
+rndu
+rndu(integer)
+Create a list of uniformly randomly distributed floats between 0 and 1. 
+l = lists.rndu (10)
+##########
+startMethod
+method
+rndi
+rndi(lower : integer, upper : integer, number of elements : integer)
+Create a list of random uniformly distributed integers.
+l = lists.rndi (lower, upper, number)
+l = lists.rndi (0, 10, 5)
+l = lists.rndi (5, 10, 20)
 ##########
 end
 

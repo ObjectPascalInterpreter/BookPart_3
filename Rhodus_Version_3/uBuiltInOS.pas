@@ -29,7 +29,6 @@ type
   end;
 
   TBuiltInTime = class (TModuleLib)
-
      lFreq : int64;
      procedure getTimeSeconds (vm : TObject);
      constructor Create;
@@ -53,7 +52,6 @@ begin
 
   addMethod (getpwd, 0, 'getcwd', 'Return the path to the current working directory');
   addMethod (setpwd, 1, 'setcwd', 'Sets the current wroking dirctory');
-  //addMethod ();
 end;
 
 

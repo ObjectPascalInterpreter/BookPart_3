@@ -24,8 +24,8 @@ type
 
     procedure   addMethod(methodPtr : TxBuiltInFunction; nArgs : integer; methodName, helpStr : string); overload;
     procedure   addMethod (methodPtr : TxBuiltInFunction; nArgs : integer; methodName : string);  overload;
-    procedure   addStringValue (name, value, helpStr : string; locked : boolean);
-    procedure   addListValue  (name : string; value : TListObject; helpStr : string; locked : boolean);
+    procedure   addStringValue (name, value : string; locked : boolean);
+    procedure   addListValue  (name : string; value : TListObject; locked : boolean);
     procedure   addObjectValue (name : string; value : TValueObject; locked : boolean);
 
     procedure   findSymbol (vm : TObject);
@@ -55,18 +55,22 @@ begin
   // Add the builtin default methods every module has
 
   f := TUserFunction.Create('dir', 0, callDir);
-  //f.helpStr := 'Get a list of the supported methods and values';
+  f.moduleRef := self;
+  f.help := THelp.Create ('Get a list of the supported methods and values');
   self.symbolTable.addSymbol (f, True); // // locked = True
 
   f := TUserFunction.Create ('contains', 1, callContains);
-  //f.helpStr := 'Returns true if the module includes the given symbol, e.g math.contains ("cos")';
+  f.moduleRef := self;
+  f.help := THelp.Create ('Returns true if the module includes the given symbol, e.g math.contains ("cos")');
   self.symbolTable.addSymbol (f, True); // // locked = True
 
   f := TUserFunction.Create ('find', 1, findSymbol);
-  //f.helpStr := 'Returns true if the module includes the given symbol, e.g math.contains ("cos")';
+  f.moduleRef := self;
+  f.help := THelp.Create ('Returns true if the module contains the symbol e.g math.find ("cos")');
   self.symbolTable.addSymbol (f, True); // // locked = True
 
   f := TUserFunction.Create ('help', 0, getHelp);
+  f.moduleRef := self;
   self.symbolTable.addSymbol (f, True); // // locked = True
 end;
 
@@ -166,15 +170,15 @@ begin
 end;
 
 
-procedure TModuleLib.addListValue  (name : string; value : TListObject; helpStr : string; locked : boolean);
+procedure TModuleLib.addListValue  (name : string; value : TListObject; locked : boolean);
 begin
-  self.symbolTable.addSymbol(name, value, locked, helpStr);
+  self.symbolTable.addSymbol(name, value, locked, THelp.CreateValue (moduleName, name));
 end;
 
 
-procedure TModuleLib.addStringValue (name, value, helpStr : string; locked : boolean);
+procedure TModuleLib.addStringValue (name, value : string; locked : boolean);
 begin
-  self.symbolTable.addSymbol(name, TStringObject.Create (value), locked, helpStr);
+  self.symbolTable.addSymbol(name, TStringObject.Create (value), locked, THelp.CreateValue (moduleName, name));
 end;
 
 

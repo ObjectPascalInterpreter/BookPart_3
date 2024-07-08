@@ -53,9 +53,9 @@ type
 implementation
 
 Uses Math,
+     uVM,
      uRhodusTypes,
      uSymbolTable,
-     uVM,
      uStringObject,
      uListObject,
      uArrayObject,
@@ -71,10 +71,10 @@ begin
 
   addMethod(getMake,     1, 'make',  'Create an array of given length: ar = arrays.make (10, [10])');
   addMethod(getRange,    3, 'range', 'Create an array of evenly spaced values: ar = arrays.make (0, 5, 10)');
-  addMethod(getRndu,    VARIABLE_ARGS, 'rand',  'Create an array of uniformly random numbers: ar = arrays.rand (4,4,2)');
+  addMethod(getRndu,    VARIABLE_ARGS, 'rand',  'Create an array of given dimensions of uniformly random numbers: ar = arrays.rand (4,4,2)');
   addMethod(getRndi,     3, 'randi', 'Create a list of uniformly random integers: ar = arrays.randi (lower, upper, [3,3])');
   addMethod(isEqual,     2, 'equal', 'Return true if the two arrays are equal: arrays.equal (m1,m2)');
-  addMethod(isEqual,     2, 'appendrow', 'Return true if the two arrays are equal: arrays.equal (m1,m2)');
+  //addMethod(isEqual,     2, 'appendrow', 'Return true if the two arrays are equal: arrays.equal (m1,m2)');
   end;
 
 
@@ -146,37 +146,39 @@ end;
 
 procedure TBuiltInArray.getRange (vm : TObject);
 var start, finish : double;
-    numberOfElements, i : integer;
-    hstep : double;
-    r : double;
+    i, n : integer;
+    step : double;
     ar: TArrayObject;
 begin
-  numberOfElements := TVM (vm).popInteger;
+  step := TVM (vm).popScalar;
+  if step < 0 then
+     TVM (vm).raiseError('Step size must be positive in range function');
+
   finish := TVM (vm).popScalar;
   start := TVM (vm).popScalar;
 
-  hstep := (finish-start)/numberOfElements;
+  n := Trunc((finish - start) / step) + 1;
 
-  r := start;
+  ar := TArrayObject.Create (n);
 
-  ar := TArrayObject.Create (numberOfElements);
-
-  for i := 0 to numberOfElements - 1 do
-     begin
-      ar.setValue1D(i, r);
-      r := r + hstep;
-     end;
+  i := 0;
+  while start <= finish do
+    begin
+    ar.setValue1D(i, start);
+    start := start + step;
+    inc(i);
+    end;
   TVM (vm).push(ar);
 end;
 
 
 procedure TBuiltInArray.isEqual (vm : TObject);
-var m1, m2 : TArrayObject;
+var a1, a2 : TArrayObject;
 begin
-  m2 := TVM (vm).popArray;
-  m1 := TVM (vm).popArray;
+  a2 := TVM (vm).popArray;
+  a1 := TVM (vm).popArray;
 
- TVM (vm).push(TArrayObject.isEqualTo(m1, m2));
+ TVM (vm).push(TArrayObject.isEqualTo(a1, a2));
 end;
 
 end.

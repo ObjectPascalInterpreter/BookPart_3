@@ -38,7 +38,6 @@ type
   end;
 
   TValueMethods = class (TMethodsBase)
-     //procedure   getHelp (vm : TObject);
      constructor Create;
      destructor  Destroy; override;
   end;

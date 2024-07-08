@@ -91,7 +91,7 @@ type
    TSymbol = class (TObject)
        symbolType : TSymbolElementType;
        symbolName : string;
-       //helpStr : string;
+       helpStr : string;
        locked  : boolean;  // If true, symbol is read only
 
        // The following fields could be replaced with a single
@@ -131,8 +131,8 @@ type
         function  addModule (mValue : TModule) : TSymbol;
         function  addSymbol (name : string) : TSymbol; overload;
         procedure addSymbol (name : string; dValue : double;  locked : boolean; helpStr : string); overload;
-        procedure addSymbol (name : string; sValue : TStringObject; locked : boolean; helpStr : string); overload;
-        procedure addSymbol (name : string; lValue : TListObject; locked : boolean; helpStr : string); overload;
+        procedure addSymbol (name : string; sValue : TStringObject; locked : boolean; help : THelp); overload;
+        procedure addSymbol (name : string; lValue : TListObject; locked : boolean; help : THelp); overload;
         procedure addSymbol (name : string; aValue : TArrayObject; locked : boolean; helpStr : string); overload;
         procedure addSymbol (name : string; vValue : TVectorObject; locked : boolean; helpStr : string); overload;
         procedure addSymbol (name : string; matValue : TMatrixObject; locked : boolean; helpStr : string); overload;
@@ -609,20 +609,20 @@ begin
 end;
 
 
-procedure TSymbolTable.addSymbol (name : string; lValue : TListObject; locked : boolean; helpStr : string);
+procedure TSymbolTable.addSymbol (name : string; lValue : TListObject; locked : boolean; help : THelp);
 var symbol : TSymbol;
 begin
   symbol := TSymbol.Create;
   symbol.lValue := lValue;
   symbol.symbolName := name;
   symbol.symbolType := symList;
-  //symbol.helpStr := helpStr;
+  symbol.lValue.help := help;
   symbol.locked := locked;;
   Add (name, symbol);
 end;
 
 
-procedure TSymbolTable.addSymbol (name : string; sValue : TStringObject; locked : boolean; helpStr : string);
+procedure TSymbolTable.addSymbol (name : string; sValue : TStringObject; locked : boolean; help : THelp);
 var symbol : TSymbol;
 begin
   symbol := TSymbol.Create;
@@ -630,7 +630,7 @@ begin
   symbol.sValue.blockType := btBound;  // protect the string object from the garbage collector.
   symbol.symbolName := name;
   symbol.symbolType := symString;
-  //symbol.helpStr := helpStr;
+  symbol.sValue.help := help;
   symbol.locked := locked;;
   Add (name, symbol);
 end;
@@ -772,6 +772,7 @@ begin
 
   symbol.iValue := iValue;
   symbol.symbolType := symInteger;
+  symbol.helpStr := 'This is an integer value';
 end;
 
 

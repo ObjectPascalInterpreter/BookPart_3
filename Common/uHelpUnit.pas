@@ -214,7 +214,7 @@ begin
        if methodName <> '' then
           result := result + 'Method: ' + methodName;
        if moduleName <> '' then
-       result := result + ' in module ' + moduleName + sLineBreak + sLineBreak;
+       result := result + ' in module: ' + moduleName + sLineBreak + sLineBreak;
        if signature <> ''  then
           result := result + '' + signature + sLineBreak;
        result := result + '   ' + description;
@@ -227,7 +227,7 @@ begin
        end;
      htValue:
        begin
-       result := 'Value: ' + methodName + ' in module ' + moduleName + sLineBreak + sLineBreak;
+       result := 'Value in module: ' + moduleName + sLineBreak + sLineBreak;
        result := result + '   ' + description;
        result := result + sLineBreak + sLineBreak + 'Examples:';
        for i := 0 to length (examples) - 1 do
@@ -400,6 +400,7 @@ begin
 end;
 
 
+ // --------------------------------------------------------------------
 
 
 procedure THelpDb.parseModule (var modules : THModules);
@@ -475,7 +476,7 @@ begin
   position := 0; numModules := 1;
   while True do
      begin
-     if alist[position] = 'module' then
+     if alist[position] = '---------- module' then
         begin
         parseModule (result);
         inc (numModules);
@@ -595,7 +596,7 @@ finalization
 end.
 
 
-//module
+//---------- module
 //math
 //This is the math module
 //startMethod
@@ -606,7 +607,7 @@ end.
 //x = math.sin (1.2)
 //x = math.sin (math.pi)
 //x = math.sin ([1,2,3])
-//#
+//##########
 //startMethod
 //method
 //cos
@@ -615,14 +616,14 @@ end.
 //x = math.cos (1.2)
 //x = math.cos (math.pi)
 //x = math.cos ([1,2,3])
-//#
+//##########
 //startMethod
 //value
 //pi
 //Returns the value of pi
 //x = math.pi
-//#
-//module
+//##########
+//---------- module
 //random
 //This is the random module
 //startMethod
@@ -631,14 +632,13 @@ end.
 //seed()
 //Set the seed for the random number generator
 //seed (23)
-//#
+//##########
 //startMethod
 //method
 //random
 //random()
 //Return a uniformly distributed random number:
 //random()
-//#
+//##########
 //end
-//
 

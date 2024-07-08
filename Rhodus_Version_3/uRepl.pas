@@ -65,67 +65,6 @@ begin
 end;
 
 
-function searchHelp (const helpStr : string) : string;
-var astr : TArray<string>;
-    symbol1, symbol2: TSymbol;
-begin
-  // Search places for any help for things of the form X or X.Y
-  astr := SplitString(helpStr, '.');
-  if length (astr) = 1 then  // then its just X
-     begin
-     // Check first if its in _main_
-     // Its either in the global space or its a module name
-     if mainModule.symbolTable.find(astr[0], symbol1) then
-        begin
-        if symbol1.symbolType = symModule then
-           result := symbol1.mValue.help.getHelp()
-        else
-           begin
-           result := symbol1.toString;
-           end;
-        end
-     else
-        begin
-        // Check the global space
-        if mainModule.symbolTable.find(TSymbol.globalId, symbol1) then
-           begin
-           if symbol1.mValue.symbolTable.find(astr[0], symbol2) then
-              begin
-              result := symbol2.fValue.help.getHelp();
-              end
-           else
-              result := 'Unable to locate symbol';
-           end
-        else
-           result := 'Unable to locate symbol';
-         end;
-     end
-  else
-     begin
-     if length (astr) = 2 then
-        begin
-        if mainModule.symbolTable.find(astr[0], symbol1) then
-           begin
-           if symbol1.symbolType = symModule then
-              begin
-              if symbol1.mValue.symbolTable.find (astr[1], symbol2)  then
-                 case symbol2.symbolType of
-                     symUserFunc : result := symbol2.fValue.help.getHelp();
-                     symValueObject : result := symbol2.voValue.help.getHelp();
-                 else
-                    result := 'There is no help for these kinds of objects'; // HMS symbol2.helpStr
-                 end;
-              end;
-           end
-        else
-           result := 'Unable to locate the module: ' + astr[0];
-        end
-     else
-        result := 'Don''t know how to search for what you indicated: "' + helpstr + '"';
-     end;
-end;
-
-
 // Extract string up to first space, if no space found return entire string
 function getCommand (src : string) : string;
 var index : integer;
@@ -159,13 +98,6 @@ begin
    if listOfCommands.find (getCommand (src), index) then
       begin
       listOfCommands[index].fcn (getArgument (src));
-      exit (True);
-      end;
-
-   if leftstr (src, 1) = '?' then
-      begin
-      helpStr := rightStr (src, length (src) - 1);
-      writeln (searchHelp (helpStr));
       exit (True);
       end;
 

@@ -69,9 +69,9 @@ var argv : TListObject;
 begin
   inherited Create ('sys');
 
-  addStringValue ('version',  string (uBuiltInConfig.RHODUS_VERSION), 'returns the current version number for Rhodus', True);
-  addStringValue ('doubleFormat',  TBuiltInSys.defaultDoubleFormat, 'default output format string for double values', False);
-  addStringValue ('integerFormat',  TBuiltInSys.defaultIntegerFormat, 'default output format string for integer values', False);
+  addStringValue ('version',  string (uBuiltInConfig.RHODUS_VERSION), True);//'returns the current version number for Rhodus', True);
+  addStringValue ('doubleFormat',  TBuiltInSys.defaultDoubleFormat, True);//'default output format string for double values', False);
+  addStringValue ('integerFormat',  TBuiltInSys.defaultIntegerFormat, True);//'default output format string for integer values', False);
 
   argv := TListObject.Create(0);
   for var i := 0 to ParamCount do
@@ -81,9 +81,9 @@ begin
       end;
   argv.blockType := btBound;   // To make sure the garbage collector doesn't get it.
 
-  addListValue ('argv', argv, 'The list of command line arguments passed', True);
+  addListValue ('argv', argv, True);//'The list of command line arguments passed', True);
 
-  addListValue ('path', path, 'Search path for Rhodus import libraries', True);
+  addListValue ('path', path, True);//'Search path for Rhodus import libraries', True);
 
   addMethod (setRecursionLimit,  1, 'setRecursionLimit', 'Set the function recursion limit');
   addMethod (getRecursionLimit,  0, 'getRecursionLimit', 'Get the current function recursion limit');

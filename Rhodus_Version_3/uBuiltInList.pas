@@ -4,7 +4,7 @@ unit uBuiltInList;
   Unit:    uBuiltInList.pas
   Author:  Herbert M sauro
   Date:    10/2021
-  Purpose: This file implements the List type for the Rhodus interpreter.
+  Purpose: This file implements the List library for the Rhodus interpreter.
 
   Ths source is distributed under Apache 2.0
   See https://www.apache.org/licenses/LICENSE-2.0.txt for further information
@@ -21,8 +21,7 @@ Uses SysUtils, Classes, uLibModule;
 
 type
   TBuiltInList = class (TModuleLib)
-
-     procedure   range (vm : TObject);
+     procedure   getRange (vm : TObject);
      procedure   getRndu (vm : TObject);
      procedure   getRndi (vm : TObject);
      constructor Create;
@@ -33,8 +32,8 @@ type
 implementation
 
 Uses Math,
-     uSymbolTable,
      uVM,
+     uSymbolTable,
      uStringObject,
      uListObject,
      uMachineStack,
@@ -48,9 +47,9 @@ constructor TBuiltInList.Create;
 begin
   inherited Create ('lists');
 
-  addMethod(range,       3, 'range', 'Create a list based on the range arguments: l = lists.range (0, 10, 2)');
-  addMethod(getRndu,     1, 'rndu',  'Create a list if uniformly random numbers: l = lists.rndu (10)');
-  addMethod(getRndi,     3, 'rndi',  'Create a list if uniformly random integer: l = lists.rndi (lower, upper, number)');
+  addMethod(getRange,    3, 'range'); // l = lists.range (0, 10, 2)');
+  addMethod(getRndu,     1, 'rndu'); // l = lists.rndu (10)');
+  addMethod(getRndi,     3, 'rndi'); // l = lists.rndi (lower, upper, number)');
 end;
 
 
@@ -60,22 +59,28 @@ begin
 end;
 
 
-procedure TBuiltInList.range (vm : TObject);
+procedure TBuiltInList.getRange (vm : TObject);
 var start, finish, step : double;
-    n : integer;
+    n, i : integer;
     alist : TListObject;
 begin
- step := TVM(vm).popScalar;
- finish := TVM(vm).popScalar;
- start := TVM(vm).popScalar;
- n := trunc ((finish - start)/step);
- alist := TListObject.Create(n);
- for var i := 0 to n - 1 do
-     begin
-     alist.list[i].dValue := start;
-     alist.list[i].itemType := liDouble;
-     start := start + step
-     end;
+  step := TVM(vm).popScalar;
+  if step < 0 then
+     TVM (vm).raiseError('Step size must be positive in range function');
+
+  finish := TVM(vm).popScalar;
+  start := TVM(vm).popScalar;
+  n := Trunc((finish - start) / step) + 1;
+
+  alist := TListObject.Create(n);
+  i := 0;
+  while start <= finish do
+  begin
+    alist.list[i].setDouble(start);
+    start := start + step;
+    Inc(i);
+  end;
+
  TVM (vm).push(alist);
 end;
 
@@ -86,6 +91,9 @@ var n : integer;
     i : integer;
 begin
   n := TVM (vm).popInteger;
+  if n <= 0 then
+     TVM (vm).raiseError('argument to randu cannot be zero or negative');
+
   l := TListObject.Create (n);
   for i := 0 to n - 1 do
       begin
@@ -102,6 +110,9 @@ var n, start, finish : integer;
     i : integer;
 begin
   n := TVM (vm).popInteger;
+  if n <= 0 then
+     TVM (vm).raiseError('The number of elements to rndi cannot be zero or negative');
+
   finish := TVM (vm).popInteger;
   start := TVM (vm).popInteger;
   l := TListObject.Create (n);

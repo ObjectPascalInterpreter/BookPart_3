@@ -116,6 +116,8 @@ type
     function getScalar : double;
 
     procedure setInteger (value : integer);
+    procedure setDouble (value : double);
+
     function  clone : TListItem;
 
     constructor Create(iValue: integer); overload;
@@ -1043,6 +1045,13 @@ procedure TListItem.setInteger (value : integer);
 begin
   iValue := value;
   itemType := liInteger;
+end;
+
+
+procedure TListItem.setDouble (value : double);
+begin
+  dValue := value;
+  itemType := liDouble;
 end;
 
 

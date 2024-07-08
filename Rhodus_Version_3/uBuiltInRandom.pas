@@ -49,7 +49,7 @@ begin
   addMethod (setSeed,     0, 'seed');
   addMethod (getRandom,   0, 'random');
   addmethod (getRandInt,  1, 'randint', 'Return an integer random number between 0 and a-1:  randint (10)');
-  //addmethod (getRandList, 2, 'randlist', 'Return a list of given length containing random integers:  randlist (num elements, range)');
+  addmethod (getRandList, 2, 'randList', 'Return a list of given length containing random integers:  randlist (num elements, range)');
   addmethod (getGauss,    2, 'gauss',   'Return a random number drawn from a Guassian distributrion with mean and stsndard deviation:  gauss (1, 0.5)');
 end;
 

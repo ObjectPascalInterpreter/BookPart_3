@@ -266,6 +266,7 @@ Uses uOpCodes,
      uRhodusTypes,
      uVMExceptions,
      Rtti,
+     uHelpUnit,
      uRhodusEngine,
      uBuiltInGlobal,
      uBuiltInMatrix;
@@ -605,6 +606,7 @@ begin
     raiseError ('Unknown type in dup method');
   end;
 end;
+
 
 procedure TVM.swapStack;
 var tmp : TMachineStackRecord;
@@ -1534,8 +1536,33 @@ stValueObject : begin
               end;
    stObjectMethod :
              begin
+             if symbolName = 'help' then
+                raiseError ('Help cannot be used with data objects. To get help on a method, use for example var.help ("nameOfMethod")');
+
              methodDetails := primary.oValue;
              push (methodDetails);
+             end;
+   stInteger, stDouble, stBoolean:
+             begin
+             // Let's fake the value as a valueObject so that we can get
+             // it called via the valueObjects help method.
+             vo := TValueObject.Create(33);
+             vo.blockType := btGarbage;
+             vo.help := THelp.Create;
+             case primary.stackType  of
+               stInteger : vo.help.description := 'This is an integer that has a value of: ' + inttostr (primary.iValue);
+               stDouble : vo.help.description := 'This is a double that has a value of: ' + floattostr (primary.dValue);
+               stBoolean : vo.help.description :=  'This is a boolean that has a value of: '+ BoolToStr(primary.bValue, True);
+             end;
+             // Is symbol name a function name?
+             f := vo.methods.methodList.find (symbolName);
+             if f <> nil then
+                begin
+                f.self := vo;
+                push (f);
+                end
+             else
+                raiseError('No method <' + symbolName + '> associated with object');
              end
   else
      raiseError ('The attribute has no associated help. Only modules, functions, builtin constants, strings, arrays, matrices or lists have attributes');
@@ -2013,7 +2040,7 @@ begin
 end;
 
 
-// nArgs is the number of arguments the user included in the function call
+// actualNumArgs is the number of arguments the user included in the function call
 // The stack will have arguments followed by the function object
 procedure TVM.callUserFunction (actualNumArgs : integer);
 var
@@ -2047,11 +2074,11 @@ begin
   if expectedNumArgs <> VARIABLE_ARGS then
      if actualNumArgs <> expectedNumArgs then
         begin
-        if p.oValue.nArgs > 1 then
+        if p.fValue.nArgs > 1 then
            argMsg := ' arguments'
         else
            argMsg := ' argument';
-        raiseError ('Expecting ' + inttostr (p.oValue.nArgs) + argMsg + ' in function call [' + p.oValue.name + '] but received ' + inttostr (actualNumArgs) + ' arguments');
+        raiseError ('Expecting ' + inttostr (p.fValue.nArgs) + argMsg + ' in function call [' + p.fValue.methodName + '] but received ' + inttostr (actualNumArgs) + ' arguments');
         end;
 
    // Support for special builtins, eg Math

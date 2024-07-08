@@ -17,8 +17,16 @@ type
   EInternalException = class(Exception);
 
   procedure raiseInternalError (msg : string);
+  //procedure raiseError (msg : string);
 
 implementation
+
+//procedure raiseError (msg : string);
+//begin
+//  raise ERuntimeException.Create('Runtime Error' + sLineBreak +
+//                '        --- at line number: ' + inttostr (lineNumber) + sLineBreak +
+//                '        --- in ' + module.moduleName + sLineBreak + msg);
+//end;
 
 procedure raiseInternalError (msg : string);
 begin

@@ -7,6 +7,7 @@ unit uTerminal;
 // Author Contact Information:
 // email: hsauro@gmail.com
 
+{$WARN SYMBOL_PLATFORM OFF}
 
 interface
 
@@ -318,14 +319,12 @@ end;
 procedure setConsoleWindowPosition;
 var
   ConsoleHwnd: HWND;
-  stdOutHandle : THandle;
   R: TRect;
   Rect: TSmallRect;
   Coord: TCoord;
   x, y : integer;
 begin
   ConsoleHwnd := GetConsoleWindow;
-  stdOuthandle := GetStdHandle(STD_OUTPUT_HANDLE);
 
   Rect.Left := 1;
   Rect.Top := 1;

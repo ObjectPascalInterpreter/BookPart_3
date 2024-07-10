@@ -91,17 +91,13 @@ end;
 
 function executeCommand (src : string) : boolean;
 var index : integer;
-    helpStr : string;
 begin
-   //result := False;
-
-   if listOfCommands.find (getCommand (src), index) then
-      begin
-      listOfCommands[index].fcn (getArgument (src));
-      exit (True);
-      end;
-
-   exit (False);
+  if listOfCommands.find (getCommand (src), index) then
+     begin
+     listOfCommands[index].fcn (getArgument (src));
+     exit (True);
+     end;
+  exit (False);
 end;
 
 

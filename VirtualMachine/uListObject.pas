@@ -87,9 +87,9 @@ type
 
     class function sliceList2 (alist : TListObject; lower, upper : integer) : TListObject;
 
-    function clone: TListObject;
+    function clone: TDataObject; override;
     function listToString: string;
-    function getsize: integer;  override;
+    function getSize: integer;  override;
 
     property Item[index : Integer]: TListItem read getItem; default; // write setItem; default;
 
@@ -206,27 +206,27 @@ begin
       stDouble  :    s.append (value.dValue);
       stBoolean :    s.append (value.bValue);
       stString  :    begin
-                     ts := value.sValue.clone;
+                     ts := value.sValue.clone as TStringObject;
                      ts.blockType := btOwned;
                      s.append (ts);
                      end;
       stList    :    begin
-                     ls := value.lValue.clone;
+                     ls := value.lValue.clone as TListObject;
                      ls.blockType := btOwned;
                      s.append (ls);
                      end;
       stArray   :    begin
-                     ar := value.aValue.clone;
+                     ar := value.aValue.clone as TArrayObject;
                      ar.blockType := btOwned;
                      s.append (ar);
                      end;
       stmatrix  :    begin
-                     mat := value.mValue.clone;
+                     mat := value.mValue.clone as TMatrixObject;
                      mat.blockType := btOwned;
                      s.append (mat);
                      end;
       stFunction:    begin
-                     fs := value.fValue.clone;
+                     fs := value.fValue.clone as TUserFunction;
                      fs.blockType := btOwned;
                      s.appendUserFunction (fs);
                      end;
@@ -290,10 +290,10 @@ begin
       liInteger  : TVM (vm).push (r.iValue);
       liDouble   : TVM (vm).push (r.dValue);
       liBoolean  : TVM (vm).push (r.bValue);
-      liString   : TVM (vm).push (r.sValue.clone);
-      liList     : TVM (vm).push (r.lValue.clone);
-      liArray    : TVM (vm).push (r.aValue.clone);
-      liMatrix   : TVM (vm).push (r.mValue.clone);
+      liString   : TVM (vm).push (r.sValue.clone as TStringObject);
+      liList     : TVM (vm).push (r.lValue.clone as TListObject);
+      liArray    : TVM (vm).push (r.aValue.clone as TArrayObject);
+      liMatrix   : TVM (vm).push (r.mValue.clone as TMatrixObject);
       liFunction : TVM (vm).push (TUserFunction (r.fValue));
       liModule   : TVM (vm).push (TModule (r.mValue));
    end;
@@ -429,63 +429,67 @@ begin
 end;
 
 
-function TListObject.clone: TListObject;
+function TListObject.clone: TDataObject;
 var
   i: integer;
+  lo : TListObject;
 begin
   result := TListObject.Create(self.list.count);
   for i := 0 to self.list.count - 1 do
+    begin
+    lo := result as TListObject;
     case self.list[i].itemType of
       liInteger:
         begin
-          result.list[i].itemType := liInteger;
-          result.list[i].iValue := self.list[i].iValue;
+          lo.list[i].itemType := liInteger;
+          lo.list[i].iValue := self.list[i].iValue;
         end;
       liBoolean:
         begin
-          result.list[i].itemType := liBoolean;
-          result.list[i].bValue := self.list[i].bValue;
+          (result as TListObject).list[i].itemType := liBoolean;
+          (result as TListObject).list[i].bValue := self.list[i].bValue;
         end;
       liDouble:
         begin
-          result.list[i].itemType := liDouble;
-          result.list[i].dValue := self.list[i].dValue;
+          (result as TListObject).list[i].itemType := liDouble;
+          (result as TListObject).list[i].dValue := self.list[i].dValue;
         end;
       liString:
         begin
-          result.list[i].itemType := liString;
-          result.list[i].sValue := self.list[i].sValue.clone;
-          result.list[i].sValue.blockType := btOwned;
+          (result as TListObject).list[i].itemType := liString;
+          (result as TListObject).list[i].sValue := self.list[i].sValue.clone as TStringObject;
+          (result as TListObject).list[i].sValue.blockType := btOwned;
         end;
       liList:
         begin
-          result.list[i].itemType := liList;
-          result.list[i].lValue := self.list[i].lValue.clone;
-          result.list[i].lValue.blockType := btOwned;
+          (result as TListObject).list[i].itemType := liList;
+          (result as TListObject).list[i].lValue := self.list[i].lValue.clone as TListObject;
+          (result as TListObject).list[i].lValue.blockType := btOwned;
         end;
       liArray:
         begin
-          result.list[i].itemType := liArray;
-          result.list[i].aValue := self.list[i].aValue.clone;
-          result.list[i].aValue.blockType := btOwned;
+          (result as TListObject).list[i].itemType := liArray;
+          (result as TListObject).list[i].aValue := self.list[i].aValue.clone as TArrayObject;
+          (result as TListObject).list[i].aValue.blockType := btOwned;
         end;
       liMatrix:
         begin
-          result.list[i].itemType := liMatrix;
-          result.list[i].mValue := self.list[i].mValue.clone;
-          result.list[i].mValue.blockType := btOwned;
+          (result as TListObject).list[i].itemType := liMatrix;
+          (result as TListObject).list[i].mValue := self.list[i].mValue.clone as TMatrixObject;
+          (result as TListObject).list[i].mValue.blockType := btOwned;
         end;
       liFunction:
         begin
-          result.list[i].itemType := liFunction;
-          result.list[i].fValue := (self.list[i].fValue as TUserFunction).clone;
-          (result.list[i].fValue as TUserFunction).blockType := btOwned;
+          (result as TListObject).list[i].itemType := liFunction;
+          (result as TListObject).list[i].fValue := (self.list[i].fValue as TUserFunction).clone as TUserFunction;
+          ((result as TListObject).list[i].fValue as TUserFunction).blockType := btOwned;
         end;
       liModule:
         begin
           raise ERuntimeException.Create('Copying modules is not permitted');
           // We don't clone modules
         end;
+    end;
     end;
 end;
 
@@ -687,11 +691,11 @@ begin
             liInteger : obj.append(list[i].iValue);
             liBoolean : obj.append(list[i].bValue);
             liDouble  : obj.append(list[i].dValue);
-            liString  : obj.append(list[i].sValue.clone);
-            liList    : obj.append(list[i].lValue.clone);
-            liArray   : obj.append(list[i].aValue.clone);
-            liMatrix  : obj.append(list[i].mValue.clone);
-            liFunction: obj.appendUserFunction(TUserFunction (list[i].fValue).clone);
+            liString  : obj.append(list[i].sValue.clone as TStringObject);
+            liList    : obj.append(list[i].lValue.clone as TListObject);
+            liArray   : obj.append(list[i].aValue.clone as TArrayObject);
+            liMatrix  : obj.append(list[i].mValue.clone as TMatrixObject);
+            liFunction: obj.appendUserFunction(TUserFunction (list[i].fValue).clone as TUserFunction);
             liModule  : obj.appendModule(TModule (list[i].mValue));
          end;
          end;
@@ -727,11 +731,11 @@ begin
             liInteger : obj.append(alist.list[i].iValue);
             liBoolean : obj.append(alist.list[i].bValue);
             liDouble  : obj.append(alist.list[i].dValue);
-            liString  : obj.append(alist.list[i].sValue.clone);
-            liList    : obj.append(alist.list[i].lValue.clone);
-            liArray   : obj.append(alist.list[i].aValue.clone);
-            liMatrix  : obj.append(alist.list[i].mValue.clone);
-            liFunction: obj.appendUserFunction(TUserFunction (alist.list[i].fValue).clone);
+            liString  : obj.append(alist.list[i].sValue.clone as TStringObject);
+            liList    : obj.append(alist.list[i].lValue.clone as TListObject);
+            liArray   : obj.append(alist.list[i].aValue.clone as TArrayObject);
+            liMatrix  : obj.append(alist.list[i].mValue.clone as TMatrixObject);
+            liFunction: obj.appendUserFunction(TUserFunction (alist.list[i].fValue).clone as TUserFunction);
             liModule  : obj.appendModule(TModule (alist.list[i].mValue));
          end;
          end;
@@ -747,7 +751,7 @@ begin
   if list1.blockType = btGarbage then
     result := list1
   else
-    result := list1.clone;
+    result := list1.clone as TListObject;
 
   for i := 0 to list2.list.count - 1 do
     result.list.add(TListItem.Create(list2.list[i]));
@@ -755,8 +759,7 @@ end;
 
 // Make value copies of aList and combine them into one list
 // eg 3*{1} = {1,1,1}
-class function TListObject.multiply(value: integer; aList: TListObject)
-  : TListObject;
+class function TListObject.multiply(value: integer; aList: TListObject) : TListObject;
 var
   i, j: integer;
   nContents: integer;
@@ -764,7 +767,7 @@ var
   item: TListItem;
 begin
   if aList.isBound then
-    workingCopy := aList.clone
+    workingCopy := aList.clone as TListObject
   else
     workingCopy := aList;
 
@@ -874,22 +877,22 @@ begin
       self.bValue := item.bValue;
     liString:
       begin
-        self.sValue := item.sValue.clone;
+        self.sValue := item.sValue.clone as TStringObject;
         self.sValue.blockType := btOwned;
       end;
     liList:
       begin
-        self.lValue := item.lValue.clone;
+        self.lValue := item.lValue.clone as TListObject;
         self.lValue.blockType := btOwned;
       end;
     liArray:
       begin
-        self.aValue := item.aValue.clone;
+        self.aValue := item.aValue.clone as TArrayObject;
         self.aValue.blockType := btOwned;
       end;
     liMatrix:
       begin
-        self.mValue := item.mValue.clone;
+        self.mValue := item.mValue.clone as TMatrixObject;
         self.mValue.blockType := btOwned;
       end;
     liFunction:
@@ -994,11 +997,11 @@ begin
     liInteger: begin result := TListItem.Create(iValue); end;
     liBoolean: result := TListItem.Create(bValue);
     liDouble: result := TListItem.Create(dValue);
-    liString: result := TListItem.Create(sValue.clone);
-    liList: begin result := TListItem.Create(lValue.clone); result.lValue.blockType := btOwned; end;
-    liArray: result := TListItem.Create(aValue.clone);
-    liMatrix: result := TListItem.Create(mValue.clone);
-    liFunction: result := TListItem.CreateUserFunction(TUSerFunction (fValue).clone);
+    liString: result := TListItem.Create(sValue.clone as TStringObject);
+    liList: begin result := TListItem.Create(lValue.clone as TListObject); result.lValue.blockType := btOwned; end;
+    liArray: result := TListItem.Create(aValue.clone as TArrayObject);
+    liMatrix: result := TListItem.Create(mValue.clone as TMatrixObject);
+    liFunction: result := TListItem.CreateUserFunction(TUSerFunction (fValue).clone as TUserFunction);
     liModule: raise ERuntimeException.Create('can''t clone module');
   else
     raise ERuntimeException.Create('Internal Error in ListItem Clone');
@@ -1024,7 +1027,7 @@ begin
     liMatrix:
       result := result + mValue.numRows*mValue.numCols;
     liArray:
-      result := result + aValue.getMemorySize();
+      result := result + aValue.getSize();
   else
     raise ERuntimeException.Create('Error in size not implement for this type');
   end;
@@ -1092,6 +1095,8 @@ end;
 
 class function TListItem.listEquals(list1: TListItem; list2: TListItem) : boolean;
 begin
+  result := False;
+
   if (list1.itemType = liInteger) and (list2.itemType = liInteger) then
     if list1.iValue = list2.iValue then
       exit(True)

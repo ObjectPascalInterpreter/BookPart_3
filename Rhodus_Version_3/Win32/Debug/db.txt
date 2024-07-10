@@ -209,16 +209,23 @@ Formats a number and returns a string
 astr = strings.format (2.3456, "%3.2f")
 ##########
 startMethod
-value
-ascii_lower
-Returns the lower ascii characters as a string
-x = strings.ascii_lower
+method
+random
+random(int)
+Generate a rnadom sequenc yyo letter and digits of a given length
+astr = strings.random(15)
 ##########
 startMethod
 value
-ascii_upper
+asciiLower
+Returns the lower ascii characters as a string
+x = strings.asciiLower
+##########
+startMethod
+value
+asciiUpper
 Returns the upper ascii characters as a string
-x = strings.ascii_upper
+x = strings.asciiUpper
 ##########
 startMethod
 value

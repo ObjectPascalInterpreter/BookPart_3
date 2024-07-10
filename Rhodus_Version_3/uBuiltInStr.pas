@@ -29,6 +29,8 @@ type
      procedure   val (vm : TObject);
      procedure   str (vm : TObject);
      procedure   formatStr (vm : TObject);
+     procedure   randomStr (vm : TObject);
+     procedure   reverseStr (vm : TObject);
      constructor Create;
   end;
 
@@ -43,13 +45,45 @@ constructor TBuiltInStr.Create;
 begin
   inherited Create ('strings');
 
-  addStringValue('ascii_lower',  'abcdefghijklmnopqrstuv', true);//, 'Returns the lower ascii characters as a string', true);
-  addStringValue('ascii_upper', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', true);// 'Returns the upper ascii characters', true);
-  addStringValue('digits', '0123456789', true);//'digits', true);
+  addStringValue('asciiLower',  'abcdefghijklmnopqrstuv', true);//, 'Returns the lower ascii characters as a string', true);
+  addStringValue('asciiLpper', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', true);// 'Returns the upper ascii characters', true);
+  addStringValue('digits', '0123456789', true);
 
-  addMethod(str,         1, 'str');
-  addMethod(val,         1, 'val');
-  addMethod(formatStr,   2, 'format');
+  addMethod(str,         1, 'str');     // convert string to number
+  addMethod(val,         1, 'val');     // convert number to string
+  addMethod(formatStr,   2, 'format');  // eg strings.format (2.3456, "%3.2f")
+  addMethod(randomStr,   1, 'random');  // Generate random string
+  addMethod(reverseStr,  1, 'reverse');  // reverse a string
+end;
+
+
+procedure TBuiltInStr.reverseStr (vm : TObject);
+var s, r : TStringObject;
+begin
+  s := TVM (vm).popString;
+  r := s.clone as TStringObject;
+  s.value := reverseString (r.value);
+  TVM (vm).push(r);
+end;
+
+procedure TBuiltInStr.randomStr (vm : TObject);
+var n : integer;
+    astr : string;
+    seqlen, ch : integer;
+    result : string;
+begin
+  n := TVM (vm).popInteger;
+
+  astr := 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+
+  seqlen := Length(astr);
+  SetLength(result, n);
+  Randomize;
+
+  for Ch := Low(Result) to High(Result) do
+    result[Ch] := astr.Chars[Random(seqlen)];
+
+  TVM (vm).push(TStringObject.Create(result));
 end;
 
 

@@ -50,7 +50,6 @@ type
       ntPrintln,
       ntSetColor,
       ntAssertTrue,
-      ntAssertTrueEx,
       ntAssertFalse,
       ntAssertFalseEx,
       ntHelp,

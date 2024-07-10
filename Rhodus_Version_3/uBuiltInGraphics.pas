@@ -151,7 +151,6 @@ end;
 procedure TBuiltInGraphics.pause(vm: TObject);
 var
   ms: integer;
-  iStart, iStop: integer;
 begin
   ms := TVM(vm).popInteger;
 
@@ -587,7 +586,8 @@ begin
       x2 := TVM(vm).popScalar;
       y1 := TVM(vm).popScalar;
       x1 := TVM(vm).popScalar;
-    end;
+    end
+  else
   if nArgs = 5 then
     begin
       y2 := TVM(vm).popScalar;
@@ -595,7 +595,9 @@ begin
       y1 := TVM(vm).popScalar;
       x1 := TVM(vm).popScalar;
       penColor := AnsiString(TVM(vm).popString.value);
-    end;
+    end
+  else
+    raise ERuntimeException.Create('Expecting 4 or 5 aguments but found: ' + inttostr (nArgs));
 
   checkGraphicsSubsystem;
   if @graphicsMethodsPtr.lineWithColor <> nil then

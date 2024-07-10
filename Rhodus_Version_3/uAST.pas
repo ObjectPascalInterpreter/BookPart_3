@@ -309,12 +309,6 @@ type
       destructor  Destroy; override;
    end;
 
-   TASTAssertTrueEx = class (TASTNode)
-      expression : TASTExpression;
-      constructor Create (expression : TASTExpression; lineNumber : integer);
-      destructor  Destroy; override;
-   end;
-
    TASTAssertFalse = class (TASTNode)
       expression : TASTExpression;
       constructor Create (expression : TASTExpression; lineNumber : integer);
@@ -958,20 +952,6 @@ begin
   inherited;
 end;
 
-
-constructor TASTAssertTrueEx.Create (expression : TASTExpression; lineNumber : integer);
-begin
-  inherited Create (ntAssertTrueEx, lineNumber);
-  self.expression := expression;
-end;
-
-
-destructor TASTAssertTrueEx.destroy;
-begin
-  expression.freeAST;
-  inherited;
-end;
-
 constructor TASTAssertFalse.Create (expression : TASTExpression; lineNumber : integer);
 begin
   inherited Create (ntAssertFalse, lineNumber);
@@ -1202,8 +1182,6 @@ begin
         (node as TASTSetColor).free;
     ntAssertTrue:
         (node as TASTAssertTrue).free;
-    ntAssertTrueEx:
-        (node as TASTAssertTrueEx).free;
     ntAssertFalse:
         (node as TASTAssertFalse).free;
     ntAssertFalseEx:

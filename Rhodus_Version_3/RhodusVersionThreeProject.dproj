@@ -215,7 +215,6 @@
         <DCCReference Include="..\VirtualMachine\uVectorObject.pas"/>
         <DCCReference Include="uMatrixFunctions.pas"/>
         <DCCReference Include="..\VirtualMachine\uValueObject.pas"/>
-        <DCCReference Include="uPlotterInterface.pas"/>
         <DCCReference Include="uBuiltInPlotter.pas"/>
         <DCCReference Include="..\Common\uHelpUnit.pas"/>
         <DCCReference Include="..\VirtualMachine\uDataObjectMethods.pas"/>

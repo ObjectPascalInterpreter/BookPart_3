@@ -215,7 +215,7 @@ type
     procedure   push(oValue : TMethodDetails); overload;
     procedure   push (module : TModule); overload; inline;
     procedure   pushNone;
-    procedure   pushObject (obj : TObject);
+    procedure   pushSliceObject (obj : TObject);
     function    peek : PMachineStackRecord;
     procedure   decStackTop;
     function    pop: PMachineStackRecord; inline;
@@ -1006,14 +1006,14 @@ begin
 end;
 
 
-procedure TVM.pushObject (obj : TObject);
+procedure TVM.pushSliceObject (obj : TObject);
 begin
   inc(stackTop);
 {$IFDEF STACKCHECK}
   checkStackOverflow;
 {$ENDIF}
-  stack[stackTop].objValue := obj;
-  stack[stackTop].stackType := TStackType.stObject;
+  stack[stackTop].sliceValue := obj;
+  stack[stackTop].stackType := TStackType.stSliceObject;
 end;
 
 // -------------------------------------------------------------------------
@@ -1087,9 +1087,7 @@ end;
 
 
 procedure TVM.dotProductOp;
-var m1, m2 : TMatrixObject;
-    sum : double;
-    st1, st2: PMachineStackRecord;
+var st1, st2: PMachineStackRecord;
 begin
   st1 := pop;
   st2 := pop;
@@ -1103,27 +1101,6 @@ begin
          raiseError ('Dot product must be between two matrices');
          end;
   end;
-
-//  m2 := popMatrix;
-//  m1 := popMatrix;
-//
-//  if (m1.getNumDimensions() = 1) and (m2.getNumDimensions() = 1) then
-//     begin
-//     // Dot product of two vectors
-//     if m1.dim[0] = m2.dim[0] then
-//        begin
-//        sum := 0;
-//        for var i := 0 to m1.dim[0] - 1 do
-//            sum := sum + m1.dataf[i] * m2.dataf[i];
-//        push (sum);
-//        exit;
-//        end
-//     else
-//        raiseError ('Dot product requires both vectors to be the same size');
-//     end;
-//
-//  // Otherwise its matrix-matrix multiplication
-//  push (TBuiltInMatrix.dotMatMatMult(m1, m2));
 end;
 
 
@@ -1347,7 +1324,6 @@ procedure TVM.storeSymbol(symbolName: string);
 var
   value: PMachineStackRecord;
   symbol : TSymbol;
-  ar : TArrayObject;
 begin
   value := pop();
 
@@ -1367,6 +1343,7 @@ begin
  stValueObject: module.symbolTable.storeValueObject (symbol, value.voValue);
     stFunction: module.symbolTable.storeFunction (symbol, value.fValue);
 
+    stObject:   module.symbolTable.storeObject (symbol, value.obj);
     stModule:   begin
                 //module.symbolTable.storeModule(symbol, value.module);
                 raiseError ('You cannot store a module in a variable: ' + value.module.moduleName);
@@ -1741,31 +1718,31 @@ begin
       end;
     stString:
       begin
-      stack[bsp + index].sValue := value.sValue.clone;
+      stack[bsp + index].sValue := value.sValue.clone as TStringObject;
       stack[bsp + index].sValue.blockType := btBound;
       stack[bsp + index].stackType := stString;
       end;
     stList:
       begin
-      stack[bsp + index].lValue := value.lValue.clone;
+      stack[bsp + index].lValue := value.lValue.clone as TListObject;
       stack[bsp + index].lValue.blockType := btBound;
       stack[bsp + index].stackType := stList;
       end;
     stArray:
       begin
-      stack[bsp + index].aValue := value.aValue.clone;
+      stack[bsp + index].aValue := value.aValue.clone as TArrayObject;
       stack[bsp + index].aValue.blockType := btBound;
       stack[bsp + index].stackType := stArray;
       end;
     stMatrix:
       begin
-      stack[bsp + index].mValue := value.mValue.clone;
+      stack[bsp + index].mValue := value.mValue.clone as TMatrixObject;
       stack[bsp + index].mValue.blockType := btBound;
       stack[bsp + index].stackType := stMatrix;
       end;
     stValueObject:
       begin
-      stack[bsp + index].voValue := value.voValue.clone;
+      stack[bsp + index].voValue := value.voValue.clone as TValueObject;
       stack[bsp + index].voValue.blockType := btBound;
       stack[bsp + index].stackType := stValueObject
       end;
@@ -2122,9 +2099,34 @@ begin
   // make sure the garbage collector doesn't collect it since it will be
   // used inside the function.
   for i := 0 to expectedNumArgs - 1 do
-      if stack[tbsp + i].stackType = stList then
-         if stack[tbsp + i].lValue.blockType = btGarbage then
+      case stack[tbsp + i].stackType of
+         stList:
+          begin
+          if stack[tbsp + i].lValue.blockType = btGarbage then
             stack[tbsp + i].lValue.blockType := btTemporary; // To stop the garbage collector
+          end;
+         stMatrix:
+          begin
+          if stack[tbsp + i].mValue.blockType = btGarbage then
+            stack[tbsp + i].mValue.blockType := btTemporary; // To stop the garbage collector
+          end;
+         stString:
+          begin
+          if stack[tbsp + i].sValue.blockType = btGarbage then
+            stack[tbsp + i].sValue.blockType := btTemporary; // To stop the garbage collector
+          end;
+       stArray:
+          begin
+          if stack[tbsp + i].aValue.blockType = btGarbage then
+            stack[tbsp + i].aValue.blockType := btTemporary; // To stop the garbage collector
+          end;
+       stObject:
+         begin
+          if stack[tbsp + i].obj.blockType = btGarbage then
+            stack[tbsp + i].obj.blockType := btTemporary; // To stop the garbage collector
+         end;
+      end;
+
 
   // This is to make sure the user function knows what module its in.
   oldModule := module;
@@ -2135,7 +2137,7 @@ begin
     run(functionObject.codeBlock, module.symbolTable);
 
     // deal with the special case where a user has passed a literal (list, array, etc)
-    // which is not owned by anyone. Such arguments come in as btTemporary inorder
+    // which is not owned by anyone. Such arguments come in as btTemporary in order
     // to prevent the garbage collector from freeing up the argument.
     for i := 0 to expectedNumArgs - 1 do
         if stack[tbsp + i].stackType = stList then
@@ -2185,7 +2187,6 @@ end;
 function TVM.createMatrix (count : integer) : TMatrixObject;
 var
   i: integer;
-  p: PMachineStackRecord;
   vec : TVectorObject;
 begin
   result := TMatrixObject.Create;
@@ -2233,37 +2234,37 @@ begin
         result.list[i].dValue := p.dValue;
         result.list[i].itemType := liDouble;
         end;
-      stObject:
+      stSliceObject:
         begin
 
         end;
       stString:
         begin
-        result.list[i].sValue := p.sValue.clone;
+        result.list[i].sValue := p.sValue.clone as TStringObject;
         result.list[i].sValue.blockType := btOwned; // Owned means owned by a list
         result.list[i].itemType := liString;
         end;
       stList:
         begin
-        result.list[i].lValue := p.lValue.clone;
+        result.list[i].lValue := p.lValue.clone as TListObject;
         result.list[i].lValue.blockType := btOwned;
         result.list[i].itemType := liList;
         end;
       stArray:
         begin
-        result.list[i].aValue := p.aValue.clone;
+        result.list[i].aValue := p.aValue.clone as TArrayObject;
         result.list[i].aValue.blockType := btOwned;
         result.list[i].itemType := liArray;
         end;
       stMatrix:
         begin
-        result.list[i].mValue := p.mValue.clone;
+        result.list[i].mValue := p.mValue.clone as TMatrixObject;
         result.list[i].mValue.blockType := btOwned;
         result.list[i].itemType := liMatrix
         end;
       stValueObject:
         begin
-        result.list[i].voValue := p.voValue.clone;
+        result.list[i].voValue := p.voValue.clone as TValueObject;
         result.list[i].voValue.blockType := btOwned;
         result.list[i].itemType := liValueObject;
         end;
@@ -2407,25 +2408,25 @@ begin
       end;
     stString:
       begin
-      element.sValue := value.sValue.clone;
+      element.sValue := value.sValue.clone as TStringObject;
       element.sValue.blockType := btOwned;
       element.itemType := liString;
       end;
     stList:
       begin
-      element.lValue := value.lValue.clone;
+      element.lValue := value.lValue.clone as TListObject;
       element.lValue.blockType := btOwned;
       element.itemType := liList;
       end;
     stMatrix:
       begin
-      element.mValue := value.mValue.clone;
+      element.mValue := value.mValue.clone as TMatrixObject;
       element.mValue.blockType := btOwned;
       element.itemType := liMatrix;
       end;
     stValueObject:
       begin
-      element.voValue := value.voValue.clone;
+      element.voValue := value.voValue.clone as TValueObject;
       element.voValue.blockType := btOwned;
       element.itemType := liValueObject;
       end;
@@ -2476,25 +2477,25 @@ begin
       end;
     stString:
       begin
-      element.sValue := value.sValue.clone;
+      element.sValue := value.sValue.clone as TStringObject;
       element.sValue.blockType := btOwned;
       element.itemType := liString;
       end;
     stList:
       begin
-      element.lValue := value.lValue.clone;
+      element.lValue := value.lValue.clone as TListObject;
       element.lValue.blockType := btOwned;
       element.itemType := liList;
       end;
      stMatrix:
       begin
-      element.mValue := value.mValue.clone;
+      element.mValue := value.mValue.clone as TMatrixObject;
       element.mValue.blockType := btOwned;
       element.itemType := liMatrix;
       end;
      stValueObject:
       begin
-      element.voValue := value.voValue.clone;
+      element.voValue := value.voValue.clone as TValueObject;
       element.voValue.blockType := btOwned;
       element.itemType := liValueObject ;
       end;
@@ -2784,7 +2785,7 @@ begin
   upper := popInteger;
   lower := popInteger;
 
-  pushObject (TSliceObject.Create (lower, upper));
+  pushSliceObject (TSliceObject.Create (lower, upper));
 end;
 
  // Stack has a slice list followed by the object we want to slice (value)
@@ -2795,7 +2796,7 @@ var i : integer;
 begin
   setLength (sliceObjlist, numSlices);
   for i := numSlices - 1 downto 0  do
-      sliceObjlist[i] := TSliceObject (pop.objValue);
+      sliceObjlist[i] := TSliceObject (pop.sliceValue);
   value := pop;
 
   try
@@ -2939,7 +2940,7 @@ var
   c : TCode;
   alist : TListObject;
 begin
-  ip := 0; {count := 0;} value := @noneStackType; bolStopVm := False;
+  ip := 0; {count := 0;} bolStopVm := False;
   self.symboltable := symbolTable;
   if code.count = 0 then
      exit;
@@ -3057,15 +3058,16 @@ begin
               // returned value to a symbol.
               value := pop();
               case value.stackType of
-                stString: value.sValue := value.sValue.clone;
-                stList:   value.lValue := value.lValue.clone;
-                stMatrix : value.mValue := value.mValue.clone;
+                stString: value.sValue := value.sValue.clone as TStringObject;
+                stList:   value.lValue := value.lValue.clone as TListObject;
+                stMatrix : value.mValue := value.mValue.clone as TMatrixObject;
+                stArray : value.aValue := value.aValue.clone  as TArrayObject;
                 stNone : begin end;
                 stInteger : begin end;
                 stDouble : begin end;
                 stBoolean : begin end;
               else
-                 raiseError('oRet not implemented for type');
+                 raiseError('oRet not implemented for this type');
               end;
               // Clear the pushed arguments from the stack
               stackTop := stackTop - frameStack[frameStackTop].nlocals - 1;  // -1 to also remove the function object

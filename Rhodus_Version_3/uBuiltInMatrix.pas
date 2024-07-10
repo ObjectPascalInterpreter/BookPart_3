@@ -34,9 +34,11 @@ type
        procedure   add (vm : TObject);
        procedure   sub (vm : TObject);
        procedure   inverse (vm : TObject);
+       procedure   reducedechelon (vm : TObject);
        procedure   det (vm : TObject);
        procedure   transpose (vm : TObject);
        procedure   LU (vm : TObject);
+       procedure   QR (vm : TObject);
        procedure   solve (vm : TObject);
        procedure   createMatrix (vm : TObject);
 
@@ -70,7 +72,9 @@ begin
   //addMethod(add,            2, 'add',   'Add two 2D matrices: m = mat.add (m1, m2)');
   //addMethod(sub,            2, 'sub',   'Subtract two 2D matrices: m = mat.sub (m1, m2)');
   addmethod(inverse,        1, 'inv',   'Compute inverse of matrix: m = mat.inv (m)');
-  addmethod(LU ,            1, 'lu',    'Compute the LU decompositon f a matrix: d = mat.lu (m)');
+  addmethod(LU,             1, 'lu',    'Compute the LU decompositon of a matrix: d = mat.lu (m)');
+  addmethod(QR,             1, 'qr',    'Compute the QR decompositon of a matrix: d = mat.qr (m)');
+  addmethod(reducedechelon, 1, 'rref',  'Compute the reduced row echelon of a matrix: d = mat.rref (m)');
   addmethod(det,            1, 'det',   'Compute the determinant of a matrix: d = mat.det (m)');
   addmethod(transpose,      1, 'tr',    'Get the transpose of the matrix: m = mat.tr (m)');
   addmethod(solve,          2, 'solve',  'Solve: x = mat.solve (m, b)');
@@ -285,7 +289,7 @@ var m, cpy : TMatrixObject;
     nr, nc : integer;
 begin
   m := TVM (vm).popMatrix;
-  cpy := m.clone();
+  cpy := m.clone() as TMatrixObject;
 
   nr := m.numRows;
   nc := m.numCols;
@@ -298,20 +302,46 @@ begin
 end;
 
 
+procedure TBuiltInMatrix.reducedechelon (vm : TObject);
+var m, echelon : TMatrixObject;
+begin
+  m := TVM (vm).popMatrix;
+  uMatrixFunctions.reducedRowEchelon (m, echelon);
+  TVM (vm).push(echelon);
+end;
+
+
 procedure TBuiltInMatrix.LU (vm : TObject);
 var
   m, L, U, P : TMatrixObject;
   res : TListObject;
-  pindex : TArray<integer>;
+  numSwaps : integer;
 begin
   m := TVM (vm).popMatrix;
 
-  uMatrixFunctions.LU (m, L, U, P, pindex);
+  uMatrixFunctions.LU (m, L, U, P, numSwaps);
 
   res := TListObject.Create (0);
   res.append(L);
   res.append(U);
   res.append(p);
+  TVM (vm).push(res);
+end;
+
+
+procedure TBuiltInMatrix.QR (vm : TObject);
+var
+  m, Q, R : TMatrixObject;
+  res : TListObject;
+  numSwaps : integer;
+begin
+  m := TVM (vm).popMatrix;
+
+  uMatrixFunctions.QRFactorization (m, Q, R);
+
+  res := TListObject.Create (0);
+  res.append(Q);
+  res.append(R);
   TVM (vm).push(res);
 end;
 

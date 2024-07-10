@@ -1,6 +1,8 @@
 unit uStringObject;
 
 // This source is distributed under Apache 2.0
+// This defines the object that represents strings. It
+// also provides some string specific methods
 
 // Copyright (C)  2019-2024 Herbert M Sauro
 
@@ -25,6 +27,7 @@ type
      procedure   trim (vm : TObject);
      procedure   mid (vm : TObject);
      procedure   split (vm :TObject);
+     procedure   reverse (vm :TObject);
      constructor Create;
      destructor  Destroy; override;
   end;
@@ -35,7 +38,7 @@ type
 
      function        isEqualTo (str1 : TStringObject) : boolean;
      class function  add (str1, str2 : TStringObject) : TStringObject;
-     function        clone : TStringObject;
+     function        clone : TDataObject; override;
      constructor     createConstantObj (value : string);
      function        getSize() : integer; override;
      function        slice (lower, upper : integer) : TStringObject;
@@ -70,6 +73,7 @@ begin
   methodList.Add(TMethodDetails.Create ('mid',     2, 'Returns a substring of string from start to count characters: a.mid (2, 4)', mid));
   methodList.Add(TMethodDetails.Create ('trim',    0, 'Removes any spaces from the start and end of the string: a.trim ()', trim));
   methodList.Add(TMethodDetails.Create ('split',   1, 'Splits at a string at a given character into a list of strings: a.split (",")', split));
+  methodList.Add(TMethodDetails.Create ('reverse', 0, 'Reverse the string: a.reverse ()', reverse));
 end;
 
 
@@ -192,6 +196,17 @@ begin
   TVM (vm).push(alist);
 end;
 
+
+procedure TStringMethods.reverse (vm :TObject);
+var s : TStringObject;
+    md : TMethodDetails;
+begin
+  md := TVM (vm).popMethodDetails;
+  s := TStringObject (md.self);
+  TVM (vm).push(TStringObject.Create(reverseString (s.value)));
+end;
+
+
 // ---------------------------------------------------------------------------
 
 function createStringObject (value : string) : TStringObject;
@@ -231,7 +246,7 @@ begin
 end;
 
 
-function TStringObject.clone : TStringObject;
+function TStringObject.clone : TDataObject;
 begin
   result := TStringObject.Create (value);
 end;

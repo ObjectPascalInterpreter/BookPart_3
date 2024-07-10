@@ -27,8 +27,7 @@ type
         nArgs : integer;
         method : TObjectMethod;
         self : pointer;  // Only used during execution but during execution to the 'self' associated with this method
-        constructor Create (const name : string; nArgs: integer; const helpStr : string; helpObj : THelp; fcn : TObjectMethod); overload;
-        constructor Create (const name : string; nArgs: integer; const helpStr : string; fcn : TObjectMethod); overload;
+        constructor Create (const name : string; nArgs: integer; const helpStr : string; fcn : TObjectMethod);
    end;
 
    TMethodsBase = class;
@@ -95,25 +94,20 @@ var m : TMethodDetails;
     methodName : TStringObject;
 begin
   nArgs := TVM (vm).popInteger();
-  if nArgs > 0 then
-     methodName := TVM (vm).popString();
   m := TVM (vm).popMethodDetails();
   obj := TDataObject (m.self);
   if nArgs > 0 then
      begin
-      for i := 0 to obj.methods.methodList.Count - 1 do
+     methodName := TVM (vm).popString();
+     for i := 0 to obj.methods.methodList.Count - 1 do
          if obj.methods.methodList[i].name = methodName.value then
             TVM (vm).push(TStringObject.Create(obj.methods.methodList[i].helpStr));
      end
   else
-     begin
-     if obj.help <> nil then
-        begin
-         TVM (vm).push(TStringObject.Create(obj.help.getHelp()));
-        end
-     else
-        TVM (vm).push (TStringObject.Create('Use the string name of the method in the help argumet, e.g "abc".help("len")'));
-     end;
+    if obj.help <> nil then
+       TVM (vm).push(TStringObject.Create(obj.help.getHelp()))
+    else
+       TVM (vm).push (TStringObject.Create('Use the string name of the method in the help argumet, e.g "abc".help("len")'));
 end;
 
 
@@ -140,15 +134,6 @@ end;
 
 
 // -------------------------------------------------------------------------------
-
-constructor TMethodDetails.Create (const name : string; nArgs : integer; const helpStr : string;  helpObj : THelp; fcn : TObjectMethod);
-begin
-  inherited Create;
-  self.name := name;
-  self.helpStr := helpStr;
-  self.nArgs := nArgs;
-  self.method := fcn;
-end;
 
 constructor TMethodDetails.Create (const name : string; nArgs : integer; const helpStr : string; fcn : TObjectMethod);
 begin

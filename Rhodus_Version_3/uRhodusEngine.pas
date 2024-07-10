@@ -438,9 +438,9 @@ end;
 procedure TRhodus.compileAndRun (const src : string; interactive : boolean);
 var st :PMachineStackRecord;
     key : string;
-    initialMem : integer;
+    //initialMem : integer;
 begin
-   initialMem := getMemoryAllocated();
+   //initialMem := getMemoryAllocated();
    if compileCode (src, mainModule, interactive) then
       begin
       try

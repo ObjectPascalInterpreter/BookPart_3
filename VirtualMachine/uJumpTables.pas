@@ -111,42 +111,42 @@ end;
 
 procedure addListIntfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-   result.lValue := d2.lValue.clone;
+   result.lValue := d2.lValue.clone as TListObject;
    result.lValue.append(d1.iValue);
    result.stackType := stList;
 end;
 
 procedure addIntListfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-   result.lValue := d1.lValue.clone;
+   result.lValue := d1.lValue.clone as TListObject;
    result.lValue.insert(0, d2.iValue);
    result.stackType := stList;
 end;
 
 procedure addBoolListfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.lValue := d1.lValue.clone;
+  result.lValue := d1.lValue.clone as TListObject;
   result.lValue.insert (0, d2.bValue);
   result.stackType := stList;
 end;
 
 procedure addListBoolfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.lValue := d2.lValue.clone;
+  result.lValue := d2.lValue.clone as TListObject;
   result.lValue.append(d1.bValue);
   result.stackType := stList;
 end;
 
 procedure addDoubleListfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.lValue := d1.lValue.clone;
+  result.lValue := d1.lValue.clone as TListObject;
   result.lValue.insert (0, d2.dValue);
   result.stackType := stList;
 end;
 
 procedure addListDoublefunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.lValue := d2.lValue.clone;
+  result.lValue := d2.lValue.clone as TListObject;
   result.lValue.append(d1.dValue);
   result.stackType := stList;
 end;
@@ -154,8 +154,8 @@ end;
 procedure addStringListfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 var tmp : TStringObject;
 begin
-  result.lValue := d1.lValue.clone;
-  tmp   := d2.sValue.clone;
+  result.lValue := d1.lValue.clone as TListObject;;
+  tmp   := d2.sValue.clone as TStringObject;
   tmp.blockType := btOwned;
   result.lValue.insert(0, tmp);
   result.stackType := stList;
@@ -163,8 +163,8 @@ end;
 
 procedure addListStringfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.lValue := d2.lValue.clone;
-  result.lValue.append(d1.sValue.clone);
+  result.lValue := d2.lValue.clone as TListObject;;
+  result.lValue.append(d1.sValue.clone as TStringObject);
   result.stackType := stList;
 end;
 
@@ -177,7 +177,7 @@ end;
 procedure addFuncListfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 var tmp : TUserFunction;
 begin
-  result.lValue := d1.lValue.clone;
+  result.lValue := d1.lValue.clone as TListObject;
   tmp := d2.fValue.clone;
   tmp.blockType := btOwned;
   result.lValue.insertUserFunction (0, tmp);
@@ -187,7 +187,7 @@ end;
 procedure addListFuncfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 var tmp : TUserFunction;
 begin
-  result.lValue := d2.lValue.clone;
+  result.lValue := d2.lValue.clone as TListObject;;
   tmp := d1.fValue.clone;
   tmp.blockType := btOwned;
   result.lValue.appendUserFunction(tmp);
@@ -196,29 +196,29 @@ end;
 
 procedure addListModulefunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.lValue := d2.lValue.clone;
+  result.lValue := d2.lValue.clone as TListObject;;
   result.lValue.appendModule (d1.module);
   result.stackType := stList;
 end;
 
 procedure addModuleListfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.lValue := d1.lValue.clone;
+  result.lValue := d1.lValue.clone as TListObject;;
   result.lValue.appendModule (d2.module);
   result.stackType := stList;
 end;
 
 procedure addListArrayfunc  (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.lValue := d2.lValue.clone;
-  result.lValue.append(d1.aValue.clone);
+  result.lValue := d2.lValue.clone as TListObject;;
+  result.lValue.append(d1.aValue.clone as TArrayObject);
   result.stackType := stList;
 end;
 
 procedure addArrayListfunc  (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.lValue := d1.lValue.clone;
-  result.lValue.append(d2.aValue.clone);
+  result.lValue := d1.lValue.clone as TListObject;;
+  result.lValue.append(d2.aValue.clone as TArrayObject);
   result.stackType := stList;
 end;
 
@@ -733,9 +733,9 @@ begin
   // This loop is used to mark every conbination of types with an error
   // function. We then assign actual functions for the ones we have.
   // This makes it easy to trap illegal combinations.
-  for s1 := stNone to stObject do
-      for s2 := stNone to stObject  do
-          addJumpTable[s1, s2] :=addErrorFunc;
+  for s1 := stNone to stNullObject do
+      for s2 := stNone to stNullObject  do
+          addJumpTable[s1, s2] := addErrorFunc;
 
   addJumpTable[stInteger, stInteger] := addIntIntfunc;
   addJumpTable[stInteger, stDouble]  := addIntDoublefunc;
@@ -783,8 +783,8 @@ begin
 
   // -----------------------------------------------------------------------
   // Subraction
-  for s1 := stNone to stObject do
-      for s2 := stNone to stObject  do
+  for s1 := stNone to stNullObject do
+      for s2 := stNone to stNullObject  do
           subJumpTable[s1, s2] := subErrorFunc;
 
   subJumpTable[stInteger, stInteger] := subIntIntfunc;
@@ -813,8 +813,8 @@ begin
 
   // -----------------------------------------------------------------------
   // Muliplication
-  for s1 := stNone to stObject do
-      for s2 := stNone to stObject  do
+  for s1 := stNone to stNullObject do
+      for s2 := stNone to stNullObject  do
           multJumpTable[s1, s2] := multErrorFunc;
 
   multJumpTable[stInteger,  stInteger]  := multIntIntfunc;
@@ -852,8 +852,8 @@ begin
 
   // -----------------------------------------------------------------------
   // Division
-  for s1 := stNone to stObject do
-      for s2 := stNone to stObject  do
+  for s1 := stNone to stNullObject do
+      for s2 := stNone to stNullObject  do
           divJumpTable[s1, s2] := divErrorFunc;
 
   divJumpTable[stInteger,  stInteger] := divIntIntfunc;

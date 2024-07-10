@@ -53,11 +53,11 @@ type
      function        getDim : TIndexArray;
      function        getNumberOfElements : integer;
      function        getNthDimension (i : integer) : integer;
+     function        getSize : integer; override;
 
      function        arrayToString () : string;
-     function        getMemorySize() : integer;
 
-     function        clone : TArrayObject;
+     function        clone : TDataObject; override;
      procedure       resize2D (n, m : integer);
 
      property        ndims : integer read getNumDimensions;
@@ -126,6 +126,7 @@ Uses SysUtils,
      uSymbolTable,
      uListObject,
      uVMExceptions,
+     uMatrixObject,
      uBuiltInGlobal;
 
 const outOfRangeMsg = 'Index out of range while accessing array element';
@@ -308,7 +309,7 @@ begin
      begin
      if s.dim[1] = appendee.dim[1] then
         begin
-        target := s.clone;
+        target := s.clone as TArrayObject;
         sRows := s.dim[0];
         target.resize2D (sRows + appendee.dim[0], s.dim[1]);
 
@@ -387,7 +388,7 @@ begin
    md := TVM (vm).popMethodDetails;
    s1 := TArrayObject (md.self);
 
-   s2 := s1.clone;
+   s2 := s1.clone as TArrayObject;
 
    len := s1.getNumberOfElements - 1;
    for i := 0 to len do
@@ -398,8 +399,7 @@ end;
 
 // eg c = a.add (b)
 procedure TArrayMethods.add (vm : TObject);
-var i, n : integer;
-    s1, s2 : TArrayObject;
+var s1, s2 : TArrayObject;
     argument : TArrayObject;
     md : TMethodDetails;
 begin
@@ -415,8 +415,7 @@ end;
 
 // c = a.sub (b)
 procedure TArrayMethods.sub (vm : TObject);
-var i, n : integer;
-    s1, s2 : TArrayObject;
+var s1, s2 : TArrayObject;
     argument : TArrayObject;
     md : TMethodDetails;
 begin
@@ -460,7 +459,7 @@ begin
   md := TVM (vm).popMethodDetails;
   s := TArrayObject (md.self);
 
-  target := s.clone;
+  target := s.clone as TArrayObject;
 
   for i := 0 to s.getNumberOfElements() - 1 do
       target.dataf[i] := trunc (s.dataf[i]);
@@ -618,14 +617,14 @@ begin
 end;
 
 
-function TArrayObject.clone : TArrayObject;
+function TArrayObject.clone : TDataObject;
 begin
   result := TArrayObject.Create (dim);
-  result.dataf := copy (self.dataf);
+  (result as TArrayObject).dataf := copy (self.dataf);
 end;
 
 
-function TArrayObject.getMemorySize() : integer;
+function TArrayObject.getSize() : integer;
 begin
   result := self.InstanceSize;
   result := result + getNumDimensions()*SizeOf(double);
@@ -694,12 +693,9 @@ end;
 function TArrayObject.NdimensionalArrayToString : string;
 var Indices: TArray<integer>;
     depth : integer;
-    i : integer;
 begin
   depth := 0;
   SetLength(Indices, 0);
-  //for i := 0 to 8 - 1 do dataf[i] := i+1;
-
   result := arrayRecursiveToString (Indices, depth);
 end;
 
@@ -707,7 +703,7 @@ end;
 // This needs to be redone at some point so that n-dimensional
 // arrays are convert to string format correctly.
 function TArrayObject.arrayToString: string;
-var i, j, n : integer;
+var i, j : integer;
     fmt : string;
 begin
     fmt := SysLibraryRef.find ('doubleFormat').sValue.value;
@@ -855,7 +851,7 @@ function TArrayObject.applyUniFunction (func : TUniFunction) : TArrayObject;
 var i, n : integer;
 begin
   n := self.getNumberOfElements();
-  result := self.clone();
+  result := self.clone() as TArrayObject;
   for i := 0 to n - 1 do
       result.dataf[i] := func (self.dataf[i]);
 end;
@@ -865,7 +861,7 @@ class function TArrayObject.minus (a : TArrayObject) : TArrayObject;
 var i, n : integer;
 begin
   n := a.getNumberOfElements();
-  result := a.clone();
+  result := a.clone() as TArrayObject;
   for i := 0 to n - 1 do
       result.dataf[i] := -a.dataf[i];
 end;
@@ -907,7 +903,7 @@ class function TArrayObject.add (a : TArrayObject; value : double) : TArrayObjec
 var i, n : integer;
 begin
   n := a.getNumberOfElements;
-  result := a.clone;
+  result := a.clone as TArrayObject;
   for i := 0 to n - 1 do
       result.dataf[i] := a.dataf[i] + value;
 end;
@@ -953,7 +949,7 @@ class function TArrayObject.subLeft (a : TArrayObject; value : double) : TArrayO
 var i, n : integer;
 begin
   n := a.getNumberOfElements;
-  result := a.clone;
+  result := a.clone as TArrayObject;
   for i := 0 to n - 1 do
       result.dataf[i] := a.dataf[i] - value;
 end;
@@ -963,7 +959,7 @@ class function TArrayObject.subRight (a : TArrayObject; value : double) : TArray
 var i, n : integer;
 begin
   n := a.getNumberOfElements;
-  result := a.clone;
+  result := a.clone as TArrayObject;
   for i := 0 to n - 1 do
       result.dataf[i] := value - a.dataf[i];
 end;
@@ -982,7 +978,7 @@ end;
 class function TArrayObject.arrayScalarDoubleMult (m : TArrayObject; alpha : double) : TArrayObject;
 var n : integer;
 begin
-  result := m.clone;
+  result := m.clone as TArrayObject;
   n := m.getNumberOfElements;
   for var i := 0 to n - 1 do
       result.dataf[i] := alpha*m.dataf[i];
@@ -1014,7 +1010,7 @@ end;
 class function TArrayObject.divide (a : TArrayObject; value : double; reciprocal : boolean) : TArrayObject;
 var i : integer;
 begin
-  result := a.clone;
+  result := a.clone as TArrayObject;
   for i := 0 to a.getNumberOfElements() - 1 do
       if reciprocal then
          result.dataf[i] := value/a.dataf[i]
@@ -1059,12 +1055,12 @@ end;
 
 // This is a tough one.
 class function TArrayObject.toList (a : TArrayObject) : TDataObject;  // Due to circular reference issue
-var i, j : integer;
-    l : TListObject;
-    item : TListItem;
-    row : TListObject;
+//var l : TListObject;
+//    i, j : integer;
+//    item : TListItem;
+//    row : TListObject;
 begin
-  l := TListObject.Create;
+  result := TListObject.Create;
 
   // Create the rows, each row is numCols wide
 //  for i := 0 to m.numRows - 1 do
@@ -1082,8 +1078,9 @@ end;
 
 
 class function TArrayObject.toMatrix (a : TArrayObject) : TDataObject;
+//var l : TListObject;
 begin
-
+  result := TMatrixObject.Create;
 end;
 
 

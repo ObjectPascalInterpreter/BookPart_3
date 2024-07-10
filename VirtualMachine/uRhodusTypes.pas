@@ -32,6 +32,7 @@ type
           symVector, // Not actually exposed to the user, used internally
           symMatrix,
           symValueObject,
+          symObject,
           symUserFunc,
           symModule);
 

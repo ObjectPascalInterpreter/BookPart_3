@@ -31,6 +31,7 @@ type
 
       function  clone : TValueObject;
       function  getScalar : double;
+      function  getSize : integer; override;
 
       constructor     Create; overload;
       constructor     Create (value : double); overload;
@@ -104,6 +105,7 @@ end;
 
 function TValueObject.getScalar : double;
 begin
+  result := 0;
   case valueType of
     vtInteger : result := iValue;
     vtDouble : result := dValue;
@@ -115,6 +117,7 @@ end;
 
 class function TValueObject.getValue(value : TValueObject) : double;
 begin
+  result := 0;
   case value.valueType of
     vtInteger : result := value.iValue;
     vtDouble : result := value.dValue;
@@ -142,6 +145,18 @@ begin
      vtDouble : result := floattostr (dValue);
   else
    raiseInternalError('Internal error in valueToString (uValueObject), missing type');
+  end;
+end;
+
+
+function TValueObject.getSize : integer;
+begin
+  result := 0;
+  case valueType of
+     vtInteger : result := sizeof (iValue);
+     vtDouble : result := sizeof (dValue);
+  else
+   raiseInternalError('Internal error in getSize (uValueObject), unknown type');
   end;
 end;
 

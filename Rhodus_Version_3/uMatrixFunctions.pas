@@ -11,161 +11,129 @@ interface
 
 Uses SysUtils, uMatrixObject, uVMExceptions;
 
-procedure determinant (m : TMatrixObject; var det : double);
-procedure LU (m : TMatrixObject; var L, U, P : TMatrixObject; var pindex : TArray<integer>);
+procedure determinant (A : TMatrixObject; var det : double);
+function LU (A : TMatrixObject; var L, U, P : TMatrixObject; var swaps: Integer) : boolean;
 procedure GaussJordan(A : TMatrixObject; Lb, Ub1, Ub2 : Integer);
 procedure solve (A, b, x : TMatrixObject);
+procedure reducedRowEchelon (A : TMatrixObject; var echelon : TMatrixObject);
+procedure QRFactorization(A: TMatrixObject; var Q, R: TMatrixObject);
 
 implementation
 
-Uses uRhodusTypes;
+Uses uRhodusTypes, Math;
 
 const
    MachEp = 2.220446049250313E-16;
 
-// det = det (P) * det (U)
-procedure determinant (m : TMatrixObject; var det : double);
-var i : integer;
-    nr, nc : integer;
-    L, U, P : TMatrixObject;
-    pindex : TArray<integer>;
+procedure determinant (A: TMatrixObject; var det : double);
+var
+  L, U, P: TMatrixObject;
+  n, i: Integer;
+  swaps: Integer;
 begin
-  nr := m.numRows;
-  nc := m.numCols;
-  if nr <> nc then
-     raise ERuntimeException.Create('Matrix must be square to compute the determinant (' + inttostr (nr) + ', ' + inttostr (nc) + ')');
+  n := A.numRows;
 
-  try
-    uMatrixFunctions.LU (m, L, U, P, pindex);
-    det := 1;
-    for i := 0 to nr - 1 do
-        det := det * U[i,i];
+  // Perform LU decomposition
+  if not LU (A, L, U, P, swaps) then
+     raise ERuntimeException.Create ('LU decomposition failed. Matrix may be singular.');
 
-    for i := 0 to nr-1 do
-        begin
-        if pindex[i] <> i then
-           det := det * -1
-         end;
-    setlength (pindex, 0);
-  finally
+  // Compute the product of diagonal elements of U
+  det := 1;
+  for i := 0 to n - 1 do
+    det := det * U[i, i];
 
-  end;
+  // If odd number of swaps, negate the determinant
+  if Odd(swaps) then
+    det := -det;
 end;
 
 
-// This function is based on the code fom tpmath
-// https://www.unilim.fr/pages_perso/jean.debord/tpmath/tpmath.htm
-procedure LU (m : TMatrixObject; var L, U, P : TMatrixObject; var pindex : TArray<integer>);
-  var
-    i, j, k, Imax : Integer;
-    Pvt, T, Sum : double;
-    v : TArray<double>;
-    nr, nc : integer;
-    cm : TMatrixObject;
-    Lb, Ub, apindex : integer;
-    tmp : double;
+// Compute the LU factorizatin for matrix A. This only supports square matrices
+function LU (A: TMatrixObject; var L, U, P: TMatrixObject; var swaps: Integer): Boolean;
+var
+  n, i, j, k, maxIndex: Integer;
+  maxValue, temp: Double;
 begin
-  cm := m.clone();
+  if A.numRows <> A.numCols then
+     raise ERuntimeException.Create ('This implementation of LU decomposition only supports square matrices');
+  n := A.numRows;
+  L := TMatrixObject.Create(n, n);
+  U := TMatrixObject.Create(n, n);
+  P := TMatrixObject.Create(n, n);
+  swaps := 0;
 
-  nr := m.numRows;
-  nc := m.numCols;
-  if nr <> nc then
-     raise ERuntimeException.Create('LU decomposition for a non-square matrix is not supported (' + inttostr (nr) + ', ' + inttostr (nc) + ')');
+  // Initialize P as identity matrix
+  for i := 0 to n - 1 do
+  begin
+    for j := 0 to n - 1 do
+      P[i, j] := 0;
+    P[i, i] := 1;
+  end;
 
-  Lb := 0; Ub := nr;
-  setlength (v, Ub);
-  setlength (pindex, Ub);
+  // Copy A to U
+  for i := 0 to n - 1 do
+    for j := 0 to n - 1 do
+      U[i, j] := A[i, j];
 
-   for i := Lb to Ub - 1 do
+  // LU decomposition with partial pivoting
+  for k := 0 to n - 1 do
+  begin
+    // Find pivot
+    maxValue := Abs(U[k, k]);
+    maxIndex := k;
+    for i := k + 1 to n - 1 do
+    begin
+      if Abs(U[i, k]) > maxValue then
       begin
-        Pvt := 0.0;
-        for j := Lb to Ub - 1do
-          if abs(cm[i,j]) > Pvt then
-            Pvt := abs(cm[i,j]);
-        if Pvt < MachEp then
-           raise ERuntimeException.Create('Matrix is singular or close to being singular (' + inttostr (nr) + ', ' + inttostr (nc) + ')');
-        v[i] := 1.0 / Pvt;
+        maxValue := Abs(U[i, k]);
+        maxIndex := i;
       end;
+    end;
 
-   for j := Lb to Ub - 1 do
+    // Swap rows if necessary
+    if maxIndex <> k then
+    begin
+      Inc(swaps);
+      for j := 0 to n - 1 do
       begin
-        for i := Lb to Pred(j) do
-          begin
-            Sum := cm[i,j];
-            for k := Lb to Pred(i) do
-              Sum := Sum - cm[i,k] * cm[k,j];
-            cm[i,j] := Sum;
-          end;
-        Imax := 0;
-        Pvt := 0.0;
-        for i := j to Ub - 1 do
-          begin
-            Sum := cm[i,j];
-            for k := Lb to Pred(j) do
-              Sum := Sum - cm[I,K] * cm[K,J];
-            cm[I,J] := Sum;
-            T := v[I] * abs(Sum);
-            if T > Pvt then
-              begin
-                Pvt := T;
-                Imax := I;
-              end;
-          end;
-        if j <> Imax then
-          begin
-            for k := Lb to Ub - 1 do
-                begin
-                // swap elements
-                tmp := cm[Imax,k];
-                cm[Imax,k] := cm[J,K];
-                cm[J,K] := tmp;
-                end;
-            V[Imax] := V[J];
-          end;
-        pIndex[j] := Imax;
-        if cm[j,j] = 0.0 then
-          cm[J,J] := MachEp;
-        if J <> Ub then
-          begin
-            T := 1.0 / cm[j,j];
-            for i := Succ(j) to Ub - 1 do
-              cm[i,j] := cm[i,j] * T;
-          end;
+        temp := U[k, j];
+        U[k, j] := U[maxIndex, j];
+        U[maxIndex, j] := temp;
+
+        temp := P[k, j];
+        P[k, j] := P[maxIndex, j];
+        P[maxIndex, j] := temp;
+
+        if j < k then
+        begin
+          temp := L[k, j];
+          L[k, j] := L[maxIndex, j];
+          L[maxIndex, j] := temp;
+        end;
       end;
+    end;
 
-   // Pull out the L and U matrix
-  L := cm.clone;
-  U := cm.clone;
+    // Check for singular matrix
+    if U[k, k] = 0 then
+    begin
+      Result := False;
+      Exit;
+    end;
 
-  for i := 0 to nr - 1 do
-      L[i,i] := 0;
+    // Compute elements of L and update U
+    for i := k + 1 to n - 1 do
+    begin
+      L[i, k] := U[i, k] / U[k, k];
+      for j := k to n - 1 do
+        U[i, j] := U[i, j] - L[i, k] * U[k, j];
+    end;
+  end;
 
-  for i := 0 to nr - 1 do
-      for j := i + 1 to j - 1 do
-            L[i,j] := 0;
-  for i := 0 to nr - 1 do
-      L[i,i] := 1;
+  // Set diagonal of L to 1
+  for i := 0 to n - 1 do
+    L[i, i] := 1;
 
-  for i := 1 to nr - 1 do
-      for j := 0 to i - 1 do
-            U[i,j] := 0;
-
-  // Create the pivot matrix
-  // The permutation vector needs to be interpreted in sequence.
-  // If piv=[1,2,2] then the following needs to be done in
-  // sequence (with zero-based indexing):
-
-  // Row 0 changes with Row 1
-  // The new Row 1 changes with Row 2 and
-  // The new Row 2 stays the same.
-
-  P := TMatrixObject.CreateIdent(nr);
-  for i := 0 to nr - 1 do
-      begin
-      apindex := pIndex[i];
-      P.swapRows(i, apindex)
-      end;
-  setlength (v, 0);
+  Result := True;
 end;
 
 
@@ -193,11 +161,11 @@ procedure GaussJordan(A            : TMatrixObject;
                       Lb, Ub1, Ub2 : Integer);
 var
   Pvt        : Double;       { Pivot }
-  ik, jk     : Integer;     { Pivot's row and column }
-  i, j, k    : Integer;     { Loop variables }
+  ik, jk     : Integer;      { Pivot's row and column }
+  i, j, k    : Integer;      { Loop variables }
   T          : Double;       { Temporary variable }
   PRow, PCol : TIndexArray;  { Stores pivot's row and column }
-  MCol       : TDoubleArray;     { Stores a column of matrix A }
+  MCol       : TDoubleArray; { Stores a column of matrix A }
   tmp : double;
 
 begin
@@ -308,53 +276,305 @@ begin
 end;
 
 
+procedure swapRows(var Matrix: TMatrixObject; Row1, Row2: Integer);
+var
+  Temp: array of Double;
+  i: Integer;
+begin
+  SetLength(Temp, length (Matrix.row[Row1]));
+  for i := 0 to High(Matrix.row[Row1]) do
+    Temp[i] := Matrix[Row1, i];
+
+  for i := 0 to High(Matrix.row[Row1]) do
+    Matrix[Row1, i] := Matrix[Row2, i];
+
+  for i := 0 to High(Matrix.row[Row1]) do
+    Matrix[Row2, i] := Temp[i];
+end;
+
+
+// Determine the reduced row echelon of a matrix A. Answer returned in echelon
+procedure reducedRowEchelon (A : TMatrixObject; var echelon : TMatrixObject);
+var
+  Lead, nRows, nCols, i, j, k: Integer;
+  Temp: Double;
+begin
+  nRows := A.numRows;
+  nCols := A.numCols;
+  Lead := 0;
+
+  echelon := A.clone as TMatrixObject;;
+
+  for i := 0 to nRows - 1 do
+  begin
+    if Lead >= nCols then
+      Exit;
+    j := i;
+    while echelon[j, Lead] = 0 do
+    begin
+      Inc(j);
+      if j = nRows then
+      begin
+        j := i;
+        Inc(Lead);
+        if nCols = Lead then
+          Exit;
+      end;
+    end;
+
+    SwapRows(echelon, i, j);
+
+    Temp := echelon[i, Lead];
+    for j := 0 to nCols - 1 do
+      echelon[i, j] := echelon[i, j] / Temp;
+
+    for j := 0 to nRows - 1 do
+    begin
+      if j <> i then
+      begin
+        Temp := echelon[j, Lead];
+        for k := 0 to nCols - 1 do
+          echelon[j, k] := echelon[j, k] - Temp * echelon[i, k];
+      end;
+    end;
+    Inc(Lead);
+  end;
+end;
+
+
+// Solve the system Ab = x.
+// A is a matrix, b is a column vector (using {{},{}...}), x is a column vector
 procedure solve (A, b, x : TMatrixObject);
-var pindex : TArray<integer>;
-    m, L, U, P, LUM : TMatrixObject;
-    i, j, K : integer;
-    Ub, Ip : integer;
+var L, U, P : TMatrixObject;
+    i, j : integer;
+    Pb, y : TArray<double>;
+    numSwaps, n : integer;
     sum : double;
 begin
-  Ub := A.numRows;
-  m := A.clone;
-  LU (m, L, U, P, pindex);
-  for i := 0 to Ub - 1 do
-      L[i,i] := 0;
-
-  LUM := TMatrixObject.add(L, U);
-
   if A.numRows > 1 then
      begin
-     // Make sure b is a row form
+     // Make sure b is in row form
       if b.numRows > 1 then
          b := TMatrixObject.transpose (b);
      end;
 
-  for i := 0 to Ub - 1 do
-      x[0,i] := b[0,i];
+  LU(A, L, U, P, numSwaps);
 
-    K := Pred(0);
-    for i := 0 to Ub - 1 do
+  // Apply permutation matrix P to vector b
+  n := b.numCols;
+  SetLength(Pb, n);
+  for i := 0 to n - 1 do
       begin
-        Ip := pIndex[i];
-        sum := x[0,Ip];
-        x[0,Ip] := x[0,i];
-        if K >= 0 then
-          for J := K to Pred(i) do
-            sum := sum - LUM[i,j] * X[0,j]
-        else if sum <> 0.0 then
-          K := i;
-        x[0,i] := sum;
+      Pb[i] := 0.0;
+      for j := 0 to n - 1 do
+        Pb[i] := Pb[i] + P[i, j] * b[0,j];
       end;
 
-    for i := Ub - 1 downto 0 do
+  // Solve Ly = Pb using forward substitution
+  setlength (y, n);
+  for i := 0 to n - 1 do
+    begin
+    sum := 0.0;
+    for j := 0 to i - 1 do
+       sum := sum + L[i, j] * y[j];
+    y[i] := (Pb[i] - sum) / L[i, i];
+    end;
+
+  // Solve Ux = y using backward substitution
+  for i := n - 1 downto 0 do
       begin
-        Sum := x[0,i];
-        if i < Ub then
-          for j := Succ(i) to Ub - 1 do
-            sum := Sum - LUM[i,j] * X[0,j];
-        X[0,i] := Sum / LUM[i,i];
+      sum := 0.0;
+      for j := i + 1 to n - 1 do
+         sum := sum + U[i, j] * x[0,j];
+      x[0,i] := (y[i] - sum) / U[i, i];
       end;
 end;
+
+
+
+function DotProduct(const A, B: TRow): Extended;
+var
+  i: Integer;
+begin
+  Result := 0;
+  for i := 0 to High(A) do
+    Result := Result + A[i] * B[i];
+end;
+
+
+function VectorNorm(const V: TRow): Extended;
+begin
+  Result := Sqrt(DotProduct(V, V));
+end;
+
+
+function VectorSubtract(const v1, v2: TRow): TRow;
+var
+  i: Integer;
+begin
+  SetLength(Result, Length(v1));
+  for i := 0 to High(v1) do
+    Result[i] := v1[i] - v2[i];
+end;
+
+
+function ScalarMultiply(const v: TRow; scalar: Double): TRow;
+var
+  i: Integer;
+begin
+  SetLength(Result, Length(v));
+  for i := 0 to High(v) do
+    Result[i] := v[i] * scalar;
+end;
+
+
+function HouseholderReflection(const x: TRow): TRow;
+var
+  alpha, r: Double;
+  e, u, v: TRow;
+  i: Integer;
+begin
+  SetLength(e, Length(x));
+  e[0] := 1.0;
+  alpha := Norm(x);
+  if x[0] > 0 then
+    alpha := -alpha;
+  u := VectorSubtract(x, ScalarMultiply(e, alpha));
+  r := Norm(u);
+  if r = 0 then
+    Result := u
+  else
+    Result := ScalarMultiply(u, 1.0 / r);
+end;
+
+function ApplyHouseholder(const A: TMatrixObject; const v: TRow; k: Integer): TMatrixObject;
+var
+  i, j: Integer;
+  beta: Double;
+  w: TRow;
+begin
+  result := TMatrixObject.Create(A.numRows, A.numCols);
+  for i := 0 to A.numRows - 1 do
+    for j := 0 to A.numCols - 1 do
+      Result[i,j] := A[i,j];
+
+  beta := 2.0 / DotProduct(v, v);
+
+  SetLength(w, A.numCols);
+  for j := k to A.numCols - 1 do
+  begin
+    w[j] := 0.0;
+    for i := k to A.numRows - 1 do
+      w[j] := w[j] + v[i - k] * A[i,j];
+    w[j] := beta * w[j];
+  end;
+
+  for i := k to A.numRows - 1 do
+    for j := k to A.numCols - 1 do
+      Result[i,j] := A[i,j] - v[i - k] * w[j];
+end;
+
+
+procedure QRFactorization(A: TMatrixObject; var Q, R: TMatrixObject);
+var
+  m, n, k, i, j: Integer;
+  H, Qk: TMatrixObject;
+  x, v: TRow;
+begin
+  m := A.numRows;
+  n := A.numCols;
+  R := TMatrixObject.Create(m, n);
+  for i := 0 to m - 1 do
+    for j := 0 to n - 1 do
+      R[i,j] := A[i,j];
+
+  Q := TMatrixObject.Create(m, m);
+  for i := 0 to m - 1 do
+    for j := 0 to m - 1 do
+      if i = j then
+        Q[i,j] := 1.0
+      else
+        Q[i,j] := 0.0;
+
+  for k := 0 to Math.Min(m, n) - 1 do
+  begin
+    SetLength(x, m - k);
+    for i := k to m - 1 do
+      x[i - k] := R[i,k];
+
+    v := HouseholderReflection(x);
+
+    R := ApplyHouseholder(R, v, k);
+
+    H := TMatrixObject.Create(m, m);
+    for i := 0 to m - 1 do
+      for j := 0 to m - 1 do
+        if i = j then
+          H[i,j] := 1.0
+        else
+          H[i,j] := 0.0;
+    for i := k to m - 1 do
+      for j := k to m - 1 do
+        H[i,j] := H[i,j] - 2 * v[i - k] * v[j - k];
+
+    Q := TMatrixObject.dotmult(Q, H);
+  end;
+end;
+
+
+//function QRFactorization(const A: TMatrixObject; out Q, R: TMatrixObject): Boolean;
+//var
+//  m, n, i, j, k: Integer;
+//  U, E: array of TRow;
+//  NormU: Extended;
+//begin
+//  Result := False;
+//  m := A.numRows;    // Number of rows
+//  n := A.numCols; // Number of columns
+//
+//  // Ensure m >= n for the factorization to work
+//  if m < n then
+//    Exit;
+//
+//  SetLength(U, n);
+//  SetLength(E, n);
+//  Q := TMatrixObject.Create(m, n);
+//  R := TMatrixObject.Create(n, n);
+//
+//  for i := 0 to n - 1 do
+//  begin
+//    SetLength(U[i], m);
+//    SetLength(E[i], m);
+//
+//    // Copy the i-th column of A to U[i]
+//    for j := 0 to m - 1 do
+//      U[i,j] := A[j,i];
+//
+//    // Gram-Schmidt process
+//    for k := 0 to i - 1 do
+//    begin
+//      R[k,i] := DotProduct(E[k], U[i]);
+//      for j := 0 to m - 1 do
+//        U[i,j] := U[i,j] - R[k,i] * E[k,j];
+//    end;
+//
+//    NormU := VectorNorm(U[i]);
+//    if NormU < 1e-10 then // Use a small threshold instead of exact zero
+//      Exit;
+//
+//    R[i,i] := NormU;
+//    for j := 0 to m - 1 do
+//      E[i,j] := U[i,j] / NormU;
+//
+//    // Store the i-th column of Q
+//    for j := 0 to m - 1 do
+//      Q[j,i] := E[i,j];
+//  end;
+//
+//  Result := True;
+//end;
+
+
+
 
 end.

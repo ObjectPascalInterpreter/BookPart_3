@@ -80,7 +80,7 @@ type
        userFunctionMethods : TUserFunctionMethods;
 
        function    clone : TUserFunction;
-       function    getSize : integer;
+       function    getSize : integer; override;
        constructor Create; overload;
        constructor Create (methodName : string); overload;
        constructor Create (methodName : string; nArgs : integer; funcPtr : TxBuiltInFunction); overload;
@@ -107,6 +107,8 @@ type
        voValue : TValueObject;
        fValue  : TUserFunction;
        mValue  : TModule;
+
+       obj     : TDataObject;
 
        // A convenient place to store these
        class var   mainModuleId : string;
@@ -153,6 +155,7 @@ type
         procedure storeValueObject  (symbol : TSymbol; voValue : TValueObject);
 
         procedure storeFunction (symbol : TSymbol; fValue : TUserFunction);
+        procedure storeObject (symbol : TSymbol; obj : TDataObject);
         procedure storeModule (symbol : TSymbol; mValue : TObject);
 
         constructor Create;
@@ -799,7 +802,7 @@ begin
   checkForExistingData (symbol);
 
   if (sValue.blockType = btConstant) or (sValue.blockType = btBound) then
-     symbol.sValue := sValue.clone
+     symbol.sValue := sValue.clone as TStringObject
   else
      symbol.sValue := sValue;
 
@@ -815,7 +818,7 @@ begin
   if  (lValue.blockType = btConstant) or
       (lValue.blockType = btBound) or
       (lValue.blockType = btOwned) then
-         symbol.lValue := lValue.clone
+         symbol.lValue := lValue.clone as TListObject
   else
      symbol.lValue := lValue;
   symbol.lValue.blockType := btBound;
@@ -830,7 +833,7 @@ begin
   if  (aValue.blockType = btConstant) or
       (aValue.blockType = btBound) or
       (aValue.blockType = btOwned) then
-         symbol.aValue := aValue.clone
+         symbol.aValue := aValue.clone as TArrayObject
   else
      symbol.aValue := aValue;
   symbol.aValue.blockType := btBound;
@@ -845,7 +848,7 @@ begin
   if  (vValue.blockType = btConstant) or
       (vValue.blockType = btBound) or
       (vValue.blockType = btOwned) then
-         symbol.vValue := vValue.clone
+         symbol.vValue := vValue.clone as TVectorObject
   else
      symbol.vValue := vValue;
   symbol.vValue.blockType := btBound;
@@ -860,7 +863,7 @@ begin
   if  (matValue.blockType = btConstant) or
       (matValue.blockType = btBound) or
       (matValue.blockType = btOwned) then
-         symbol.matValue := matValue.clone
+         symbol.matValue := matValue.clone as TMatrixObject
   else
      symbol.matValue := matValue;
   symbol.matValue.blockType := btBound;
@@ -875,7 +878,7 @@ begin
   if  (voValue.blockType = btConstant) or
       (voValue.blockType = btBound) or
       (voValue.blockType = btOwned) then
-         symbol.voValue := voValue.clone
+         symbol.voValue := voValue.clone as TValueObject
   else
      symbol.voValue := voValue;
   symbol.voValue.blockType := btBound;
@@ -896,6 +899,21 @@ begin
 
   symbol.fValue.blockType := btBound;
   symbol.symbolType := symUserFunc;
+end;
+
+
+procedure TSymbolTable.storeObject (symbol : TSymbol; obj : TDataObject);
+begin
+  if symbol.locked then
+    raise ERuntimeException.Create ('Value is locked, you cannot change it');
+
+  if (obj.blockType = btConstant) or (obj.blockType = btBound) then
+     symbol.obj := obj.clone
+  else
+     symbol.obj := obj;
+
+  symbol.obj.blockType := btBound;
+  symbol.symbolType := symObject;
 end;
 
 
@@ -1054,31 +1072,31 @@ begin
             begin
             result.addSymbol (self[i].symbolName);
             result[i].symbolType := symString;
-            self[i].sValue := self[i].sValue.clone;
+            self[i].sValue := self[i].sValue.clone as TStringObject;
             end;
          symList :
             begin
             result.addSymbol (self[i].symbolName);
             result[i].symbolType := symList;
-            self[i].lValue := self[i].lValue.clone;
+            self[i].lValue := self[i].lValue.clone as TListObject;
             end;
          symArray :
             begin
             result.addSymbol (self[i].symbolName);
             result[i].symbolType := symArray;
-            self[i].aValue := self[i].aValue.clone;
+            self[i].aValue := self[i].aValue.clone as TArrayObject;
             end;
          symVector :
             begin
             result.addSymbol (self[i].symbolName);
             result[i].symbolType := symVector;
-            self[i].vValue := self[i].vValue.clone;
+            self[i].vValue := self[i].vValue.clone as TVectorObject;
             end;
          symMatrix :
             begin
             result.addSymbol (self[i].symbolName);
             result[i].symbolType := symMatrix;
-            self[i].matValue := self[i].matValue.clone;
+            self[i].matValue := self[i].matValue.clone as TMatrixObject;
             end;
          symValueObject :
             begin
@@ -1203,7 +1221,7 @@ begin
   checkForExistingData (index);
 
   if (sValue.blockType = btConstant) or (sValue.blockType = btBound) then
-     self[index].sValue := sValue.clone
+     self[index].sValue := sValue.clone as TStringObject
   else
      self[index].sValue := sValue;
 
@@ -1226,7 +1244,7 @@ begin
   if  (lValue.blockType = btConstant) or
       (lValue.blockType = btBound) or
       (lValue.blockType = btOwned) then
-         self[index].lValue := lValue.clone
+         self[index].lValue := lValue.clone as TListObject
   else
      self[index].lValue := lValue;
   self[index].lValue.blockType := btBound;
@@ -1248,7 +1266,7 @@ begin
   if  (aValue.blockType = btConstant) or
       (aValue.blockType = btBound) or
       (aValue.blockType = btOwned) then
-         self[index].aValue := aValue.clone
+         self[index].aValue := aValue.clone as TArrayObject
   else
      self[index].aValue := aValue;
   self[index].lValue.blockType := btBound;

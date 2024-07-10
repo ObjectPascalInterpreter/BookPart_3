@@ -16,6 +16,8 @@ unit uBuiltInGlobal;
   email: hsauro@gmail.com
 }
 
+{$WARN SYMBOL_PLATFORM OFF}
+
 interface
 
 
@@ -78,8 +80,7 @@ type
        //destructor  Destroy; override;
   end;
 
-var  builtInGlobal : TBuiltInGlobal;
-     debugCallback : TUserFunction;
+var  debugCallback : TUserFunction;
 
 procedure debugProc (vm : TObject);
 var oldDebug : boolean;
@@ -399,56 +400,6 @@ begin
 end;
 
 
-function getModuleHelp (m : TModule) : string;
-var f : TUserFunction;
-    vo : TValueObject;
-    key : string;
-begin
-  result := 'Module: ' + m.moduleName + ', ' + m.help.getHelp() + sLineBreak;
-  result := result + Format('%-12s%-12s%-11s%', ['Type', 'Name', 'Help']) + sLineBreak;
-  for key in m.symbolTable.keys do
-      begin
-      case m.symbolTable.Items[key].symbolType of
-         symUserFunc :
-             begin
-             f := m.symbolTable.Items[key].fValue;
-             result := result + Format('%-12s', ['Function:']) +
-                        Format('%-12s', [f.methodName])  +  f.help.getHelp() + sLineBreak;
-             end;
-         symValueObject :
-             begin
-             vo := m.symbolTable.Items[key].voValue;
-             result := result + Format('%-12s', ['Function:']) +
-                        Format('%-12s', [f.methodName])  +  f.help.getHelp() + sLineBreak;
-
-             end
-      else
-         result := 'Ther is no help for these kinds of objects'; // HMS
-         //result := result + Format('%-12s', ['Variable:']) +
-         //       Format ('%-12s', [m.symbolTable.Items[key].symbolName])  + m.symbolTable.Items[key].helpStr + sLineBreak;
-      end;
-      end;
-end;
-
-
-//procedure TBuiltInGlobal.myHelp (vm : TObject);
-//var x : PMachineStackRecord;
-//begin
-//  x := TVM (vm).pop;
-//  case x.stackType of
-//    stInteger  : TVM (vm).push (TStringObject.create ('Integer Value'));
-//    stBoolean  : TVM (vm).push (TStringObject.create ('Boolean Value'));
-//    stDouble   : TVM (vm).push (TStringObject.create ('Double value: ' + floattostr (x.dValue)));
-//    stString   : TVM (vm).push (TStringObject.create ('String Value'));
-//    stList     : TVM (vm).push (TStringObject.create ('List Value'));
-//    stModule   : TVM (vm).push (TStringObject.create (getModuleHelp (x.module)));
-//    stFunction : TVM (vm).push (TStringObject.create ('User Function: ' + x.fvalue.helpStr));
-//  else
-//    TVM (vm).push (TStringObject.create ('Undefined Value'));
-//  end;
-//end;
-
-
 class procedure TBuiltInGlobal.readString (vm : TObject);
 var s : string;
     sObj : TStringObject;
@@ -717,7 +668,7 @@ end;
 
 
 class procedure TBuiltInGlobal.startDebug (vm : TObject);
-var f : TUserFunction;
+//var f : TUserFunction;
 begin
   debugCallback := TVM (vm).popUserFunction();
   TVM (vm).setDebugCallBack(debugProc);
@@ -728,8 +679,7 @@ begin
 end;
 
 class procedure TBuiltInGlobal.test (vm : TObject);
-var f : TUserFunction;
-    x, y: integer;
+var x, y: integer;
 begin
   x := TVM (vm).popInteger;
   y := TVM (vm).popInteger;

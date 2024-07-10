@@ -108,7 +108,7 @@ type
     procedure AssertTrueStatement;
     procedure AssertTrueExStatement;
     procedure AssertFalseStatement;
-    procedure helpStatement;
+    //rocedure helpStatement;   // HMS Not yet implemented
   public
     tokenVector : TTokenVector;
     procedure   parseModule(moduleName: string);
@@ -672,17 +672,18 @@ begin
 end;
 
 
-procedure TSyntaxParser.helpStatement;
-begin
-  nextToken;
-  if tokenVector.token = tLeftParenthesis then
-     begin
-     nextToken;
-     expression;
+//procedure TSyntaxParser.helpStatement;
+//begin
+//  nextToken;
+//  if tokenVector.token = tLeftParenthesis then
+//     begin
+//     nextToken;
+//     expression;
+//
+//     expect(tRightParenthesis);
+//     end;
+//end;
 
-     expect(tRightParenthesis);
-     end;
-end;
 // exprStatement = expression '=' expression
 // There are however some restrictions on the left-hand expression
 
@@ -809,7 +810,6 @@ end;
 // (while) -> (condition) and (statementList)
 procedure TSyntaxParser.parseWhileStatement;
 var
-  breakJump: integer;
   breakStack: TStack<integer>;
 begin
   breakStack := TStack<integer>.Create;
@@ -826,7 +826,7 @@ begin
     expect(tEnd);
 
     while breakStack.Count > 0 do
-        breakJump := breakStack.Pop;
+        breakStack.Pop;
   finally
     breakStack := stackOfBreakStacks.Pop;
     breakStack.Free;
@@ -839,7 +839,6 @@ end;
 // (repeat) -> (statementList) and (condition)
 procedure TSyntaxParser.parseRepeatStatement;
 var
-  breakJump: integer;
   breakStack: TStack<integer>;
 begin
   breakStack := TStack<integer>.Create;
@@ -854,7 +853,7 @@ begin
     expression;
 
     while breakStack.Count > 0 do
-        breakJump := breakStack.Pop;
+        breakStack.Pop;
   finally
     breakStack := stackOfBreakStacks.Pop;
     breakStack.Free;
@@ -870,8 +869,6 @@ end;
 // (assign) -> (symbol) and (expression)
 procedure TSyntaxParser.forStatement;
 var
-  toToken: TTokenCode;
-  breakJump: integer;
   breakStack: TStack<integer>;
 begin
   breakStack := TStack<integer>.Create;
@@ -891,7 +888,7 @@ begin
        statementList;
 
        while breakStack.Count > 0 do
-         breakJump := breakStack.Pop;
+           breakStack.Pop;
 
        expect(tEnd);
        exit;
@@ -902,10 +899,7 @@ begin
     expression;
 
     if tokenVector.token in [tTo, tDownTo] then
-       begin
-       toToken := tokenVector.token;
-       nextToken;
-       end
+       nextToken
     else
       raise ESyntaxException.Create ('expecting "to" or "downto" in for loop', tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber);
 
@@ -928,7 +922,7 @@ begin
     statementList;
 
     while breakStack.Count > 0 do
-      breakJump := breakStack.Pop;
+      breakStack.Pop;
 
     expect(tEnd);
   finally

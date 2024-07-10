@@ -9,6 +9,8 @@ unit uCommands;
 
 // All console commands are hendled here
 
+{$WARN SYMBOL_PLATFORM OFF}
+
 interface
 
 Uses Windows, Classes, SysUtils, StrUtils, Generics.Collections, uVM, uRhodusEngine;
@@ -114,6 +116,7 @@ end;
 function reStartCommand (argument : string) : boolean;
 begin
   // Executed in the reply itself. This is used to get the command in the help system
+  result := True;
 end;
 
 function helpCommand (argument : string) : boolean;

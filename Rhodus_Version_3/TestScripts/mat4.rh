@@ -9,14 +9,13 @@ setColor("white")
 // LU Factorization Tests
 
 testUtils.beginTests ("LU factor")
-m = {{1,  3, -2},{3,  5,  6},{2,  4,  3}}
-lu = mat.lu (m)
+  m = {{1,  3, -2},{3,  5,  6},{2,  4,  3}}
+  lu = mat.lu (m)
 
-
-testUtils.runtestTrue(lu[2]@m == lu[0]@lu[1])
-m = {{2, 7, 1},{3,-2,0},{1,5,3}}
-lu = mat.lu (m)
-testUtils.runtestTrue(lu[2]@m == lu[0]@lu[1])
+  testUtils.runtestTrue(lu[2]@m == lu[0]@lu[1])
+  m = {{2, 7, 1},{3,-2,0},{1,5,3}}
+  lu = mat.lu (m)
+  testUtils.runtestTrue(lu[2]@m == lu[0]@lu[1])
 
 m = {{4,5,6},{7,8,9},{10,11,12}}
 lu = mat.lu (m)
@@ -35,28 +34,36 @@ testUtils.runtestTrue(lu[2]@m == lu[0]@lu[1])
 testUtils.endTests()
 
 
-
-// Determinant tests
+  // Determinant tests
 
 testUtils.beginTests ("Determinants")
-// 1x1 matrix
-testUtils.runtestTrue(mat.det ({{5}}) == 5)
+  // 1x1 matrix
+  testUtils.runtestTrue(mat.det ({{5}}) == 5)
 
-// 2x2 matrices
-testUtils.runtestTrue(mat.det ({{1, 2}, {3, 4}}) == -2)
-testUtils.runtestTrue(mat.det ({{2, 0}, {0, 2}}) == 4)
-testUtils.runtestTrue(mat.det ({{5, 3}, {2, 1}}) == -1)
-testUtils.runtestTrue(mat.det ({{2, 0}, {0, 3}}) == 6)
-testUtils.runtestTrue(mat.det ({{-1, 0}, {0, -1}}) == 1)
+  // 2x2 matrices
+  testUtils.runtestTrue(mat.det ({{1, 2}, {3, 4}}) == -2)
+  testUtils.runtestTrue(mat.det ({{2, 0}, {0, 2}}) == 4)
+  testUtils.runtestTrue(mat.det ({{5, 3}, {2, 1}}) == -1)
+  testUtils.runtestTrue(mat.det ({{2, 0}, {0, 3}}) == 6)
+  testUtils.runtestTrue(mat.det ({{-1, 0}, {0, -1}}) == 1)
 
-// 3x3 matrices
-testUtils.runtestTrue(mat.det ({{6, 1, 1}, {4, -2, 5}, {2, 8, 7}}) == -306)
-testUtils.runtestTrue(mat.det ({{1, 0, 0}, {0, 1, 0}, {0, 0, 1}}) == 1)  // Identity matrix
-testUtils.runtestTrue(mat.det ({{2, 0, 0}, {0, 3, 0}, {0, 0, 4}}) == 24)
+  // 3x3 matrices
+  testUtils.runtestTrue(mat.det ({{6, 1, 1}, {4, -2, 5}, {2, 8, 7}}) == -306)
+  testUtils.runtestTrue(mat.det ({{1, 0, 0}, {0, 1, 0}, {0, 0, 1}}) == 1)  // Identity matrix
+  testUtils.runtestTrue(mat.det ({{2, 0, 0}, {0, 3, 0}, {0, 0, 4}}) == 24)
 
-// 4x4 matrices
-testUtils.runtestTrue(mat.det ({{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}}) == 1)  // Identity matrix
-testUtils.runtestTrue(mat.det ({{4, 3, 2, 1}, {3, 2, 1, 4}, {2, 1, 4, 3}, {1, 4, 3, 2}}) == -160)
+  // 4x4 matrices
+  testUtils.runtestTrue(mat.det ({{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}}) == 1)  // Identity matrix
+  testUtils.runtestTrue(mat.det ({{4, 3, 2, 1}, {3, 2, 1, 4}, {2, 1, 4, 3}, {1, 4, 3, 2}}) == -160)
+
+  m = {{0.19832, 0.00439457, 0.72102, 0.902151, 0.889423, 0.820379},
+    {0.675846, 0.33786, 0.95276, 0.123486, 0.982328, 0.493835},
+    {0.473623, 0.114907, 0.728475, 0.398401, 0.817148, 0.562954},
+    {0.256825, 0.889961, 0.9725, 0.0984108, 0.1435, 0.0820303},
+    {0.530138, 0.718637, 0.450948, 0.27664, 0.98232, 0.925627},
+    {0.820478, 0.0512247, 0.757406, 0.674419, 0.128289, 0.352762}}
+ testUtils.runtestTrue(mat.det (m) == 0.0073041194599836)
+
 testUtils.endTests()
 
 testUtils.beginTests ("Inverse")
@@ -77,3 +84,18 @@ math.eps = 1E-8
 testUtils.runtestTrue(mat.inv (m) == minv)
 testUtils.endTests()
 
+testUtils.beginTests ("Reduced Row Echelon")
+
+  m = {{1,2,0,1,0,0},{0,0,0,3,0,0},{0,0,1,3,1,0}}
+  testUtils.runtestTrue(mat.rref (m) == {{1, 2, 0, 0, 0, 0},{0, 0, 1, 0, 1, 0},{0, 0, 0, 1, 0, 0}})
+  m = {{1, 3, 5}, {2, 4, 7}, {1, 1, 0}}
+  testUtils.runtestTrue(mat.rref (m) == {{1, 0, 0},{0, 1, 0},{0, 0, 1}})
+  m = {{4, 3, 2, 1}, {3, 2, 1, 4}, {2, 1, 4, 3}, {1, 4, 3, 2}}
+  testUtils.runtestTrue(mat.rref (m) == {{1, 0, 0, 0},{0, 1, 0, 0},{0, 0, 1, 0}, {0, 0, 0, 1}})
+  m = {{3, 1, 2}, {2, 1, 3}}
+  testUtils.runtestTrue(mat.rref (m) == {{1, 0, -1},{0, 1, 5}})
+  m = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}  
+  testUtils.runtestTrue(mat.rref (m) == {{1, 0, -1},{0, 1, 2}, {0, 0, 0}})
+  m = {{1, 0, 3, 0, 5}, {0, 1, -2, 0, 2}, {0, 0, 0, 1, 7}}
+  testUtils.runtestTrue(mat.rref (m) == {{1, 0, 3, 0, 5},{0, 1, -2, 0, 2}, {0, 0, 0, 1, 7}})
+testUtils.endTests()

@@ -21,10 +21,9 @@ type
      private
        function  getValue (index : Integer) : double;
        procedure setValue (index : integer; value : double);
-       function  getSize : integer;
        procedure setSize (value : integer);
      public
-       data : TArray<double>;
+       data : TArray<Extended>;
 
        constructor Create; overload;
        constructor Create(Size: Integer); overload;
@@ -33,7 +32,8 @@ type
        class function  add (v1, v2 : TVectorObject) : TVectorObject;
        class function  sub (v1, v2 : TVectorObject) : TVectorObject;
        class function  minus (v : TVectorObject) : TVectorObject;
-       function   clone : TVectorObject;
+       function   clone : TDataObject; override;
+       function  getSize : integer; override;
        function   vectorToString: string;
 
        property size : Integer read getSize write setSize;
@@ -72,10 +72,10 @@ begin
 end;
 
 
-function TVectorObject.clone : TVectorObject;
+function TVectorObject.clone : TDataObject;
 begin
   result := TVectorObject.Create;
-  result.data := self.data;
+  (result as TVectorObject).data := self.data;
 end;
 
 function TVectorObject.getValue (index : Integer) : double;
@@ -140,7 +140,7 @@ end;
 
 
 function TVectorObject.vectorToString: string;
-var i, j, n : integer;
+var i : integer;
     formatStr : string;
 begin
   result := '{';

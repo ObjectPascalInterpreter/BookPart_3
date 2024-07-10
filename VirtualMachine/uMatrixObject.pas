@@ -36,7 +36,7 @@ type
   end;
 
 
-  TRow = TArray<double>;
+  TRow = TArray<Extended>;
   TMatrixObject = class (TDataObject)
     private
        data : TArray<TRow>;
@@ -46,8 +46,9 @@ type
 
     function  numRows : integer;
     function  numCols : integer;
-    procedure setval (ri, ci : integer; value : double);
-    function  getval (ri, ci : integer) : double;
+    procedure setval (ri, ci : integer; value : Extended);
+    function  getval (ri, ci : integer) : Extended;
+    function  getRow (index : integer) : TRow;
 
     class function  add (m : TMatrixObject; value : double) : TMatrixObject; overload;
     class function  add (m1, m2 : TMatrixObject) : TMatrixObject; overload;
@@ -69,8 +70,9 @@ type
     procedure setNumRows (n : integer);
     procedure swapRows (i, j : integer);
     procedure addRow (index : integer; vec : TVectorObject);
-    function  clone : TMatrixObject;
+    function  clone : TDataObject; override;
     function  matrixToString: string;
+    function  getSize : integer; override;
 
     function  slice (slices : TSliceObjectList) : TMatrixObject;
 
@@ -79,7 +81,8 @@ type
     constructor     Create; overload;
     destructor      Destroy; override;
 
-    property Item[index1, index2: Integer]: double read getval write setval; default;
+    property Item[index1, index2: Integer]: Extended read getval write setval; default;
+    property row[index : integer] : TRow read getRow;
   end;
 
 
@@ -91,14 +94,8 @@ Uses Math, uVM,
      uListObject,
      uBuiltInMath,
      uBuiltInGlobal,
+     uMachineStack,
      uSymbolTable;
-
-
-
-function help_rows : THelp;
-begin
-  //result := THelp.Create('get the number of rows in the matrix var.rows()');
-end;
 
 
 constructor TMatrixMethods.Create;
@@ -107,7 +104,7 @@ begin
 
   // -1 means variable arguments, use the constant VARIABLE_ARGS for this
 
-  methodList.Add(TMethodDetails.Create ('rows',    0, 'get the number of rows in the matrix var.cols()', help_rows, getNumRows));
+  methodList.Add(TMethodDetails.Create ('rows',    0, 'get the number of rows in the matrix var.cols()', getNumRows));
   methodList.Add(TMethodDetails.Create ('cols',    0, 'get the number of columns in the matrix var.cols()', getNumCols));
   methodList.Add(TMethodDetails.Create ('shape',   0, 'get the shape of the matrix var.shape()', getShape));
   methodList.Add(TMethodDetails.Create ('row',      1, 'extract a column: var.ec(n)', getColumn));
@@ -148,7 +145,6 @@ end;
 procedure TMatrixMethods.getShape (vm : TObject);
 var s : TMatrixObject;
     r : TListObject;
-    i : integer;
     md : TMethodDetails;
 begin
    md := TVM (vm).popMethodDetails;
@@ -280,15 +276,21 @@ begin
 end
 
 ;
-procedure TMatrixObject.setval (ri, ci : integer; value : double);
+procedure TMatrixObject.setval (ri, ci : integer; value : Extended);
 begin
   data[ri][ci] := value;
 end;
 
 
-function TMatrixObject.getval (ri, ci : integer) : double;
+function TMatrixObject.getval (ri, ci : integer) : Extended;
 begin
   result := data[ri,ci];
+end;
+
+
+function TMatrixObject.getRow (index : integer) : TRow;
+begin
+  result := data[index];
 end;
 
 
@@ -320,7 +322,7 @@ end;
 class function TMatrixObject.subLeft (m : TMatrixObject; value : double) : TMatrixObject;
 var i, j : integer;
 begin
-  result := m.clone;
+  result := m.clone as TMatrixObject;
   for i := 0 to m.numrows - 1 do
       for j := 0 to m.numcols - 1 do
           result.setval(i, j, m.getval(i, j) - value);
@@ -330,7 +332,7 @@ end;
 class function TMatrixObject.subRight (m : TMatrixObject; value : double) : TMatrixObject;
 var i, j : integer;
 begin
-  result := m.clone;
+  result := m.clone as TMatrixObject;
   for i := 0 to m.numrows - 1 do
       for j := 0 to m.numcols - 1 do
           result.setval(i, j, value - m.getval(i, j));
@@ -363,8 +365,7 @@ end;
 
 
 class function TMatrixObject.scalarMult (m1 : TMatrixObject; alpha : double) : TMatrixObject;
-var n : integer;
-    i, j : integer;
+var i, j : integer;
 begin
   result := TMatrixObject.Create (m1.numRows, m1.numCols);
   for i := 0 to m1.numrows - 1 do
@@ -398,7 +399,6 @@ end;
 // This does a term by term multiplication
 class function TMatrixObject.mult (m1, m2 : TMatrixObject) : TMatrixObject;
 var i, j : integer;
-    sum : double;
 begin
   if (m1.numRows = m2.numRows) and (m1.numCols = m2.numCols) then  // if cols = row?
      begin
@@ -414,13 +414,10 @@ end;
 
 class function TMatrixObject.isEqualTo (m1, m2 : TMatrixObject) : boolean;
 var i, j : integer;
-    index : integer;
     epsSymbol : TSymbol;
-    eps : double;
 begin
   epsSymbol := mainModule.find('math', 'eps');
 
-  result := True;
   if (m1.numRows = m1.numRows) and (m1.numCols = m2.numCols) then
      begin
      for i := 0 to m1.numrows - 1 do
@@ -440,7 +437,6 @@ end;
 class function TMatrixObject.toList (m : TMatrixObject) : TDataObject;
 var i, j : integer;
     l : TListObject;
-    item : TListItem;
     row : TListObject;
 begin
   l := TListObject.Create;
@@ -496,15 +492,14 @@ begin
 end;
 
 
-function TMatrixObject.clone : TMatrixObject;
+function TMatrixObject.clone : TDataObject;
 var i : integer;
-    len : NativeInt;
 begin
    result := TMatrixObject.Create (self.numRows, self.numCols);
    for i := 0 to length (self.data) - 1 do
        begin
-       len := length (self.data[i]);
-       result.data[i] := Copy (self.data[i], 0);
+       (result as TMatrixObject).data[i] := Copy (self.data[i], 0);
+       //len := length (self.data[i]);
        //TArray.Copy(self.data[i].data, result.data[i].data, 0, 0,  len);
        end;
 end;
@@ -525,7 +520,7 @@ end;
 //
 function TMatrixObject.slice (slices : TSliceObjectList) : TMatrixObject;
 var i, j : integer;
-    slicesize, count : integer;
+    {slicesize,} count : integer;
     inputLists : TIntLists;
     alist : TIntList;
     cp : TCartesianProduct;
@@ -556,7 +551,7 @@ begin
   // Compute the number of elements that will be in the slice
   // eg [1:2,3:5] will have 6 elements
   // At this point we also convert the SLICE_ALL and SLICE_EQUAL to coordinates
-  slicesize := 1;
+  //slicesize := 1;
   for i := 0 to length (slices) - 1 do
       begin
       if slices[i].lower = SLICE_ALL then
@@ -575,7 +570,7 @@ begin
       dim[i] := slices[i].upper - slices[i].lower+1;
       if dim[i] <= 0  then
          raise ERuntimeException.Create('Slice dimensions exceeding size of matrix');
-      slicesize := slicesize * (slices[i].upper - slices[i].lower+1);
+      //slicesize := slicesize * (slices[i].upper - slices[i].lower+1);
       end;
 
   // Allocate space for the slice
@@ -629,7 +624,7 @@ end;
 
 
 function  TMatrixObject.matrixToString: string;
-var i, j, n : integer;
+var i, j : integer;
     formatStr : string;
 begin
   formatStr := SysLibraryRef.find ('doubleFormat').sValue.value;
@@ -647,6 +642,12 @@ begin
            result := result + '}, ' + sLineBreak;
      end;
   result := result + '}}';
+end;
+
+
+function TMatrixObject.getSize : integer;
+begin
+  result := -1;
 end;
 
 

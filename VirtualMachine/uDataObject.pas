@@ -27,6 +27,7 @@ type
 
       procedure  getHelp (vm : TObject);
       function   getSize : integer; virtual; abstract;
+      function   clone : TDataObject; virtual; abstract;
 
       function isConstant : boolean;
       function isBound : boolean;
@@ -34,7 +35,7 @@ type
       function isGarbage : boolean;
 
       constructor Create;
-      destructor  destroy; override;
+      destructor  Destroy; override;
   end;
 
 
@@ -42,6 +43,7 @@ implementation
 
 Uses uStringObject,
      uMemoryManager,
+     uMachineStack,
      uVM;
 
 

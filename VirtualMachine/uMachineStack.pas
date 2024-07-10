@@ -18,11 +18,13 @@ Uses Classes, SysUtils,
      uMatrixObject,
      uSymbolTable,
      uMemoryManager,
+     uDataObject,
      uDataObjectMethods;
 
 type
   TStackType = (stNone, stInteger, stDouble, stBoolean, stString, stArray, stVector, stMatrix, stSymbol,
-                stLocalSymbol, stList, stModule, stFunction, stObjectMethod, stValueObject, stObject);
+                stLocalSymbol, stList, stModule, stFunction, stObjectMethod, stValueObject,
+                stSliceObject, stObject, stNullObject);
 
   TMachineStackRecord = record
      stackType : TStackType;  // 1 byte
@@ -40,7 +42,9 @@ type
        stObjectMethod: (oValue : TMethodDetails);
 
        stModule      : (module : TModule);
-       stObject      : (objValue : TObject); // Currently used to pass slice objects.
+   stSliceObject     : (sliceValue : TObject); // Currently used to pass slice objects.
+
+     stObject        : (obj : TDataObject);
      end;
 
   PMachineStackRecord = ^TMachineStackRecord;

@@ -101,7 +101,6 @@ uses
   uVectorObject in '..\VirtualMachine\uVectorObject.pas',
   uMatrixFunctions in 'uMatrixFunctions.pas',
   uValueObject in '..\VirtualMachine\uValueObject.pas',
-  uPlotterInterface in 'uPlotterInterface.pas',
   uBuiltInPlotter in 'uBuiltInPlotter.pas',
   uHelpUnit in '..\Common\uHelpUnit.pas',
   uDataObjectMethods in '..\VirtualMachine\uDataObjectMethods.pas',

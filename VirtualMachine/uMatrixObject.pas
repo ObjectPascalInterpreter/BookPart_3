@@ -62,7 +62,7 @@ type
     class function  mult (m1, m2 : TMatrixObject) : TMatrixObject;
     class function  isEqualTo (m1, m2 : TMatrixObject) : boolean;
     class function  transpose (m : TMatrixObject) : TMatrixObject;
-    class function  applyUniFunction (m : TMatrixObject; func : TUniFunction) : TMatrixObject;
+    class function  applyUniFunction (obj : TDataObject; func : TUniFunction) : TDataObject;
 
     class function  toList (m : TMatrixObject) : TDataObject;  // Due to circular reference issue
     class function  toArray (m : TMatrixObject) : TArrayObject;
@@ -71,10 +71,10 @@ type
     procedure swapRows (i, j : integer);
     procedure addRow (index : integer; vec : TVectorObject);
     function  clone : TDataObject; override;
-    function  matrixToString: string;
+    function  ToString: string; override;
     function  getSize : integer; override;
 
-    function  slice (slices : TSliceObjectList) : TMatrixObject;
+    function  slice (var slices : TSliceObjectList) : TMatrixObject;
 
     constructor     Create (numrows, numcols : integer); overload;
     constructor     CreateIdent (n : integer);
@@ -95,6 +95,8 @@ Uses Math, uVM,
      uBuiltInMath,
      uBuiltInGlobal,
      uMachineStack,
+     uValueObject,
+     uStringObject,
      uSymbolTable;
 
 
@@ -107,8 +109,8 @@ begin
   methodList.Add(TMethodDetails.Create ('rows',    0, 'get the number of rows in the matrix var.cols()', getNumRows));
   methodList.Add(TMethodDetails.Create ('cols',    0, 'get the number of columns in the matrix var.cols()', getNumCols));
   methodList.Add(TMethodDetails.Create ('shape',   0, 'get the shape of the matrix var.shape()', getShape));
-  methodList.Add(TMethodDetails.Create ('row',      1, 'extract a column: var.ec(n)', getColumn));
-  methodList.Add(TMethodDetails.Create ('col',      1, 'extract a row: var.er(n)', getRow));
+  methodList.Add(TMethodDetails.Create ('row',      1, 'extract a column: var.ec(n)', getRow));
+  methodList.Add(TMethodDetails.Create ('col',      1, 'extract a row: var.er(n)', getColumn));
 
   methodList.Add(TMethodDetails.Create ('toArray', 0, 'Convert a matrix to an array: m = mat.toArray()', getToArray));
   methodList.Add(TMethodDetails.Create ('toList',  0, 'Convert a matrix to a list: m = mat.toList()', getToList));
@@ -151,9 +153,9 @@ begin
    s := TMatrixObject (md.self);
 
   r := TListObject.Create(2);
-  r.list[0].itemType := liInteger;
+  r.list[0].itemType := symInteger;
   r.list[0].iValue := s.numRows;
-  r.list[1].itemType := liInteger;
+  r.list[1].itemType := symInteger;
   r.list[1].iValue := s.numCols;
   TVM (vm).push(r);
 end;
@@ -423,7 +425,7 @@ begin
      for i := 0 to m1.numrows - 1 do
        for j := 0 to m1.numcols - 1 do
            begin
-           if not sameValue (m1.data[i,j], m2.data[i,j], epsSymbol.voValue.dValue) then
+           if not sameValue (m1.data[i,j], m2.data[i,j], (epsSymbol.dataObject as TValueObject).dValue) then
               exit (False);
            end;
 
@@ -446,7 +448,7 @@ begin
   // Set each items that ow exists in each row to a value
   for i := 0 to m.numRows - 1 do
       begin
-      row := l[i].lValue;
+      row := TListObject (l[i].obj);
       for j := 0 to m.numCols - 1 do
           row.setItemToDouble(j, m[i,j]);
       end;
@@ -518,9 +520,12 @@ end;
 // a SLICE_ALL
 // eg [:,0] is converted to [:,0:0]
 //
-function TMatrixObject.slice (slices : TSliceObjectList) : TMatrixObject;
+// Must be var because the length of slices can change and the caller
+// needs to be able free any new slice objects. Nonvar arrays are copied
+// when a call is made.
+function TMatrixObject.slice (var slices : TSliceObjectList) : TMatrixObject;
 var i, j : integer;
-    {slicesize,} count : integer;
+    count : integer;
     inputLists : TIntLists;
     alist : TIntList;
     cp : TCartesianProduct;
@@ -601,13 +606,16 @@ begin
   end;
 end;
 
-class function TMatrixObject.applyUniFunction (m : TMatrixObject; func : TUniFunction) : TMatrixObject;
+
+class function TMatrixObject.applyUniFunction (obj : TDataObject; func : TUniFunction) : TDataObject;
 var i, j : integer;
+    m : TMatrixObject;
 begin
+  m := TMatrixObject (obj);
   result := TMatrixObject.Create (m.numCols, m.numRows);
   for i := 0 to m.numRows - 1 do
       for j := 0 to m.numCols - 1 do
-          result.setval(i, j, func (m[i,j]));
+          (result as TMatrixObject).setval(i, j, func (m[i,j]));
 end;
 
 
@@ -623,11 +631,11 @@ end;
 
 
 
-function  TMatrixObject.matrixToString: string;
+function  TMatrixObject.toString: string;
 var i, j : integer;
     formatStr : string;
 begin
-  formatStr := SysLibraryRef.find ('doubleFormat').sValue.value;
+  formatStr := (SysLibraryRef.find ('doubleFormat').dataObject as TStringObject).value;
   result := '{';
   for i := 0 to length (self.data) - 1 do
       begin
@@ -647,7 +655,7 @@ end;
 
 function TMatrixObject.getSize : integer;
 begin
-  result := -1;
+  result := numRows*numCols;
 end;
 
 

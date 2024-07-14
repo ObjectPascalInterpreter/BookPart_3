@@ -618,9 +618,9 @@ begin
     p := graphicsMethodsPtr.getCanvasSize;
 
   lt := TListObject.Create(2);
-  lt.list[0].itemType := liInteger;
+  lt.list[0].itemType := symInteger;
   lt.list[0].iValue := p.w;
-  lt.list[1].itemType := liInteger;
+  lt.list[1].itemType := symInteger;
   lt.list[1].iValue := p.h;
   TVM(vm).push(lt);
 end;

@@ -22,12 +22,15 @@ type
       blockType : TBlockType;
       objectType : TSymbolElementType;
 
+      methodCount : integer;
+
       methods : TMethodsBase;
       help : THelp;
 
       procedure  getHelp (vm : TObject);
       function   getSize : integer; virtual; abstract;
       function   clone : TDataObject; virtual; abstract;
+      //function   toString : string; virtual;   <- This already exists in the base class
 
       function isConstant : boolean;
       function isBound : boolean;

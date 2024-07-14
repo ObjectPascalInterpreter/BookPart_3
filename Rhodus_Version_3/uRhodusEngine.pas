@@ -21,6 +21,7 @@ Uses Generics.Collections,
      uAST,
      uCompile,
      uListObject,
+     uValueObject,
      uLibModule,
      uBuiltInGlobal,
      uBuiltInMath,
@@ -93,6 +94,7 @@ uses uCommands,
      uBuiltInPlotter,
      uTerminal,
      uRhodusTypes,
+     uStringObject,
      uEnvironment,
      uHelpUnit,
      uVMExceptions;
@@ -104,7 +106,6 @@ uses uCommands,
 constructor TRhodus.Create;
 var astr : string;
 begin
-  createGlobalBuiltIns;
   initialiseSysModuleVariables; // Creates the path variable
 
     try
@@ -325,8 +326,8 @@ begin
       if mainModule.symbolTable.items[key] <> nil then
          if mainModule.symbolTable.Items[key].symbolType = symUserFunc then
             begin
-            if not mainModule.symbolTable.items[key].fValue.isbuiltInFunction then
-               printLnCallBack (AnsiString (dissassemble(mainModule, mainModule.symbolTable.items[key].fValue.codeBlock)));
+            if not (mainModule.symbolTable.items[key].fValue).isbuiltInFunction then
+               printLnCallBack (AnsiString (dissassemble(mainModule, (mainModule.symbolTable.items[key].fValue).codeBlock)));
             end;
   printLnCallBack (AnsiString (dissassemble(mainModule, mainModule.moduleProgram)));
 end;
@@ -373,6 +374,8 @@ end;
 function TRhodus.runCode (module : TModule; interactive : boolean) : boolean;
 var st :PMachineStackRecord;
     fmt : string;
+    i: Integer;
+    sym : TSymbol;
 begin
   result := True;
   try
@@ -387,31 +390,39 @@ begin
         vm.registerReadStringCallBack (readStringCallBack);
 
         try
+          for i := 0 to High (countOpCodes) do
+              countOpCodes[i] := 0;
+
           vm.runModule (module);
+
+           for i := 0 to High (countOpCodes) do
+              if countOpCodes[i] <> oNop then
+                 writeln (opCodeNames[i], ' : ', countOpCodes[i]);
 
           while vm.stackHasEntry do
                begin
                st := vm.pop;
                case st.stackType of
-                stNone    : begin end;
-                stInteger : begin
-                            fmt := SysLibraryRef.find ('integerFormat').sValue.value;
-                            printLnCallBack (AnsiString (Format (fmt,  [st.iValue])));
+                symNonExistant    : begin end;
+                symInteger : begin
+                             sym := SysLibraryRef.find ('integerFormat');
+                             fmt := (sym.dataObject as TStringObject).value;
+                             printLnCallBack (AnsiString (Format (fmt,  [st.iValue])));
                             end;
-                stBoolean : printLnCallBack (AnsiString (BoolToStr(st.bValue, True)));
-                stDouble  : begin
-                            fmt := SysLibraryRef.find ('doubleFormat').sValue.value;
+                symBoolean : printLnCallBack (AnsiString (BoolToStr(st.bValue, True)));
+                symDouble  : begin
+                            fmt := (SysLibraryRef.find ('doubleFormat').dataObject as TStringObject).value;
                             printLnCallBack (AnsiString (Format(fmt, [st.dValue])));
                             end;
-                stString  : printLnCallBack (AnsiString (st.sValue.value));
-                stList    : printLnCallBack (AnsiString (st.lValue.listToString()));
-                stArray   : printLnCallBack (AnsiString (st.aValue.arrayToString()));
-                stVector  : printLnCallBack (AnsiString (st.vValue.vectorToString()));
-                stMatrix  : printLnCallBack (AnsiString (st.mValue.matrixToString()));
-                stValueObject : printLnCallBack (AnsiString (st.voValue.valueToString()));
-                stModule  : printLnCallBack (AnsiString ('Module: ' + st.module.moduleName));
-                stFunction: printLnCallBack (AnsiString ('Function: ' + st.fValue.moduleRef.moduleName + '.' + st.fValue.methodName));
-                stObjectMethod : begin
+                symString  : printLnCallBack (AnsiString (TStringObject(st.obj).value));
+                symList    : printLnCallBack (AnsiString (st.obj.toString()));
+                symArray   : printLnCallBack (AnsiString (st.obj.toString()));
+                symVector  : printLnCallBack (AnsiString (st.obj.toString()));
+                symMatrix  : printLnCallBack (AnsiString (st.obj.ToString()));
+                symValueObject : printLnCallBack (AnsiString ((st.obj as TValueObject).ToString()));
+                symModule  : printLnCallBack (AnsiString ('Module: ' + st.module.moduleName));
+                symUserFunc: printLnCallBack (AnsiString ('Function: ' + TUserFunction (st.obj).moduleRef.moduleName + '.' + TUserFunction (st.obj).methodName));
+                symObjectMethod : begin
                       printLnCallBack (AnsiString ('Object Method: ' + st.oValue.helpStr));
                       // This pop causes a stack underflow
                      // 8/20/2023 vm.pop();
@@ -438,7 +449,7 @@ end;
 procedure TRhodus.compileAndRun (const src : string; interactive : boolean);
 var st :PMachineStackRecord;
     key : string;
-    //initialMem : integer;
+    i : integer;
 begin
    //initialMem := getMemoryAllocated();
    if compileCode (src, mainModule, interactive) then
@@ -455,21 +466,28 @@ begin
         vm.registerReadStringCallBack (readStringCallBack);
 
         try
+          for i := 0 to High (countOpCodes) do
+              countOpCodes[i] := 0;
+
           vm.runModule (mainModule);
+
+          for i := 0 to High (countOpCodes) do
+              if countOpCodes[i] <> oNop then
+                 writeln (opCodeNames[i], ' : ', countOpCodes[i]);
 
           while vm.stackHasEntry do
                begin
                st := vm.pop;
                case st.stackType of
-                stNone    : begin end;
-                stInteger : printLnCallBack (AnsiString (Format ('%d', [st.iValue])));
-                stBoolean : printLnCallBack (AnsiString (BoolToStr(st.bValue, True)));
-                stDouble  : printLnCallBack (AnsiString (Format('%g', [st.dValue])));
-                stString  : printLnCallBack (AnsiString (st.sValue.value));
-                stList    : printLnCallBack (AnsiString (st.lValue.listToString()));
-                stArray   : printLnCallBack (AnsiString (st.aValue.arrayToString()));
-                stModule  : printLnCallBack (AnsiString ('Module: ' + st.module.moduleName + ' ' + st.module.help.getHelp()));
-                stFunction: printLnCallBack (AnsiString ('Function: ' + st.fValue.moduleRef.moduleName + '.' + st.fValue.methodName));
+                symNonExistant    : begin end;
+                symInteger : printLnCallBack (AnsiString (Format ('%d', [st.iValue])));
+                symBoolean : printLnCallBack (AnsiString (BoolToStr(st.bValue, True)));
+                symDouble  : printLnCallBack (AnsiString (Format('%g', [st.dValue])));
+                symString  : printLnCallBack (AnsiString (TStringObject(st.obj).value));
+                symList    : printLnCallBack (AnsiString (st.obj.toString()));
+                symArray   : printLnCallBack (AnsiString (st.obj.toString()));
+                symModule  : printLnCallBack (AnsiString ('Module: ' + st.module.moduleName + ' ' + st.module.help.getHelp()));
+                symUserFunc: printLnCallBack (AnsiString ('Function: ' + TUserFunction (st.obj).moduleRef.moduleName + '.' + TUserFunction (st.obj).methodName));
                else
                  printLnCallBack ('Unrecognized type of value returned from virtual machine');
                end;
@@ -480,10 +498,10 @@ begin
                   if mainModule.symbolTable.items[key] <> nil then
                      if mainModule.symbolTable.Items[key].symbolType = symUserFunc then
                         begin
-                        if mainModule.symbolTable.items[key].fValue.isbuiltInFunction then
+                        if (mainModule.symbolTable.items[key].fValue as TUserFunction).isbuiltInFunction then
                            printLnCallBack ('No code for builtin function')
                         else
-                           printLnCallBack (AnsiString (dissassemble(mainModule, mainModule.symbolTable.items[key].fValue.codeBlock)));
+                           printLnCallBack (AnsiString (dissassemble(mainModule, (mainModule.symbolTable.items[key].fValue as TUserFunction).codeBlock)));
                         end;
               printLnCallBack (AnsiString (dissassemble(mainModule, mainModule.moduleProgram)));
              end;

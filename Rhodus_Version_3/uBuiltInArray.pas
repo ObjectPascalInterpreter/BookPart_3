@@ -43,8 +43,11 @@ type
      procedure   getMake (vm : TObject);
      procedure   getRndu (vm : TObject);
      procedure   getRndi (vm : TObject);
+     procedure   getRndn (vm : TObject);
      procedure   isEqual (vm : TObject);
      procedure   getRange (vm : TObject);
+     procedure   getMean(vm: TObject);
+     procedure   getBin(vm: TObject);
      constructor Create;
      destructor  Destroy; override;
   end;
@@ -71,9 +74,13 @@ begin
 
   addMethod(getMake,     1, 'make',  'Create an array of given length: ar = arrays.make (10, [10])');
   addMethod(getRange,    3, 'range', 'Create an array of evenly spaced values: ar = arrays.make (0, 5, 10)');
-  addMethod(getRndu,    VARIABLE_ARGS, 'rand',  'Create an array of given dimensions of uniformly random numbers: ar = arrays.rand (4,4,2)');
-  addMethod(getRndi,     3, 'randi', 'Create a list of uniformly random integers: ar = arrays.randi (lower, upper, [3,3])');
+  addMethod(getRndu,    VARIABLE_ARGS, 'rndu',  'Create an array of given dimensions of uniformly random numbers: ar = arrays.rand (4,4,2)');
+  addMethod(getRndi,     3, 'rndi', 'Create am array of uniformly random integers: ar = arrays.rndi (lower, upper, [3,3])');
+  addMethod(getRndn,     VARIABLE_ARGS, 'rndn', 'Create an array of normally distributed random numbers: ar = arrays.rndi (lower, upper, [3,3])');
   addMethod(isEqual,     2, 'equal', 'Return true if the two arrays are equal: arrays.equal (m1,m2)');
+  addMethod(getMean,     1, 'mean', 'Return mean values of a 1D array: m = arrays.mean (a)');
+  addMethod(getBin,      4, 'bin', 'm = arrays.bin (x, 0, 5, 20)');
+
   //addMethod(isEqual,     2, 'appendrow', 'Return true if the two arrays are equal: arrays.equal (m1,m2)');
   end;
 
@@ -81,6 +88,54 @@ begin
 destructor TBuiltInArray.Destroy;
 begin
   inherited;
+end;
+
+
+procedure TBuiltInArray.getMean(vm: TObject);
+var i : integer;
+    a : TArrayObject;
+    sum : double;
+begin
+  a := TVM (vm).popArray;
+  if a.ndims > 1 then
+     ERuntimeException.Create('Array must be one dimensional');
+
+  sum := 0;
+  for i := 0 to a.dim[0] - 1 do
+      sum := sum + a.getValue(i);
+  TVM (vm).push(sum/a.dim[0]);
+end;
+
+
+procedure TBuiltInArray.getBin(vm: TObject);
+var nBins, bin, i : integer;
+    dMax, dMin, dx : double;
+    data : TArrayObject;
+    bins : TArrayObject;
+    BinIndex: Integer;
+    BinWidth: Double;
+begin
+  nBins := TVM (vm).popInteger;
+  dMax := TVM (vm).popScalar;
+  dMin := TVM (vm).popScalar;
+
+  data := TVM (vm).popArray;
+
+  bins :=  TArrayObject.Create (nBins);
+
+  BinWidth := (dMax - dMin) / nBins;
+
+  for i := 0 to Data.dim[0] - 1 do
+  begin
+    if (Data.getValue1D(i) >= dMin) and (Data.getValue1D(i) <= dMax) then
+    begin
+      BinIndex := Floor((Data.getValue1D(i) - dMin) / BinWidth);
+      if BinIndex >= nBins then
+        BinIndex := nBins - 1; // Ensure the maximum value falls into the last bin/      Inc(Bins[BinIndex]);
+      Bins.setValue1D(BinIndex, Bins.getValue1D(BinIndex) + 1);
+    end;
+  end;
+  TVM (vm).push (bins);
 end;
 
 
@@ -98,6 +153,28 @@ begin
    ar := TArrayObject.Create(idx);
    for i := 0 to length (ar.dataf) - 1 do
        ar.dataf[i] := random ();
+   TVM (vm).push (ar);
+end;
+
+
+procedure TBuiltInArray.getRndn (vm : TObject);
+var mean, sd : double;
+    idx : TIndexArray;
+    i : integer;
+    nArgs : integer;
+    ar : TArrayObject;
+begin
+   nArgs := TVM (vm).popInteger;
+   sd := TVM (vm).popScalar;
+   mean := TVM (vm).popScalar;
+
+   setLength (idx, nArgs-2);
+   for i := nArgs - 3 downto 0 do
+       idx[i] := TVM (vm).popInteger;
+
+   ar := TArrayObject.Create(idx);
+   for i := 0 to length (ar.dataf) - 1 do
+       ar.dataf[i] := RandG (mean, sd);
    TVM (vm).push (ar);
 end;
 

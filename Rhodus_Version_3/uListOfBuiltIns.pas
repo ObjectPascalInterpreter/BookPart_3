@@ -30,6 +30,7 @@ Uses uBuiltInMath,
      uBuiltInFile,
      uBuiltInOS,
      uBuiltInStr,
+     uBuiltInASCIIPlot,
      uBuiltInGraphics,
      uBuiltInPlotter;
 
@@ -71,6 +72,7 @@ initialization
   listofBuiltIns.Add (TBuiltIn.Create ('mat',    'uBuiltInMatrix.' + TBuiltInMatrix.ClassName));
   listofBuiltIns.Add (TBuiltIn.Create ('file',   'uBuiltInFile.'   + TBuiltInFile.ClassName));
   listofBuiltIns.Add (TBuiltIn.Create ('time',   'uBuiltInOS.'     + TBuiltInTime.ClassName));
+  listofBuiltIns.Add (TBuiltIn.Create ('txtplot','uBuiltInASCIIPlot.' + TBuiltInASCIIPlot.ClassName));
   listofBuiltIns.Add (TBuiltIn.Create ('strings','uBuiltInStrings.' + TBuiltInStr.ClassName));
   listofBuiltIns.Add (TBuiltIn.Create ('graphics','uBuiltInGraphics.' + TBuiltInGraphics.ClassName));
   listofBuiltIns.Add (TBuiltIn.Create ('plot','uBuiltInPlotter.' + TBuiltInPlotter.ClassName));

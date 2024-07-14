@@ -21,7 +21,7 @@ const
 type
    // symNonExistant: Requests for symbols that aren't even in the symbol table
    TSymbolElementType = (
-          symNonExistant = -1,
+          symNonExistant = 0,
           symUndefined,
           symInteger,
           symDouble,
@@ -31,10 +31,17 @@ type
           symArray,
           symVector, // Not actually exposed to the user, used internally
           symMatrix,
-          symValueObject,
-          symObject,
+          symValueObject,  // Builtin constants such as math.pi
+          symObject,       // Used to to mark objects (list, string etc) on the stack
           symUserFunc,
-          symModule);
+          symModule,
+          symSymbol,       // Not exposed to the user
+          symLocalSymbol,  // Not exposed to the user
+          symSliceObject,  // Not exposed to the user
+          symObjectMethod, // Methods attached to string, lists etc, eg a.len()
+          symEndObject);  // Useful for making a for loop through all elements
+
+   TSetOfDataObjects = array of TSymbolElementType;
 
    TIntArray = array of integer;
    TIndexArray = array of integer;
@@ -53,6 +60,10 @@ type
   end;
   TSliceObjectList = array of TSliceObject;
 
+  var
+   setOfDataObjects : TSetOfDataObjects;
+
+  function isDataObject (d : TSymbolElementType) : boolean;
 
 implementation
 
@@ -69,4 +80,20 @@ begin
   inherited;
 end;
 
+function isDataObject (d : TSymbolElementType) : boolean;
+var i : integer;
+begin
+  for i := 0 to High (setOfDataObjects) do
+      if setOfDataObjects[i] = d then
+         exit (True);
+  exit (False);
+end;
+
+
+initialization
+  setLength (setOfDataObjects, 4);
+  setOfDataObjects[0] := symString;
+  setOfDataObjects[1] := symList;
+  setOfDataObjects[2] := symMatrix;
+  setOfDataObjects[3] := symArray;
 end.

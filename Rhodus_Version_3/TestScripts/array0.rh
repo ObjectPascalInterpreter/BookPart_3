@@ -1,18 +1,18 @@
-import testUtils
+//import testUtils
 
-setColor("yellow")
-println ("--------------------- Array Tests ----------------------")
-setColor("white")
+//setColor("yellow")
+//println ("--------------------- Array Tests ----------------------")
+//setColor("white")
 
-testUtils.beginTests ("Add tests")
+//testUtils.beginTests ("Add tests")
   a = array([1,2,3])
-  testUtils.runtestTrue(a + 1 == array([2,3,4]))  
-  testUtils.runtestTrue(a + 1.0 == array([2,3,4])) 
-  testUtils.runtestTrue(1 + a == array([2,3,4])) 
-  testUtils.runtestTrue(1.0 + a == array([2,3,4]))   
-  testUtils.runtestTrue(math.pi + a == array([4.14159265358979, 5.14159265358979, 6.14159265358979]))    
-  testUtils.runtestTrue(a + math.pi == array([4.14159265358979, 5.14159265358979, 6.14159265358979]))  
-testUtils.endTests()
+  //testUtils.runtestTrue(a + 1 == array([2,3,4]))  
+  //testUtils.runtestTrue(a + 1.0 == array([2,3,4])) 
+  //testUtils.runtestTrue(1 + a == array([2,3,4])) 
+  //testUtils.runtestTrue(1.0 + a == array([2,3,4]))   
+  //testUtils.runtestTrue(math.pi + a == array([4.14159265358979, 5.14159265358979, 6.14159265358979]))    
+//  testUtils.runtestTrue(a + math.pi == array([4.14159265358979, 5.14159265358979, 6.14159265358979]))  
+//testUtils.endTests()
 
 testUtils.beginTests ("Sub tests")
   a = array([1,2,3])

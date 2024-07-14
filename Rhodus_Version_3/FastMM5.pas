@@ -140,7 +140,7 @@ Supported Platforms:
 }
 
 unit FastMM5;
-
+{$Include FastMM5.inc}
 interface
 
 uses

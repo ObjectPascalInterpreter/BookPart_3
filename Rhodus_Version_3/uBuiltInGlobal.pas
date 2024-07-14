@@ -30,7 +30,6 @@ procedure addGlobalMethodsToModule (module : TModuleLib);
 var mainModule : TModuleLib;
     baseLineMemoryAllocated : UInt64;
 
-    procedure createGlobalBuiltIns;
     function convertListToArray (alist : TListObject) : TArrayObject;
 
 implementation
@@ -43,6 +42,10 @@ Uses Math,
      uValueObject,
      uMemoryManager,
      uMachineStack,
+     Generics.Collections,
+     System.Generics.Defaults,
+     uDataObjectMethods,
+     uDataObject,
      uCompile,
      uHelpUnit,
      uAssembler,
@@ -76,9 +79,19 @@ type
        class procedure startDebug (vm : TObject);
        class procedure test (vm : TObject);
 
+       class procedure document (vm : TObject);
+
        //constructor Create;
        //destructor  Destroy; override;
   end;
+
+type
+   THelpPair = record
+      name : string;
+      methodCount : integer;
+      help : THelp;
+   end;
+
 
 var  debugCallback : TUserFunction;
 
@@ -118,6 +131,7 @@ begin
   //module.addMethod (builtInGlobal.getHelp,        1, 'help',          'Get the help associated with the object');
   module.addMethod (TBuiltInGlobal.startDebug,     1, 'debug',         'Attached method to the debugger: debug (fcn)');
   module.addMethod (TBuiltInGlobal.test,           2, 'test',          'Attached method to the debugger: debug (fcn)');
+  module.addMethod (TBuiltInGlobal.document,       1, 'document',      'Generate documentation for the module specificed in the argument');
 
 end;
 
@@ -204,19 +218,19 @@ begin
               symBoolean: result := result + Format ('%-12s%-22s%-6d',  ['boolean', boolToStr (module.symbolTable.items[key].bValue), sizeof (Boolean)]) + sLineBreak;
               symDouble : result := result + Format ('%-12s%-22g%-6d%', ['float', module.symbolTable.items[key].dValue, sizeof (double)]) + sLineBreak;
               symString : begin
-                          astr :=  '"' + leftStr (module.symbolTable.items[key].sValue.value, 50);
-                          if length (module.symbolTable.items[key].sValue.value) > 50 then
+                          astr :=  '"' + leftStr ((module.symbolTable.items[key].dataObject as TStringObject).value, 50);
+                          if length ((module.symbolTable.items[key].dataObject as TStringObject).value) > 50 then
                              astr := astr + '...."'
                           else
                              astr := astr + '"';
 
                           result := result + Format ('%-12s', ['string']) + Format ('%-22s', [astr]);
-                          len := length (module.symbolTable.items[key].sValue.value);
+                          len := length ((module.symbolTable.items[key].dataObject as TStringObject).value);
                           result := result + Format ('%-12d', [len]) + sLineBreak;
                           end;
-              symList   : result := result + Format ('%-12s%-22s%-6d%', ['list', module.symbolTable.items[key].lValue.listToString, module.symbolTable.items[key].lValue.getsize()]) + sLineBreak;
+              symList   : result := result + Format ('%-12s%-22s%-6d%', ['list', module.symbolTable.items[key].dataObject.toString, module.symbolTable.items[key].dataObject.getsize()]) + sLineBreak;
              symUserFunc: begin
-                          f := module.symbolTable.items[key].fValue;
+                          f := module.symbolTable.items[key].fValue as TUserFunction;
                           result := result + Format ('%-12s%-22s%-12d', ['ufunc', 'NA', f.getSize()]) + sLineBreak;
                           end;
               symModule : begin
@@ -248,12 +262,12 @@ begin
   result := 0;
 
   for var i := 0 to alist.list.Count - 1 do
-      if alist.list[i].itemType <> liList then
+      if alist.list[i].itemType <> symList then
          begin
           inc (result);
          end
       else
-         result := result + countElements (alist.list[i].lValue);
+         result := result + countElements (TListObject (alist.list[i].obj));
 end;
 
 
@@ -269,7 +283,7 @@ begin
      exit;
      end;
 
-  if alist.list[0].itemType <> lilist  then
+  if alist.list[0].itemType <> symlist  then
      begin
      setLength (result, 1);
      result[0] := firstdim;
@@ -281,13 +295,13 @@ begin
   result[dimIndex-1] := firstdim;
 
   aitem := alist.list[0];
-  while aitem.itemType = lilist do
+  while aitem.itemType = symlist do
       begin
-      n := aitem.lValue.list.Count;
+      n := TListObject (aitem.obj).list.Count;
       dimIndex := dimIndex + 1;
       setLength (result, dimIndex);
       result[dimIndex-1] := n;
-      aitem := aitem.lValue.list[0];
+      aitem := TListObject (aitem.obj).list[0];
       end;
 end;
 
@@ -297,9 +311,9 @@ procedure collectData (alist : TListObject; arrayObj : TArrayObject);
 var i : integer;
 begin
   for i := 0 to alist.list.Count - 1 do
-      if alist.list[i].itemType = liList then
+      if alist.list[i].itemType = symList then
          begin
-         collectData (alist.list[i].lValue, arrayObj);
+         collectData (TListObject (alist.list[i].obj), arrayObj);
          end
       else
          begin
@@ -368,7 +382,7 @@ var nArgs, i : integer;
     alist : TListObject;
 begin
   nArgs := TVM (vm).popInteger;
-  if TVM (vm).peek.stackType = stList then
+  if TVM (vm).peek.stackType = symList then
      begin
      alist := TVM (vm).popList;
      ar := convertListToArray (alist);
@@ -458,8 +472,8 @@ var x : PMachineStackRecord; tmp : int32;
 begin
   x := TVM (vm).pop;
   case x.stackType of
-       stInteger : tVM (vm).push (x.iValue);
-       stDouble  : begin
+       symInteger : tVM (vm).push (x.iValue);
+       symDouble  : begin
                    // Do it this way inorder to get a range check error
                    // if dValue can't be case to a 32-bit integer
                    tmp := trunc (x.dValue);
@@ -484,8 +498,8 @@ var x : PMachineStackRecord;
 begin
   x := TVM (vm).pop;
   case x.stackType of
-       stInteger : TVM (vm).push (double (x.iValue));
-       stDouble  : TVM (vm).push (x.dValue);
+       symInteger : TVM (vm).push (double (x.iValue));
+       symDouble  : TVM (vm).push (x.dValue);
 
   else
      argMustBeNumber;
@@ -498,13 +512,13 @@ var x : PMachineStackRecord;
 begin
   x := TVM (vm).pop;
   case x.stackType of
-    stModule : TVM (vm).push (TStringObject.create (dissassemble (x.module, x.module.moduleProgram)));
-    stFunction :
+    symModule : TVM (vm).push (TStringObject.create (dissassemble (x.module, x.module.moduleProgram)));
+    symUserFunc :
       begin
-      if x.fValue.isbuiltInFunction then
-         TVM (vm).push (TStringObject.create (x.fValue.methodName + ' is a builtin function'))
+      if TUserFunction (x.obj).isbuiltInFunction then
+         TVM (vm).push (TStringObject.create (TUserFunction (x.obj).methodName + ' is a builtin function'))
       else
-         TVM (vm).push (TStringObject.create (dissassemble (x.fValue.moduleRef, x.fValue.codeBlock)));
+         TVM (vm).push (TStringObject.create (dissassemble (TUserFunction (x.obj).moduleRef, TUserFunction (x.obj).codeBlock)));
       end;
   else
      raise ERuntimeException.Create('dis argument can only be a module or a function');
@@ -537,7 +551,7 @@ class procedure TBuiltInGlobal.myAssertTrueEx (vm : TObject);
 var st : PMachineStackRecord;
 begin
   st := TVM (vm).pop;
-  if st.stackType = stBoolean then
+  if st.stackType = symBoolean then
      begin
      if st.bValue = True then
         TVM (vm).push(TStringObject.Create('.'))
@@ -553,7 +567,7 @@ class procedure TBuiltInGlobal.myAssertFalseEx (vm : TObject);
 var st : PMachineStackRecord;
 begin
   st := TVM (vm).pop;
-  if st.stackType = stBoolean then
+  if st.stackType = symBoolean then
      begin
      if st.bValue = False then
         TVM (vm).push(TStringObject.Create('.'))
@@ -570,17 +584,17 @@ var x : PMachineStackRecord;
 begin
   x := TVM (vm).pop;
   case x.stackType of
-    stInteger : TVM (vm).push (TStringObject.Create ('int'));
-    stDouble : TVM (vm).push (TStringObject.Create ('float'));
-    stBoolean : TVM (vm).push (TStringObject.Create ('bool'));
-    stString : TVM (vm).push (TStringObject.Create ('string'));
-    stList : TVM (vm).push (TStringObject.Create ('list'));
-    stArray : TVM (vm).push (TStringObject.Create ('array'));
-    stVector : TVM (vm).push (TStringObject.Create ('vector'));
-    stMatrix : TVM (vm).push (TStringObject.Create ('matrix'));
-    stFunction : TVM (vm).push (TStringObject.Create ('function'));
-    stModule : TVM (vm).push (TStringObject.Create ('module'));
-    stNone :  TVM (vm).push (TStringObject.Create ('none'));
+    symInteger : TVM (vm).push (TStringObject.Create ('int'));
+    symDouble : TVM (vm).push (TStringObject.Create ('float'));
+    symBoolean : TVM (vm).push (TStringObject.Create ('bool'));
+    symString : TVM (vm).push (TStringObject.Create ('string'));
+    symList : TVM (vm).push (TStringObject.Create ('list'));
+    symArray : TVM (vm).push (TStringObject.Create ('array'));
+    symVector : TVM (vm).push (TStringObject.Create ('vector'));
+    symMatrix : TVM (vm).push (TStringObject.Create ('matrix'));
+    symUserFunc : TVM (vm).push (TStringObject.Create ('function'));
+    symModule : TVM (vm).push (TStringObject.Create ('module'));
+    symNonExistant :  TVM (vm).push (TStringObject.Create ('none'));
   else
     TVM (vm).push (TStringObject.Create ('I''m not sure'));
   end;
@@ -602,8 +616,8 @@ begin
        symInteger : TVM (vm).push (symbol.iValue);
        symDouble : TVM (vm).push (symbol.dValue);
        symBoolean : TVM (vm).push (symbol.bValue);
-       symString : TVM (vm).push (symbol.sValue);
-       symList : TVM (vm).push (symbol.lValue);
+       symString : TVM (vm).push (symbol.dataObject);
+       symList : TVM (vm).push (symbol.dataObject);
        symUserFunc : TVM (vm).push (symbol.fValue);
        symModule : TVM (vm).push (symbol.mValue);
        symUndefined :  TVM (vm).push (TStringObject.create ('undefined'));
@@ -649,17 +663,17 @@ begin
   vm := TVM (_vm);
   st := vm.pop;
   case st.stackType of
-     stInteger : vm.push(TStringObject.Create('integer'));
-     stDouble  : vm.push(TStringObject.Create('double'));
-     stBoolean : vm.push(TStringObject.Create('boolean'));
-     stString  : vm.push(TStringObject.Create('string'));
-     stList    : vm.push(TStringObject.Create('list'));
-     stArray   : vm.push(TStringObject.Create('array'));
-     stModule  : vm.push(TStringObject.Create (st.module.help.getHelp()));
+     symInteger : vm.push(TStringObject.Create('integer'));
+     symDouble  : vm.push(TStringObject.Create('double'));
+     symBoolean : vm.push(TStringObject.Create('boolean'));
+     symString  : vm.push(TStringObject.Create('string'));
+     symList    : vm.push(TStringObject.Create('list'));
+     symArray   : vm.push(TStringObject.Create('array'));
+     symModule  : vm.push(TStringObject.Create (st.module.help.getHelp()));
 
-     stFunction :
-           vm.push(TStringObject.Create (st.fValue.help.getHelp()));
-     stObjectMethod :
+     symUserFunc :
+           vm.push(TStringObject.Create (st.obj.help.getHelp()));
+     symObjectMethod :
            vm.push(TStringObject.Create (st.oValue.helpStr));
   else
      raise ERuntimeException.Create('Unkown object type in help');
@@ -670,7 +684,7 @@ end;
 class procedure TBuiltInGlobal.startDebug (vm : TObject);
 //var f : TUserFunction;
 begin
-  debugCallback := TVM (vm).popUserFunction();
+  //debugCallback := TVM (vm).popUserFunction();
   TVM (vm).setDebugCallBack(debugProc);
   TVM (vm).enableDebugging;
   //TVM (vm).push(integer (vm));
@@ -687,13 +701,119 @@ begin
 end;
 
 
-procedure createGlobalBuiltIns;
+class procedure TBuiltInGlobal.document (vm : TObject);
+var i: integer;
+    doc : TStringObject;
+    astr : string;
+    module : TModule;
+    Item: TPair<string, TSymbol>;
+    list : TList<THelpPair>;
+    helpPair : THelpPair;
+    Comparison: IComparer<THelpPair>;
+    Obj : TDataObject;
+    methodDetails : TMethodDetails;
+    setOfDataObjects : TSetOfDataObjects;
+    stackType : TSymbolElementType;
 begin
-  //builtInGlobal := TBuiltInGlobal.Create;
+  if TVM (vm).peek.stackType = TSymbolElementType.symModule then
+     begin
+     module := TVM (vm).popModule;
+
+  astr := '\documentclass[11pt]{article}' + sLineBreak;
+  astr := astr + '\usepackage{enumitem}' + sLineBreak;
+  astr := astr + '\setlength{\parindent}{0pt}' + sLineBreak;
+  astr := astr + '\begin{document}' + sLineBreak;
+
+  astr := astr + '{\bfseries\LARGE Rhodus Module Reference}' + sLineBreak;
+  astr := astr + '\vspace{1cm}' + sLineBreak + sLineBreak;;
+
+  astr := astr + '\section*{' + module.moduleName + ' Module }';
+  astr := astr + '{\bfseries\large Module: } \hspace{18pt} {\large\textsf{'
+       + module.moduleName + '}} \hspace{45pt} {\large\textsf{' + module.help.description + '}}';
+
+  astr := astr + sLineBreak + sLineBreak + '\vspace{-7pt}' + sLineBreak + '\rule{\textwidth}{1pt}' + sLineBreak + sLineBreak;
+
+  // This complicted bit of code is to get the help records in to the order
+  // that they were added to the module. This allows the methods to be
+  // ordered in a more senstible way. The order is set by the methodCount
+  // which is set during the addMetdod call.
+  // I tried to do the ordering insitue but I couldnlt get the syntax right.
+  // Instead I extract the elements and sort them in a separate list.
+//  list := TList<THelpPair>.Create;
+//  try
+//    for Item in module.symbolTable do
+//        case Item.Value.symbolType of
+//          TSymbolElementType.symUserFunc:
+//           begin
+//           if Item.Value.obj.help <> nil then
+//              begin
+//              if Item.Value.obj.help.methodName <> '' then
+//                 begin
+//                 helpPair.name := Item.Value.obj.help.methodName;
+//                 helpPair.methodCount := Item.Value.methodCount;
+//                 helpPair.help := Item.Value.obj.help;
+//                 list.Add(helpPair);
+//                 end;
+//              end;
+//           end;
+//          TSymbolElementType.symValueObject :
+//           begin
+//           helpPair.name := Item.Value.symbolName;
+//           helpPair.methodCount := Item.Value.methodCount;
+//           helpPair.help := Item.Value.obj.help;
+//           list.Add(helpPair);
+//            end;
+//        end;
+
+
+    comparison := TComparer<THelpPair>.Construct(
+    function(const Left, Right: THelpPair): Integer
+        begin
+        Result := CompareValue(Left.methodCount, Right.methodCount)
+       end);
+
+//    // Sort the list in ascending order
+//    list.Sort(comparison);
+//
+//    for helpPair in list do
+//         begin
+//          if helpPair.help <> nil then
+//             begin
+//             if Item.Value.obj.help.methodName <> '' then
+//                begin
+//                astr := astr + helpPair.help.toLatex;
+//                astr := astr + sLineBreak + sLineBreak + '\vspace{5pt}' + sLineBreak;
+//                end;
+//             end;
+//         end;
+  //finally
+  //  list.free;
+  //end;
+
+  astr := astr + sLineBreak + '\end{document}' + sLineBreak;
+
+  doc := TStringObject.Create (astr);
+  TVM (vm).push(doc);
+     end
+  else
+  begin
+  stackType := TVM (vm).peek.stackType;
+  if isDataObject (stackType) then
+     begin
+     obj := TVM (vm).pop.obj;
+     for i := 0 to Obj.methods.methodList.Count - 1 do
+         begin
+         methodDetails := Obj.methods.methodList[i];
+         astr := astr + '{\bfseries\textsf{Method: ' + methodDetails.name ;
+         astr := astr + '}}' + sLineBreak + sLineBreak;
+         end;
+     end;
+  doc := TStringObject.Create (astr);
+  TVM (vm).push(doc);
+  end;
 end;
 
-initialization
 
-finalization
-  //builtInGlobal.Free;
+initialization
+   finalization
 end.

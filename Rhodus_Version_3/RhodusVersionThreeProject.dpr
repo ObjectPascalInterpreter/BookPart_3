@@ -33,8 +33,9 @@
 {$R *.dres}
 
 uses
-  {$IFDEF DEBUG}
-  {$ENDIF }
+  //{$IFDEF DEBUG}
+FastMM5,
+  //{$ENDIF }
   Windows,
   ShellAPI,
   System.SysUtils,
@@ -104,9 +105,12 @@ uses
   uBuiltInPlotter in 'uBuiltInPlotter.pas',
   uHelpUnit in '..\Common\uHelpUnit.pas',
   uDataObjectMethods in '..\VirtualMachine\uDataObjectMethods.pas',
-  uDataObject in '..\VirtualMachine\uDataObject.pas';
+  uDataObject in '..\VirtualMachine\uDataObject.pas',
+  uBuiltInASCIIPlot in 'uBuiltInASCIIPlot.pas';
 
 begin
+  //FastMM_SetEventLogFilename('D:\log.txt');
+  FastMM_EnterDebugMode;
   ReportMemoryLeaksOnShutdown := True;
   setUpConsole;
   setExtendedConsoleMode; // To get more colors

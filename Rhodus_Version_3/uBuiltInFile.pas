@@ -95,12 +95,14 @@ end;
 
 
 procedure TBuiltInFile.writeAllText (vm : TObject);
-var fileName, data : string;
+var fileName, data, cwd : string;
 begin
    data := TVM (vm).popString.value;
    fileName := TVM (vm).popString.value;
 
+   cwd := getCurrentDir;
    TFile.WriteAllText (fileName, data);
+   TVM (vm).pushNone;
 end;
 
 

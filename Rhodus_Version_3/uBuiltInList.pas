@@ -98,7 +98,7 @@ begin
   for i := 0 to n - 1 do
       begin
       l.list[i].dValue := random();
-      l.list[i].itemType := liDouble;
+      l.list[i].itemType := symDouble;
       end;
   TVM (vm).push (l);
 end;
@@ -119,7 +119,7 @@ begin
   for i := 0 to n - 1 do
       begin
       l.list[i].iValue := RandomRange(start, finish+1);// + start; // +1 to include end of range
-      l.list[i].itemType := liInteger;
+      l.list[i].itemType := symInteger;
       end;
   TVM (vm).push (l);
 end;

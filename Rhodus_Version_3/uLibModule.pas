@@ -21,10 +21,13 @@ Uses SysUtils,
 
 type
   TModuleLib = class (TModule)
-
+   private
+      methodCount : integer;
+   public
+    procedure   startCount;
     procedure   addMethod(methodPtr : TxBuiltInFunction; nArgs : integer; methodName, helpStr : string); overload;
     procedure   addMethod (methodPtr : TxBuiltInFunction; nArgs : integer; methodName : string);  overload;
-    procedure   addStringValue (name, value : string; locked : boolean);
+    function    addStringValue (name, value : string; locked : boolean) : TSymbol;
     procedure   addListValue  (name : string; value : TListObject; locked : boolean);
     procedure   addObjectValue (name : string; value : TValueObject; locked : boolean);
 
@@ -72,6 +75,8 @@ begin
   f := TUserFunction.Create ('help', 0, getHelp);
   f.moduleRef := self;
   self.symbolTable.addSymbol (f, True); // // locked = True
+
+  methodCount := 0;
 end;
 
 
@@ -176,11 +181,18 @@ begin
 end;
 
 
-procedure TModuleLib.addStringValue (name, value : string; locked : boolean);
+function TModuleLib.addStringValue (name, value : string; locked : boolean) : TSymbol;
+var sym : TSymbol;
 begin
   self.symbolTable.addSymbol(name, TStringObject.Create (value), locked, THelp.CreateValue (moduleName, name));
+  //result := sym;
 end;
 
+
+procedure TModuleLib.startCount;
+begin
+  methodCount := 0;
+end;
 
 procedure TModuleLib.addMethod (methodPtr : TxBuiltInFunction; nArgs : integer; methodName, helpStr : string);
 var f : TUserFunction;
@@ -194,11 +206,14 @@ end;
 
 procedure TModuleLib.addMethod (methodPtr : TxBuiltInFunction; nArgs : integer; methodName : string);
 var f : TUserFunction;
+    symbol : TSymbol;
 begin
   f := TUserFunction.Create(methodName, nArgs, methodPtr);
   f.help := THelp.CreateMethod(moduleName, methodName);
   f.moduleRef := self;
-  self.symbolTable.addSymbol (f, True);  // locked = True
+  symbol := self.symbolTable.addSymbol (f, True);  // locked = True
+  //symbol.methodCount := methodCount;
+  inc (methodCount);
 end;
 
 

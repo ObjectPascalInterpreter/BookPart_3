@@ -19,32 +19,26 @@ Uses Classes, SysUtils,
      uSymbolTable,
      uMemoryManager,
      uDataObject,
+     uRhodusTypes,
      uDataObjectMethods;
 
 type
-  TStackType = (stNone, stInteger, stDouble, stBoolean, stString, stArray, stVector, stMatrix, stSymbol,
-                stLocalSymbol, stList, stModule, stFunction, stObjectMethod, stValueObject,
-                stSliceObject, stObject, stNullObject);
+  //TStackType = (stNone, stInteger, stDouble, stBoolean, stString, stArray, stVector, stMatrix, stSymbol,
+  //              stLocalSymbol, stList, stModule, stFunction, stObjectMethod, stValueObject,
+  //              stSliceObject, stObject, stNullObject);
 
   TMachineStackRecord = record
-     stackType : TStackType;  // 1 byte
-     case TStackType of       // Max 8 bytes
-       stInteger     : (iValue : integer);
-       stBoolean     : (bValue : boolean);
-       stDouble      : (dValue : double);
-       stString      : (sValue : TStringObject);
-       stList        : (lValue : TListObject);
-       stArray       : (aValue : TArrayObject);
-       stVector      : (vValue : TVectorObject);
-       stMatrix      : (mValue : TMatrixObject);
-       stValueObject : (voValue : TValueObject);
-       stFunction    : (fValue : TUserFunction);
-       stObjectMethod: (oValue : TMethodDetails);
+     stackType : TSymbolElementType;  // 1 byte
+     case TSymbolElementType of       // Max 8 bytes
+       symInteger     : (iValue : integer);
+       symBoolean     : (bValue : boolean);
+       symDouble      : (dValue : double);
+       symObjectMethod: (oValue : TMethodDetails);
 
-       stModule      : (module : TModule);
-   stSliceObject     : (sliceValue : TObject); // Currently used to pass slice objects.
+      symModule      : (module : TModule);
+   symSliceObject    : (sliceValue : TObject); // Currently used to pass slice objects.
 
-     stObject        : (obj : TDataObject);
+     symObject        : (obj : TDataObject);   // Used to hold all the TDataObjects, strings, lists etc
      end;
 
   PMachineStackRecord = ^TMachineStackRecord;
@@ -53,33 +47,33 @@ type
 var memCount : integer;
     noneStackType : TMachineStackRecord;
 
-    function stToStr (st : TStackType) : string;
+    function stToStr (st : TSymbolElementType) : string;
 
 implementation
 
-function stToStr (st : TStackType) : string;
+function stToStr (st : TSymbolElementType) : string;
 begin
   case st of
-     stInteger  : result := 'integer';
-     stBoolean  : result := 'boolean';
-     stDouble   : result := 'double';
-     stString   : result := 'string';
-     stList     : result := 'list';
-     stArray    : result := 'array';
-     stVector   : result := 'vector';
-     stMatrix   : result := 'matrix';
-  stValueObject : result := 'builtin value';
-     stModule   : result := 'module';
-     stFunction : result := 'function';
-     stSymbol   : result := 'symbol';
-     stLocalSymbol : result := 'localSymbol';
-     stObjectMethod : result := 'objectMethod';
+     symInteger  : result := 'integer';
+     symBoolean  : result := 'boolean';
+     symDouble   : result := 'double';
+     symString   : result := 'string';
+     symList     : result := 'list';
+     symArray    : result := 'array';
+     symVector   : result := 'vector';
+     symMatrix   : result := 'matrix';
+  symValueObject : result := 'builtin value (Value Object)';
+     symModule   : result := 'module';
+     symUserFunc : result := 'function';
+     symSymbol   : result := 'symbol';
+     symLocalSymbol : result := 'localSymbol';
+     symObjectMethod : result := 'objectMethod';
   end;
 
 end;
 
 
 initialization
-  noneStackType.stackType := stNone;
+  noneStackType.stackType := symNonExistant;
 end.
 

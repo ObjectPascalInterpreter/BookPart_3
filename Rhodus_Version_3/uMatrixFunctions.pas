@@ -114,11 +114,11 @@ begin
     end;
 
     // Check for singular matrix
-    if U[k, k] = 0 then
-    begin
-      Result := False;
-      Exit;
-    end;
+    //if U[k, k] = 0 then
+    //begin
+    //  Result := False;
+    //  Exit;
+    //end;
 
     // Compute elements of L and update U
     for i := k + 1 to n - 1 do
@@ -431,8 +431,7 @@ end;
 function HouseholderReflection(const x: TRow): TRow;
 var
   alpha, r: Double;
-  e, u, v: TRow;
-  i: Integer;
+  e, u : TRow;
 begin
   SetLength(e, Length(x));
   e[0] := 1.0;
@@ -478,7 +477,7 @@ end;
 procedure QRFactorization(A: TMatrixObject; var Q, R: TMatrixObject);
 var
   m, n, k, i, j: Integer;
-  H, Qk: TMatrixObject;
+  H : TMatrixObject;
   x, v: TRow;
 begin
   m := A.numRows;

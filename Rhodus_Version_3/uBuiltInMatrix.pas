@@ -31,6 +31,7 @@ type
        procedure   rndu(vm: TObject);
        procedure   rndi (vm : TObject);
        procedure   ident (vm : TObject);
+       procedure   getCSV (vm : TObject);
        procedure   add (vm : TObject);
        procedure   sub (vm : TObject);
        procedure   inverse (vm : TObject);
@@ -52,6 +53,7 @@ Uses  Math,
       uMath,
       uVM,
       uListObject,
+      uStringObject,
       uRhodusTypes,
       uVMExceptions,
       uHelpUnit,
@@ -68,9 +70,17 @@ begin
   inherited Create ('mat');
 
   addMethod(ident,          1, 'ident', 'Create an identity matrix: m = mat.ident (4)');
+  addMethod(createMatrix,   2, 'matrix', 'Create an matrix of given size: m = mat.matrix (3, 2)');
+  addMethod(rndu,           2, 'rnd',  'Create an array of uniformly random numbers: m = mat.rnd (4,4)');
+  addMethod(rndi,           4, 'rndi', 'Create a matrix of uniformly random integers: m = mat.rndi (3, 2, lower, upper)');
+
+  addMethod(getCSV,         1, 'csv', 'Convert a matrix to a csv string: astr = mat.csv (m)');
+
   //addMethod(mult,           2, 'mult',  'Multiply two 2D matrices: m = mat.mult (m1, m2)');
   //addMethod(add,            2, 'add',   'Add two 2D matrices: m = mat.add (m1, m2)');
   //addMethod(sub,            2, 'sub',   'Subtract two 2D matrices: m = mat.sub (m1, m2)');
+
+
   addmethod(inverse,        1, 'inv',   'Compute inverse of matrix: m = mat.inv (m)');
   addmethod(LU,             1, 'lu',    'Compute the LU decompositon of a matrix: d = mat.lu (m)');
   addmethod(QR,             1, 'qr',    'Compute the QR decompositon of a matrix: d = mat.qr (m)');
@@ -78,10 +88,6 @@ begin
   addmethod(det,            1, 'det',   'Compute the determinant of a matrix: d = mat.det (m)');
   addmethod(transpose,      1, 'tr',    'Get the transpose of the matrix: m = mat.tr (m)');
   addmethod(solve,          2, 'solve',  'Solve: x = mat.solve (m, b)');
-
-  addMethod(createMatrix,   2, 'matrix', 'Create an matrix of given size: m = mat.matrix (3, 2)');
-  addMethod(rndu,           2, 'rand',  'Create an array of uniformly random numbers: m = mat.rand (4,4)');
-  addMethod(rndi,           4, 'randi', 'Create a matrix of uniformly random integers: m = mat.randi (3, 2, lower, upper)');
 end;
 
 
@@ -136,6 +142,27 @@ begin
   TVM (vm).push (m);
 end;
 
+
+procedure TBuiltInMatrix.getCSV (vm : TObject);
+var m : TMatrixObject;
+    result : TStringObject;
+    astr : string;
+    i, j : integer;
+begin
+  m := TVM (vm).popMatrix;
+  astr := '';
+  for i := 0 to m.numRows - 1 do
+      begin
+      astr := astr + floattostr (m[i,0]);
+      for j := 1 to m.numCols - 1 do
+          astr := astr + ',' + floattostr (m[i,j]);
+      astr := astr + sLineBreak;
+      end;
+
+
+  result := TStringObject.Create(astr);
+  TVM (vm).push (result);
+end;
 
 // Create an empty matrix of given size (m x n)
 procedure TBuiltInMatrix.createMatrix (vm : TObject);
@@ -319,13 +346,16 @@ var
 begin
   m := TVM (vm).popMatrix;
 
-  uMatrixFunctions.LU (m, L, U, P, numSwaps);
-
-  res := TListObject.Create (0);
-  res.append(L);
-  res.append(U);
-  res.append(p);
-  TVM (vm).push(res);
+  if uMatrixFunctions.LU (m, L, U, P, numSwaps) then
+     begin
+     res := TListObject.Create (0);
+     res.append(L);
+     res.append(U);
+     res.append(p);
+     TVM (vm).push(res);
+     end
+  else
+    raise ERuntimeException.Create('The matrix is singular');
 end;
 
 
@@ -333,7 +363,6 @@ procedure TBuiltInMatrix.QR (vm : TObject);
 var
   m, Q, R : TMatrixObject;
   res : TListObject;
-  numSwaps : integer;
 begin
   m := TVM (vm).popMatrix;
 

@@ -171,7 +171,7 @@ begin
   startUpRhodus;
 
   try
-    displayWelcome;
+    //displayWelcome;
 
     try
     while True do
@@ -196,7 +196,7 @@ begin
              sourceCode := readBlockOfcode;
 
           if not executeCommand(sourceCode) then
-             executeCode (sourceCode);
+              executeCode (sourceCode);
           end;
     except
        on e:Exception do

@@ -27,9 +27,9 @@ type
       class function getValue(value : TValueObject) : double;
 
       function  isEqualTo (value : double) : boolean;
-      function  valueToString : string;
+      function  ToString : string;  override;
 
-      function  clone : TValueObject;
+      function  clone : TDataObject; override;
       function  getScalar : double;
       function  getSize : integer; override;
 
@@ -94,12 +94,14 @@ begin
 end;
 
 
-function TValueObject.clone : TValueObject;
+function TValueObject.clone : TDataObject;
+var obj : TValueObject;
 begin
-  result := TValueObject.Create;
-  result.valueType := self.valueType;
-  result.iValue := self.iValue;
-  result.dValue := self.dValue;
+  obj := TValueObject.Create;
+  obj.valueType := self.valueType;
+  obj.iValue := self.iValue;
+  obj.dValue := self.dValue;
+  result := obj;
 end;
 
 
@@ -138,7 +140,7 @@ begin
 end;
 
 
-function TValueObject.valueToString : string;
+function TValueObject.toString : string;
 begin
   case valueType of
      vtInteger : result := inttostr (iValue);
@@ -159,7 +161,6 @@ begin
    raiseInternalError('Internal error in getSize (uValueObject), unknown type');
   end;
 end;
-
 
 initialization
   valueMethods := TValueMethods.Create;

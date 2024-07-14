@@ -40,7 +40,8 @@ type
      class function  add (str1, str2 : TStringObject) : TStringObject;
      function        clone : TDataObject; override;
      constructor     createConstantObj (value : string);
-     function        getSize() : integer; override;
+     function        getSize : integer; override;
+     function        ToString : string; override;
      function        slice (lower, upper : integer) : TStringObject;
      constructor     Create (value : string);
      destructor      Destroy; override;
@@ -225,6 +226,7 @@ begin
   blockType := btConstant;
   self.value := value;
   methods := stringMethods;
+  objectType := symString;
 end;
 
 
@@ -256,6 +258,12 @@ function TStringObject.getSize() : integer;
 begin
   result := self.InstanceSize;
   result := result + Length (value);
+end;
+
+
+function TStringObject.toString : string;
+begin
+  result := value;
 end;
 
 

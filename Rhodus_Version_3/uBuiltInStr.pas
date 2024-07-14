@@ -37,17 +37,28 @@ type
 
 implementation
 
-Uses System.Character, Math, uSymbolTable, uVM, uStringObject,
-     uListObject, uMemoryManager, uVMExceptions, uMachineStack;
+Uses System.Character, Math,
+     uRhodusTypes,
+     uSymbolTable,
+     uVM,
+     uStringObject,
+     uListObject,
+     uMemoryManager,
+     uVMExceptions,
+     uMachineStack;
 
 
 constructor TBuiltInStr.Create;
+var sym : TSymbol;
 begin
   inherited Create ('strings');
 
-  addStringValue('asciiLower',  'abcdefghijklmnopqrstuv', true);//, 'Returns the lower ascii characters as a string', true);
-  addStringValue('asciiLpper', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', true);// 'Returns the upper ascii characters', true);
-  addStringValue('digits', '0123456789', true);
+  sym := addStringValue('asciiLower',  'abcdefghijklmnopqrstuv', true);//, 'Returns the lower ascii characters as a string', true);
+  //sym.obj.blockType := btBound;
+  sym := addStringValue('asciiLpper', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', true);// 'Returns the upper ascii characters', true);
+  //sym.obj.blockType := btBound;
+  sym := addStringValue('digits', '0123456789', true);
+  //sym.obj.blockType := btBound;
 
   addMethod(str,         1, 'str');     // convert string to number
   addMethod(val,         1, 'val');     // convert number to string
@@ -94,12 +105,12 @@ begin
    fstr := TVM (vm).popString.value;
    m := TVM (vm).pop;
    case m.stackType of
-      stInteger :
+      symInteger :
            TVM (vm).push(TStringObject.create(format (fstr, [m.iValue])));
-      stDouble :
+      symDouble :
            TVM (vm).push(TStringObject.create(format (fstr, [m.dValue])));
-      stString :
-           TVM (vm).push(TStringObject.create(format (fstr, [m.sValue.value])));
+      symString :
+           TVM (vm).push(TStringObject.create(format (fstr, [TStringObject(m.obj).value])));
    else
       raise ERuntimeException.Create('You can only use integers, floats amd strings in the format method.');
    end;
@@ -134,12 +145,12 @@ procedure TBuiltInStr.val (vm : TObject);
 var iValue : integer; dValue : double;
 begin
   case TVM (vm).peek().stackType of
-    stInteger :
+    symInteger :
         begin
         iValue := TVM (vm).popInteger;
         TVM (vm).push (TStringObject.create (inttostr (iValue)));
         end;
-    stDouble :
+    symDouble :
         begin
         dValue := TVM (vm).popScalar;
         TVM (vm).push (TStringObject.create (floattostr (dValue)));

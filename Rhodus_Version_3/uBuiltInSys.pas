@@ -30,6 +30,7 @@ type
      procedure getRecursionLimit (vm: TObject);
      procedure getMaxIntSize  (vm: TObject);
      constructor Create;
+     destructor  Destroy; override;
   end;
 
   procedure initialiseSysModuleVariables;
@@ -61,17 +62,30 @@ begin
   path.blockType := btBound;   // To make sure the garbage collector doesn't get it.
 end;
 
+function makePathVariable : TListObject;
+begin
+  result := TListObject.Create(0);
+  result.append(TStringObject.create('.'));
+  result.blockType := btBound;   // To make sure the garbage collector doesn't get it.
+
+end;
+
+
 // --------------------------------------------------------------------------------------------
 
 constructor TBuiltInSys.Create;
 var argv : TListObject;
     astr : TStringObject;
+    sym : TSymbol;
 begin
   inherited Create ('sys');
 
-  addStringValue ('version',  string (uBuiltInConfig.RHODUS_VERSION), True);//'returns the current version number for Rhodus', True);
-  addStringValue ('doubleFormat',  TBuiltInSys.defaultDoubleFormat, True);//'default output format string for double values', False);
-  addStringValue ('integerFormat',  TBuiltInSys.defaultIntegerFormat, True);//'default output format string for integer values', False);
+  sym := addStringValue ('version',  string (uBuiltInConfig.RHODUS_VERSION), True);//'returns the current version number for Rhodus', True);
+  //sym.obj.blockType := btBound;
+  sym := addStringValue ('doubleFormat',  TBuiltInSys.defaultDoubleFormat, True);//'default output format string for double values', False);
+  //sym.obj.blockType := btBound;
+  sym := addStringValue ('integerFormat',  TBuiltInSys.defaultIntegerFormat, True);//'default output format string for integer values', False);
+  //sym.obj.blockType := btBound;  // protect the string object from the garbage collector.
 
   argv := TListObject.Create(0);
   for var i := 0 to ParamCount do
@@ -83,13 +97,18 @@ begin
 
   addListValue ('argv', argv, True);//'The list of command line arguments passed', True);
 
-  addListValue ('path', path, True);//'Search path for Rhodus import libraries', True);
+  addListValue ('path', makePathVariable, True);//'Search path for Rhodus import libraries', True);
 
   addMethod (setRecursionLimit,  1, 'setRecursionLimit', 'Set the function recursion limit');
   addMethod (getRecursionLimit,  0, 'getRecursionLimit', 'Get the current function recursion limit');
   addMethod (getMaxIntSize,      0, 'maxIntSize', 'Returns the maximum initeger size');
 end;
 
+
+destructor TBuiltInSys.Destroy;
+begin
+  inherited;
+end;
 
 procedure TBuiltInSys.getRecursionLimit (vm: TObject);
 begin

@@ -89,8 +89,6 @@ testUtils.beginTests ("Multiply")
   testUtils.runtestTrue (x == [56,78]);
 testUtils.endTests()
 
-
-
 testUtils.beginTests ("Period Syntax")
 // --------------------------------------------------------
 // Test period syntax and index of lists containing methods
@@ -109,7 +107,6 @@ end
 testUtils.endTests()
 
 
-
 testUtils.beginTests ("Add User Functions")
   // And user defined funtions
   function test (x) return x*x; end
@@ -123,3 +120,4 @@ testUtils.beginTests ("Add User Functions")
 
   testUtils.runtestTrue (runtest (math.sin, 30) == math.sin (30))
 testUtils.endTests()
+

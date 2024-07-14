@@ -22,7 +22,7 @@ type
   TIntArray = array of double;
   TFloatArray = array of double;
 
-  TUniFunction = function (const value : Extended) : Extended;
+  TUniFunction = function (const value : extended) : extended;
 
   TArrayDataType = (adtInteger, adtDouble);
 
@@ -55,7 +55,7 @@ type
      function        getNthDimension (i : integer) : integer;
      function        getSize : integer; override;
 
-     function        arrayToString () : string;
+     function        ToString () : string; override;
 
      function        clone : TDataObject; override;
      procedure       resize2D (n, m : integer);
@@ -104,6 +104,7 @@ type
      procedure   appendCol (vm : TObject);
      procedure   getTranspose (vm : TObject);
      procedure   getSqr (vm : TObject);
+     procedure   toMatrix (vm : TObject);
      procedure   add (vm : TObject);
      procedure   sub (vm : TObject);
      procedure   getMax (vm : TObject);
@@ -125,8 +126,10 @@ Uses SysUtils,
      uVM,
      uSymbolTable,
      uListObject,
+     uValueObject,
      uVMExceptions,
      uMatrixObject,
+     uStringObject,
      uBuiltInGlobal;
 
 const outOfRangeMsg = 'Index out of range while accessing array element';
@@ -144,6 +147,9 @@ begin
   methodList.Add(TMethodDetails.Create ('ndim',   0, 'get the number of dimensions of the array: var.ndim ()', getNumDim));
   methodList.Add(TMethodDetails.Create ('rows',   0, 'get the number of rows of a matrix: var.rows()', getNumRows));
   methodList.Add(TMethodDetails.Create ('cols',   0, 'get the number of columns of a matrix: var.cols()', getNumCols));
+
+  methodList.Add(TMethodDetails.Create ('toMatrix', 0, 'Convert a 2D array into a matrix: m = var.tomatrix()', toMatrix));
+
 
   methodList.Add(TMethodDetails.Create('appendrow',  1, 'append rows', appendRow));
   methodList.Add(TMethodDetails.Create('appendcol',  1, 'append columns', appendCol));
@@ -224,7 +230,7 @@ begin
   r := TListObject.Create(length (s.dim));
   for i := 0 to length (s.dim) - 1 do
       begin
-      r.list[i].itemType := liInteger;
+      r.list[i].itemType := symInteger;
       r.list[i].iValue := s.dim[i];
       end;
 
@@ -394,6 +400,17 @@ begin
    for i := 0 to len do
        s2.dataf[i] := s1.dataf[i]*s1.dataf[i];
     TVM (vm).push (s2);
+end;
+
+
+procedure TArrayMethods.toMatrix (vm : TObject);
+var md : TMethodDetails;
+    s : TArrayObject;
+begin
+  md := TVM (vm).popMethodDetails;
+  s := TArrayObject (md.self);
+
+  TVM (vm).push(TArrayObject.toMatrix(s));
 end;
 
 
@@ -658,7 +675,7 @@ var
   i, Offset: Integer;
   fmt : string;
 begin
- fmt := SysLibraryRef.find ('doubleFormat').sValue.value;
+  fmt := (SysLibraryRef.find ('doubleFormat').dataObject as TStringObject).value;
   if depth = High(dim) then
   begin
     result := result + '{';
@@ -702,11 +719,13 @@ end;
 
 // This needs to be redone at some point so that n-dimensional
 // arrays are convert to string format correctly.
-function TArrayObject.arrayToString: string;
+function TArrayObject.toString: string;
 var i, j : integer;
     fmt : string;
+    sym : TSymbol;
 begin
-    fmt := SysLibraryRef.find ('doubleFormat').sValue.value;
+    sym := SysLibraryRef.find ('doubleFormat');
+    fmt := (sym.dataObject as TStringObject).value;
 
   if length (dim) = 1 then
      begin
@@ -1054,7 +1073,7 @@ end;
 
 
 // This is a tough one.
-class function TArrayObject.toList (a : TArrayObject) : TDataObject;  // Due to circular reference issue
+class function TArrayObject.toList (a : TArrayObject) : TDataObject;
 //var l : TListObject;
 //    i, j : integer;
 //    item : TListItem;
@@ -1078,9 +1097,19 @@ end;
 
 
 class function TArrayObject.toMatrix (a : TArrayObject) : TDataObject;
-//var l : TListObject;
+var i, j : integer;
+    m : TMatrixObject;
 begin
-  result := TMatrixObject.Create;
+  if a.getNumDimensions = 2 then
+     begin
+     m := TMatrixObject.Create (a.dim[0], a.dim[1]);
+     for i := 0 to a.dim[0] - 1 do
+         for j := 0 to a.dim[1] - 1 do
+             m[i,j] := a.getValue2D(i, j);
+     end
+  else
+    raise ERuntimeException.Create('The array must be two dimensional');
+  result := m;
 end;
 
 
@@ -1097,7 +1126,7 @@ begin
 
   for var i := 0 to n do
       begin
-      if not sameValue (a1.dataf[i], a2.dataf[i], epsSymbol.voValue.dValue) then
+      if not sameValue (a1.dataf[i], a2.dataf[i], (epsSymbol.dataObject as TValueObject).dValue) then
          exit (False);
       end;
 end;

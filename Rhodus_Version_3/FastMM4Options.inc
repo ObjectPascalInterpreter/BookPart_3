@@ -123,7 +123,7 @@ Set the default options for FastMM here.
  Very important: If you enable this option your application will require the
  FastMM_FullDebugMode.dll library. If this library is not available you will
  get an error on startup.}
-{.$define FullDebugMode}
+{$define FullDebugMode}
 
   {Set this option to perform "raw" stack traces, i.e. check all entries on the
    stack for valid return addresses. Note that this is significantly slower
@@ -159,7 +159,7 @@ Set the default options for FastMM here.
    then stack traces will not be available. Note that this may cause problems
    due to a changed DLL unload order when sharing the memory manager. Use with
    care.}
-  {.$define LoadDebugDLLDynamically}
+  {$define LoadDebugDLLDynamically}
 
     {.$define DoNotInstallIfDLLMissing}
     {If the FastMM_FullDebugMode.dll file is not available then FastMM will not

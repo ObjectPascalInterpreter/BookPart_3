@@ -21,6 +21,7 @@ Uses System.SysUtils, System.Diagnostics, System.TimeSpan, uUtils,
   uVectorObject,
   uMatrixObject,
   uValueObject,
+  uDataObject,
   uSymbolTable,
   uConstantTable,
   uProgramCode,
@@ -91,6 +92,7 @@ type
     bolStopVm : boolean;
     lineNumber : integer;  // set to the source code line number associated with the current bytecode
     bolDebugger : boolean;
+    bolCountOpCodes : boolean;
 
     procedure issueMessage (msg : string);
 
@@ -157,7 +159,7 @@ type
 
     procedure loadLocalIndexable;
     procedure loadLocalIndexableList (aList: TListObject; index: integer);
-    procedure loadLocalIndexableString (astr: TStringObject; index: integer);
+    procedure loadLocalIndexableString (astr: TDataObject; index: integer);
 
     procedure buildSlice;
     procedure evalSliceObject (numSlices : integer);
@@ -184,6 +186,7 @@ type
 
     procedure  collectGarbage;
     function   getGarbageSize : integer;
+    procedure  recordOpCodeCounts (opcode : TByteCode);
   public
     printCallbackPtr       : TVMPrintCallBack;
     printlnCallbackPtr     : TVMPrintCallBack;
@@ -205,15 +208,11 @@ type
     procedure   push(iValue: integer); overload; inline;
     procedure   push(bValue: boolean); overload; inline;
     procedure   push(dValue: double); overload; inline;
-    procedure   push(sValue: TStringObject); overload; inline;
-    procedure   push(lValue: TListObject); overload; inline;
-    procedure   push(aValue: TArrayObject); overload; inline;
-    procedure   push (vValue: TVectorObject); overload; inline;
-    procedure   push (mValue: TMatrixObject);  overload; inline;
-    procedure   push (voValue: TValueObject);  overload; inline;
-    procedure   push(fValue: TUserFunction); overload; inline;
+    procedure   push(obj: TMatrixObject);  overload; inline;
+    procedure   push(voValue: TValueObject);  overload; inline;
+    procedure   push(obj: TDataObject); overload; //inline;
     procedure   push(oValue : TMethodDetails); overload;
-    procedure   push (module : TModule); overload; inline;
+    procedure   push(module : TModule); overload; inline;
     procedure   pushNone;
     procedure   pushSliceObject (obj : TObject);
     function    peek : PMachineStackRecord;
@@ -258,6 +257,7 @@ type
 var
   vm_elapsedTime: double;
   nTotalTests : integer;
+  countOpCodes : array[0..255] of integer;
 
 implementation
 
@@ -292,6 +292,7 @@ begin
   assertCounter := 1;
   interactive := False;
   bolDebugger := False;
+  bolCountOpCodes := False;
 end;
 
 
@@ -398,37 +399,39 @@ end;
 
 function TVM.toStr (st : PMachineStackRecord) : AnsiString;
 var fmt : string;
+    sym : TSymbol;
 begin
   if st <> nil then
      case st.stackType of
-          stNone    : begin end; //write ('undefined value'); end;
-          stInteger : begin
-                      fmt := SysLibraryRef.find ('integerFormat').sValue.value;
+          symNonExistant    : begin end; //write ('undefined value'); end;
+          symInteger : begin
+                      sym := SysLibraryRef.find ('integerFormat');
+                      fmt := (sym.dataObject as TStringObject).value;
                       result := AnsiString (Format(fmt, [st.iValue]));
                       end;
-           stDouble : begin
-                      fmt := SysLibraryRef.find ('doubleFormat').sValue.value;
+           symDouble : begin
+                      fmt := (SysLibraryRef.find ('doubleFormat').dataObject as TStringObject).value;
                       result := AnsiString (Format(fmt, [st.dValue]));
                       end;
-          stString  : result := AnsiString (st.sValue.value);
-          stBoolean : if st.bValue = True then
+          symString  : result := AnsiString (TStringObject(st.obj).value);
+          symBoolean : if st.bValue = True then
                          result := 'True'
                       else
                          result := 'False';
-          stList    : begin
-                      result := AnsiString (st.lValue.listToString);
+          symList    : begin
+                      result := AnsiString (st.obj.toString);
                       end;
-          stArray   : result := AnsiString (st.aValue.arrayToString());
+          symArray   : result := AnsiString (st.obj.toString());
 
-          stMatrix  : result := AnsiString (st.mValue.matrixToString());
+          symMatrix  : result := AnsiString (st.obj.ToString());
 
-      stValueObject : result := AnsiString (st.voValue.valueToString());
+      symValueObject : result := AnsiString (st.obj.ToString());
 
-          stModule  : begin
+          symModule  : begin
                       result := AnsiString (st.module.moduleName);
                       end;
-          stFunction: begin
-                      result := AnsiString (st.fValue.methodName);
+          symUserFunc: begin
+                      result := AnsiString (TUserFunction (st.obj).methodName);
                       end
      else
         result := 'Unrecognized value type from print' + sLineBreak;
@@ -471,8 +474,8 @@ procedure TVM.printlnValue;
 var stRecord : TMachineStackRecord;
 begin
   printValue;
-  stRecord.sValue := TStringObject.Create(sLineBreak);  // Don't free, garbage collector will handle it.
-  stRecord.stackType := stString;
+  stRecord.obj := TStringObject.Create(sLineBreak);  // Don't free, garbage collector will handle it.
+  stRecord.stackType := symString;
   if Assigned(printCallbackPtr) then
     printCallbackPtr(sLineBreak);
 end;
@@ -483,7 +486,7 @@ var color : PMachineStackRecord;
 begin
   color := pop;
   if Assigned (setColorCallbackPtr) then
-     setColorCallbackPtr (AnsiString (color.sValue.value));
+     setColorCallbackPtr (AnsiString (TStringObject(color.obj).value));
 end;
 
 
@@ -492,7 +495,7 @@ var
   st: PMachineStackRecord;
 begin
   st := pop;
-  if st.stackType = stBoolean then
+  if st.stackType = symBoolean then
   begin
     inc (nTotalTests);
     if st.bValue = True then
@@ -513,7 +516,7 @@ var
   st: PMachineStackRecord;
 begin
   st := pop;
-  if st.stackType = stBoolean then
+  if st.stackType = symBoolean then
   begin
     if st.bValue = False then
       push(TStringObject.Create('.'))
@@ -591,17 +594,17 @@ begin
 {$ENDIF}
   stack[stackTop].stackType := entry.stackType;
   case entry.stackType of
-    stNone:
+    symNonExistant:
     begin
     end;
-    stInteger: stack[stackTop].iValue := entry.iValue;
-    stBoolean: stack[stackTop].bValue := entry.bValue;
-    stDouble: stack[stackTop].dValue := entry.dValue;
-    stString: stack[stackTop].sValue := entry.sValue;
-    stList: stack[stackTop].lValue := entry.lValue;
-    stArray: stack[stackTop].aValue := entry.aValue;
-    stMatrix: stack[stackTop].mValue := entry.mValue;
-    stValueObject: stack[stackTop].voValue := entry.voValue;
+    symInteger: stack[stackTop].iValue := entry.iValue;
+    symBoolean: stack[stackTop].bValue := entry.bValue;
+    symDouble: stack[stackTop].dValue := entry.dValue;
+    symString: stack[stackTop].obj := entry.obj;
+    symList: stack[stackTop].obj := entry.obj;
+    symArray: stack[stackTop].obj := entry.obj;
+    symMatrix: stack[stackTop].obj := entry.obj;
+    symValueObject: stack[stackTop].obj := entry.obj;
   else
     raiseError ('Unknown type in dup method');
   end;
@@ -626,7 +629,7 @@ begin
   begin
     p := @stack[stackTop];
     dec(stackTop);
-    if p.stackType <> stInteger then
+    if p.stackType <> symInteger then
       raiseError ('Expecting integer type');
     result := p.iValue;
   end
@@ -644,7 +647,7 @@ begin
   begin
     p := @stack[stackTop];
     dec(stackTop);
-    if p.stackType <> stBoolean then
+    if p.stackType <> symBoolean then
       raiseError ('Expecting boolean type');
     result := p.bValue;
   end
@@ -662,9 +665,9 @@ begin
      begin
      p := @stack[stackTop];
      dec(stackTop);
-     if p.stackType <> stArray then
+     if p.stackType <> symArray then
         raiseError ('Expecting array type');
-     result := p.aValue;
+     result := TArrayObject (p.obj);
      end
   else
      raiseError ('Stack underflow error in popString');
@@ -680,9 +683,9 @@ begin
      begin
      p := @stack[stackTop];
      dec(stackTop);
-     if p.stackType <> stVector then
+     if p.stackType <> symVector then
         raiseError ('Expecting vector type');
-     result := p.vValue;
+     result := TVectorObject (p.obj);
      end
   else
      raiseError ('Stack underflow error in popVector');
@@ -698,9 +701,9 @@ begin
      begin
      p := @stack[stackTop];
      dec(stackTop);
-     if p.stackType <> stMatrix then
+     if p.stackType <> symMatrix then
         raiseError ('Expecting matrix type');
-     result := p.mValue;
+     result := p.obj as TMatrixObject;
      end
   else
      raiseError ('Stack underflow error in popMatrix');
@@ -716,9 +719,9 @@ begin
      begin
      p := @stack[stackTop];
      dec(stackTop);
-     if p.stackType <> stString then
+     if p.stackType <> symString then
         raiseError ('Expecting string type');
-     result := p.sValue;
+     result := TStringObject(p.obj);
      end
   else
      raiseError ('Stack underflow error in popString');
@@ -733,9 +736,9 @@ begin
      begin
      p := @stack[stackTop];
      dec(stackTop);
-     if p.stackType <> stList then
+     if p.stackType <> symList then
         raiseError ('Expecting list type');
-     result := p.lValue;
+     result := TListObject (p.obj);
      end
  else
      raiseError ('Stack underflow error in popList');
@@ -750,9 +753,9 @@ begin
      begin
      p := @stack[stackTop];
      dec(stackTop);
-     if p.stackType <> stFunction then
+     if p.stackType <> symUserFunc then
         raiseError ('Expecting function type');
-     result := p.fValue;
+     result := TUserFunction (p.obj);
      end
  else
      raiseError ('Stack underflow error in popUserFunction');
@@ -767,7 +770,7 @@ begin
      begin
      p := @stack[stackTop];
      dec(stackTop);
-     if p.stackType <> stObjectMethod then
+     if p.stackType <> symObjectMethod then
         raiseError ('Expecting object method type');
      result := p.oValue;
      end
@@ -784,7 +787,7 @@ begin
      begin
      p := @stack[stackTop];
      dec(stackTop);
-     if p.stackType <> stModule then
+     if p.stackType <> symModule then
         raiseError ('Expecting module type but found: ' + stToStr (p.stackType));
 
      result := p.module;
@@ -802,15 +805,15 @@ begin
      begin
      p := @stack[stackTop];
      dec(stackTop);
-     if p.stackType = stInteger then
+     if p.stackType = symInteger then
         exit(p.iValue);
-     if p.stackType = stDouble then
+     if p.stackType = symDouble then
         exit(p.dValue);
-     if p.stackType = stValueObject then
+     if p.stackType = symValueObject then
         begin
-        case p.voValue.valueType of
-           vtInteger : exit (p.voValue.iValue);
-           vtDouble : exit (p.voValue.dValue);
+        case (p.obj as TValueObject).valueType of
+           vtInteger : exit ((p.obj as TValueObject).iValue);
+           vtDouble : exit ((p.obj as TValueObject).dValue);
         end;
         end;
 
@@ -848,19 +851,19 @@ begin
 {$ENDIF}
   stack[stackTop].stackType := value.stackType;
   case value.stackType of
-    stNone:
+    symNonExistant:
     begin
     end;
-    stInteger: stack[stackTop].iValue := value.iValue;
-    stBoolean: stack[stackTop].bValue := value.bValue;
-    stDouble: stack[stackTop].dValue := value.dValue;
-    stString: stack[stackTop].sValue := value.sValue;
-    stList: stack[stackTop].lValue := value.lValue;
-    stArray: stack[stackTop].aValue := value.aValue;
-    stVector: stack[stackTop].vValue := value.vValue;
-    stMatrix: stack[stackTop].mValue := value.mValue;
-    stValueObject: stack[stackTop].voValue := value.voValue;
-    stFunction : stack[stackTop].fValue := value.fValue;
+    symInteger: stack[stackTop].iValue := value.iValue;
+    symBoolean: stack[stackTop].bValue := value.bValue;
+    symDouble: stack[stackTop].dValue := value.dValue;
+    symString: stack[stackTop].obj := value.obj;
+    symList: stack[stackTop].obj := value.obj;
+    symArray: stack[stackTop].obj := value.obj;
+    symVector: stack[stackTop].obj := value.obj;
+    symMatrix: stack[stackTop].obj := value.obj;
+    symValueObject: stack[stackTop].obj := value.obj;
+    symUserFunc : stack[stackTop].obj := value.obj;
   else
     raise ERuntimeException.Create('Internal Error: Unknown type in push method');
   end;
@@ -874,7 +877,7 @@ begin
   checkStackOverflow;
 {$ENDIF}
   stack[stackTop].iValue := iValue;
-  stack[stackTop].stackType := TStackType.stInteger;
+  stack[stackTop].stackType := symInteger;
 end;
 
 
@@ -885,7 +888,7 @@ begin
   checkStackOverflow;
 {$ENDIF}
   stack[stackTop].bValue := bValue;
-  stack[stackTop].stackType := TStackType.stBoolean;
+  stack[stackTop].stackType := symBoolean;
 end;
 
 
@@ -896,63 +899,18 @@ begin
   checkStackOverflow;
 {$ENDIF}
   stack[stackTop].dValue := dValue;
-  stack[stackTop].stackType := TStackType.stDouble;
+  stack[stackTop].stackType := symDouble;
 end;
 
 
-
-procedure TVM.push(sValue: TStringObject);
-begin
-  inc(stackTop);
-{$IFDEF STACKCHECK}
-  checkStackOverflow;
-{$ENDIF}
-  stack[stackTop].sValue := sValue;
-  stack[stackTop].stackType := TStackType.stString;
-end;
-
-
-procedure TVM.push (lValue: TListObject);
+procedure TVM.push (obj: TMatrixObject);
 begin
   inc(stackTop);
   {$IFDEF STACKCHECK}
   checkStackOverflow;
 {$ENDIF}
-  stack[stackTop].lValue := lValue;
-  stack[stackTop].stackType := TStackType.stList;
-end;
-
-
-procedure TVM.push (aValue: TArrayObject);
-begin
-  inc(stackTop);
-  {$IFDEF STACKCHECK}
-  checkStackOverflow;
-{$ENDIF}
-  stack[stackTop].aValue := aValue;
-  stack[stackTop].stackType := TStackType.stArray;
-end;
-
-
-procedure TVM.push (vValue: TVectorObject);
-begin
-  inc(stackTop);
-  {$IFDEF STACKCHECK}
-  checkStackOverflow;
-{$ENDIF}
-  stack[stackTop].vValue := vValue;
-  stack[stackTop].stackType := TStackType.stVector;
-end;
-
-
-procedure TVM.push (mValue: TMatrixObject);
-begin
-  inc(stackTop);
-  {$IFDEF STACKCHECK}
-  checkStackOverflow;
-{$ENDIF}
-  stack[stackTop].mValue := mValue;
-  stack[stackTop].stackType := TStackType.stMatrix;
+  stack[stackTop].obj := obj;
+  stack[stackTop].stackType := symMatrix;
 end;
 
 
@@ -962,19 +920,18 @@ begin
   {$IFDEF STACKCHECK}
   checkStackOverflow;
 {$ENDIF}
-  stack[stackTop].voValue := voValue;
-  stack[stackTop].stackType := TStackType.stValueObject;
+  stack[stackTop].obj := voValue;
+  stack[stackTop].stackType := symValueObject;
 end;
 
-
-procedure TVM.push (fValue: TUserFunction);
+procedure TVM.push (obj: TDataObject);
 begin
   inc(stackTop);
   {$IFDEF STACKCHECK}
   checkStackOverflow;
 {$ENDIF}
-  stack[stackTop].fValue := fValue;
-  stack[stackTop].stackType := TStackType.stFunction;
+  stack[stackTop].obj := obj;
+  stack[stackTop].stackType := obj.objectType;
 end;
 
 
@@ -985,7 +942,7 @@ begin
   checkStackOverflow;
 {$ENDIF}
   stack[stackTop].oValue := oValue;
-  stack[stackTop].stackType := TStackType.stObjectMethod;
+  stack[stackTop].stackType := symObjectMethod;
 end;
 
 
@@ -996,7 +953,7 @@ begin
   checkStackOverflow;
 {$ENDIF}
   stack[stackTop].module := module;
-  stack[stackTop].stackType := TStackType.stModule;
+  stack[stackTop].stackType := symModule;
 end;
 
 
@@ -1013,7 +970,7 @@ begin
   checkStackOverflow;
 {$ENDIF}
   stack[stackTop].sliceValue := obj;
-  stack[stackTop].stackType := TStackType.stSliceObject;
+  stack[stackTop].stackType := symSliceObject;
 end;
 
 // -------------------------------------------------------------------------
@@ -1052,7 +1009,7 @@ var
 begin
   st1 := pop;  // second operand
   st2 := pop;  // first operand
-  if (st1.stackType = stNone) or (st2.stackType = stNone) then
+  if (st1.stackType = symNonExistant) or (st2.stackType = symNonExistant) then
      raiseError ('Variable undefined in sub');
 
   try
@@ -1073,7 +1030,7 @@ var
 begin
   st1 := pop;
   st2 := pop;
-  if (st1.stackType = stNone) or (st2.stackType = stNone) then
+  if (st1.stackType = symNonExistant) or (st2.stackType = symNonExistant) then
      raiseError  ('Variable undefined in mult');
 
   try
@@ -1093,10 +1050,10 @@ begin
   st2 := pop;
 
   case st1.stackType of
-      stMatrix :
+      symMatrix :
          case st2.stackType of
-           stMatrix :
-              push (TMatrixObject.dotmult (st2.mValue, st1.mValue));
+           symMatrix :
+              push (TMatrixObject.dotmult (TMatrixObject (st2.obj), TMatrixObject (st1.obj)));
       else
          raiseError ('Dot product must be between two matrices');
          end;
@@ -1112,7 +1069,7 @@ var
 begin
   st1 := pop;
   st2 := pop;
-  if (st1.stackType = stNone) or (st2.stackType = stNone) then
+  if (st1.stackType = symNonExistant) or (st2.stackType = symNonExistant) then
      raise ERuntimeException.Create ('Variable undefined in division operation');
 
   try
@@ -1131,10 +1088,10 @@ var
 begin
   st := pop;
   case st.stackType of
-    stInteger: push(-st.iValue);
-    stDouble: push(-st.dValue);
-    stMatrix: push (TMatrixObject.minus (st.mValue));
-    stArray: push (TArrayObject.minus (st.aValue));
+    symInteger: push(-st.iValue);
+    symDouble: push(-st.dValue);
+    symMatrix: push (TMatrixObject.minus (TMatrixObject (st.obj)));
+    symArray: push (TArrayObject.minus (TArrayObject(st.obj)));
   else
     raiseError ('Data type not supported by unary operator');
   end;
@@ -1148,12 +1105,12 @@ var
 begin
   st1 := pop;
   st2 := pop;
-  if (st1.stackType = stNone) or (st2.stackType = stNone) then
+  if (st1.stackType = symNonExistant) or (st2.stackType = symNonExistant) then
      raiseError  ('Variable undefined in divideInt');
 
   case st2.stackType of
-    stInteger: case st2.stackType of
-        stInteger: push(st2.iValue div st1.iValue);
+    symInteger: case st2.stackType of
+        symInteger: push(st2.iValue div st1.iValue);
       else
         raiseError  ('Expecting integer type with div operator');
       end
@@ -1170,35 +1127,35 @@ var
 begin
   st1 := pop;
   st2 := pop;
-  if (st1.stackType = stNone) or (st2.stackType = stNone) then
+  if (st1.stackType = symNonExistant) or (st2.stackType = symNonExistant) then
      raiseError  ('Variable undefined in mod');
 
   case st2.stackType of
-    stInteger:
+    symInteger:
       begin
       case st1.stackType of
-        stInteger: push(st2.iValue mod st1.iValue);
-        stDouble : push(Math.FMod (st2.iValue, st1.dValue));
-        stValueObject : push (Math.FMod (st2.iValue, TValueObject.getValue(st1.voValue)));
+        symInteger: push(st2.iValue mod st1.iValue);
+        symDouble : push(Math.FMod (st2.iValue, st1.dValue));
+        symValueObject : push (Math.FMod (st2.iValue, TValueObject.getValue(st1.obj as TValueObject)));
       else
          raiseError ('Incompatible types in mod operation');
       end;
       end;
-    stDouble:
+    symDouble:
       begin
         case st1.stackType of
-         stInteger : push(Math.FMod (st2.dValue, st1.iValue));
-         stDouble  : push(Math.FMod (st2.dValue, st1.dValue));
-        stValueObject : push (Math.FMod (st2.dValue, TValueObject.getValue(st1.voValue)));
+         symInteger : push(Math.FMod (st2.dValue, st1.iValue));
+         symDouble  : push(Math.FMod (st2.dValue, st1.dValue));
+        symValueObject : push (Math.FMod (st2.dValue, TValueObject.getValue(st1.obj as TValueObject)));
         else
           raiseError ('Incompatible types in mod operation');
         end;
       end;
-    stValueObject :
+    symValueObject :
      case st1.stackType of
-        stInteger: push(Math.FMod (TValueObject.getValue(st2.voValue), st1.iValue));
-        stDouble: push(Math.FMod (TValueObject.getValue(st2.voValue), st1.dValue));
-        stValueObject : push(Math.FMod (TValueObject.getValue(st2.voValue), TValueObject.getValue(st1.voValue)));
+        symInteger: push(Math.FMod (TValueObject.getValue(st2.obj as TValueObject), st1.iValue));
+        symDouble: push(Math.FMod (TValueObject.getValue(st2.obj as TValueObject), st1.dValue));
+        symValueObject : push(Math.FMod (TValueObject.getValue(st2.obj as TValueObject), TValueObject.getValue(st1.obj as TValueObject)));
      else
         compatibilityError('dividing', st2, st1);
      end;
@@ -1235,8 +1192,8 @@ begin
   sy := @stack[symbolIndex + bsp];
 
   case sy.stackType of
-    stInteger: inc(sy.iValue);
-    stDouble: sy.dValue := sy.dValue + step;
+    symInteger: inc(sy.iValue);
+    symDouble: sy.dValue := sy.dValue + step;
   else
     raiseError ('Internal error: Illegal use of incBy on a non-integer/double type');
   end;
@@ -1267,8 +1224,8 @@ begin
   sy := @stack[symbolIndex + bsp];
 
   case sy.stackType of
-    stInteger: dec(sy.iValue);
-    stDouble: sy.dValue := sy.dValue - step;
+    symInteger: dec(sy.iValue);
+    symDouble: sy.dValue := sy.dValue - step;
   else
     raiseError ('Internal error: Illegal use of incBy on non-integer/double type');
   end;
@@ -1281,29 +1238,29 @@ var
 begin
   st1 := pop;
   st2 := pop;
-  if (st1.stackType = stNone) or (st2.stackType = stNone) then
+  if (st1.stackType = symNonExistant) or (st2.stackType = symNonExistant) then
      raiseError ('Variable undefined in power');
 
   case st2.stackType of
-    stInteger: case st1.stackType of
-        stInteger: push(power(st2.iValue, st1.iValue));
-        stDouble: push(power(st2.iValue, st1.dValue));
-        stValueObject : push (power (st2.iValue, TValueObject.getValue (st1.voValue)));
+    symInteger: case st1.stackType of
+        symInteger: push(power(st2.iValue, st1.iValue));
+        symDouble: push(power(st2.iValue, st1.dValue));
+        symValueObject : push (power (st2.iValue, TValueObject.getValue (st1.obj as TValueObject)));
       else
         compatibilityError('power', st2, st1);
       end;
-    stDouble: case st1.stackType of
-        stInteger: push(power(st2.dValue, st1.iValue));
-        stDouble: push(power(st2.dValue, st1.dValue));
-        stValueObject : push (power (st2.dValue, TValueObject.getValue (st1.voValue)));
+    symDouble: case st1.stackType of
+        symInteger: push(power(st2.dValue, st1.iValue));
+        symDouble: push(power(st2.dValue, st1.dValue));
+        symValueObject : push (power (st2.dValue, TValueObject.getValue (st1.obj as TValueObject)));
       else
         compatibilityError('exponential', st2, st1);
       end;
-  stValueObject :
+  symValueObject :
      case st1.stackType of
-        stInteger: push(power (TValueObject.getValue(st2.voValue), st1.iValue));
-        stDouble: push(power (TValueObject.getValue(st2.voValue), st1.dValue));
-        stValueObject : push(power (TValueObject.getValue(st2.voValue), TValueObject.getValue(st1.voValue)));
+        symInteger: push(power (TValueObject.getValue(st2.obj as TValueObject), st1.iValue));
+        symDouble: push(power (TValueObject.getValue(st2.obj as TValueObject), st1.dValue));
+        symValueObject : push(power (TValueObject.getValue(st2.obj as TValueObject), TValueObject.getValue(st1.obj as TValueObject)));
       else
         compatibilityError('dividing', st2, st1);
        end
@@ -1331,24 +1288,24 @@ begin
      raiseError ('Undeclared variable: ' + symbolName + ' in module: ' + module.moduleName);
 
    case value.stackType of
-    stNone:     begin symbol.symbolType := symUndefined; end;
-    stInteger:  module.symbolTable.storeInteger (symbol, value.iValue);
-    stDouble:   module.symbolTable.storeDouble (symbol, value.dValue);
-    stBoolean:  module.symbolTable.storeBoolean (symbol, value.bValue);
-    stString:   module.symbolTable.storeString (symbol, value.sValue);
-    stList:     module.symbolTable.storeList   (symbol, value.lValue);
-    stArray:    module.symbolTable.storeArray   (symbol, value.aValue);
-    stVector:   module.symbolTable.storeVector   (symbol, value.vValue);
-    stMatrix:   module.symbolTable.storeMatrix   (symbol, value.mValue);
- stValueObject: module.symbolTable.storeValueObject (symbol, value.voValue);
-    stFunction: module.symbolTable.storeFunction (symbol, value.fValue);
+    symNonExistant:     begin symbol.symbolType := symUndefined; end;
+    symInteger:  module.symbolTable.storeInteger (symbol, value.iValue);
+    symDouble:   module.symbolTable.storeDouble (symbol, value.dValue);
+    symBoolean:  module.symbolTable.storeBoolean (symbol, value.bValue);
+    symString:   module.symbolTable.storeString (symbol, value.obj as TStringObject);
+    symList:     module.symbolTable.storeList   (symbol, value.obj as TListObject);
+    symArray:    module.symbolTable.storeArray   (symbol, value.obj as TArrayObject);
+    symVector:   module.symbolTable.storeVector   (symbol, value.obj as TVectorObject);
+    symMatrix:   module.symbolTable.storeMatrix   (symbol, value.obj as TMatrixObject);
+ symValueObject: module.symbolTable.storeValueObject(symbol, value.obj as TValueObject);
+    symUserFunc: module.symbolTable.storeFunction(symbol, value.obj as TUserFunction);
 
-    stObject:   module.symbolTable.storeObject (symbol, value.obj);
-    stModule:   begin
+    //symObject:   module.symbolTable.storeObject (symbol, value.obj);
+    symModule:   begin
                 //module.symbolTable.storeModule(symbol, value.module);
                 raiseError ('You cannot store a module in a variable: ' + value.module.moduleName);
                 end;
-    stObjectMethod:
+    symObjectMethod:
        raiseError ('You cannot store an object method in a variable: ' + value.oValue.name);
   else
     raiseError ('Internal error: Unrecognized stacktype in storeSymbol: ' + TRttiEnumerationType.GetName(value.stackType));
@@ -1368,14 +1325,15 @@ begin
     symInteger:    push(symbol.iValue);
     symDouble:     push(symbol.dValue);
     symBoolean:    push(symbol.bValue);
-    symString:     push(symbol.sValue);
-    symList:       push(symbol.lValue);
-    symArray:      push(symbol.aValue);
-    symVector:     push(symbol.vValue);
-    symMatrix:     push(symbol.matValue);
-    symValueObject:push(symbol.voValue.getScalar());
+    symString:     push(symbol.dataObject);
+    symList:       push(symbol.dataObject);
+    symArray:      push(symbol.dataObject);
+    symVector:     push(symbol.dataObject);
+    symMatrix:     push(symbol.dataObject);
+    //symObject:     push(symbol.obj);
+    symValueObject:push((symbol.dataObject as TValueObject).getScalar());
     symUserFunc:  begin
-                  symbol.fValue.moduleRef := module;
+                  (symbol.fValue as TUserFunction).moduleRef := module;
                   push(symbol.fValue);
                   end;
     symModule:    push(TModule (symbol.mValue));
@@ -1395,20 +1353,17 @@ end;
 
 procedure TVM.loadAttr (symbolName : string);
 var m : TModule;
-    l : TListObject;
-    s : TStringObject;
-    a : TArrayObject;
     mat : TMatrixObject;
     vo : TValueObject;
-    func : TUserFunction;
     symbol : TSymbol;
     primary : PMachineStackRecord;
     f : TMethodDetails;
+    data : TDataObject;
     methodDetails : TMethodDetails;
 begin
   primary := pop();
   case primary.stackType of
-   stModule : begin
+   symModule : begin
               m := primary.module;
 
               if not m.symbolTable.find (symbolName, symbol) then
@@ -1419,12 +1374,13 @@ begin
                 symInteger:     push(symbol.iValue);
                 symDouble:      push(symbol.dValue);
                 symBoolean:     push(symbol.bValue);
-                symString:      push(symbol.sValue);
-                symList:        push(symbol.lValue);
-                symArray:       push(symbol.aValue);
-                symValueObject: push(symbol.voValue);
+                symString:      push(symbol.dataObject);
+                symList:        push(symbol.dataObject);
+                symArray:       push(symbol.dataObject);
+                //symObject:      push (symbol.obj);
+                symValueObject: push(symbol.dataObject);
                 symUserFunc:    begin
-                                symbol.fValue.moduleRef := m;
+                                (symbol.fValue as TUserFunction).moduleRef := m;
                                 push(symbol.fValue);
                                 end;
                 symModule:     push(TModule (symbol.mValue));
@@ -1433,85 +1389,85 @@ begin
               end;
               end;
 
-     stList : begin
-              l := primary.lValue;
+     symList : begin
+              data := primary.obj;
               // Is symbol name a function name?
-              f := l.methods.methodList.find (symbolName);
+              f := data.methods.methodList.find (symbolName);
               if f <> nil then
                  begin
-                 f.self := primary.lValue;
+                 f.self := primary.obj;
                  push (f);
                  end
               else
                  raiseError ('No method <' + symbolName + '> associated with object');
               end;
 
-     stString : begin
-              s := primary.sValue;
+     symString : begin
+              data := primary.obj;
               // Is symbol name a function name?
-              f := s.methods.methodList.find (symbolName);
+              f := data.methods.methodList.find (symbolName);
               if f <> nil then
                  begin
-                 f.self := primary.sValue;
+                 f.self := primary.obj;
                  push (f);
                  end
               else
                  raiseError ('No method <' + symbolName + '> associated with object');
               end;
 
-     stArray : begin
-              a := primary.aValue;
+     symArray : begin
+              data := primary.obj;
               // Is symbol name a function name?
-              f := a.methods.methodList.find (symbolName);
+              f := data.methods.methodList.find (symbolName);
               if f <> nil then
                  begin
-                 f.self := primary.aValue;
+                 f.self := primary.obj;
                  push (f);
                  end
               else
                  raiseError('No method <' + symbolName + '> associated with object');
               end;
 
-    stMatrix : begin
-              mat := primary.mValue;
+    symMatrix : begin
+              mat := TMatrixObject (primary.obj);
               // Is symbol name a function name?
               f := mat.methods.methodList.find (symbolName);
               if f <> nil then
                  begin
-                 f.self := primary.mValue;
+                 f.self := primary.obj;
                  push (f);
                  end
               else
                  raiseError('No method <' + symbolName + '> associated with object');
               end;
 
-stValueObject : begin
-              vo := primary.voValue;
+symValueObject : begin
+              vo := primary.obj as TValueObject;
               // Is symbol name a function name?
               f := vo.methods.methodList.find (symbolName);
               if f <> nil then
                  begin
-                 f.self := primary.voValue;
+                 f.self := primary.obj as TValueObject;
                  push (f);
                  end
               else
                  raiseError('No method <' + symbolName + '> associated with object');
               end;
 
-   stFunction :
+   symUserFunc :
               begin
-              func := primary.fValue;
+              data := primary.obj;
               // Is symbol name a function name?
-              f := func.userFunctionMethods.methodList.find (symbolName);
+              f := TUserFunction(data).userFunctionMethods.methodList.find (symbolName);
               if f <> nil then
                  begin
-                 f.self := primary.fValue;
+                 f.self := primary.obj;
                  push (f);
                  end
               else
                  raiseError('No method <' + symbolName + '> associated with object');
               end;
-   stObjectMethod :
+   symObjectMethod :
              begin
              if symbolName = 'help' then
                 raiseError ('Help cannot be used with data objects. To get help on a method, use for example var.help ("nameOfMethod")');
@@ -1519,7 +1475,7 @@ stValueObject : begin
              methodDetails := primary.oValue;
              push (methodDetails);
              end;
-   stInteger, stDouble, stBoolean:
+   symInteger, symDouble, symBoolean:
              begin
              // Let's fake the value as a valueObject so that we can get
              // it called via the valueObjects help method.
@@ -1527,9 +1483,9 @@ stValueObject : begin
              vo.blockType := btGarbage;
              vo.help := THelp.Create;
              case primary.stackType  of
-               stInteger : vo.help.description := 'This is an integer that has a value of: ' + inttostr (primary.iValue);
-               stDouble : vo.help.description := 'This is a double that has a value of: ' + floattostr (primary.dValue);
-               stBoolean : vo.help.description :=  'This is a boolean that has a value of: '+ BoolToStr(primary.bValue, True);
+               symInteger : vo.help.description := 'This is an integer that has a value of: ' + inttostr (primary.iValue);
+               symDouble : vo.help.description := 'This is a double that has a value of: ' + floattostr (primary.dValue);
+               symBoolean : vo.help.description :=  'This is a boolean that has a value of: '+ BoolToStr(primary.bValue, True);
              end;
              // Is symbol name a function name?
              f := vo.methods.methodList.find (symbolName);
@@ -1562,12 +1518,12 @@ begin
      raiseError ('This symbol is locked, you cannot change it: ' + symbolName);
 
   case value.stackType of
-    stNone:     begin symbol.symbolType := symUndefined; end;
-    stInteger:  begin
+    symNonExistant:     begin symbol.symbolType := symUndefined; end;
+    symInteger:  begin
                 if symbol.symbolType = TSymbolElementType.symValueObject then
                    begin
-                   symbol.voValue.iValue := value.iValue;
-                   symbol.voValue.valueType := vtInteger;
+                   (symbol.dataObject as TValueObject).iValue := value.iValue;
+                   (symbol.dataObject as TValueObject).valueType := vtInteger;
                    end
                 else
                    begin
@@ -1575,26 +1531,26 @@ begin
                    symbol.iValue := value.iValue;
                    end;
                 end;
-    stDouble:   begin
+    symDouble:   begin
                 if symbol.symbolType = TSymbolElementType.symValueObject then
                    begin
-                   symbol.voValue.dValue := value.dValue;
-                   symbol.voValue.valueType := vtDouble;
+                   (symbol.dataObject as TValueObject).dValue := value.dValue;
+                   (symbol.dataObject as TValueObject).valueType := vtDouble;
                    end
                 else
                    begin
                    symbol.symbolType := symDouble;
-                   symbol.dValue := value.dValue;
+                   symbol.dValue := (value.obj as TValueObject).dValue;
                    end;
                 end;
-    stBoolean:  begin symbol.symbolType := symBoolean; symbol.bValue := value.bValue; end;
-    stString:   m.symbolTable.storeString (symbol, value.sValue);
-    stList:     m.symbolTable.storeList   (symbol, value.lValue);
-    stArray:    m.symbolTable.storeArray   (symbol, value.aValue);
-    stMatrix:   m.symbolTable.storeMatrix   (symbol, value.mValue);
-    stValueObject:   m.symbolTable.storeValueObject(symbol, value.voValue);
-    stFunction: m.symbolTable.storeFunction (symbol, value.fValue);
-    stModule:   m.symbolTable.storeModule (symbol, value.module);
+    symBoolean:  begin symbol.symbolType := symBoolean; symbol.bValue := value.bValue; end;
+    symString:   m.symbolTable.storeString (symbol, value.obj as TStringObject);
+    symList:     m.symbolTable.storeList   (symbol, value.obj as TListObject);
+    symArray:    m.symbolTable.storeArray   (symbol, value.obj as TArrayObject);
+    symMatrix:   m.symbolTable.storeMatrix  (symbol, value.obj as TMatrixObject);
+    symValueObject:   m.symbolTable.storeValueObject(symbol, value.obj as TValueObject);
+    symUserFunc: m.symbolTable.storeFunction (symbol, value.obj as TUserFunction);
+    symModule:   m.symbolTable.storeModule (symbol, value.module);
   else
     raiseError ('Internal error: Unrecognized stacktype in storeAttr: ' + TRttiEnumerationType.GetName(symbol.symbolType));
   end;
@@ -1604,55 +1560,55 @@ procedure TVM.copyToStack(stackElement: PMachineStackRecord; index : integer; fr
 begin
   inc(stackTop);
   case stackElement.stackType of
-    stInteger:
+    symInteger:
         begin
-        stack[stackTop].stackType := stInteger;
+        stack[stackTop].stackType := symInteger;
         stack[stackTop].iValue := stackElement.iValue;
         end;
-      stBoolean:
+      symBoolean:
         begin
-        stack[stackTop].stackType := stBoolean;
+        stack[stackTop].stackType := symBoolean;
         stack[stackTop].bValue := stackElement.bValue;
         end;
-    stDouble:
+    symDouble:
         begin
-        stack[stackTop].stackType := stDouble;
+        stack[stackTop].stackType := symDouble;
         stack[stackTop].dValue := stackElement.dValue;
         end;
     // For both strings and lists, the stack cannot own them, only the
     // symbol table can own string and list objects. Hence we just copy
     // references here.
-    stString:
+    symString:
         begin
-        stack[stackTop].stackType := stString;
-        stack[stackTop].sValue := stackElement.sValue;
+        stack[stackTop].stackType := symString;
+        stack[stackTop].obj := stackElement.obj;
         end;
-    stList:
+    symList:
         begin
-        stack[stackTop].stackType := stList;
-        stack[stackTop].lValue := stackElement.lValue;
+        stack[stackTop].stackType := symList;
+        stack[stackTop].obj := stackElement.obj;
         end;
-    stArray:
+    symArray:
         begin
-        stack[stackTop].stackType := stArray;
-        stack[stackTop].aValue := stackElement.aValue;
+        stack[stackTop].stackType := symArray;
+        stack[stackTop].obj := stackElement.obj;
         end;
-    stMatrix:
+    symMatrix:
         begin
-        stack[stackTop].stackType := stMatrix;
-        stack[stackTop].mValue := stackElement.mValue;
+        stack[stackTop].stackType := symMatrix;
+        stack[stackTop].obj := stackElement.obj;
         end;
-    stValueObject:
+    symValueObject:
         begin
-        stack[stackTop].stackType := stValueObject;
-        stack[stackTop].voValue := stackElement.voValue;
+        stack[stackTop].stackType := symValueObject;
+        stack[stackTop].obj := stackElement.obj;
         end;
-    stFunction:
+    symUserFunc:
         begin
-        stack[stackTop].stackType := stFunction;
-        stack[stackTop].fValue := stackElement.fValue;
+        stack[stackTop].stackType := symUserFunc;
+        stack[stackTop].obj := stackElement.obj;
         end;
-    stNone:
+    symNonExistant:
       // ###
       raiseError ('Undefined variable: ' + frame.symbolTable[index].symbolName);
   else
@@ -1685,68 +1641,68 @@ begin
   bsp := frameStack[frameStackTop].bsp;
   value := pop();  // This is the value we will store
 
-  if (stack[bsp + index].stackType = stString) and (stack[bsp + index].sValue <> nil) then
-      stack[bsp + index].sValue.blockType := btGarbage; // Mark as garbage
+  if (stack[bsp + index].stackType = symString) and (stack[bsp + index].obj <> nil) then
+      stack[bsp + index].obj.blockType := btGarbage; // Mark as garbage
 
-  if (stack[bsp + index].stackType = stList) and (stack[bsp + index].lValue <> nil) then
-      stack[bsp + index].lValue.blockType := btGarbage; // Mark as garbage
+  if (stack[bsp + index].stackType = symList) and (stack[bsp + index].obj <> nil) then
+      stack[bsp + index].obj.blockType := btGarbage; // Mark as garbage
 
-  if (stack[bsp + index].stackType = stArray) and (stack[bsp + index].aValue <> nil) then
-      stack[bsp + index].aValue.blockType := btGarbage; // Mark as garbage
+  if (stack[bsp + index].stackType = symArray) and (stack[bsp + index].obj <> nil) then
+      stack[bsp + index].obj.blockType := btGarbage; // Mark as garbage
 
-  if (stack[bsp + index].stackType = stMatrix) and (stack[bsp + index].mValue <> nil) then
-      stack[bsp + index].mValue.blockType := btGarbage; // Mark as garbage
+  if (stack[bsp + index].stackType = symMatrix) and (stack[bsp + index].obj <> nil) then
+      stack[bsp + index].obj.blockType := btGarbage; // Mark as garbage
 
-  if (stack[bsp + index].stackType = stValueObject) and (stack[bsp + index].voValue <> nil) then
-      stack[bsp + index].voValue.blockType := btGarbage; // Mark as garbage
+  if (stack[bsp + index].stackType = symValueObject) and (stack[bsp + index].obj <> nil) then
+      stack[bsp + index].obj.blockType := btGarbage; // Mark as garbage
 
   case value.stackType of
-    stInteger:
+    symInteger:
       begin
       stack[bsp + index].iValue := value.iValue;
-      stack[bsp + index].stackType := stInteger;
+      stack[bsp + index].stackType := symInteger;
       end;
-    stBoolean:
+    symBoolean:
       begin
       stack[bsp + index].bValue := value.bValue;
-      stack[bsp + index].stackType := stBoolean;
+      stack[bsp + index].stackType := symBoolean;
       end;
-    stDouble:
+    symDouble:
       begin
       stack[bsp + index].dValue := value.dValue;
-      stack[bsp + index].stackType := stDouble;
+      stack[bsp + index].stackType := symDouble;
       end;
-    stString:
+    symString:
       begin
-      stack[bsp + index].sValue := value.sValue.clone as TStringObject;
-      stack[bsp + index].sValue.blockType := btBound;
-      stack[bsp + index].stackType := stString;
+      stack[bsp + index].obj := value.obj.clone;
+      stack[bsp + index].obj.blockType := btBound;
+      stack[bsp + index].stackType := symString;
       end;
-    stList:
+    symList:
       begin
-      stack[bsp + index].lValue := value.lValue.clone as TListObject;
-      stack[bsp + index].lValue.blockType := btBound;
-      stack[bsp + index].stackType := stList;
+      stack[bsp + index].obj := value.obj.clone;
+      stack[bsp + index].obj.blockType := btBound;
+      stack[bsp + index].stackType := symList;
       end;
-    stArray:
+    symArray:
       begin
-      stack[bsp + index].aValue := value.aValue.clone as TArrayObject;
-      stack[bsp + index].aValue.blockType := btBound;
-      stack[bsp + index].stackType := stArray;
+      stack[bsp + index].obj := value.obj.clone;
+      stack[bsp + index].obj.blockType := btBound;
+      stack[bsp + index].stackType := symArray;
       end;
-    stMatrix:
+    symMatrix:
       begin
-      stack[bsp + index].mValue := value.mValue.clone as TMatrixObject;
-      stack[bsp + index].mValue.blockType := btBound;
-      stack[bsp + index].stackType := stMatrix;
+      stack[bsp + index].obj := value.obj.clone as TMatrixObject;
+      stack[bsp + index].obj.blockType := btBound;
+      stack[bsp + index].stackType := symMatrix;
       end;
-    stValueObject:
+    symValueObject:
       begin
-      stack[bsp + index].voValue := value.voValue.clone as TValueObject;
-      stack[bsp + index].voValue.blockType := btBound;
-      stack[bsp + index].stackType := stValueObject
+      stack[bsp + index].obj := value.obj.clone as TValueObject;
+      stack[bsp + index].obj.blockType := btBound;
+      stack[bsp + index].stackType := symValueObject
       end;
-    stNone:
+    symNonExistant:
       raiseError  ('No value to assign in function');
   else
     raiseError ('Unknown symbol type in storeLocalValue');
@@ -1764,13 +1720,13 @@ begin
   st1 := pop;
   st2 := pop;
   case st1.stackType of
-    stInteger: case st2.stackType of
-        stInteger: push(st2.iValue <= st1.iValue);
-        stDouble: push(st2.dValue <= st1.iValue);
+    symInteger: case st2.stackType of
+        symInteger: push(st2.iValue <= st1.iValue);
+        symDouble: push(st2.dValue <= st1.iValue);
       end;
-    stDouble: case st2.stackType of
-        stInteger: push(st2.iValue <= st1.dValue);
-        stDouble: push(st2.dValue <= st1.dValue);
+    symDouble: case st2.stackType of
+        symInteger: push(st2.iValue <= st1.dValue);
+        symDouble: push(st2.dValue <= st1.dValue);
       end
   else
     raiseError ('Incompatible data types ''Is Less or Equal Than'' Operation');
@@ -1786,15 +1742,15 @@ begin
   st1 := pop;
   st2 := pop;
   case st1.stackType of
-    stInteger: case st2.stackType of
-        stInteger: push(st2.iValue < st1.iValue);
-        stDouble:  push(st2.dValue < st1.iValue);
-        stNone : raiseError  ('Undefined value in greater than tests');
+    symInteger: case st2.stackType of
+        symInteger: push(st2.iValue < st1.iValue);
+        symDouble:  push(st2.dValue < st1.iValue);
+        symNonExistant : raiseError  ('Undefined value in greater than tests');
       end;
-    stDouble: case st2.stackType of
-        stInteger: push(st2.iValue < st1.dValue);
-        stDouble: push(st2.dValue < st1.dValue);
-        stNone : raiseError ('Undefined value in greater than tests');
+    symDouble: case st2.stackType of
+        symInteger: push(st2.iValue < st1.dValue);
+        symDouble: push(st2.dValue < st1.dValue);
+        symNonExistant : raiseError ('Undefined value in greater than tests');
       end;
   else
     raiseError ('Incompatible types in ''Is Less Than'' Operation');
@@ -1810,13 +1766,13 @@ begin
   st1 := pop;
   st2 := pop;
   case st1.stackType of
-    stInteger: case st2.stackType of
-        stInteger: push(st2.iValue > st1.iValue);
-        stDouble: push(st2.dValue > st1.iValue);
+    symInteger: case st2.stackType of
+        symInteger: push(st2.iValue > st1.iValue);
+        symDouble: push(st2.dValue > st1.iValue);
       end;
-    stDouble: case st2.stackType of
-        stInteger: push(st2.iValue > st1.dValue);
-        stDouble: push(st2.dValue > st1.dValue);
+    symDouble: case st2.stackType of
+        symInteger: push(st2.iValue > st1.dValue);
+        symDouble: push(st2.dValue > st1.dValue);
       end;
   else
     raiseError ('Incompatible types in ''Is Greater Than Operation''');
@@ -1832,15 +1788,15 @@ begin
   st1 := pop;
   st2 := pop;
   case st1.stackType of
-    stInteger: case st2.stackType of
-        stInteger: push(st2.iValue >= st1.iValue);
-        stDouble: push(st2.dValue >= st1.iValue);
+    symInteger: case st2.stackType of
+        symInteger: push(st2.iValue >= st1.iValue);
+        symDouble: push(st2.dValue >= st1.iValue);
       else
         raiseError  ('Boolean data types not permitted in isGte comparison');
       end;
-    stDouble: case st2.stackType of
-        stInteger: push(st2.iValue >= st1.dValue);
-        stDouble: push(st2.dValue >= st1.dValue);
+    symDouble: case st2.stackType of
+        symInteger: push(st2.iValue >= st1.dValue);
+        symDouble: push(st2.dValue >= st1.dValue);
       end
   else
     raiseError ('Incompatible types in ''Is Greater or Equal Than Operation''');
@@ -1864,58 +1820,60 @@ var
 begin
   st1 := pop;
   st2 := pop;
-  if (st1.stackType = stBoolean) and (st2.stackType = stBoolean) then
+  if (st1.stackType = symBoolean) and (st2.stackType = symBoolean) then
   begin
     push(st1.bValue = st2.bValue);
     exit;
   end;
 
   case st1.stackType of
-    stInteger:
+    symInteger:
       case st2.stackType of
-        stInteger: push(st2.iValue = st1.iValue);
-        stDouble:  push(math.sameValue (st1.iValue, st2.dValue));
-        stValueObject : push (st2.voValue.isEqualTo(st1.iValue));
+        symInteger: push(st2.iValue = st1.iValue);
+        symDouble:  push(math.sameValue (st1.iValue, st2.dValue));
+        symValueObject : push ((st2.obj as TValueObject).isEqualTo(st1.iValue));
       else
         raiseError ('Incompatible types in equality test');
       end;
-    stDouble:
+    symDouble:
       case st2.stackType of
-        stInteger: push(st2.iValue = st1.dValue);
-        stDouble:  push(math.sameValue(st2.dValue, st1.dValue));
-        stValueObject : push (st2.voValue.isEqualTo(st1.dValue));
+        symInteger: push(st2.iValue = st1.dValue);
+        symDouble:  push(math.sameValue(st2.dValue, st1.dValue));
+        symValueObject : push ((st2.obj as TValueObject).isEqualTo(st1.dValue));
       else
         raiseError ('Incompatible types in equality test');
       end;
-    stString:
+    symString:
       begin
-      if st2.stackType = stString then
-         push(st1.sValue.isEqualTo (st2.sValue))
+      if st2.stackType = symString then
+         push(TStringObject(st1.obj).isEqualTo (TStringObject(st2.obj)))
       else
          raiseError ('Incompatible types in equality test');
       end;
-    stValueObject:
+    symValueObject:
       begin
-      if st2.stackType = stDouble then
-         push(st1.voValue.isEqualTo (st2.dValue))
+      case st2.stackType of
+          symDouble : push((st1.obj as TValueObject).isEqualTo (st2.dValue));
+          symValueObject : push((st1.obj as TValueObject).isEqualTo ((st2.obj  as TValueObject).getScalar()))
       else
-         raiseError ('Incompatible types in equality test');
+         raiseError ('Incompatible types in ValueObject equality test');
       end;
-    stList:
+      end;
+     symList:
       begin
-      if st2.stackType = stList then
-        push(TListObject.listEquals(st1.lValue, st2.lValue))
+      if st2.stackType = symList then
+        push(TListObject.listEquals(TListObject (st1.obj), TListObject (st2.obj)))
       else
         raiseError  ('Unable to test for equality between lists and non-lists data types');
       end;
-    stArray :
-      if st2.stackType = stArray then
-         push (TArrayObject.isEqualTo(st1.aValue, st2.aValue))
+    symArray :
+      if st2.stackType = symArray then
+         push (TArrayObject.isEqualTo(TArrayObject (st1.obj), TArrayObject (st2.obj)))
       else
         raiseError  ('Unable to test for equality between arrays and non-arrays data types');
-    stMatrix :
-      if st2.stackType = stMatrix then
-         push (TMatrixObject.isEqualTo(st1.mValue, st2.mValue))
+    symMatrix :
+      if st2.stackType = symMatrix then
+         push (TMatrixObject.isEqualTo(TMatrixObject (st1.obj), TMatrixObject (st2.obj)))
       else
         raiseError  ('Unable to test for equality between matrices and non-arrays data types');
   else
@@ -1930,7 +1888,7 @@ var
 begin
   st1 := pop;
   st2 := pop;
-  if (st1.stackType <> stBoolean) or (st2.stackType <> stBoolean) then
+  if (st1.stackType <> symBoolean) or (st2.stackType <> symBoolean) then
      raiseError ('Incompatible types in AND operation');
   push(st1.bValue and st2.bValue);
 end;
@@ -1942,7 +1900,7 @@ var
 begin
   st1 := pop;
   st2 := pop;
-  if (st1.stackType <> stBoolean) or (st2.stackType <> stBoolean) then
+  if (st1.stackType <> symBoolean) or (st2.stackType <> symBoolean) then
      raiseError ('Incompatible types in OR operation');
   push(st1.bValue or st2.bValue);
 end;
@@ -1954,7 +1912,7 @@ var
 begin
   st1 := pop;
   st2 := pop;
-  if (st1.stackType <> stBoolean) or (st2.stackType <> stBoolean) then
+  if (st1.stackType <> symBoolean) or (st2.stackType <> symBoolean) then
      raiseError ('Incompatible types in XOR operation');
   push(st1.bValue xor st2.bValue);
 end;
@@ -1965,7 +1923,7 @@ var
   st: PMachineStackRecord;
 begin
   st := pop;
-  if (st.stackType <> stBoolean) then
+  if (st.stackType <> symBoolean) then
      raiseError ('Incompatible types in NOT operation');
   push(not st.bValue);
 end;
@@ -2033,17 +1991,17 @@ begin
   // Get the function object
   p := @stack[stackTop-actualNumArgs];
   // Check first that its actually something we can call
-  if (p.stackType <> stFunction) and (p.stackType <> stObjectMethod) then
+  if (p.stackType <> symUserFunc) and (p.stackType <> symObjectMethod) then
      raiseError (stToStr (p.stackType) + ' is not something that can be called as a function');
 
   // This deals with calls such as a.len(), where len() is an object method
-  if p.stackType = stObjectMethod then
+  if p.stackType = symObjectMethod then
      begin
      callObjectMethod (actualNumArgs, p);
      exit;
      end;
 
-  functionObject := p.fValue;
+  functionObject := TUserFunction (p.obj);
   expectedNumArgs := functionObject.nArgs;
 
   // If it's a non-variable argument call check that the right
@@ -2051,11 +2009,11 @@ begin
   if expectedNumArgs <> VARIABLE_ARGS then
      if actualNumArgs <> expectedNumArgs then
         begin
-        if p.fValue.nArgs > 1 then
+        if TUserFunction (p.obj).nArgs > 1 then
            argMsg := ' arguments'
         else
            argMsg := ' argument';
-        raiseError ('Expecting ' + inttostr (p.fValue.nArgs) + argMsg + ' in function call [' + p.fValue.methodName + '] but received ' + inttostr (actualNumArgs) + ' arguments');
+        raiseError ('Expecting ' + inttostr (TUserFunction (p.obj).nArgs) + argMsg + ' in function call [' + TUserFunction (p.obj).methodName + '] but received ' + inttostr (actualNumArgs) + ' arguments');
         end;
 
    // Support for special builtins, eg Math
@@ -2091,7 +2049,7 @@ begin
   // Initialize the purelocals to undefined so we can detect assignments
   // from unassigned variables. The pure locals sit just above the arguments
   for i := 0 to nPureLocals - 1 do
-      stack[tbsp + i + expectedNumArgs].stackType := stNone;
+      stack[tbsp + i + expectedNumArgs].stackType := symNonExistant;
 
   // This check is to see if the argument is passed as a literal to the function
   // eg callme ([1,2,3,4]). Since a literal isn't assigned to anything
@@ -2100,27 +2058,27 @@ begin
   // used inside the function.
   for i := 0 to expectedNumArgs - 1 do
       case stack[tbsp + i].stackType of
-         stList:
+         symList:
           begin
-          if stack[tbsp + i].lValue.blockType = btGarbage then
-            stack[tbsp + i].lValue.blockType := btTemporary; // To stop the garbage collector
+          if stack[tbsp + i].obj.blockType = btGarbage then
+            stack[tbsp + i].obj.blockType := btTemporary; // To stop the garbage collector
           end;
-         stMatrix:
+         symMatrix:
           begin
-          if stack[tbsp + i].mValue.blockType = btGarbage then
-            stack[tbsp + i].mValue.blockType := btTemporary; // To stop the garbage collector
+          if stack[tbsp + i].obj.blockType = btGarbage then
+            stack[tbsp + i].obj.blockType := btTemporary; // To stop the garbage collector
           end;
-         stString:
+         symString:
           begin
-          if stack[tbsp + i].sValue.blockType = btGarbage then
-            stack[tbsp + i].sValue.blockType := btTemporary; // To stop the garbage collector
+          if stack[tbsp + i].obj.blockType = btGarbage then
+            stack[tbsp + i].obj.blockType := btTemporary; // To stop the garbage collector
           end;
-       stArray:
+       symArray:
           begin
-          if stack[tbsp + i].aValue.blockType = btGarbage then
-            stack[tbsp + i].aValue.blockType := btTemporary; // To stop the garbage collector
+          if stack[tbsp + i].obj.blockType = btGarbage then
+            stack[tbsp + i].obj.blockType := btTemporary; // To stop the garbage collector
           end;
-       stObject:
+       symObject:
          begin
           if stack[tbsp + i].obj.blockType = btGarbage then
             stack[tbsp + i].obj.blockType := btTemporary; // To stop the garbage collector
@@ -2140,9 +2098,9 @@ begin
     // which is not owned by anyone. Such arguments come in as btTemporary in order
     // to prevent the garbage collector from freeing up the argument.
     for i := 0 to expectedNumArgs - 1 do
-        if stack[tbsp + i].stackType = stList then
-           if stack[tbsp + i].lValue.blockType = btTemporary then
-              stack[tbsp + i].lValue.blockType := btGarbage;
+        if stack[tbsp + i].stackType = symList then
+           if stack[tbsp + i].obj.blockType = btTemporary then
+              stack[tbsp + i].obj.blockType := btGarbage;
 
   finally
      module := oldModule;
@@ -2168,11 +2126,11 @@ begin
     begin
     p := pop;
     case p.stackType of
-      stInteger:
+      symInteger:
         begin
         result[i] := p.iValue;
         end;
-      stDouble:
+      symDouble:
         begin
         result[i] := p.dValue;
         end;
@@ -2219,60 +2177,60 @@ begin
     begin
     p := pop;
     case p.stackType of
-      stInteger:
+      symInteger:
         begin
         result.list[i].iValue := p.iValue;
-        result.list[i].itemType := liInteger;
+        result.list[i].itemType := symInteger;
         end;
-      stBoolean:
+      symBoolean:
         begin
         result.list[i].bValue := p.bValue;
-        result.list[i].itemType := liBoolean;
+        result.list[i].itemType := symBoolean;
         end;
-      stDouble:
+      symDouble:
         begin
         result.list[i].dValue := p.dValue;
-        result.list[i].itemType := liDouble;
+        result.list[i].itemType := symDouble;
         end;
-      stSliceObject:
+      symSliceObject:
         begin
 
         end;
-      stString:
+      symString:
         begin
-        result.list[i].sValue := p.sValue.clone as TStringObject;
-        result.list[i].sValue.blockType := btOwned; // Owned means owned by a list
-        result.list[i].itemType := liString;
+        result.list[i].obj := p.obj.clone;
+        result.list[i].obj.blockType := btOwned; // Owned means owned by a list
+        result.list[i].itemType := symString;
         end;
-      stList:
+      symList:
         begin
-        result.list[i].lValue := p.lValue.clone as TListObject;
-        result.list[i].lValue.blockType := btOwned;
-        result.list[i].itemType := liList;
+        result.list[i].obj := p.obj.clone;
+        result.list[i].obj.blockType := btOwned;
+        result.list[i].itemType := symList;
         end;
-      stArray:
+      symArray:
         begin
-        result.list[i].aValue := p.aValue.clone as TArrayObject;
-        result.list[i].aValue.blockType := btOwned;
-        result.list[i].itemType := liArray;
+        result.list[i].obj := p.obj.clone;
+        result.list[i].obj.blockType := btOwned;
+        result.list[i].itemType := symArray;
         end;
-      stMatrix:
+      symMatrix:
         begin
-        result.list[i].mValue := p.mValue.clone as TMatrixObject;
-        result.list[i].mValue.blockType := btOwned;
-        result.list[i].itemType := liMatrix
+        result.list[i].obj := p.obj.clone as TMatrixObject;
+        result.list[i].obj.blockType := btOwned;
+        result.list[i].itemType := symMatrix
         end;
-      stValueObject:
+      symValueObject:
         begin
-        result.list[i].voValue := p.voValue.clone as TValueObject;
-        result.list[i].voValue.blockType := btOwned;
-        result.list[i].itemType := liValueObject;
+        result.list[i].obj := p.obj.clone as TValueObject;
+        result.list[i].obj.blockType := btOwned;
+        result.list[i].itemType := symValueObject;
         end;
-      stFunction :
+      symUserFunc :
         begin
-        result.list[i].fValue := p.fValue.clone;
-        (result.list[i].fValue as TUserFunction).blockType := btOwned;
-        result.list[i].itemType := liFunction;
+        result.list[i].obj := p.obj.clone;
+        (result.list[i].obj as TUserFunction).blockType := btOwned;
+        result.list[i].itemType := symUserFunc;
         end
     else
       raiseError('Unrecognized type in createList');
@@ -2287,19 +2245,19 @@ var
 begin
   value := pop;
 
-  if (index < 0) or (index > length(variable.sValue.value) - 1) then
+  if (index < 0) or (index > length(TStringObject(variable.obj).value) - 1) then
     raiseError ('string index out of range');
 
-  if variable.stackType <> stString then
+  if variable.stackType <> symString then
     raiseError ('left-hand side must be a string');
 
-  if value.stackType <> stString then
+  if value.stackType <> symString then
     raiseError ('right-hand side must be a string');
 
-  if length(value.sValue.value) > 1 then
+  if length(TStringObject(value.obj).value) > 1 then
     raiseError ('can only assign a single string character to an indexed string');
 
-  variable.sValue.value[index + 1] := value.sValue.value[1];
+  TStringObject(variable.obj).value[index + 1] := TStringObject(value.obj).value[1];
 end;
 
 
@@ -2310,7 +2268,7 @@ var value: double;
 begin
   value := popScalar;
 
-  if variable.stackType <> stArray then
+  if variable.stackType <> symArray then
     raiseError ('left-hand side must be a array');
 
   //if subscriptStack.Count + 1 < nSubscripts then
@@ -2333,7 +2291,7 @@ begin
      for i := uIntStack.getCount (subscriptStack) - 1 downto 0 do
          idx[i] := uIntStack.Pop(subscriptStack);
 
-     variable.aValue.setValue (idx, value);
+     TArrayObject (variable.obj).setValue (idx, value);
 
      uIntStack.clear (subscriptStack);
      end;
@@ -2347,7 +2305,7 @@ var value: double;
 begin
   value := popScalar;
 
-  if variable.stackType <> stMatrix then
+  if variable.stackType <> symMatrix then
     raiseError ('left-hand side must be a array');
 
   //if subscriptStack.Count + 1 < nSubscripts then
@@ -2365,7 +2323,7 @@ begin
      for i := uIntStack.getCount (subscriptStack) - 1 downto 0 do
          idx[i] := uIntStack.Pop(subscriptStack);
 
-     variable.mValue.setVal (idx[0], idx[1], value);
+     (variable.obj as TMatrixObject).setVal (idx[0], idx[1], value);
 
      uIntStack.clear (subscriptStack);
      end;
@@ -2376,64 +2334,64 @@ var
   value: PMachineStackRecord;
   element: TListItem;
 begin
-  if (variable.lValue.list.count  < 0) or (index > variable.lValue.list.count - 1) then
+  if (TListObject (variable.obj).list.count  < 0) or (index > TListObject (variable.obj).list.count - 1) then
      raiseError ('index out of range: ' + inttostr (index));
 
 
   // Get the element from the list that we're going to store to
-  element := variable.lValue.list[index];
+  element := TListObject (variable.obj).list[index];
 
-  if (element.itemType = liString) and (element.sValue <> nil) then
-     element.sValue.blockType := btGarbage;
+  if (element.itemType = symString) and (element.obj <> nil) then
+     element.obj.blockType := btGarbage;
 
-  if (element.itemType = liList) and (element.lValue <> nil) then
-     element.lValue.blockType := btGarbage;
+  if (element.itemType = symList) and (element.obj <> nil) then
+     element.obj.blockType := btGarbage;
 
   value := pop;
   case value.stackType of
-    stInteger:
+    symInteger:
       begin
       element.iValue := value.iValue;
-      element.itemType := liInteger;
+      element.itemType := symInteger;
       end;
-    stBoolean:
+    symBoolean:
       begin
       element.bValue := value.bValue;
-      element.itemType := liBoolean;
+      element.itemType := symBoolean;
       end;
-    stDouble:
+    symDouble:
       begin
       element.dValue := value.dValue;
-      element.itemType := liDouble;
+      element.itemType := symDouble;
       end;
-    stString:
+    symString:
       begin
-      element.sValue := value.sValue.clone as TStringObject;
-      element.sValue.blockType := btOwned;
-      element.itemType := liString;
+      element.obj := value.obj.clone;
+      element.obj.blockType := btOwned;
+      element.itemType := symString;
       end;
-    stList:
+    symList:
       begin
-      element.lValue := value.lValue.clone as TListObject;
-      element.lValue.blockType := btOwned;
-      element.itemType := liList;
+      element.obj := value.obj.clone;
+      element.obj.blockType := btOwned;
+      element.itemType := symList;
       end;
-    stMatrix:
+    symMatrix:
       begin
-      element.mValue := value.mValue.clone as TMatrixObject;
-      element.mValue.blockType := btOwned;
-      element.itemType := liMatrix;
+      element.obj := value.obj.clone as TMatrixObject;
+      element.obj.blockType := btOwned;
+      element.itemType := symMatrix;
       end;
-    stValueObject:
+    symValueObject:
       begin
-      element.voValue := value.voValue.clone as TValueObject;
-      element.voValue.blockType := btOwned;
-      element.itemType := liValueObject;
+      element.obj := value.obj.clone as TValueObject;
+      element.obj.blockType := btOwned;
+      element.itemType := symValueObject;
       end;
-    stFunction:
+    symUserFunc:
       begin
-      element.fValue := value.fValue;
-      element.itemType := liFunction;
+      element.obj := value.obj;
+      element.itemType := symUserFunc;
       end;
   else
     raiseError ('Unrecognized stacktype in storeIndexable: ' + TRttiEnumerationType.GetName (value.stackType));
@@ -2448,61 +2406,61 @@ var
 begin
   value := pop;
 
-  if (index < 0) or (index > st.lValue.list.count - 1) then
+  if (index < 0) or (index > TListObject (st.obj).list.count - 1) then
      raiseError ('list index out of range: ' + inttostr (index));
 
-  element := st.lValue.list[index];
+  element := TListObject (st.obj).list[index];
 
-  if (element.itemType = liString) and (element.sValue <> nil) then
-     element.sValue.blockType := btGarbage;
+  if (element.itemType = symString) and (element.obj <> nil) then
+     element.obj.blockType := btGarbage;
 
-  if (element.itemType = liList) and (element.lValue <> nil) then
-     element.lValue.blockType := btGarbage;
+  if (element.itemType = symList) and (element.obj <> nil) then
+     element.obj.blockType := btGarbage;
 
  case value.stackType of
-    stInteger:
+    symInteger:
       begin
       element.iValue := value.iValue;
-      element.itemType := liInteger;
+      element.itemType := symInteger;
       end;
-    stBoolean:
+    symBoolean:
       begin
       element.bValue := value.bValue;
-      element.itemType := liBoolean;
+      element.itemType := symBoolean;
       end;
-    stDouble:
+    symDouble:
       begin
       element.dValue := value.dValue;
-      element.itemType := liDouble;
+      element.itemType := symDouble;
       end;
-    stString:
+    symString:
       begin
-      element.sValue := value.sValue.clone as TStringObject;
-      element.sValue.blockType := btOwned;
-      element.itemType := liString;
+      element.obj := value.obj.clone;
+      element.obj.blockType := btOwned;
+      element.itemType := symString;
       end;
-    stList:
+    symList:
       begin
-      element.lValue := value.lValue.clone as TListObject;
-      element.lValue.blockType := btOwned;
-      element.itemType := liList;
+      element.obj := value.obj.clone;
+      element.obj.blockType := btOwned;
+      element.itemType := symList;
       end;
-     stMatrix:
+     symMatrix:
       begin
-      element.mValue := value.mValue.clone as TMatrixObject;
-      element.mValue.blockType := btOwned;
-      element.itemType := liMatrix;
+      element.obj := value.obj.clone as TMatrixObject;
+      element.obj.blockType := btOwned;
+      element.itemType := symMatrix;
       end;
-     stValueObject:
+    symValueObject:
       begin
-      element.voValue := value.voValue.clone as TValueObject;
-      element.voValue.blockType := btOwned;
-      element.itemType := liValueObject ;
+      element.obj := value.obj.clone as TValueObject;
+      element.obj.blockType := btOwned;
+      element.itemType := symValueObject ;
       end;
-    stFunction:
+    symUserFunc:
       begin
-      element.fValue := value.fValue;
-      element.itemType := liFunction;
+      element.obj := value.obj;
+      element.itemType := symUserFunc;
       end;  else
     raiseError ('Unrecognized stacktype in storeLocalIndexable');
   end
@@ -2516,15 +2474,15 @@ var
 begin
   value := pop;
 
-  if (index < 0) or (index > length(st.sValue.value) - 1) then
+  if (index < 0) or (index > length(TStringObject(st.obj).value) - 1) then
     raiseError ('string index out of range');
 
-  if value.stackType <> stString then
+  if value.stackType <> symString then
     raiseError ('can only assign a single string character to an indexed string');
 
-  if length(value.sValue.value) > 1 then
-    raiseError ('can only assign a single string character to an indexed string');
-  st.sValue.value[index + 1] := value.sValue.value[1];
+  if length (TStringObject(value.obj).value) > 1 then
+      raiseError ('can only assign a single string character to an indexed string');
+  TStringObject(st.obj).value[index + 1] := TStringObject(value.obj).value[1];
 end;
 
 
@@ -2537,12 +2495,12 @@ begin
   variable := pop;
   bsp := frameStack[frameStackTop].bsp;
   case variable.stackType of
-    stList: storeLocalIndexableList(variable, index);
-    stString:
+    symList: storeLocalIndexableList(variable, index);
+    symString:
     begin
         // update the stack entry that holds the variable
       storeLocalIndexableString(variable, index);
-      stack[index + bsp].sValue := variable.sValue;
+      stack[index + bsp].obj := variable.obj;
     end;
   else
     raiseError (stToStr(variable.stackType) + ' local variable is not indexable');
@@ -2561,16 +2519,16 @@ var
   index : integer;
   symbol : PMachineStackRecord;
 begin
-  if peek.stackType <> stInteger then
+  if peek.stackType <> symInteger then
      raiseError ('index must be an integer while accessing lists, arrays or strings');
 
   index := popInteger;
   symbol := pop;   // Comes from push symbol
   case symbol.stackType of
-     stList   : storeIndexableList(symbol, index);
-     stString : storeIndexableString(symbol, index);
-     stArray  : storeIndexableArray(symbol, index, nSubscripts);
-     stMatrix : storeIndexableMatrix(symbol, index, nSubscripts);
+     symList   : storeIndexableList(symbol, index);
+     symString : storeIndexableString(symbol, index);
+     symArray  : storeIndexableArray(symbol, index, nSubscripts);
+     symMatrix : storeIndexableMatrix(symbol, index, nSubscripts);
   else
     raiseError (stToStr(symbol.stackType) + ' variable is not indexable');
   end;
@@ -2584,9 +2542,9 @@ end;
 
 procedure TVM.loadIndexableString(st: PMachineStackRecord; index: integer);
 begin
-  if (index < 0) or (index > length(st.sValue .value) - 1) then
+  if (index < 0) or (index > length(TStringObject(st.obj) .value) - 1) then
     raiseError ('string index out of range');
-  push(TStringObject.Create(st.sValue.value[index + 1]));
+  push(TStringObject.Create(TStringObject(st.obj).value[index + 1]));
 end;
 
 
@@ -2607,9 +2565,9 @@ begin
      if nSubscripts = 1 then
         begin
         // This needs to be relaxed so that users can extract portions of an array
-        if st.aValue.getNumDimensions > 1 then
+        if TArrayObject (st.obj).getNumDimensions > 1 then
            raiseError ('Array has more dimensions that specified in indexing');
-        push (st.aValue.getValue(index));
+        push (TArrayObject (st.obj).getValue(index));
         exit;
         end;
 
@@ -2624,7 +2582,7 @@ begin
      for i := uIntStack.getCount (subscriptStack)  - 1 downto 0 do
          idx[i] := uIntStack.Pop(subscriptStack);
 
-     push (st.aValue.getValue (idx));
+     push (TArrayObject (st.obj).getValue (idx));
      uIntStack.clear (subscriptStack);
      end;
 end;
@@ -2653,7 +2611,7 @@ begin
      for i := uIntStack.getCount (subscriptStack)  - 1 downto 0 do
          idx[i] := uIntStack.Pop(subscriptStack);
 
-     push (st.mValue.getVal (idx[0], idx[1]));
+     push (TMatrixObject (st.obj).getVal (idx[0], idx[1]));
      uIntStack.clear (subscriptStack);
      end;
 end;
@@ -2662,20 +2620,22 @@ end;
 procedure TVM.loadIndexableList(variable: PMachineStackRecord; index: integer);
 var element: TListItem;
 begin
-  if (index < 0) or (index > variable.lValue.list.count - 1) then
+  if (index < 0) or (index > TListObject (variable.obj).list.count - 1) then
     raiseError('list index out of range: ' + inttostr (index));
 
-  element := variable.lValue.list[index];
+  element := TListObject (variable.obj).list[index];
 
   case element.itemType of
-    liInteger: push(element.iValue);
-    liBoolean: push(element.bValue);
-    liDouble:  push(element.dValue);
-    liString:  push(element.sValue);
-    liList:    push(element.lValue);
-    liArray:   push(element.aValue);
-    liMatrix:  push(element.mValue);
-    liFunction:push(TUserFunction (element.fValue));
+    symInteger: push(element.iValue);
+    symBoolean: push(element.bValue);
+    symDouble:  push(element.dValue);
+    symString:  push(element.obj);
+    symList:    push(element.obj);
+    symArray:   push(element.obj);
+    symMatrix:  push(element.obj);
+    symObject : push (element.obj);
+
+    symUserFunc:push(TUserFunction (element.obj));
   else
     raiseError ('internal error: unsupported type in loadIndexableList');
   end;
@@ -2694,10 +2654,10 @@ begin
   index := trunc (popScalar);
   variable := pop;
   case variable.stackType of
-    stList  : loadIndexableList(variable, index);
-    stString: loadIndexableString(variable, index);
-    stArray : loadIndexableArray (variable, index, nSubscripts);
-    stMatrix : loadIndexableMatrix (variable, index, nSubscripts);
+    symList  : loadIndexableList(variable, index);
+    symString: loadIndexableString(variable, index);
+    symArray : loadIndexableArray (variable, index, nSubscripts);
+    symMatrix : loadIndexableMatrix (variable, index, nSubscripts);
   else
     raiseError (stToStr(variable.stackType) +  ' variable is not indexable');
   end;
@@ -2715,25 +2675,25 @@ begin
   element := aList.list[index];
 
   case element.itemType of
-    liInteger:     push(element.iValue);
-    liBoolean:     push(element.bValue);
-    liDouble:      push(element.dValue);
-    liString:      push(element.sValue);
-    liList:        push(element.lValue);
-    liArray:       push(element.aValue);
-    liValueObject: push(element.voValue);
-    liFunction:    push(element.fValue as TUserFunction);
+    symInteger:     push(element.iValue);
+    symBoolean:     push(element.bValue);
+    symDouble:      push(element.dValue);
+    symString:      push(element.obj);
+    symList:        push(element.obj);
+    symArray:       push(element.obj);
+    symValueObject: push(element.obj);
+    symUserFunc:    push(element.obj as TUserFunction);
   else
     raiseError('unsupported type in loadIndexable');
   end;
 end;
 
 
-procedure TVM.loadLocalIndexableString(astr: TStringObject; index: integer);
+procedure TVM.loadLocalIndexableString(astr: TDataObject; index: integer);
 begin
-  if (index < 0) or (index >= length(astr.value) - 1) then
+  if (index < 0) or (index >= length(TStringObject(astr).value) - 1) then
     raiseError('string index out of range');
-  push(TStringObject.Create(astr.value[index + 1]));
+  push(TStringObject.Create(TStringObject(astr).value[index + 1]));
 end;
 
 
@@ -2744,11 +2704,11 @@ var
 begin
   index := popInteger;
   st := pop;
-  if st.stackType = stList then
-    loadLocalIndexableList(st.lValue, index)
+  if st.stackType = symList then
+    loadLocalIndexableList(TListObject (st.obj), index)
   else
-  if st.stackType = stString then
-    loadLocalIndexableString(st.sValue, index)
+  if st.stackType = symString then
+    loadLocalIndexableString(st.obj, index)
   else
     raiseError (stToStr(st.stackType) + ' variable is not indexable');
 end;
@@ -2794,33 +2754,32 @@ var i : integer;
     sliceObjlist : TSliceObjectList;
     value : PMachineStackRecord;
 begin
-  setLength (sliceObjlist, numSlices);
-  for i := numSlices - 1 downto 0  do
-      sliceObjlist[i] := TSliceObject (pop.sliceValue);
-  value := pop;
-
   try
+    setLength (sliceObjlist, numSlices);
+    for i := numSlices - 1 downto 0  do
+        sliceObjlist[i] := TSliceObject (pop.sliceValue);
+    value := pop;
 
   case value.stackType of
-     stString :
+     symString :
         begin
         if numSlices > 1 then
            raiseError ('Only a single slice can be applied to a string');
-        push (value.sValue.slice (sliceObjlist[0].lower, sliceObjlist[0].upper));
+        push (TStringObject(value.obj).slice (sliceObjlist[0].lower, sliceObjlist[0].upper));
         end;
-     stList :
+     symList :
         begin
         if numSlices > 1 then
            raiseError ('Only a single slice can be applied to a list');
-        push (value.lValue.slice (sliceObjlist[0].lower, sliceObjlist[0].upper));
+        push (TListObject (value.obj).slice (sliceObjlist[0].lower, sliceObjlist[0].upper));
         end;
-     stArray :
+     symArray :
         begin
-        push (value.aValue.slice(sliceObjList));
+        push (TArrayObject (value.obj).slice(sliceObjList));
         end;
-     stMatrix :
+     symMatrix :
         begin
-        push (value.mValue.slice(sliceObjList));
+        push (TMatrixObject (value.obj).slice(sliceObjList));
         end
   else
      raiseError ('You can only slice strings, arrays, or lists');
@@ -2848,36 +2807,35 @@ begin
   startOfLocals := 2 + frameStack[frameStackTop].nArgs;
   for i := startOfLocals to startOfLocals + purelocals - 1 do
     case stack[stackTop + i].stackType of
-      stList:
+      symList:
         begin
-        stack[stackTop + i].lValue.blockType := btGarbage; // Mark as garbage
-        stack[stackTop + i].lValue := nil;
+        stack[stackTop + i].obj.blockType := btGarbage; // Mark as garbage
+        stack[stackTop + i].obj := nil;
         end;
-      stString:
+      symString:
         begin
-        if not stack[stackTop + i].sValue.isConstant then // Not sure why it has to be constant
+        if not TStringObject(stack[stackTop + i].obj).isConstant then // Not sure why it has to be constant
           begin
-          stack[stackTop + i].sValue.blockType := btGarbage; // Mark as garbage
-          stack[stackTop + i].sValue := nil;
+          stack[stackTop + i].obj.blockType := btGarbage; // Mark as garbage
+          stack[stackTop + i].obj := nil;
           end;
         end;
-      stInteger :
+      symInteger,
+      symDouble,
+      symBoolean :
          begin
          end;
-      stDouble :
+      symMatrix :
          begin
+         stack[stackTop + i].obj.blockType := btGarbage; // Mark as garbage
+         stack[stackTop + i].obj := nil;
          end;
-      stMatrix :
+      symValueObject :
          begin
-         stack[stackTop + i].mValue.blockType := btGarbage; // Mark as garbage
-         stack[stackTop + i].mValue := nil;
+         stack[stackTop + i].obj.blockType := btGarbage; // Mark as garbage
+         stack[stackTop + i].obj := nil;
          end;
-      stValueObject :
-         begin
-         stack[stackTop + i].voValue.blockType := btGarbage; // Mark as garbage
-         stack[stackTop + i].voValue := nil;
-         end;
-      stNone :
+      symNonExistant :
          begin
 
          end
@@ -2932,13 +2890,150 @@ begin
 end;
 
 
+procedure TVM.recordOpCodeCounts (opcode : TByteCode);
+begin
+  countOpCodes[integer (opCode.opCode)] := countOpCodes[integer (opCode.opCode)] + 1;
+
+//  case opCode of
+//          oNop:        begin end;
+//            oAdd:        p;
+//            oSub:        subOp;
+//            oMult:       multOp;
+//            oDivide:     divOp;
+//            oDivi:       divideIntOp;
+//            oDotProduct: dotProductOp;  // To support the '@' operator, eg a@b
+//            oUmi:        unaryMinusOp;
+//            oMod:        modOp;
+//            oPower:      powerOp;
+//            oInc:        incOp(c[ip].symbolName, c[ip].float);
+//            oLocalInc:   localIncOp(c[ip].index, c[ip].float);
+//            oDec:        decOp(c[ip].symbolName, c[ip].float);
+//            oLocalDec:   localDecOp(c[ip].index, c[ip].float);
+//            oPushi:      push (c[ip].index);
+//            oPushb:      push (boolean(c[ip].index));
+//            oPushd:      push (module.moduleProgram.constantValueTable[c[ip].index].dValue);
+//            oPushs:      push (module.moduleProgram.constantValueTable[c[ip].index].sValue);
+//            oPushNone:   push (@noneStackType);
+//            oPop:        begin
+//                         // If the next instrction is halt, we will leave the item
+//                         // on the stack and let the caller deal with it. This is
+//                         // mainly useful when used in interactive mode so that the
+//                         // console can print the stack item to the console, any
+//                         // other time we want to the pop executed
+//                         if c[ip+1].opCode <> oHalt then
+//                            pop();
+//                         end;
+//            oDup:        dupStack;
+//            oPopDup:     pop();
+//            oIsLt:       isLt;
+//            oIsLte:      isLte;
+//            oIsGt:       isGt;
+//            oIsGte:      isGte;
+//            oIsEq:       isEq;
+//            oIsNotEq:    isNoteq;
+//            oAnd:        andOp;
+//            oOr:         orOp;
+//            oXor:        xorOp;
+//            oNot:        notOp;
+//
+//            // debugging opcodes
+//            oPrint:       printValue;
+//            oPrintln:     printlnValue;
+//            oSetColor:    setColor;
+//            oAssertTrue:  assertTrue;
+//            oAssertFalse: assertFalse;
+//
+//            // Branch opcodes
+//            oJmp:        ip := ip + c[ip].index - 1;
+//            oJmpIfTrue:  if pop().bValue then
+//                            ip := ip + c[ip].index - 1;
+//            oJmpIfFalse: if not pop().bValue then
+//                            ip := ip + c[ip].index - 1;
+//
+//
+//         // These two are used when we load and store synmbols within the current module
+//         oStoreSymbol:  begin
+//                         storeSymbol (c[ip].symbolName);
+//                         g := getGarbageSize;
+//                         if (g > 50) then
+//                            collectGarbage; // Only collect garbage after a store
+//                         end;
+//          oLoadSymbol: loadSymbol (c[ip].symbolName);
+//
+//          // This are used to load and store symbols when we reference modules outside the current one
+//          oLoadAttr: loadAttr (c[ip].symbolName);
+//          oStoreAttr: storeAttr (c[ip].symbolName);
+//
+//          // These are used to load and store symbols in user functions
+//          oStoreLocal:  begin
+//                        storeLocalSymbol(c[ip].index);
+//                        if getGarbageSize > 10 then
+//                           collectGarbage;
+//                        end;
+//           oLoadLocal:  loadLocalSymbol(c[ip].index);
+//
+//          oBuildSlice : buildSlice();
+//           oSliceAll  : push(SLICE_ALL);
+//           oSliceObj  : evalSliceObject (c[ip].index);
+//
+//        oImportModule: importModule (c[ip].moduleName);
+//
+//            // Method call opcodes
+//            oCall :     callUserFunction (c[ip].index);
+//            oRet :
+//              begin
+//              // Note that anything that is returned isn't bound to any symbol.
+//              // Binding only happens if the callee assigns the
+//              // returned value to a symbol.
+//              value := pop();
+//              case value.stackType of
+//                symString: value.obj := value.obj.clone;
+//                symList:   value.obj := value.obj.clone;
+//                symMatrix : value.obj := value.obj.clone;
+//                symArray : value.obj := value.obj.clone;
+//                symNonExistant : begin end;
+//                symInteger : begin end;
+//                symDouble : begin end;
+//                symBoolean : begin end;
+//              else
+//                 raiseError('oRet not implemented for this type');
+//              end;
+//              // Clear the pushed arguments from the stack
+//              stackTop := stackTop - frameStack[frameStackTop].nlocals - 1;  // -1 to also remove the function object
+//              // This can only be called after the stackTop has been adjusted
+//              clearAnyStackHeapAllocations;
+//
+//              dec(frameStackTop);
+//              push(value); // push the result back on to the stack
+//              exit;
+//              end;
+//
+//            // list handling opcodes
+//            oCreateList:   push(createList(c[ip].index));
+//            oLvecIdx:      loadIndexable (c[ip].index);
+//            oSvecIdx:      storeIndexable (c[ip].index);
+//
+//            oLocalLvecIdx: loadLocalIndexable;
+//            oLocalSvecIdx: storeLocalIndexable;
+//
+//            oCreateVector  : push (createVector (c[ip].index));
+//            oCreateMatrix  : push (createMatrix (c[ip].index));
+//            //oAddMatrixItem : addMatrixItem;
+//
+//            oHalt: break;
+//
+//            oPopAndSend:   callBack(pop);  // Not currently used
+//
+//  end;
+end;
+
+
 // Use this method to run a user defined function
 procedure TVM.run (code: TProgram; symbolTable : TSymbolTable);
 var
   ip, g : integer;
   value : PMachineStackRecord;
   c : TCode;
-  alist : TListObject;
 begin
   ip := 0; {count := 0;} bolStopVm := False;
   self.symboltable := symbolTable;
@@ -2955,7 +3050,7 @@ begin
         if bolStopVm then
            begin
            issueMessage ('Ctrl-C Interrupt Detected');
-           // Need to issue exception here in order to get out completly
+           // Need to issue exception here in order to get out completely
            exit;
            end;
 
@@ -2963,6 +3058,8 @@ begin
            begin
            if Assigned (debugCallBackPtr) then
               debugCallBackPtr (self);
+           if bolCountOpCodes then
+              countOpCodes[integer (c[ip].opCode)] := countOpCodes[integer (c[ip].opCode)] + 1;
            end;
 
           case c[ip].opCode of
@@ -3058,14 +3155,14 @@ begin
               // returned value to a symbol.
               value := pop();
               case value.stackType of
-                stString: value.sValue := value.sValue.clone as TStringObject;
-                stList:   value.lValue := value.lValue.clone as TListObject;
-                stMatrix : value.mValue := value.mValue.clone as TMatrixObject;
-                stArray : value.aValue := value.aValue.clone  as TArrayObject;
-                stNone : begin end;
-                stInteger : begin end;
-                stDouble : begin end;
-                stBoolean : begin end;
+                symString: value.obj := value.obj.clone;
+                symList:   value.obj := value.obj.clone;
+                symMatrix : value.obj := value.obj.clone;
+                symArray : value.obj := value.obj.clone;
+                symNonExistant : begin end;
+                symInteger : begin end;
+                symDouble : begin end;
+                symBoolean : begin end;
               else
                  raiseError('oRet not implemented for this type');
               end;

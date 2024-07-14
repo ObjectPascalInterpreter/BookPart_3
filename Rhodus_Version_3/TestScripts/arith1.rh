@@ -47,6 +47,7 @@ testUtils.endTests()
 testUtils.beginTests ("Double")
   // Double tests
   a = 2.5; b = 5.5;
+
   testUtils.runtestTrue (a + b == 8.0);  
   testUtils.runtestTrue (b + a == 8.0);  
   testUtils.runtestTrue (a - b == -3.0);
@@ -161,7 +162,6 @@ testUtils.beginTests ("Math Lib")
   testUtils.runtestTrue (math.floor (-18.01) == -19)
   testUtils.runtestTrue (math.abs (-4.1) == 4.1)
   testUtils.runtestTrue (math.abs (4.1) == 4.1)
-
   testUtils.runtestTrue (math.sqrt (9) == 3)
   testUtils.runtestTrue (math.sqrt (25) == 5)
   testUtils.runtestTrue (math.sqrt (64) == 8)

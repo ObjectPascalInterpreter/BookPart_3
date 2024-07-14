@@ -108,7 +108,7 @@ type
     procedure AssertTrueStatement;
     procedure AssertTrueExStatement;
     procedure AssertFalseStatement;
-    //rocedure helpStatement;   // HMS Not yet implemented
+    //procedure helpStatement;   // HMS Not yet implemented
   public
     tokenVector : TTokenVector;
     procedure   parseModule(moduleName: string);
@@ -438,16 +438,12 @@ end;
 
 // power = {'+' | '-'} factor [ '^' power ]
 procedure TSyntaxParser.power;
-var
-  unaryMinus_count : integer;
 begin
-  unaryMinus_count := 0;
   // Handle unary operators, but only count '-'. ++2 is the same as +2 but --2 is not the same as -2
   while (tokenVector.token = tMinus) or (tokenVector.token = tPlus) do
   begin
     case tokenVector.token of
-      tMinus:
-        inc(unaryMinus_count);
+      tMinus: begin end  // we qill allow expression of the kind --5 or -----6
     else
         raise ESyntaxException.Create ('Too many plus symbols',  tokenVector.tokenRecord.lineNumber, tokenVector.tokenRecord.columnNumber)
     end;

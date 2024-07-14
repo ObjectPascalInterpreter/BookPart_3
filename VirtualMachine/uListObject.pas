@@ -14,6 +14,7 @@ interface
 Uses System.SysUtils, uUtils, System.generics.Collections,
      uDataObjectMethods,
      uMemoryManager,
+     uRhodusTypes,
      uStringObject,
      uArrayObject,
      uMatrixObject,
@@ -21,8 +22,8 @@ Uses System.SysUtils, uUtils, System.generics.Collections,
      uDataObject;
 
 type
-  TListItemType = (liInteger, liBoolean, liDouble, liString, liList,
-                   liArray, liMatrix, liValueObject, liFunction, liModule);
+  TListItemType = TSymbolElementType;// (liInteger, liBoolean, liDouble, liString, liList,
+                   //liArray, liMatrix, liValueObject, liFunction, liModule, liObject);
   TListItem = class;
 
   TListMethods = class (TMethodsBase)
@@ -63,22 +64,14 @@ type
     procedure append(iValue: integer); overload;
     procedure append(bValue: boolean); overload;
     procedure append(dValue: double); overload;
-    procedure append(sValue: TStringObject); overload;
-    procedure append(lValue: TListObject); overload;
-    procedure append(aValue: TArrayObject); overload;
-    procedure append(mValue: TMatrixObject); overload;
-    procedure appendUserFunction(fValue: TObject);
+    procedure append(data : TDataObject); overload;
     procedure appendModule(mValue: TObject);
 
     procedure remove(index: integer);
     procedure insert(index, iValue: integer); overload;
     procedure insert(index: integer; dValue: double); overload;
     procedure insert(index: integer; bValue: boolean); overload;
-    procedure insert(index: integer; lValue: TListObject); overload;
-    procedure insert(index: integer; sValue: TStringObject); overload;
-    procedure insert(index: integer; aValue: TArrayObject); overload;
-    procedure insert(index: integer; mValue: TMatrixObject); overload;
-    procedure insertUserFunction(index : integer; fValue: TObject);
+    procedure insert(index: integer; obj: TDataObject);  overload;
     procedure insertModule(index: integer; mValue: TObject);
     function  findMin : double;
     function  findMax : double;
@@ -88,7 +81,7 @@ type
     class function sliceList2 (alist : TListObject; lower, upper : integer) : TListObject;
 
     function clone: TDataObject; override;
-    function listToString: string;
+    function ToString: string; override;
     function getSize: integer;  override;
 
     property Item[index : Integer]: TListItem read getItem; default; // write setItem; default;
@@ -103,12 +96,7 @@ type
     iValue: integer;
     bValue: boolean;
     dValue: double;
-    sValue: TStringObject;
-    lValue: TListObject;
-    aValue: TArrayObject;
-    mValue : TMatrixObject;
-    voValue : TValueObject;
-    fValue: TObject; // User function
+    obj   : TDataObject;
     moduleValue: TObject; // Module
     function elementToString: string;
     class function listEquals(list1: TListItem; list2: TListItem): boolean;
@@ -123,11 +111,7 @@ type
     constructor Create(iValue: integer); overload;
     constructor Create(bValue: boolean); overload;
     constructor Create(dValue: double); overload;
-    constructor Create(sValue: TStringObject); overload;
-    constructor Create(lValue: TListObject); overload;
-    constructor Create(aValue: TArrayObject); overload;
-    constructor Create(mValue: TMatrixObject); overload;
-    constructor CreateUserFunction(fValue: TObject);
+    constructor Create(obj: TDataObject);  overload;
     constructor CreateModule(mValue: TObject);
 
     constructor Create(item: TListItem); overload;
@@ -141,7 +125,6 @@ Uses Math,
      Rtti,
      uVMExceptions,
      uSymbolTable,
-     uRhodusTypes,
      uMachineStack,
      uVM;
 
@@ -155,9 +138,10 @@ begin
 
   methodList.Add(TMethodDetails.Create ('len',    0, 'Return the length of a list: var.len ()', getLength));
   methodList.Add(TMethodDetails.Create ('append', 1, 'Append the element to the list: var.append (a, 3.14)', append));
-  methodList.Add(TMethodDetails.Create ('remove', 1, 'Remove an element from a list with given index: var.remove (4)', remove));
+  methodList.Add(TMethodDetails.Create ('remove', 1, 'Remove an element from a list with given index (returns nothing): var.remove (4)', remove));
+  methodList.Add(TMethodDetails.Create ('insert', 2, 'Insert an element into a list at a given index (returns nothing): var.insert (index, 5.4)', insert));
   methodList.Add(TMethodDetails.Create ('sum',    0, 'Find the sum of values in a list. var.sum ()', getSum));
-  methodList.Add(TMethodDetails.Create ('pop',    0, 'Remove the last element from a list: var.pop ()', removeLastElement));
+  methodList.Add(TMethodDetails.Create ('pop',    0, 'Remove the last element from a list and return it: el = var.pop ()', removeLastElement));
   methodList.Add(TMethodDetails.Create ('max',    0, 'Find the maximum value is a 1D list of values: var.max ()', getMax));
   methodList.Add(TMethodDetails.Create ('min',    0, 'Find the minimum value is a 1D list of values: var.min ()', getMin));
 end;
@@ -190,47 +174,27 @@ end;
 procedure TListMethods.append (vm : TObject);
 var s : TListObject;
     value : PMachineStackRecord;
-    ts : TStringObject;
-    ls : TListObject;
-    ar : TArrayObject;
-    mat : TMatrixObject;
-    fs : TUserFunction;
     md : TMethodDetails;
+    data : TDataObject;
 begin
   value := TVM (vm).pop;
   md := TVM (vm).popMethodDetails;
   s := TListObject (md.self);
 
    case value.stackType of
-      stInteger :    s.append (value.iValue);
-      stDouble  :    s.append (value.dValue);
-      stBoolean :    s.append (value.bValue);
-      stString  :    begin
-                     ts := value.sValue.clone as TStringObject;
-                     ts.blockType := btOwned;
-                     s.append (ts);
-                     end;
-      stList    :    begin
-                     ls := value.lValue.clone as TListObject;
-                     ls.blockType := btOwned;
-                     s.append (ls);
-                     end;
-      stArray   :    begin
-                     ar := value.aValue.clone as TArrayObject;
-                     ar.blockType := btOwned;
-                     s.append (ar);
-                     end;
-      stmatrix  :    begin
-                     mat := value.mValue.clone as TMatrixObject;
-                     mat.blockType := btOwned;
-                     s.append (mat);
-                     end;
-      stFunction:    begin
-                     fs := value.fValue.clone as TUserFunction;
-                     fs.blockType := btOwned;
-                     s.appendUserFunction (fs);
-                     end;
-      stModule  :    raise ERuntimeException.Create('Adding modules to a list is not permitted');
+      symInteger :    s.append (value.iValue);
+      symDouble  :    s.append (value.dValue);
+      symBoolean :    s.append (value.bValue);
+      symString,
+      symList,
+      symArray,
+      symMatrix,
+      symUserFunc:    begin
+                      data := value.obj.clone;
+                      data.blockType := btOwned;
+                      s.append (data);
+                      end;
+      symModule  :    raise ERuntimeException.Create('Adding modules to a list is not permitted');
    else
       raise ERuntimeException.Create('Internal error: unrecognized data type during list insert');
    end;
@@ -238,7 +202,7 @@ begin
 end;
 
 
-// Remove an element from a list with a given index
+// Remove an element from a list with a given index, retun nothing
 procedure TListMethods.remove (vm : TObject);
 var s : TListObject;
     index : integer;
@@ -263,8 +227,8 @@ begin
   sum := 0;
   for var i := 0 to s.list.Count - 1 do
       case s.list[i].itemType of
-         liInteger :  sum := sum + s.list[i].iValue;
-         liDouble  :  sum := sum + s.list[i].dValue;
+         symInteger :  sum := sum + s.list[i].iValue;
+         symDouble  :  sum := sum + s.list[i].dValue;
       else
          raise ERuntimeException.Create('You cannot sum non-numerical values in a list');
       end;
@@ -272,6 +236,7 @@ begin
 end;
 
 
+// Remove an element for the list and push it onto the stack for the caller to retrieve
 procedure TListMethods.removeLastElement (vm : TObject);
 var s : TListObject;
      r : TListItem;
@@ -287,15 +252,15 @@ begin
 
    r := s.list [s.list.Count - 1];
    case r.itemType of
-      liInteger  : TVM (vm).push (r.iValue);
-      liDouble   : TVM (vm).push (r.dValue);
-      liBoolean  : TVM (vm).push (r.bValue);
-      liString   : TVM (vm).push (r.sValue.clone as TStringObject);
-      liList     : TVM (vm).push (r.lValue.clone as TListObject);
-      liArray    : TVM (vm).push (r.aValue.clone as TArrayObject);
-      liMatrix   : TVM (vm).push (r.mValue.clone as TMatrixObject);
-      liFunction : TVM (vm).push (TUserFunction (r.fValue));
-      liModule   : TVM (vm).push (TModule (r.mValue));
+      symInteger  : TVM (vm).push (r.iValue);
+      symDouble   : TVM (vm).push (r.dValue);
+      symBoolean  : TVM (vm).push (r.bValue);
+      symString   : TVM (vm).push (r.obj.clone);
+      symList     : TVM (vm).push (r.obj.clone);
+      symArray    : TVM (vm).push (r.obj.clone);
+      symMatrix   : TVM (vm).push (r.obj.clone);
+      symUserFunc : TVM (vm).push (r.obj);
+      symModule   : TVM (vm).push (TModule (r.moduleValue));
    end;
    s.remove (s.list.Count - 1);
    // We don't push None as with the other methods because
@@ -309,23 +274,23 @@ var s : TListObject;
     value : PMachineStackRecord;
     md : TMethodDetails;
 begin
-  index := TVM (vm).popInteger;
   value := TVM (vm).pop;
+  index := TVM (vm).popInteger;
   md := TVM (vm).popMethodDetails;
   s := TListObject (md.self);
   if (index < 0) or (index > s.list.Count) then
      raise ERuntimeException.Create('List index out of range');
 
    case value.stackType of
-      stInteger :    s.insert (index, value.iValue);
-      stDouble  :    s.insert (index, value.dValue);
-      stBoolean :    s.insert (index+1, value.bValue);
-      stString  :    s.insert (index+1, value.sValue);
-      stList    :    s.insert (index+1, value.lValue);
-      stArray   :    s.insert (index+1, value.aValue);
-      stMatrix  :    s.insert (index+1, value.mValue);
-      stFunction:    s.insertUserFunction (index+1, value.fValue);
-      stModule  :    s.insertModule (index+1, value.module)
+      symInteger :    s.insert (index, value.iValue);
+      symDouble  :    s.insert (index, value.dValue);
+      symBoolean :    s.insert (index, value.bValue);
+      symString  :    s.insert (index, value.obj);
+      symList    :    s.insert (index, value.obj);
+      symArray   :    s.insert (index, value.obj);
+      symMatrix  :    s.insert (index, value.obj);
+      symUserFunc:    s.insert (index, value.obj);
+      symModule  :    s.insertModule (index, value.module)
    else
       raise ERuntimeException.Create('Internal error: unrecognized data type during list insert');
    end;
@@ -358,10 +323,10 @@ var i : integer;
 begin
   for i := 0 to s.list.Count - 1 do
       begin
-      if s.list[i].itemType = liInteger then
+      if s.list[i].itemType = symInteger then
          inc (dims[level])
       else
-         countItems (s.list[i].lValue, dims, level+1);
+         countItems (TListObject (s.list[i].obj), dims, level+1);
       writeln (TRttiEnumerationType.GetName(s.list[i].itemType));
       end;
 end;
@@ -372,13 +337,13 @@ var i : integer;
 begin
   for i := 0 to s.list.Count - 1 do
       begin
-      if s.list[i].itemType = liInteger then
+      if s.list[i].itemType = symInteger then
          begin
          data[count] := s.list[i].iValue;
          inc (count);
          end;
-      if s.list[i].itemType = liList then
-         collectData (s.list[i].lValue, data, count);
+      if s.list[i].itemType = symList then
+         collectData (TListObject (s.list[i].obj), data, count);
       end;
 end;
 
@@ -421,9 +386,7 @@ var
   i: integer;
 begin
   for i := list.count - 1 downto 0 do
-    begin
     list[i].free;
-    end;
   list.free;
   inherited;
 end;
@@ -432,59 +395,39 @@ end;
 function TListObject.clone: TDataObject;
 var
   i: integer;
-  lo : TListObject;
+  li : TListObject;
 begin
   result := TListObject.Create(self.list.count);
   for i := 0 to self.list.count - 1 do
     begin
-    lo := result as TListObject;
+    li := result as TListObject;
     case self.list[i].itemType of
-      liInteger:
+      symInteger:
         begin
-          lo.list[i].itemType := liInteger;
-          lo.list[i].iValue := self.list[i].iValue;
+          li.list[i].itemType := self.list[i].itemType;
+          li.list[i].iValue := self.list[i].iValue;
         end;
-      liBoolean:
+      symBoolean:
         begin
-          (result as TListObject).list[i].itemType := liBoolean;
-          (result as TListObject).list[i].bValue := self.list[i].bValue;
+          li.list[i].itemType := self.list[i].itemType;
+          li.list[i].bValue := self.list[i].bValue;
         end;
-      liDouble:
+      symDouble:
         begin
-          (result as TListObject).list[i].itemType := liDouble;
-          (result as TListObject).list[i].dValue := self.list[i].dValue;
+          li.list[i].itemType := self.list[i].itemType;
+          li.list[i].dValue := self.list[i].dValue;
         end;
-      liString:
+      symString,
+      symList,
+      symArray,
+      symMatrix,
+      symUserFunc :
         begin
-          (result as TListObject).list[i].itemType := liString;
-          (result as TListObject).list[i].sValue := self.list[i].sValue.clone as TStringObject;
-          (result as TListObject).list[i].sValue.blockType := btOwned;
+          li.list[i].itemType := self.list[i].itemType;
+          li.list[i].obj := self.list[i].obj.clone;
+          li.list[i].obj.blockType := btOwned; // owned by the container list
         end;
-      liList:
-        begin
-          (result as TListObject).list[i].itemType := liList;
-          (result as TListObject).list[i].lValue := self.list[i].lValue.clone as TListObject;
-          (result as TListObject).list[i].lValue.blockType := btOwned;
-        end;
-      liArray:
-        begin
-          (result as TListObject).list[i].itemType := liArray;
-          (result as TListObject).list[i].aValue := self.list[i].aValue.clone as TArrayObject;
-          (result as TListObject).list[i].aValue.blockType := btOwned;
-        end;
-      liMatrix:
-        begin
-          (result as TListObject).list[i].itemType := liMatrix;
-          (result as TListObject).list[i].mValue := self.list[i].mValue.clone as TMatrixObject;
-          (result as TListObject).list[i].mValue.blockType := btOwned;
-        end;
-      liFunction:
-        begin
-          (result as TListObject).list[i].itemType := liFunction;
-          (result as TListObject).list[i].fValue := (self.list[i].fValue as TUserFunction).clone as TUserFunction;
-          ((result as TListObject).list[i].fValue as TUserFunction).blockType := btOwned;
-        end;
-      liModule:
+      symModule:
         begin
           raise ERuntimeException.Create('Copying modules is not permitted');
           // We don't clone modules
@@ -494,7 +437,7 @@ begin
 end;
 
 
-function TListObject.listToString: string;
+function TListObject.toString: string;
 var
   i: integer;
 begin
@@ -519,7 +462,7 @@ end;
 procedure TListObject.setItemToDouble (index : integer; value : double);
 begin
   list[index].dValue := value;
-  list[index].itemType := liDouble;
+  list[index].itemType := symDouble;
 end;
 
 
@@ -547,56 +490,24 @@ begin
   list.insert(index, TListItem.Create(iValue));
 end;
 
+
 procedure TListObject.insert(index: integer; dValue: double);
 begin
   list.insert(index, TListItem.Create(dValue));
 end;
+
 
 procedure TListObject.insert(index: integer; bValue: boolean);
 begin
   list.insert(index, TListItem.Create(bValue));
 end;
 
-procedure TListObject.insert(index: integer; lValue: TListObject);
-begin
-  if lValue.blockType = btGarbage then
-    lValue.blockType := btOwned;
 
-  list.insert(index, TListItem.Create(lValue));
+procedure TListObject.insert(index : integer; obj: TDataObject);
+begin
+  list.insert(index, TListItem.Create(obj));
 end;
 
-procedure TListObject.insert(index: integer; sValue: TStringObject);
-begin
-  if sValue.blockType = btGarbage then
-     sValue.blockType := btOwned;
-
-  list.insert(index, TListItem.Create(sValue));
-end;
-
-procedure TListObject.insert(index: integer; aValue: TArrayObject);
-begin
-  if aValue.blockType = btGarbage then
-     aValue.blockType := btOwned;
-
-  list.insert(index, TListItem.Create(aValue));
-end;
-
-
-procedure TListObject.insert(index: integer; mValue: TMatrixObject);
-begin
-  if mValue.blockType = btGarbage then
-     mValue.blockType := btOwned;
-
-  list.insert(index, TListItem.Create(mValue));
-end;
-
-procedure TListObject.insertUserFunction(index: integer; fValue: TObject);
-begin
-  if (fValue as TUserFunction).blockType = btBound then
-    (fValue as TUserFunction).blockType := btOwned;
-
-  list.insert(index, TListItem.CreateUserFunction(fValue));
-end;
 
 procedure TListObject.insertModule(index: integer; mValue: TObject);
 begin
@@ -612,19 +523,19 @@ begin
   else
      begin
      case list[0].itemType of
-        liInteger : result := list[0].iValue;
-        liDouble  : result := list[0].dValue;
+        symInteger : result := list[0].iValue;
+        symDouble  : result := list[0].dValue;
      else
          raise ERuntimeException.Create('Can only find the min value for numeric data');
      end;
      for i := 0 to list.Count - 1 do
         case list[i].itemType of
-           liInteger:
+           symInteger:
                 begin
                 if list[i].iValue < result then
                    result := list[i].iValue;
                 end;
-           liDouble :
+           symDouble :
                 begin
                 if list[i].dValue < result then
                    result := list[i].dValue;
@@ -643,19 +554,19 @@ begin
   else
      begin
      case list[0].itemType of
-        liInteger : result := list[0].iValue;
-        liDouble  : result := list[0].dValue;
+        symInteger : result := list[0].iValue;
+        symDouble  : result := list[0].dValue;
      else
          raise ERuntimeException.Create('Can only find the max value for numeric data');
      end;
      for i := 0 to list.Count - 1 do
         case list[i].itemType of
-           liInteger:
+           symInteger:
                 begin
                 if list[i].iValue > result then
                    result := list[i].iValue;
                 end;
-           liDouble :
+           symDouble :
                 begin
                 if list[i].dValue > result then
                    result := list[i].dValue;
@@ -688,15 +599,15 @@ begin
      for i := lower to upper do
          begin
          case list[i].itemType of
-            liInteger : obj.append(list[i].iValue);
-            liBoolean : obj.append(list[i].bValue);
-            liDouble  : obj.append(list[i].dValue);
-            liString  : obj.append(list[i].sValue.clone as TStringObject);
-            liList    : obj.append(list[i].lValue.clone as TListObject);
-            liArray   : obj.append(list[i].aValue.clone as TArrayObject);
-            liMatrix  : obj.append(list[i].mValue.clone as TMatrixObject);
-            liFunction: obj.appendUserFunction(TUserFunction (list[i].fValue).clone as TUserFunction);
-            liModule  : obj.appendModule(TModule (list[i].mValue));
+            symInteger : obj.append(list[i].iValue);
+            symBoolean : obj.append(list[i].bValue);
+            symDouble  : obj.append(list[i].dValue);
+            symString  : obj.append(list[i].obj.clone);
+            symList    : obj.append(list[i].obj.clone);
+            symArray   : obj.append(list[i].obj.clone);
+            symMatrix  : obj.append(list[i].obj.clone);
+            symUserFunc: obj.append(list[i].obj.clone);
+            symModule  : obj.appendModule(TModule (list[i].moduleValue));
          end;
          end;
      end;
@@ -728,15 +639,15 @@ begin
      for i := lower to upper do
          begin
          case alist.list[i].itemType of
-            liInteger : obj.append(alist.list[i].iValue);
-            liBoolean : obj.append(alist.list[i].bValue);
-            liDouble  : obj.append(alist.list[i].dValue);
-            liString  : obj.append(alist.list[i].sValue.clone as TStringObject);
-            liList    : obj.append(alist.list[i].lValue.clone as TListObject);
-            liArray   : obj.append(alist.list[i].aValue.clone as TArrayObject);
-            liMatrix  : obj.append(alist.list[i].mValue.clone as TMatrixObject);
-            liFunction: obj.appendUserFunction(TUserFunction (alist.list[i].fValue).clone as TUserFunction);
-            liModule  : obj.appendModule(TModule (alist.list[i].mValue));
+            symInteger : obj.append(alist.list[i].iValue);
+            symBoolean : obj.append(alist.list[i].bValue);
+            symDouble  : obj.append(alist.list[i].dValue);
+            symString  : obj.append(alist.list[i].obj.clone);
+            symList    : obj.append(alist.list[i].obj.clone);
+            symArray   : obj.append(alist.list[i].obj.clone);
+            symMatrix  : obj.append(alist.list[i].obj.clone);
+            symUserFunc: obj.append(TUserFunction (alist.list[i].obj).clone);
+            symModule  : obj.appendModule(TModule (alist.list[i].moduleValue));
          end;
          end;
      end;
@@ -756,6 +667,7 @@ begin
   for i := 0 to list2.list.count - 1 do
     result.list.add(TListItem.Create(list2.list[i]));
 end;
+
 
 // Make value copies of aList and combine them into one list
 // eg 3*{1} = {1,1,1}
@@ -784,6 +696,7 @@ begin
         end;
 end;
 
+
 class function TListObject.listEquals(list1, list2: TListObject): boolean;
 var
   i: integer;
@@ -796,62 +709,31 @@ begin
     result := result and TListItem.listEquals(list1.list[i], list2.list[i]);
 end;
 
+
 procedure TListObject.append(iValue: integer);
 begin
   list.add(TListItem.Create(iValue));
 end;
+
 
 procedure TListObject.append(bValue: boolean);
 begin
   list.add(TListItem.Create(bValue));
 end;
 
+
 procedure TListObject.append(dValue: double);
 begin
   list.add(TListItem.Create(dValue));
 end;
 
-procedure TListObject.append(sValue: TStringObject);
+
+procedure TListObject.append(data : TDataObject);
 begin
-  if sValue.blockType = btGarbage then
-    sValue.blockType := btOwned;
+  if data.blockType = btGarbage then
+     data.blockType := btOwned;
 
-  list.add(TListItem.Create(sValue));
-end;
-
-procedure TListObject.append(aValue: TArrayObject);
-begin
-  if aValue.blockType = btGarbage then
-    aValue.blockType := btOwned;
-
-  list.add(TListItem.Create(aValue));
-end;
-
-
-procedure TListObject.append(mValue: TMatrixObject);
-begin
-  if mValue.blockType = btGarbage then
-     mValue.blockType := btOwned;
-
-  list.add(TListItem.Create(mValue));
-end;
-
-
-procedure TListObject.append(lValue: TListObject);
-begin
-  if lValue.blockType = btGarbage then
-    lValue.blockType := btOwned;
-
-  list.add(TListItem.Create(lValue));
-end;
-
-
-procedure TListObject.appendUserFunction(fValue: TObject);
-begin
-  if (fValue as TUserFunction).blockType = btBound then
-    (fValue as TUserFunction).blockType := btOwned;
-
-  list.add(TListItem.CreateUserFunction(fValue));
+  list.add(TListItem.Create(data));
 end;
 
 
@@ -861,7 +743,6 @@ begin
 end;
 
 
-
 // ----------------------------------------------------------------------
 
 constructor TListItem.Create(item: TListItem);
@@ -869,39 +750,39 @@ begin
   inherited Create;
   itemType := item.itemType;
   case itemType of
-    liInteger:
+    symInteger:
       self.iValue := item.iValue;
-    liDouble:
+    symDouble:
       self.dValue := item.dValue;
-    liBoolean:
+    symBoolean:
       self.bValue := item.bValue;
-    liString:
+    symString:
       begin
-        self.sValue := item.sValue.clone as TStringObject;
-        self.sValue.blockType := btOwned;
+        self.obj := item.obj.clone;
+        self.obj.blockType := btOwned;
       end;
-    liList:
+    symList:
       begin
-        self.lValue := item.lValue.clone as TListObject;
-        self.lValue.blockType := btOwned;
+        self.obj := item.obj.clone;
+        self.obj.blockType := btOwned;
       end;
-    liArray:
+    symArray:
       begin
-        self.aValue := item.aValue.clone as TArrayObject;
-        self.aValue.blockType := btOwned;
+        self.obj := item.obj.clone;
+        self.obj.blockType := btOwned;
       end;
-    liMatrix:
+    symMatrix:
       begin
-        self.mValue := item.mValue.clone as TMatrixObject;
-        self.mValue.blockType := btOwned;
+        self.obj := item.obj.clone;
+        self.obj.blockType := btOwned;
       end;
-    liFunction:
+    symUserFunc:
       begin
-        self.fValue := item.fValue
+        self.obj := item.obj
       end;
-    liModule:
+    symModule:
       begin
-        self.mValue := item.mValue
+        self.moduleValue := item.moduleValue;
       end;
   else
     ERuntimeException.Create
@@ -909,84 +790,66 @@ begin
   end;
 end;
 
+
 constructor TListItem.Create(iValue: integer);
 begin
-  itemType := liInteger;
+  itemType := symInteger;
   self.iValue := iValue;
 end;
 
+
 constructor TListItem.Create(bValue: boolean);
 begin
-  itemType := liBoolean;
+  itemType := symBoolean;
   self.bValue := bValue;
 end;
 
+
 constructor TListItem.Create(dValue: double);
 begin
-  itemType := liDouble;
+  itemType := symDouble;
   self.dValue := dValue;
 end;
 
-constructor TListItem.Create(sValue: TStringObject);
+
+constructor TListItem.Create(obj: TDataObject);
 begin
-  itemType := liString;
-  self.sValue := sValue;
+  itemType := obj.objectType;;
+  self.obj := obj;
 end;
 
-constructor TListItem.Create(lValue: TListObject);
-begin
-  itemType := liList;
-  self.lValue := lValue;
-end;
-
-constructor TListItem.Create(aValue: TArrayObject);
-begin
-  itemType := liArray;
-  self.aValue := aValue;
-end;
-
-constructor TListItem.Create(mValue: TMatrixObject);
-begin
-  itemType := liMatrix;
-  self.mValue := mValue;
-end;
-
-
-constructor TListItem.CreateUserFunction(fValue: TObject);
-begin
-  itemType := liFunction;
-  self.fValue := fValue;
-end;
 
 constructor TListItem.CreateModule(mValue: TObject);
 begin
-  itemType := liModule;
+  itemType := symModule;
   self.moduleValue := mValue;
 end;
 
+
+// This needs looking at.
 destructor TListItem.Destroy;
 begin
-  if itemType = liList then
-    begin
-      if lValue.isOwned then
-        lValue.blockType := btGarbage
-      else
-        lValue.free;
-    end;
-  if itemType = liString then
-    begin
-      if sValue.isOwned then
-        sValue.blockType := btGarbage
-      else
-        sValue.free;
-    end;
-  if itemType = liFunction then
-    begin
-      if (fValue as TUserFunction).blockType = btOwned then
-        (fValue as TUserFunction).blockType := btGarbage
-      else
-        fValue.free;
-    end;
+  case itemType of
+     symList,
+     symString,
+     symMatrix,
+     symArray : begin
+                if obj.isOwned then
+                  obj.blockType := btGarbage
+                else
+                  obj.free;
+                end;
+  symUserFunc : begin
+                if (obj as TUserFunction).blockType = btOwned then
+                    (obj as TUserFunction).blockType := btGarbage
+                else
+                 obj.free;
+                end;
+  symInteger, symDouble, symBoolean, symValueObject : begin end
+     else
+       begin raise ERuntimeException.Create ('Failed to free object in TListItem.Destroy:' + stToStr(itemType)); end;
+  end;
+
   inherited;
 end;
 
@@ -994,15 +857,15 @@ end;
 function TListItem.clone : TListItem;
 begin
   case itemType of
-    liInteger: begin result := TListItem.Create(iValue); end;
-    liBoolean: result := TListItem.Create(bValue);
-    liDouble: result := TListItem.Create(dValue);
-    liString: result := TListItem.Create(sValue.clone as TStringObject);
-    liList: begin result := TListItem.Create(lValue.clone as TListObject); result.lValue.blockType := btOwned; end;
-    liArray: result := TListItem.Create(aValue.clone as TArrayObject);
-    liMatrix: result := TListItem.Create(mValue.clone as TMatrixObject);
-    liFunction: result := TListItem.CreateUserFunction(TUSerFunction (fValue).clone as TUserFunction);
-    liModule: raise ERuntimeException.Create('can''t clone module');
+    symInteger:  result := TListItem.Create(iValue);
+    symBoolean:  result := TListItem.Create(bValue);
+    symDouble:   result := TListItem.Create(dValue);
+    symString:   result := TListItem.Create(obj.clone);
+    symList:     begin result := TListItem.Create(obj.clone); result.obj.blockType := btOwned; end;
+    symArray:    result := TListItem.Create(obj.clone);
+    symMatrix:   result := TListItem.Create(obj.clone);
+    symUserFunc: result := TListItem.Create(obj.clone);
+    symModule:   raise ERuntimeException.Create('can''t clone module');
   else
     raise ERuntimeException.Create('Internal Error in ListItem Clone');
   end;
@@ -1014,20 +877,20 @@ begin
   result := sizeof(TObject);
   result := result + sizeof(self.itemType);
   case itemType of
-    liInteger:
+    symInteger:
       result := result + sizeof(integer);
-    liBoolean:
+    symBoolean:
       result := result + sizeof(boolean);
-    liDouble:
+    symDouble:
       result := result + sizeof(double);
-    liString:
-      result := result + sValue.getsize();
-    liList:
-      result := result + lValue.getsize();
-    liMatrix:
-      result := result + mValue.numRows*mValue.numCols;
-    liArray:
-      result := result + aValue.getSize();
+    symString:
+      result := result + obj.getsize();
+    symList:
+      result := result + obj.getsize();
+    symObject:
+      result := result + obj.getSize();
+    symArray:
+      result := result + obj.getSize();
   else
     raise ERuntimeException.Create('Error in size not implement for this type');
   end;
@@ -1036,9 +899,9 @@ end;
 
 function TListItem.getScalar : double;
 begin
-  if itemType = liInteger then
+  if itemType = symInteger then
      exit (iValue);
-  if itemType = liDouble then
+  if itemType = symDouble then
      exit (dValue);
   exit (0);
 end;
@@ -1047,14 +910,14 @@ end;
 procedure TListItem.setInteger (value : integer);
 begin
   iValue := value;
-  itemType := liInteger;
+  itemType := symInteger;
 end;
 
 
 procedure TListItem.setDouble (value : double);
 begin
   dValue := value;
-  itemType := liDouble;
+  itemType := symDouble;
 end;
 
 
@@ -1066,75 +929,81 @@ begin
     result := 'False';
 end;
 
+
 function TListItem.elementToString: string;
 begin
   result := '';
   case self.itemType of
-    liInteger:
+    symInteger:
       result := result + inttostr(self.iValue);
-    liBoolean:
+    symBoolean:
       result := result + boolToString(self.bValue);
-    liDouble:
+    symDouble:
       result := result + floattostr(self.dValue);
-    liString:
-      result := result + '"' + self.sValue.value + '"';
-    liList:
-      result := result + self.lValue.listToString;
-    liFunction:
-      result := result + (self.fValue as TUserFunction).methodName;
-    liModule:
-      result := result + TModule(self.mValue).moduleName;
-    liArray:
-      result := result + self.aValue.arrayToString;
-    liMatrix:
-      result := result + self.mValue.matrixToString;
+    symString:
+      result := result + '"' + self.obj.ToString + '"';
+    symList:
+      result := result + self.obj.ToString;
+    symUserFunc:
+      result := result + self.obj.ToString;
+    symModule:
+      result := result + TModule(self.moduleValue).moduleName;
+    symArray:
+      result := result + self.obj.ToString;
+    symMatrix:
+      result := result + self.obj.ToString;
+    symObject:
+      result := result + self.obj.ToString;
+    symValueObject:
+      result := result + self.obj.ToString;
   else
-    raise ERuntimeException.Create('Unknown type in elementToString');
+    raise ERuntimeException.Create('Unknown type in elementToString: ' + stToStr(self.itemType));
   end;
 end;
+
 
 class function TListItem.listEquals(list1: TListItem; list2: TListItem) : boolean;
 begin
   result := False;
 
-  if (list1.itemType = liInteger) and (list2.itemType = liInteger) then
+  if (list1.itemType = symInteger) and (list2.itemType = symInteger) then
     if list1.iValue = list2.iValue then
       exit(True)
     else
       exit(False);
 
-  if (list1.itemType = liBoolean) and (list2.itemType = liBoolean) then
+  if (list1.itemType = symBoolean) and (list2.itemType = symBoolean) then
     if list1.bValue = list2.bValue then
       exit(True)
     else
       exit(False);
 
-  if (list1.itemType = liDouble) and (list2.itemType = liDouble) then
+  if (list1.itemType = symDouble) and (list2.itemType = symDouble) then
     if list1.dValue = list2.dValue then
       exit(True)
     else
       exit(False);
 
-  if (list1.itemType = liString) and (list2.itemType = liString) then
-    if list1.sValue.isEqualTo(list2.sValue) then
+  if (list1.itemType = symString) and (list2.itemType = symString) then
+    if TStringObject(list1.obj).isEqualTo(TStringObject(list2.obj)) then
       exit(True)
     else
       exit(False);
 
-  if (list1.itemType = liList) and (list2.itemType = liList) then
-      if TListObject.listEquals(list1.lValue, list2.lValue) then
+  if (list1.itemType = symList) and (list2.itemType = symList) then
+      if TListObject.listEquals(TListObject (list1.obj), TListObject (list2.obj)) then
          exit (True)
       else
          exit(False);
 
-  if (list1.itemType = liArray) and (list2.itemType = liArray) then
-      if TArrayObject.isEqualTo(list1.aValue, list2.aValue) then
+  if (list1.itemType = symArray) and (list2.itemType = symArray) then
+      if TArrayObject.isEqualTo(TArrayObject(list1.obj), TArrayObject(list2.obj)) then
          exit (True)
       else
          exit(False);
 
-  if (list1.itemType = liMatrix) and (list2.itemType = liMatrix) then
-      if TMatrixObject.isEqualTo(list1.mValue, list2.mValue) then
+  if (list1.itemType = symMatrix) and (list2.itemType = symMatrix) then
+      if TMatrixObject.isEqualTo(TMatrixObject (list1.obj), TMatrixObject (list2.obj)) then
          exit (True)
       else
          exit(False);

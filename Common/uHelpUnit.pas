@@ -47,12 +47,19 @@ type
     public
       moduleName : string;
       methodName : string;
+      valueName : string;
       signature : string;
       description : string;
       examples : TArray<string>;
 
       function getHelp : string;
       function clone : THelp;
+
+      function toLatex : string;
+
+      class var count : integer;
+
+      constructor Create;  overload;
 
       constructor Create (description : string); overload;
 
@@ -62,6 +69,7 @@ type
       constructor CreateModule (moduleName : string); overload;
       constructor Create (moduleName, name, description : string; examples : TArray<string>); overload;
       constructor Create (moduleName, name, signature, description : string; examples : TArray<string>);  overload;
+      destructor  Destroy; override;
   end;
 
   THelpDb = class (TObject)
@@ -93,6 +101,8 @@ type
 
 implementation
 
+Uses StrUtils;
+
 var helpDb : THelpDb;
 
 procedure buildHelpDb;
@@ -102,9 +112,16 @@ begin
 end;
 
 
+constructor THelp.Create;
+begin
+  inherited;
+  THelp.count := THelp.Count + 1;
+end;
+
 // Used by legacy help system
 constructor THelp.Create (description : string);
 begin
+  Create;
   self.helpType := htMethod;
   self.moduleName := '';
   self.methodName := '';
@@ -117,6 +134,7 @@ end;
 constructor THelp.CreateModule (moduleName : string);
 var i : integer;
 begin
+  Create;
   self.helpType := htModule;
   self.moduleName := moduleName;
   self.methodName := '';
@@ -128,16 +146,16 @@ begin
 end;
 
 
-
 // Used to add help for a value, eg math.pi
 constructor THelp.CreateValue (moduleName, valueName : string);
 var mth : THMethod;
 begin
+  Create;
   if HelpDb.findValueInModule (moduleName, valueName, mth) then
      begin
      self.helpType := htValue;
      self.moduleName := moduleName;
-     self.methodName := methodName;
+     self.valueName := valueName;
      self.signature := mth.signature;
      self.description := mth.description;
      self.examples := mth.examples;
@@ -152,10 +170,12 @@ begin
      end;
 end;
 
+
 // Used to add help for a method, eg math.sin()
 constructor THelp.CreateMethod (moduleName, methodName : string);
 var mth : THMethod;
 begin
+  Create;
   if HelpDb.findMethodInModule (moduleName, methodName, mth) then
      begin
      self.helpType := htMethod;
@@ -178,6 +198,7 @@ end;
 // Legacy create
 constructor THelp.Create (moduleName, name, signature, description : string; examples : TArray<string>);
 begin
+  Create;
   self.helpType := htMethod;
   self.moduleName := moduleName;
   self.methodName := name;
@@ -190,12 +211,21 @@ end;
 // Legacy, Used to add help for a value, eg math.pi
 constructor THelp.Create (moduleName, name, description : string; examples : TArray<string>);
 begin
+  Create;
   self.helpType := htValue;
   self.moduleName := moduleName;
   self.methodName := name;
   self.signature := 'NA';
   self.description := description;
   self.examples := examples;
+end;
+
+
+destructor THelp.Destroy;
+begin
+  THelp.Count := THelp.Count - 1;
+  self.moduleName := '';
+  inherited;
 end;
 
 
@@ -237,6 +267,58 @@ begin
   end;
 end;
 
+
+function THelp.toLatex : string;
+var i : integer;
+begin
+  result := '';
+  case helpType of
+     htModule :
+       begin
+       result := 'Module: ' + moduleName + sLineBreak;
+       result := result + '   ' + description;
+       end;
+     htMethod:
+       begin
+       if methodName <> '' then
+          begin
+          result := result + '{\bfseries\textsf{Method: ' + methodName;
+          result := result + '}}' + sLineBreak + sLineBreak;
+          end;
+
+       if signature <> ''  then
+          result := result + '' + '{\tt ' + replacetext(signature, '|', '$\vert$') + '}' + sLineBreak;
+
+       result := result + sLinebreak + '   ' + description;
+       if length (examples) > 0 then
+          begin
+          result := result + sLineBreak + sLineBreak + 'Examples:' + sLineBreak;
+          result := result + '\vspace{-5pt}' + sLineBreak;
+          result := result + '\begin{itemize}' + sLineBreak;
+          result := result + '\itemsep -4pt' + sLineBreak;
+          for i := 0 to length (examples) - 1 do
+              result :=  result + '\item[] ' + '{\tt ' + examples[i] + '}' + sLineBreak;
+          result := result + '\end{itemize}' + sLineBreak;
+       end;
+       end;
+     htValue:
+       begin
+       result := result + '{\bfseries\textsf{Value: ' + valueName;
+       result := result + '}}' + sLineBreak + sLineBreak;
+       result := result + '   ' + description;
+       if length (examples) > 0 then
+          begin
+          result := result + sLineBreak + sLineBreak + 'Examples:' + sLineBreak;
+          result := result + '\vspace{-5pt}' + sLineBreak;
+          result := result + '\begin{itemize}' + sLineBreak;
+          result := result + '\itemsep -4pt' + sLineBreak;
+          for i := 0 to length (examples) - 1 do
+              result :=  result + '\item[] ' + '{\tt ' + examples[i] + '}' + sLineBreak;
+          result := result + '\end{itemize}' + sLineBreak;
+       end;
+       end;
+  end;
+end;
 
 function THelp.clone : THelp;
 begin

@@ -145,7 +145,7 @@ startMethod
 method
 max
 max(int|float))
-Returns the maximunm of two numbers
+Returns the maximum of two numbers
 x = math.max (2,4)
 ##########
 startMethod

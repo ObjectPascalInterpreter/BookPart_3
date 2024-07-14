@@ -49,16 +49,12 @@ Uses System.Character, Math,
 
 
 constructor TBuiltInStr.Create;
-var sym : TSymbol;
 begin
   inherited Create ('strings');
 
-  sym := addStringValue('asciiLower',  'abcdefghijklmnopqrstuv', true);//, 'Returns the lower ascii characters as a string', true);
-  //sym.obj.blockType := btBound;
-  sym := addStringValue('asciiLpper', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', true);// 'Returns the upper ascii characters', true);
-  //sym.obj.blockType := btBound;
-  sym := addStringValue('digits', '0123456789', true);
-  //sym.obj.blockType := btBound;
+  addStringValue('asciiLower',  'abcdefghijklmnopqrstuv', true);//, 'Returns the lower ascii characters as a string', true);
+  addStringValue('asciiLpper', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', true);// 'Returns the upper ascii characters', true);
+  addStringValue('digits', '0123456789', true);
 
   addMethod(str,         1, 'str');     // convert string to number
   addMethod(val,         1, 'val');     // convert number to string
@@ -110,7 +106,7 @@ begin
       symDouble :
            TVM (vm).push(TStringObject.create(format (fstr, [m.dValue])));
       symString :
-           TVM (vm).push(TStringObject.create(format (fstr, [TStringObject(m.obj).value])));
+           TVM (vm).push(TStringObject.create(format (fstr, [TStringObject(m.dataObject).value])));
    else
       raise ERuntimeException.Create('You can only use integers, floats amd strings in the format method.');
    end;

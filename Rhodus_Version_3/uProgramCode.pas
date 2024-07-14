@@ -21,7 +21,7 @@ type
          symbolName : string;
          lineNumber : integer;
    end;
-   TCode = TArray<TByteCode>;
+   TCode = TArray<TByteCode>;  // Its not really byte size but the name stayed for historical reasons.
 
    TProgram = class (TObject)
         const
@@ -53,6 +53,7 @@ type
            procedure setGotoLabel (Location, value : integer);
 
            function    clone : TProgram;
+           function    getSize : integer;
            constructor Create; overload;
            constructor Create (mycode : array of TByteCode);  overload;
            destructor  Destroy; override;
@@ -120,6 +121,12 @@ begin
   result.appendProgram (self);
   result.constantValueTable.free;
   result.constantValueTable := constantValueTable.clone;
+end;
+
+
+function TProgram.getSize : integer;
+begin
+  result := sizeof (TByteCode)*length (code);
 end;
 
 

@@ -326,8 +326,8 @@ begin
       if mainModule.symbolTable.items[key] <> nil then
          if mainModule.symbolTable.Items[key].symbolType = symUserFunc then
             begin
-            if not (mainModule.symbolTable.items[key].fValue).isbuiltInFunction then
-               printLnCallBack (AnsiString (dissassemble(mainModule, (mainModule.symbolTable.items[key].fValue).codeBlock)));
+            if not (mainModule.symbolTable.items[key].dataObject as TUserFunction).isbuiltInFunction then
+               printLnCallBack (AnsiString (dissassemble(mainModule, (mainModule.symbolTable.items[key].dataObject as TUserFunction).codeBlock)));
             end;
   printLnCallBack (AnsiString (dissassemble(mainModule, mainModule.moduleProgram)));
 end;
@@ -414,14 +414,14 @@ begin
                             fmt := (SysLibraryRef.find ('doubleFormat').dataObject as TStringObject).value;
                             printLnCallBack (AnsiString (Format(fmt, [st.dValue])));
                             end;
-                symString  : printLnCallBack (AnsiString (TStringObject(st.obj).value));
-                symList    : printLnCallBack (AnsiString (st.obj.toString()));
-                symArray   : printLnCallBack (AnsiString (st.obj.toString()));
-                symVector  : printLnCallBack (AnsiString (st.obj.toString()));
-                symMatrix  : printLnCallBack (AnsiString (st.obj.ToString()));
-                symValueObject : printLnCallBack (AnsiString ((st.obj as TValueObject).ToString()));
+                symString  : printLnCallBack (AnsiString (TStringObject(st.dataObject).value));
+                symList    : printLnCallBack (AnsiString (st.dataObject.toString()));
+                symArray   : printLnCallBack (AnsiString (st.dataObject.toString()));
+                symVector  : printLnCallBack (AnsiString (st.dataObject.toString()));
+                symMatrix  : printLnCallBack (AnsiString (st.dataObject.ToString()));
+                symValueObject : printLnCallBack (AnsiString ((st.dataObject as TValueObject).ToString()));
                 symModule  : printLnCallBack (AnsiString ('Module: ' + st.module.moduleName));
-                symUserFunc: printLnCallBack (AnsiString ('Function: ' + TUserFunction (st.obj).moduleRef.moduleName + '.' + TUserFunction (st.obj).methodName));
+                symUserFunc: printLnCallBack (AnsiString ('Function: ' + TUserFunction (st.dataObject).moduleRef.moduleName + '.' + TUserFunction (st.dataObject).methodName));
                 symObjectMethod : begin
                       printLnCallBack (AnsiString ('Object Method: ' + st.oValue.helpStr));
                       // This pop causes a stack underflow
@@ -483,11 +483,11 @@ begin
                 symInteger : printLnCallBack (AnsiString (Format ('%d', [st.iValue])));
                 symBoolean : printLnCallBack (AnsiString (BoolToStr(st.bValue, True)));
                 symDouble  : printLnCallBack (AnsiString (Format('%g', [st.dValue])));
-                symString  : printLnCallBack (AnsiString (TStringObject(st.obj).value));
-                symList    : printLnCallBack (AnsiString (st.obj.toString()));
-                symArray   : printLnCallBack (AnsiString (st.obj.toString()));
+                symString  : printLnCallBack (AnsiString (TStringObject(st.dataObject).value));
+                symList    : printLnCallBack (AnsiString (st.dataObject.toString()));
+                symArray   : printLnCallBack (AnsiString (st.dataObject.toString()));
                 symModule  : printLnCallBack (AnsiString ('Module: ' + st.module.moduleName + ' ' + st.module.help.getHelp()));
-                symUserFunc: printLnCallBack (AnsiString ('Function: ' + TUserFunction (st.obj).moduleRef.moduleName + '.' + TUserFunction (st.obj).methodName));
+                symUserFunc: printLnCallBack (AnsiString ('Function: ' + TUserFunction (st.dataObject).moduleRef.moduleName + '.' + TUserFunction (st.dataObject).methodName));
                else
                  printLnCallBack ('Unrecognized type of value returned from virtual machine');
                end;
@@ -498,10 +498,10 @@ begin
                   if mainModule.symbolTable.items[key] <> nil then
                      if mainModule.symbolTable.Items[key].symbolType = symUserFunc then
                         begin
-                        if (mainModule.symbolTable.items[key].fValue as TUserFunction).isbuiltInFunction then
+                        if (mainModule.symbolTable.items[key].dataObject as TUserFunction).isbuiltInFunction then
                            printLnCallBack ('No code for builtin function')
                         else
-                           printLnCallBack (AnsiString (dissassemble(mainModule, (mainModule.symbolTable.items[key].fValue as TUserFunction).codeBlock)));
+                           printLnCallBack (AnsiString (dissassemble(mainModule, (mainModule.symbolTable.items[key].dataObject as TUserFunction).codeBlock)));
                         end;
               printLnCallBack (AnsiString (dissassemble(mainModule, mainModule.moduleProgram)));
              end;

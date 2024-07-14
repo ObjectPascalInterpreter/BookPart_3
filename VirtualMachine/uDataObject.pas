@@ -20,7 +20,7 @@ type
   TDataObject = class (TObject)
 
       blockType : TBlockType;
-      objectType : TSymbolElementType;
+      objectType : TElementType;
 
       methodCount : integer;
 

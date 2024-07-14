@@ -6,7 +6,7 @@ Uses Classes, SysUtils, uMachineStack, uRhodusTypes;
 
 type
   TBinOp = procedure (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
-  TJumpTable = array[TSymbolElementType,TSymbolElementType] of TBinOp;
+  TJumpTable = array[TElementType,TElementType] of TBinOp;
 
 var
   addJumpTable : TJumpTable;
@@ -81,97 +81,97 @@ end;
 
 procedure addIntValueObjectfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.dValue := TValueObject.getValue(d1.obj as TValueObject) + d2.iValue;
+  result.dValue := TValueObject.getValue(d1.dataObject as TValueObject) + d2.iValue;
   result.stackType := symDouble;
 end;
 
 procedure addValueObjectIntfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.dValue := TValueObject.getValue(d2.obj as TValueObject) + d1.iValue;
+  result.dValue := TValueObject.getValue(d2.dataObject as TValueObject) + d1.iValue;
   result.stackType := symDouble;
 end;
 
 procedure addDoubleValueObjectfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.dValue := TValueObject.getValue(d1.obj as TValueObject) + d2.dValue;
+  result.dValue := TValueObject.getValue(d1.dataObject as TValueObject) + d2.dValue;
   result.stackType := symDouble;
 end;
 
 procedure addValueObjectDoublefunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.dValue := TValueObject.getValue(d2.obj as TValueObject) + d1.dValue;
+  result.dValue := TValueObject.getValue(d2.dataObject as TValueObject) + d1.dValue;
   result.stackType := symDouble;
 end;
 
 procedure addStringStringfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TStringObject.add(TStringObject(d2.obj), TStringObject(d1.obj));
+  result.dataObject := TStringObject.add(TStringObject(d2.dataObject), TStringObject(d1.dataObject));
   result.stackType := symString;
 end;
 
 procedure addListIntfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-   result.obj := d2.obj.clone;
-   TListObject (result.obj).append(d1.iValue);
+   result.dataObject := d2.dataObject.clone;
+   TListObject (result.dataObject).append(d1.iValue);
    result.stackType := symList;
 end;
 
 procedure addIntListfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-   result.obj := d1.obj.clone;
-   TListObject (result.obj).insert(0, d2.iValue);
+   result.dataObject := d1.dataObject.clone;
+   TListObject (result.dataObject).insert(0, d2.iValue);
    result.stackType := symList;
 end;
 
 procedure addBoolListfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := d1.obj.clone;
-  TListObject (result.obj).insert (0, d2.bValue);
+  result.dataObject := d1.dataObject.clone;
+  TListObject (result.dataObject).insert (0, d2.bValue);
   result.stackType := symList;
 end;
 
 procedure addListBoolfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := d2.obj.clone;
-  TListObject (result.obj).append(d1.bValue);
+  result.dataObject := d2.dataObject.clone;
+  TListObject (result.dataObject).append(d1.bValue);
   result.stackType := symList;
 end;
 
 procedure addDoubleListfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := d1.obj.clone;
-  TListObject (result.obj).insert (0, d2.dValue);
+  result.dataObject := d1.dataObject.clone;
+  TListObject (result.dataObject).insert (0, d2.dValue);
   result.stackType := symList;
 end;
 
 procedure addLisymDoublefunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := d2.obj.clone;
-  TListObject (result.obj).append(d1.dValue);
+  result.dataObject := d2.dataObject.clone;
+  TListObject (result.dataObject).append(d1.dValue);
   result.stackType := symList;
 end;
 
 procedure addStringListfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 var tmp : TDataObject;
 begin
-  result.obj := d1.obj.clone;
-  tmp  := d2.obj.clone;
+  result.dataObject := d1.dataObject.clone;
+  tmp  := d2.dataObject.clone;
   tmp.blockType := btOwned;
-  TListObject (result.obj).insert(0, tmp);
+  TListObject (result.dataObject).insert(0, tmp);
   result.stackType := symList;
 end;
 
 procedure addLisymStringfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := d2.obj.clone;
-  TListObject (result.obj).append(d1.obj.clone);
+  result.dataObject := d2.dataObject.clone;
+  TListObject (result.dataObject).append(d1.dataObject.clone);
   result.stackType := symList;
 end;
 
 
 procedure addLisymListfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-   result.obj := TListObject.addLists(TListObject (d2.obj), TListObject (d1.obj));
+   result.dataObject := TListObject.addLists(TListObject (d2.dataObject), TListObject (d1.dataObject));
    result.stackType := symList
 end;
 
@@ -179,10 +179,10 @@ end;
 procedure addFuncListfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 var tmp : TDataObject;
 begin
-  result.obj := d1.obj.clone ;
-  tmp := TUserFunction (d2.obj).clone;
+  result.dataObject := d1.dataObject.clone ;
+  tmp := TUserFunction (d2.dataObject).clone;
   tmp.blockType := btOwned;
-  TListObject (result.obj).insert (0, tmp);
+  TListObject (result.dataObject).insert (0, tmp);
   result.stackType := symList;
 end;
 
@@ -190,122 +190,122 @@ end;
 procedure addListFuncfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 var tmp : TDataObject;
 begin
-  result.obj := d2.obj.clone;
-  tmp := TUserFunction (d1.obj).clone;
+  result.dataObject := d2.dataObject.clone;
+  tmp := TUserFunction (d1.dataObject).clone;
   tmp.blockType := btOwned;
-  TListObject (result.obj).append(tmp);
+  TListObject (result.dataObject).append(tmp);
   result.stackType := symList;
 end;
 
 procedure addLisymModulefunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := d2.obj.clone;
-  TListObject (result.obj).appendModule (d1.module);
+  result.dataObject := d2.dataObject.clone;
+  TListObject (result.dataObject).appendModule (d1.module);
   result.stackType := symList;
 end;
 
 procedure addModuleListfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := d1.obj.clone;
-  TListObject (result.obj).appendModule (d2.module);
+  result.dataObject := d1.dataObject.clone;
+  TListObject (result.dataObject).appendModule (d2.module);
   result.stackType := symList;
 end;
 
 procedure addLisymArrayfunc  (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := d2.obj.clone;
-  TListObject (result.obj).append(d1.obj.clone);
+  result.dataObject := d2.dataObject.clone;
+  TListObject (result.dataObject).append(d1.dataObject.clone);
   result.stackType := symList;
 end;
 
 procedure addArrayListfunc  (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := d1.obj.clone;
-  TListObject (result.obj).append(d2.obj.clone);
+  result.dataObject := d1.dataObject.clone;
+  TListObject (result.dataObject).append(d2.dataObject.clone);
   result.stackType := symList;
 end;
 
 procedure addIntArrayfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TArrayObject.add(TArrayObject (d1.obj), d2.iValue);
+  result.dataObject := TArrayObject.add(TArrayObject (d1.dataObject), d2.iValue);
   result.stackType := symArray;
 end;
 
 procedure addArrayIntfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TArrayObject.add(TArrayObject (d2.obj), d1.iValue);
+  result.dataObject := TArrayObject.add(TArrayObject (d2.dataObject), d1.iValue);
   result.stackType := symArray;
 end;
 
 procedure addDoubleArrayfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TArrayObject.add(TArrayObject (d1.obj), d2.dValue);
+  result.dataObject := TArrayObject.add(TArrayObject (d1.dataObject), d2.dValue);
   result.stackType := symArray;
 end;
 
 procedure addArrayDoublefunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TArrayObject.add(TArrayObject (d2.obj), d1.dValue);
+  result.dataObject := TArrayObject.add(TArrayObject (d2.dataObject), d1.dValue);
   result.stackType := symArray;
 end;
 
 
 procedure addArrayArrayfunc  (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TArrayObject.add(TArrayObject (d2.obj), TArrayObject (d1.obj));
+  result.dataObject := TArrayObject.add(TArrayObject (d2.dataObject), TArrayObject (d1.dataObject));
   result.stackType := symArray;
 end;
 
 procedure addVectorVectorfunc  (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TVectorObject.add(TVectorObject (d2.obj), TVectorObject (d1.obj));
+  result.dataObject := TVectorObject.add(TVectorObject (d2.dataObject), TVectorObject (d1.dataObject));
   result.stackType := symVector;
 end;
 
 
 procedure addMatrixMatrixfunc  (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TMatrixObject.add(TMatrixObject (d2.obj), TMatrixObject (d1.obj));
+  result.dataObject := TMatrixObject.add(TMatrixObject (d2.dataObject), TMatrixObject (d1.dataObject));
   result.stackType := symMatrix;
 end;
 
 
 procedure addIntegerMatrixfunc  (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TMatrixObject.add (TMatrixObject (d1.obj), double (d2.iValue));
+  result.dataObject := TMatrixObject.add (TMatrixObject (d1.dataObject), double (d2.iValue));
   result.stackType := symMatrix;
 end;
 
 procedure addMatrixIntegerfunc  (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TMatrixObject.add (TMatrixObject (d2.obj), double (d1.iValue));
+  result.dataObject := TMatrixObject.add (TMatrixObject (d2.dataObject), double (d1.iValue));
   result.stackType := symMatrix;
 end;
 
 
 procedure addMatrixDoublefunc  (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TMatrixObject.add (TMatrixObject (d2.obj),  d1.dValue);
+  result.dataObject := TMatrixObject.add (TMatrixObject (d2.dataObject),  d1.dValue);
   result.stackType := symMatrix;
 end;
 
 
 procedure addDoubleMatrixfunc  (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TMatrixObject.add (TMatrixObject (d1.obj), d2.dValue);
+  result.dataObject := TMatrixObject.add (TMatrixObject (d1.dataObject), d2.dValue);
   result.stackType := symMatrix;
 end;
 
 
 procedure addValueArrayfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TArrayObject.add(TArrayObject (d2.obj), (d1.obj as TValueObject).getScalar());
+  result.dataObject := TArrayObject.add(TArrayObject (d2.dataObject), (d1.dataObject as TValueObject).getScalar());
   result.stackType := symArray;
 end;
 
 procedure addArrayValuefunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TArrayObject.add(TArrayObject (d1.obj), (d2.obj as TValueObject).getScalar());
+  result.dataObject := TArrayObject.add(TArrayObject (d1.dataObject), (d2.dataObject as TValueObject).getScalar());
   result.stackType := symArray;
 end;
 
@@ -339,56 +339,56 @@ end;
 
 procedure subIntegerValueObjectfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.dValue := TValueObject.getValue(d1.obj as TValueObject) - d2.iValue;
+  result.dValue := TValueObject.getValue(d1.dataObject as TValueObject) - d2.iValue;
   result.stackType := symDouble;
 end;
 
 procedure subValueObjectIntegerfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.dValue := d1.iValue - TValueObject.getValue(d2.obj as TValueObject);
+  result.dValue := d1.iValue - TValueObject.getValue(d2.dataObject as TValueObject);
   result.stackType := symDouble;
 end;
 
 procedure subDoubleValueObjectfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.dValue := TValueObject.getValue(d1.obj as TValueObject) - d2.dValue;
+  result.dValue := TValueObject.getValue(d1.dataObject as TValueObject) - d2.dValue;
   result.stackType := symDouble;
 end;
 
 procedure subValueObjectDoublefunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.dValue := d1.dValue - TValueObject.getValue(d2.obj as TValueObject);
+  result.dValue := d1.dValue - TValueObject.getValue(d2.dataObject as TValueObject);
   result.stackType := symDouble;
 end;
 
 
 procedure subIntArrayfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TArrayObject.subleft(TArrayObject (d1.obj), d2.iValue);
+  result.dataObject := TArrayObject.subleft(TArrayObject (d1.dataObject), d2.iValue);
   result.stackType := symArray;
 end;
 
 procedure subArrayIntfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TArrayObject.subRight(TArrayObject (d2.obj), d1.iValue);
+  result.dataObject := TArrayObject.subRight(TArrayObject (d2.dataObject), d1.iValue);
   result.stackType := symArray;
 end;
 
 procedure subDoubleArrayfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TArrayObject.subLeft(TArrayObject (d1.obj), d2.dValue);
+  result.dataObject := TArrayObject.subLeft(TArrayObject (d1.dataObject), d2.dValue);
   result.stackType := symArray;
 end;
 
 procedure subArrayDoublefunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TArrayObject.subRight(TArrayObject (d2.obj), d1.dValue);
+  result.dataObject := TArrayObject.subRight(TArrayObject (d2.dataObject), d1.dValue);
   result.stackType := symArray;
 end;
 
 procedure subArrayArrayfunc  (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TArrayObject.sub(TArrayObject (d1.obj), TArrayObject (d2.obj));
+  result.dataObject := TArrayObject.sub(TArrayObject (d1.dataObject), TArrayObject (d2.dataObject));
   result.stackType := symArray;
 end;
 
@@ -401,47 +401,47 @@ end;
 
 procedure subMatrixMatrixfunc  (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TMatrixObject.sub(TMatrixObject (d1.obj), TMatrixObject (d2.obj));
+  result.dataObject := TMatrixObject.sub(TMatrixObject (d1.dataObject), TMatrixObject (d2.dataObject));
   result.stackType := symMatrix;
 end;
 
 
 procedure subIntMatrixfunc  (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TMatrixObject.subLeft (TMatrixObject (d1.obj), double (d2.iValue));
+  result.dataObject := TMatrixObject.subLeft (TMatrixObject (d1.dataObject), double (d2.iValue));
   result.stackType := symMatrix;
 end;
 
 procedure subMatrixIntfunc  (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TMatrixObject.subRight (TMatrixObject (d2.obj), double (d1.iValue));
+  result.dataObject := TMatrixObject.subRight (TMatrixObject (d2.dataObject), double (d1.iValue));
   result.stackType := symMatrix;
 end;
 
 
 procedure subMatrixDoublefunc  (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TMatrixObject.subRight (TMatrixObject (d2.obj), d1.dValue);
+  result.dataObject := TMatrixObject.subRight (TMatrixObject (d2.dataObject), d1.dValue);
   result.stackType := symMatrix;
 end;
 
 
 procedure subDoubleMatrixfunc  (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TMatrixObject.subLeft (TMatrixObject (d1.obj), d2.dValue);
+  result.dataObject := TMatrixObject.subLeft (TMatrixObject (d1.dataObject), d2.dValue);
   result.stackType := symMatrix;
 end;
 
 
 procedure subValueArrayfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TArrayObject.subLeft(TArrayObject (d1.obj), (d2.obj as TValueObject).getScalar());
+  result.dataObject := TArrayObject.subLeft(TArrayObject (d1.dataObject), (d2.dataObject as TValueObject).getScalar());
   result.stackType := symArray;
 end;
 
 procedure subArrayValuefunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TArrayObject.subRight(TArrayObject (d2.obj), (d1.obj as TValueObject).getScalar());
+  result.dataObject := TArrayObject.subRight(TArrayObject (d2.dataObject), (d1.dataObject as TValueObject).getScalar());
   result.stackType := symArray;
 end;
 
@@ -476,77 +476,77 @@ end;
 
 procedure multIntValuefunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.dValue := (d1.obj as TValueObject).getScalar() * d2.iValue;
+  result.dValue := (d1.dataObject as TValueObject).getScalar() * d2.iValue;
   result.stackType := symDouble;
 end;
 
 
 procedure multValueIntfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.dValue := d1.iValue * (d2.obj as TValueObject).getScalar();
+  result.dValue := d1.iValue * (d2.dataObject as TValueObject).getScalar();
   result.stackType := symDouble;
 end;
 
 
 procedure multDoubleValuefunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.dValue := (d1.obj as TValueObject).getScalar() * d2.dValue;
+  result.dValue := (d1.dataObject as TValueObject).getScalar() * d2.dValue;
   result.stackType := symDouble;
 end;
 
 
 procedure multValueDoublefunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.dValue := d1.dValue * (d2.obj as TValueObject).getScalar();
+  result.dValue := d1.dValue * (d2.dataObject as TValueObject).getScalar();
   result.stackType := symDouble;
 end;
 
 //###
 procedure multValueArrayfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TArrayObject.arrayScalarDoubleMult(TArrayObject (d1.obj), (d2.obj as TValueObject).getScalar());
+  result.dataObject := TArrayObject.arrayScalarDoubleMult(TArrayObject (d1.dataObject), (d2.dataObject as TValueObject).getScalar());
   result.stackType := symArray;
 end;
 
 procedure multArrayValuefunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TArrayObject.arrayScalarDoubleMult (TArrayObject (d2.obj), (d1.obj as TValueObject).getScalar());
+  result.dataObject := TArrayObject.arrayScalarDoubleMult (TArrayObject (d2.dataObject), (d1.dataObject as TValueObject).getScalar());
   result.stackType := symArray;
 end;
 
 procedure multValueMatrixfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TMatrixObject.scalarMult (TMatrixObject (d1.obj), (d2.obj as TValueObject).getScalar());
+  result.dataObject := TMatrixObject.scalarMult (TMatrixObject (d1.dataObject), (d2.dataObject as TValueObject).getScalar());
   result.stackType := symMatrix;
 end;
 
 procedure multIntegerArrayfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TArrayObject.arrayScalarDoubleMult (TArrayObject (d1.obj), d2.iValue);
+  result.dataObject := TArrayObject.arrayScalarDoubleMult (TArrayObject (d1.dataObject), d2.iValue);
   result.stackType := symArray;
 end;
 
 procedure multArrayIntegerfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TArrayObject.arrayScalarDoubleMult (TArrayObject (d2.obj), d1.iValue);
+  result.dataObject := TArrayObject.arrayScalarDoubleMult (TArrayObject (d2.dataObject), d1.iValue);
   result.stackType := symArray;
 end;
 
 procedure multDoubleArrayfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TArrayObject.arrayScalarDoubleMult (TArrayObject (d1.obj), d2.dValue);
+  result.dataObject := TArrayObject.arrayScalarDoubleMult (TArrayObject (d1.dataObject), d2.dValue);
   result.stackType := symArray;
 end;
 
 procedure multArrayDoublefunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TArrayObject.arrayScalarDoubleMult (TArrayObject (d2.obj), d1.dValue);
+  result.dataObject := TArrayObject.arrayScalarDoubleMult (TArrayObject (d2.dataObject), d1.dValue);
   result.stackType := symArray;
 end;
 
 procedure multArrayArrayfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TArrayObject.mult (TArrayObject (d2.obj), TArrayObject (d1.obj));
+  result.dataObject := TArrayObject.mult (TArrayObject (d2.dataObject), TArrayObject (d1.dataObject));
   result.stackType := symArray;
 end;
 
@@ -556,11 +556,11 @@ procedure multIntStringfunc (d1, d2 : PMachineStackRecord; var result : TMachine
 var i : integer;
     value : string;
 begin
-   value := TStringObject(d1.obj).value;
+   value := TStringObject(d1.dataObject).value;
    for i := 2 to d2.iValue do
-       value := value + TStringObject(d1.obj).value;
+       value := value + TStringObject(d1.dataObject).value;
 
-  result.obj := TStringObject.Create(value);
+  result.dataObject := TStringObject.Create(value);
   result.stackType := symString;
 end;
 
@@ -569,11 +569,11 @@ procedure multStringIntfunc (d1, d2 : PMachineStackRecord; var result : TMachine
 var i : integer;
     value : string;
 begin
-   value := TStringObject(d2.obj).value;
+   value := TStringObject(d2.dataObject).value;
    for i := 2 to d1.iValue do
-       value := value + TStringObject(d2.obj).value;
+       value := value + TStringObject(d2.dataObject).value;
 
-  result.obj := TStringObject.Create(value);
+  result.dataObject := TStringObject.Create(value);
   result.stackType := symString;
 end;
 
@@ -582,14 +582,14 @@ end;
 
 procedure multIntListfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TListObject.multiply(d2.iValue, TListObject (d1.obj));
+  result.dataObject := TListObject.multiply(d2.iValue, TListObject (d1.dataObject));
   result.stackType := symList;
 end;
 
 
 procedure multListIntfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TListObject.multiply(d1.iValue, TListObject (d2.obj));
+  result.dataObject := TListObject.multiply(d1.iValue, TListObject (d2.dataObject));
   result.stackType := symList;
 end;
 
@@ -597,41 +597,41 @@ end;
 
 procedure multIntMatrixfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TMatrixObject.scalarMult (TMatrixObject (d1.obj), d2.iValue);
+  result.dataObject := TMatrixObject.scalarMult (TMatrixObject (d1.dataObject), d2.iValue);
   result.stackType := symMatrix;
 end;
 
 
 procedure multMatrixIntfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TMatrixObject.scalarMult (TMatrixObject (d2.obj), d1.iValue);
+  result.dataObject := TMatrixObject.scalarMult (TMatrixObject (d2.dataObject), d1.iValue);
   result.stackType := symMatrix;
 end;
 
 
 procedure multMatrixDoublefunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TMatrixObject.scalarMult (TMatrixObject (d2.obj), d1.dValue);
+  result.dataObject := TMatrixObject.scalarMult (TMatrixObject (d2.dataObject), d1.dValue);
   result.stackType := symMatrix;
 end;
 
 procedure multMatrixValuefunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TMatrixObject.scalarMult (TMatrixObject (d2.obj), (d1.obj as TValueObject).getScalar());
+  result.dataObject := TMatrixObject.scalarMult (TMatrixObject (d2.dataObject), (d1.dataObject as TValueObject).getScalar());
   result.stackType := symMatrix;
 end;
 
 
 procedure multDoubleMatrixfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TMatrixObject.scalarMult (TMatrixObject (d1.obj), d2.dValue);
+  result.dataObject := TMatrixObject.scalarMult (TMatrixObject (d1.dataObject), d2.dValue);
   result.stackType := symMatrix;
 end;
 
 
 procedure multMatrixMatrixfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TMatrixObject.mult (TMatrixObject (d2.obj), TMatrixObject (d1.obj));
+  result.dataObject := TMatrixObject.mult (TMatrixObject (d2.dataObject), TMatrixObject (d1.dataObject));
   result.stackType := symMatrix;
 end;
 
@@ -668,70 +668,70 @@ end;
 
 procedure divIntValuefunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.dValue := (d1.obj as TValueObject).getScalar() / d2.iValue;
+  result.dValue := (d1.dataObject as TValueObject).getScalar() / d2.iValue;
   result.stackType := symDouble;
 end;
 
 
 procedure divValueIntfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.dValue := d1.iValue / (d2.obj as TValueObject).getScalar();
+  result.dValue := d1.iValue / (d2.dataObject as TValueObject).getScalar();
   result.stackType := symDouble;
 end;
 
 procedure divDoubleValuefunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.dValue := (d1.obj as TValueObject).getScalar() / d2.dValue;
+  result.dValue := (d1.dataObject as TValueObject).getScalar() / d2.dValue;
   result.stackType := symDouble;
 end;
 
 
 procedure divValueDoublefunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.dValue := d1.dValue / (d2.obj as TValueObject).getScalar();
+  result.dValue := d1.dValue / (d2.dataObject as TValueObject).getScalar();
   result.stackType := symDouble;
 end;
 
 procedure divIntArrayfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TArrayObject.divide (TArrayObject (d1.obj), d2.iValue, False);
+  result.dataObject := TArrayObject.divide (TArrayObject (d1.dataObject), d2.iValue, False);
   result.stackType := symArray;
 end;
 
 procedure divArrayIntfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TArrayObject.divide (TArrayObject (d2.obj), d1.iValue, True); // True = compute reciprical
+  result.dataObject := TArrayObject.divide (TArrayObject (d2.dataObject), d1.iValue, True); // True = compute reciprical
   result.stackType := symArray;
 end;
 
 procedure divDoubleArrayfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TArrayObject.divide (TArrayObject (d1.obj), d2.dValue, False);
+  result.dataObject := TArrayObject.divide (TArrayObject (d1.dataObject), d2.dValue, False);
   result.stackType := symArray;
 end;
 
 procedure divArrayDoublefunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TArrayObject.divide (TArrayObject (d2.obj), d1.dValue, True);
+  result.dataObject := TArrayObject.divide (TArrayObject (d2.dataObject), d1.dValue, True);
   result.stackType := symArray;
 end;
 
 procedure divValueArrayfunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TArrayObject.divide (TArrayObject (d1.obj), (d2.obj as TValueObject).getScalar(), False);
+  result.dataObject := TArrayObject.divide (TArrayObject (d1.dataObject), (d2.dataObject as TValueObject).getScalar(), False);
   result.stackType := symArray;
 end;
 
 procedure divArrayValuefunc (d1, d2 : PMachineStackRecord; var result : TMachineStackRecord);
 begin
-  result.obj := TArrayObject.divide (TArrayObject (d2.obj), (d1.obj as TValueObject).getScalar(), True);
+  result.dataObject := TArrayObject.divide (TArrayObject (d2.dataObject), (d1.dataObject as TValueObject).getScalar(), True);
   result.stackType := symArray;
 end;
 
 // ----------------------------------------------------------------------------------
 
 procedure create_addJumpTable;
-var s1, s2 : TSymbolElementType;
+var s1, s2 : TElementType;
 begin
   // This loop is used to mark every conbination of types with an error
   // function. We then assign actual functions for the ones we have.

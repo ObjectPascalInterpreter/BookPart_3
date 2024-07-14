@@ -18,6 +18,7 @@ unit uBuiltInGlobal;
 
 {$WARN SYMBOL_PLATFORM OFF}
 
+
 interface
 
 
@@ -72,7 +73,7 @@ type
        class procedure myAssertFalseEx (vm : TObject);
        class procedure listModules (vm : TObject);
        class procedure getMemoryUsed (vm : TObject);
-       class procedure myMain (vm : TObject);
+       class procedure getMain (vm : TObject);
        class procedure dis (vm : TObject);
        class procedure stackInfo (vm : TObject);
        class procedure getHelp (_vm : TObject);
@@ -116,14 +117,14 @@ begin
   module.addMethod (TBuiltInGlobal.myFloat,        1, 'float',         'Convert and integer to a float: float (3)');
   module.addMethod (TBuiltInGlobal.readNumber,    VARIABLE_ARGS, 'readNumber',  'Read an integer from the input channel: : str = readNumber ("Enter answer: ")');
   module.addMethod (TBuiltInGlobal.readString,    VARIABLE_ARGS, 'readString',  'Read a string from the input channel: str = readString ("Enter name")');
-  module.addMethod (TBuiltInGlobal.listSymbols,    1, 'symbols',       'Returns list of symbols in the specified module: symbols(math). Use main() as the argument to get the symbols for the main module');
+  module.addMethod (TBuiltInGlobal.listSymbols,    1, 'symbols',       'Returns a list of symbols in the specified module: e.g symbols(math). Use main() as the argument to get the symbols for the main module');
   module.addMethod (TBuiltInGlobal.getType,        1, 'type',          'Returns the type of a given variable: type (x)');
   module.addMethod (TBuiltInGlobal.getAttr,        2, 'getAttr',       'Returns the value attached to the symbol attribute: getAttr (mylib, "x")');
   module.addMethod (TBuiltInGlobal.listModules,    0, 'modules',       'Get a list of all currently loaded mdules');
   module.addMethod (TBuiltInGlobal.getMemoryUsed,  0, 'mem',           'Get the amount of memory currently in use.');
   module.addMethod (TBuiltInGlobal.myAssertTrueEx, 1, 'assertTrueEx',  'Assert argument is true, return . of F');
   module.addMethod (TBuiltInGlobal.myAssertFalseEx,1, 'assertFalseEx', 'Assert argument is false, return . of F');
-  module.addMethod (TBuiltInGlobal.myMain,         0, 'getMain',       'Returns a reference to the main module');
+  module.addMethod (TBuiltInGlobal.getMain,        0, 'main',          'Returns a reference to the main module');
   module.addMethod (TBuiltInGlobal.dis,            1, 'dis',           'dissassemble module or function');
   module.addMethod (TBuiltInGlobal.stackInfo,      0, 'stackInfo',     'Get the current state of the VM stack');
   module.addMethod (TBuiltInGlobal.getChar,        1, 'chr',           'Get the character equivalent of an integer value');
@@ -202,6 +203,7 @@ end;
 function getAllocatedSymbols (module : TModule) : string;
 var len : integer; f : TUserFunction;
     key, astr: string;
+    dobj : TDataObject;
 begin
   result := Format('%-14s%-12s%-22s%-10s', ['Name', 'Type', 'Value', 'Size']) + sLineBreak;
   // Write out all the symbols
@@ -218,6 +220,7 @@ begin
               symBoolean: result := result + Format ('%-12s%-22s%-6d',  ['boolean', boolToStr (module.symbolTable.items[key].bValue), sizeof (Boolean)]) + sLineBreak;
               symDouble : result := result + Format ('%-12s%-22g%-6d%', ['float', module.symbolTable.items[key].dValue, sizeof (double)]) + sLineBreak;
               symString : begin
+                          // Only print out the first 50 characters in case the string is too long.
                           astr :=  '"' + leftStr ((module.symbolTable.items[key].dataObject as TStringObject).value, 50);
                           if length ((module.symbolTable.items[key].dataObject as TStringObject).value) > 50 then
                              astr := astr + '...."'
@@ -230,22 +233,26 @@ begin
                           end;
               symList   : result := result + Format ('%-12s%-22s%-6d%', ['list', module.symbolTable.items[key].dataObject.toString, module.symbolTable.items[key].dataObject.getsize()]) + sLineBreak;
              symUserFunc: begin
-                          f := module.symbolTable.items[key].fValue as TUserFunction;
-                          result := result + Format ('%-12s%-22s%-12d', ['ufunc', 'NA', f.getSize()]) + sLineBreak;
+                          dobj := module.symbolTable.items[key].dataObject;
+                          result := result + Format ('%-12s%-22s%-12d', ['ufunc', 'NA', dobj.getSize()]) + sLineBreak;
+                          end;
+             symValueObject :
+                          begin
+                          result := result + Format ('%-12s%-22s%-12d', ['ValueObject', 'NA', module.symbolTable.items[key].dataObject.getSize()]) + sLineBreak;
                           end;
               symModule : begin
                           result := result + Format ('%-12s%-22s%-12d', ['module', 'NA', (module.symbolTable.Items[key].mValue as TModule).getSize]) + sLineBreak;
                           end;
               symUndefined : continue;
          else
-             raise Exception.Create('This type not yet supported in symbols');
+             raise Exception.Create('Internal error: This type not yet supported in getAllocatedSymbols()');
          end;
       end;
       end;
 end;
 
 
-class procedure TBuiltInGlobal.myMain (vm : TObject);
+class procedure TBuiltInGlobal.getMain (vm : TObject);
 begin
  TVM (vm).push (getMainModule());
 end;
@@ -267,7 +274,7 @@ begin
           inc (result);
          end
       else
-         result := result + countElements (TListObject (alist.list[i].obj));
+         result := result + countElements (TListObject (alist.list[i].dataObject));
 end;
 
 
@@ -297,11 +304,11 @@ begin
   aitem := alist.list[0];
   while aitem.itemType = symlist do
       begin
-      n := TListObject (aitem.obj).list.Count;
+      n := TListObject (aitem.dataObject).list.Count;
       dimIndex := dimIndex + 1;
       setLength (result, dimIndex);
       result[dimIndex-1] := n;
-      aitem := TListObject (aitem.obj).list[0];
+      aitem := TListObject (aitem.dataObject).list[0];
       end;
 end;
 
@@ -313,7 +320,7 @@ begin
   for i := 0 to alist.list.Count - 1 do
       if alist.list[i].itemType = symList then
          begin
-         collectData (TListObject (alist.list[i].obj), arrayObj);
+         collectData (TListObject (alist.list[i].dataObject), arrayObj);
          end
       else
          begin
@@ -515,10 +522,10 @@ begin
     symModule : TVM (vm).push (TStringObject.create (dissassemble (x.module, x.module.moduleProgram)));
     symUserFunc :
       begin
-      if TUserFunction (x.obj).isbuiltInFunction then
-         TVM (vm).push (TStringObject.create (TUserFunction (x.obj).methodName + ' is a builtin function'))
+      if TUserFunction (x.dataObject).isbuiltInFunction then
+         TVM (vm).push (TStringObject.create (TUserFunction (x.dataObject).methodName + ' is a builtin function'))
       else
-         TVM (vm).push (TStringObject.create (dissassemble (TUserFunction (x.obj).moduleRef, TUserFunction (x.obj).codeBlock)));
+         TVM (vm).push (TStringObject.create (dissassemble (TUserFunction (x.dataObject).moduleRef, TUserFunction (x.dataObject).codeBlock)));
       end;
   else
      raise ERuntimeException.Create('dis argument can only be a module or a function');
@@ -618,7 +625,7 @@ begin
        symBoolean : TVM (vm).push (symbol.bValue);
        symString : TVM (vm).push (symbol.dataObject);
        symList : TVM (vm).push (symbol.dataObject);
-       symUserFunc : TVM (vm).push (symbol.fValue);
+       symUserFunc : TVM (vm).push (symbol.dataObject);
        symModule : TVM (vm).push (symbol.mValue);
        symUndefined :  TVM (vm).push (TStringObject.create ('undefined'));
      end;
@@ -672,7 +679,7 @@ begin
      symModule  : vm.push(TStringObject.Create (st.module.help.getHelp()));
 
      symUserFunc :
-           vm.push(TStringObject.Create (st.obj.help.getHelp()));
+           vm.push(TStringObject.Create (st.dataObject.help.getHelp()));
      symObjectMethod :
            vm.push(TStringObject.Create (st.oValue.helpStr));
   else
@@ -713,9 +720,9 @@ var i: integer;
     Obj : TDataObject;
     methodDetails : TMethodDetails;
     setOfDataObjects : TSetOfDataObjects;
-    stackType : TSymbolElementType;
+    stackType : TElementType;
 begin
-  if TVM (vm).peek.stackType = TSymbolElementType.symModule then
+  if TVM (vm).peek.stackType = TElementType.symModule then
      begin
      module := TVM (vm).popModule;
 
@@ -745,13 +752,13 @@ begin
 //        case Item.Value.symbolType of
 //          TSymbolElementType.symUserFunc:
 //           begin
-//           if Item.Value.obj.help <> nil then
+//           if Item.Value.dataObject.help <> nil then
 //              begin
-//              if Item.Value.obj.help.methodName <> '' then
+//              if Item.Value.dataObject.help.methodName <> '' then
 //                 begin
-//                 helpPair.name := Item.Value.obj.help.methodName;
+//                 helpPair.name := Item.Value.dataObject.help.methodName;
 //                 helpPair.methodCount := Item.Value.methodCount;
-//                 helpPair.help := Item.Value.obj.help;
+//                 helpPair.help := Item.Value.dataObject.help;
 //                 list.Add(helpPair);
 //                 end;
 //              end;
@@ -760,7 +767,7 @@ begin
 //           begin
 //           helpPair.name := Item.Value.symbolName;
 //           helpPair.methodCount := Item.Value.methodCount;
-//           helpPair.help := Item.Value.obj.help;
+//           helpPair.help := Item.Value.dataObject.help;
 //           list.Add(helpPair);
 //            end;
 //        end;
@@ -779,7 +786,7 @@ begin
 //         begin
 //          if helpPair.help <> nil then
 //             begin
-//             if Item.Value.obj.help.methodName <> '' then
+//             if Item.Value.dataObject.help.methodName <> '' then
 //                begin
 //                astr := astr + helpPair.help.toLatex;
 //                astr := astr + sLineBreak + sLineBreak + '\vspace{5pt}' + sLineBreak;
@@ -800,7 +807,7 @@ begin
   stackType := TVM (vm).peek.stackType;
   if isDataObject (stackType) then
      begin
-     obj := TVM (vm).pop.obj;
+     obj := TVM (vm).pop.dataObject;
      for i := 0 to Obj.methods.methodList.Count - 1 do
          begin
          methodDetails := Obj.methods.methodList[i];

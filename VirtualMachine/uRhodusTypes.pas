@@ -20,20 +20,22 @@ const
 
 type
    // symNonExistant: Requests for symbols that aren't even in the symbol table
-   TSymbolElementType = (
+   TElementType = (
           symNonExistant = 0,
           symUndefined,
           symInteger,
           symDouble,
           symBoolean,
           symString,
+          // DataObjects, ie the more complex supported data types
           symList,
           symArray,
           symVector, // Not actually exposed to the user, used internally
           symMatrix,
           symValueObject,  // Builtin constants such as math.pi
-          symObject,       // Used to to mark objects (list, string etc) on the stack
+          symObject,       // Used to indicate data objects (list, string etc) on the stack
           symUserFunc,
+
           symModule,
           symSymbol,       // Not exposed to the user
           symLocalSymbol,  // Not exposed to the user
@@ -41,7 +43,7 @@ type
           symObjectMethod, // Methods attached to string, lists etc, eg a.len()
           symEndObject);  // Useful for making a for loop through all elements
 
-   TSetOfDataObjects = array of TSymbolElementType;
+   TSetOfDataObjects = array of TElementType;
 
    TIntArray = array of integer;
    TIndexArray = array of integer;
@@ -63,7 +65,7 @@ type
   var
    setOfDataObjects : TSetOfDataObjects;
 
-  function isDataObject (d : TSymbolElementType) : boolean;
+  function isDataObject (d : TElementType) : boolean;
 
 implementation
 
@@ -80,7 +82,7 @@ begin
   inherited;
 end;
 
-function isDataObject (d : TSymbolElementType) : boolean;
+function isDataObject (d : TElementType) : boolean;
 var i : integer;
 begin
   for i := 0 to High (setOfDataObjects) do

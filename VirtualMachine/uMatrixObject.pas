@@ -448,7 +448,7 @@ begin
   // Set each items that ow exists in each row to a value
   for i := 0 to m.numRows - 1 do
       begin
-      row := TListObject (l[i].obj);
+      row := TListObject (l[i].dataObject);
       for j := 0 to m.numCols - 1 do
           row.setItemToDouble(j, m[i,j]);
       end;

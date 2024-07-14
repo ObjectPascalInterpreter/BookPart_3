@@ -22,8 +22,8 @@ Uses System.SysUtils, uUtils, System.generics.Collections,
      uDataObject;
 
 type
-  TListItemType = TSymbolElementType;// (liInteger, liBoolean, liDouble, liString, liList,
-                   //liArray, liMatrix, liValueObject, liFunction, liModule, liObject);
+  TListItemType = TElementType;
+
   TListItem = class;
 
   TListMethods = class (TMethodsBase)
@@ -96,7 +96,7 @@ type
     iValue: integer;
     bValue: boolean;
     dValue: double;
-    obj   : TDataObject;
+    dataObject : TDataObject;
     moduleValue: TObject; // Module
     function elementToString: string;
     class function listEquals(list1: TListItem; list2: TListItem): boolean;
@@ -190,7 +190,7 @@ begin
       symArray,
       symMatrix,
       symUserFunc:    begin
-                      data := value.obj.clone;
+                      data := value.dataObject.clone;
                       data.blockType := btOwned;
                       s.append (data);
                       end;
@@ -255,11 +255,11 @@ begin
       symInteger  : TVM (vm).push (r.iValue);
       symDouble   : TVM (vm).push (r.dValue);
       symBoolean  : TVM (vm).push (r.bValue);
-      symString   : TVM (vm).push (r.obj.clone);
-      symList     : TVM (vm).push (r.obj.clone);
-      symArray    : TVM (vm).push (r.obj.clone);
-      symMatrix   : TVM (vm).push (r.obj.clone);
-      symUserFunc : TVM (vm).push (r.obj);
+      symString   : TVM (vm).push (r.dataObject.clone);
+      symList     : TVM (vm).push (r.dataObject.clone);
+      symArray    : TVM (vm).push (r.dataObject.clone);
+      symMatrix   : TVM (vm).push (r.dataObject.clone);
+      symUserFunc : TVM (vm).push (r.dataObject);
       symModule   : TVM (vm).push (TModule (r.moduleValue));
    end;
    s.remove (s.list.Count - 1);
@@ -285,11 +285,11 @@ begin
       symInteger :    s.insert (index, value.iValue);
       symDouble  :    s.insert (index, value.dValue);
       symBoolean :    s.insert (index, value.bValue);
-      symString  :    s.insert (index, value.obj);
-      symList    :    s.insert (index, value.obj);
-      symArray   :    s.insert (index, value.obj);
-      symMatrix  :    s.insert (index, value.obj);
-      symUserFunc:    s.insert (index, value.obj);
+      symString  :    s.insert (index, value.dataObject);
+      symList    :    s.insert (index, value.dataObject);
+      symArray   :    s.insert (index, value.dataObject);
+      symMatrix  :    s.insert (index, value.dataObject);
+      symUserFunc:    s.insert (index, value.dataObject);
       symModule  :    s.insertModule (index, value.module)
    else
       raise ERuntimeException.Create('Internal error: unrecognized data type during list insert');
@@ -326,7 +326,7 @@ begin
       if s.list[i].itemType = symInteger then
          inc (dims[level])
       else
-         countItems (TListObject (s.list[i].obj), dims, level+1);
+         countItems (TListObject (s.list[i].dataObject), dims, level+1);
       writeln (TRttiEnumerationType.GetName(s.list[i].itemType));
       end;
 end;
@@ -343,7 +343,7 @@ begin
          inc (count);
          end;
       if s.list[i].itemType = symList then
-         collectData (TListObject (s.list[i].obj), data, count);
+         collectData (TListObject (s.list[i].dataObject), data, count);
       end;
 end;
 
@@ -424,8 +424,8 @@ begin
       symUserFunc :
         begin
           li.list[i].itemType := self.list[i].itemType;
-          li.list[i].obj := self.list[i].obj.clone;
-          li.list[i].obj.blockType := btOwned; // owned by the container list
+          li.list[i].dataObject := self.list[i].dataObject.clone;
+          li.list[i].dataObject.blockType := btOwned; // owned by the container list
         end;
       symModule:
         begin
@@ -602,11 +602,11 @@ begin
             symInteger : obj.append(list[i].iValue);
             symBoolean : obj.append(list[i].bValue);
             symDouble  : obj.append(list[i].dValue);
-            symString  : obj.append(list[i].obj.clone);
-            symList    : obj.append(list[i].obj.clone);
-            symArray   : obj.append(list[i].obj.clone);
-            symMatrix  : obj.append(list[i].obj.clone);
-            symUserFunc: obj.append(list[i].obj.clone);
+            symString  : obj.append(list[i].dataObject.clone);
+            symList    : obj.append(list[i].dataObject.clone);
+            symArray   : obj.append(list[i].dataObject.clone);
+            symMatrix  : obj.append(list[i].dataObject.clone);
+            symUserFunc: obj.append(list[i].dataObject.clone);
             symModule  : obj.appendModule(TModule (list[i].moduleValue));
          end;
          end;
@@ -642,11 +642,11 @@ begin
             symInteger : obj.append(alist.list[i].iValue);
             symBoolean : obj.append(alist.list[i].bValue);
             symDouble  : obj.append(alist.list[i].dValue);
-            symString  : obj.append(alist.list[i].obj.clone);
-            symList    : obj.append(alist.list[i].obj.clone);
-            symArray   : obj.append(alist.list[i].obj.clone);
-            symMatrix  : obj.append(alist.list[i].obj.clone);
-            symUserFunc: obj.append(TUserFunction (alist.list[i].obj).clone);
+            symString  : obj.append(alist.list[i].dataObject.clone);
+            symList    : obj.append(alist.list[i].dataObject.clone);
+            symArray   : obj.append(alist.list[i].dataObject.clone);
+            symMatrix  : obj.append(alist.list[i].dataObject.clone);
+            symUserFunc: obj.append(TUserFunction (alist.list[i].dataObject).clone);
             symModule  : obj.appendModule(TModule (alist.list[i].moduleValue));
          end;
          end;
@@ -758,27 +758,27 @@ begin
       self.bValue := item.bValue;
     symString:
       begin
-        self.obj := item.obj.clone;
-        self.obj.blockType := btOwned;
+        self.dataObject := item.dataObject.clone;
+        self.dataObject.blockType := btOwned;
       end;
     symList:
       begin
-        self.obj := item.obj.clone;
-        self.obj.blockType := btOwned;
+        self.dataObject := item.dataObject.clone;
+        self.dataObject.blockType := btOwned;
       end;
     symArray:
       begin
-        self.obj := item.obj.clone;
-        self.obj.blockType := btOwned;
+        self.dataObject := item.dataObject.clone;
+        self.dataObject.blockType := btOwned;
       end;
     symMatrix:
       begin
-        self.obj := item.obj.clone;
-        self.obj.blockType := btOwned;
+        self.dataObject := item.dataObject.clone;
+        self.dataObject.blockType := btOwned;
       end;
     symUserFunc:
       begin
-        self.obj := item.obj
+        self.dataObject := item.dataObject
       end;
     symModule:
       begin
@@ -815,7 +815,7 @@ end;
 constructor TListItem.Create(obj: TDataObject);
 begin
   itemType := obj.objectType;;
-  self.obj := obj;
+  self.dataObject := obj;
 end;
 
 
@@ -834,16 +834,16 @@ begin
      symString,
      symMatrix,
      symArray : begin
-                if obj.isOwned then
-                  obj.blockType := btGarbage
+                if dataObject.isOwned then
+                  dataObject.blockType := btGarbage
                 else
-                  obj.free;
+                  dataObject.free;
                 end;
   symUserFunc : begin
-                if (obj as TUserFunction).blockType = btOwned then
-                    (obj as TUserFunction).blockType := btGarbage
+                if (dataObject as TUserFunction).blockType = btOwned then
+                    (dataObject as TUserFunction).blockType := btGarbage
                 else
-                 obj.free;
+                 dataObject.free;
                 end;
   symInteger, symDouble, symBoolean, symValueObject : begin end
      else
@@ -860,11 +860,11 @@ begin
     symInteger:  result := TListItem.Create(iValue);
     symBoolean:  result := TListItem.Create(bValue);
     symDouble:   result := TListItem.Create(dValue);
-    symString:   result := TListItem.Create(obj.clone);
-    symList:     begin result := TListItem.Create(obj.clone); result.obj.blockType := btOwned; end;
-    symArray:    result := TListItem.Create(obj.clone);
-    symMatrix:   result := TListItem.Create(obj.clone);
-    symUserFunc: result := TListItem.Create(obj.clone);
+    symString:   result := TListItem.Create(dataObject.clone);
+    symList:     begin result := TListItem.Create(dataObject.clone); result.dataObject.blockType := btOwned; end;
+    symArray:    result := TListItem.Create(dataObject.clone);
+    symMatrix:   result := TListItem.Create(dataObject.clone);
+    symUserFunc: result := TListItem.Create(dataObject.clone);
     symModule:   raise ERuntimeException.Create('can''t clone module');
   else
     raise ERuntimeException.Create('Internal Error in ListItem Clone');
@@ -884,13 +884,13 @@ begin
     symDouble:
       result := result + sizeof(double);
     symString:
-      result := result + obj.getsize();
+      result := result + dataObject.getsize();
     symList:
-      result := result + obj.getsize();
+      result := result + dataObject.getsize();
     symObject:
-      result := result + obj.getSize();
+      result := result + dataObject.getSize();
     symArray:
-      result := result + obj.getSize();
+      result := result + dataObject.getSize();
   else
     raise ERuntimeException.Create('Error in size not implement for this type');
   end;
@@ -941,21 +941,21 @@ begin
     symDouble:
       result := result + floattostr(self.dValue);
     symString:
-      result := result + '"' + self.obj.ToString + '"';
+      result := result + '"' + self.dataObject.ToString + '"';
     symList:
-      result := result + self.obj.ToString;
+      result := result + self.dataObject.ToString;
     symUserFunc:
-      result := result + self.obj.ToString;
+      result := result + self.dataObject.ToString;
     symModule:
       result := result + TModule(self.moduleValue).moduleName;
     symArray:
-      result := result + self.obj.ToString;
+      result := result + self.dataObject.ToString;
     symMatrix:
-      result := result + self.obj.ToString;
+      result := result + self.dataObject.ToString;
     symObject:
-      result := result + self.obj.ToString;
+      result := result + self.dataObject.ToString;
     symValueObject:
-      result := result + self.obj.ToString;
+      result := result + self.dataObject.ToString;
   else
     raise ERuntimeException.Create('Unknown type in elementToString: ' + stToStr(self.itemType));
   end;
@@ -985,25 +985,25 @@ begin
       exit(False);
 
   if (list1.itemType = symString) and (list2.itemType = symString) then
-    if TStringObject(list1.obj).isEqualTo(TStringObject(list2.obj)) then
+    if TStringObject(list1.dataObject).isEqualTo(TStringObject(list2.dataObject)) then
       exit(True)
     else
       exit(False);
 
   if (list1.itemType = symList) and (list2.itemType = symList) then
-      if TListObject.listEquals(TListObject (list1.obj), TListObject (list2.obj)) then
+      if TListObject.listEquals(TListObject (list1.dataObject), TListObject (list2.dataObject)) then
          exit (True)
       else
          exit(False);
 
   if (list1.itemType = symArray) and (list2.itemType = symArray) then
-      if TArrayObject.isEqualTo(TArrayObject(list1.obj), TArrayObject(list2.obj)) then
+      if TArrayObject.isEqualTo(TArrayObject(list1.dataObject), TArrayObject(list2.dataObject)) then
          exit (True)
       else
          exit(False);
 
   if (list1.itemType = symMatrix) and (list2.itemType = symMatrix) then
-      if TMatrixObject.isEqualTo(TMatrixObject (list1.obj), TMatrixObject (list2.obj)) then
+      if TMatrixObject.isEqualTo(TMatrixObject (list1.dataObject), TMatrixObject (list2.dataObject)) then
          exit (True)
       else
          exit(False);

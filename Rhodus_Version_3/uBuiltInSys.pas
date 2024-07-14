@@ -76,16 +76,12 @@ end;
 constructor TBuiltInSys.Create;
 var argv : TListObject;
     astr : TStringObject;
-    sym : TSymbol;
 begin
   inherited Create ('sys');
 
-  sym := addStringValue ('version',  string (uBuiltInConfig.RHODUS_VERSION), True);//'returns the current version number for Rhodus', True);
-  //sym.obj.blockType := btBound;
-  sym := addStringValue ('doubleFormat',  TBuiltInSys.defaultDoubleFormat, True);//'default output format string for double values', False);
-  //sym.obj.blockType := btBound;
-  sym := addStringValue ('integerFormat',  TBuiltInSys.defaultIntegerFormat, True);//'default output format string for integer values', False);
-  //sym.obj.blockType := btBound;  // protect the string object from the garbage collector.
+  addStringValue ('version',  string (uBuiltInConfig.RHODUS_VERSION), True);//'returns the current version number for Rhodus', True);
+  addStringValue ('doubleFormat',  TBuiltInSys.defaultDoubleFormat, True);//'default output format string for double values', False);
+  addStringValue ('integerFormat',  TBuiltInSys.defaultIntegerFormat, True);//'default output format string for integer values', False);
 
   argv := TListObject.Create(0);
   for var i := 0 to ParamCount do

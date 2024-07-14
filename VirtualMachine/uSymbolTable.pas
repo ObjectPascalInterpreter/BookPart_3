@@ -89,7 +89,7 @@ type
 
 
    TSymbol = class (TObject)
-       symbolType : TSymbolElementType;
+       symbolType : TElementType;
        symbolName : string;
        helpStr : string;
        locked  : boolean;  // If true, symbol is read only
@@ -105,7 +105,7 @@ type
        //vValue  : TVectorObject;
        //matValue : TMatrixObject;
        //voValue : TValueObject;
-       fValue  : TUserFunction;
+       //fValue  : TUserFunction;
        mValue  : TModule;
 
        dataObject     : TDataObject;
@@ -117,7 +117,8 @@ type
        class var   localModuleId : string;
        class var   globalId : string;
 
-       function    Clone : TSymbol;
+       function    clone : TSymbol;
+       function    getSize : integer;
        function    convertToString : string;
        constructor Create;
        destructor  Destroy; override;
@@ -147,11 +148,11 @@ type
         function  find (name : string; var symbol : TSymbol) : boolean;
 
         procedure storeInteger (symbol : TSymbol; iValue : integer);
-        procedure storeBoolean   (symbol : TSymbol; bValue : boolean);
-        procedure storeDouble   (symbol : TSymbol; dValue : double);
-        procedure storeString (symbol : TSymbol; sValue : TStringObject);
-        procedure storeList   (symbol : TSymbol; lValue : TListObject);
-        procedure storeArray  (symbol : TSymbol; aValue : TArrayObject);
+        procedure storeBoolean (symbol : TSymbol; bValue : boolean);
+        procedure storeDouble  (symbol : TSymbol; dValue : double);
+        procedure storeString  (symbol : TSymbol; sValue : TStringObject);
+        procedure storeList    (symbol : TSymbol; lValue : TListObject);
+        procedure storeArray   (symbol : TSymbol; aValue : TArrayObject);
         procedure storeVector  (symbol : TSymbol; vValue : TVectorObject);
         procedure storeMatrix  (symbol : TSymbol; matValue : TMatrixObject);
         procedure storeValueObject  (symbol : TSymbol; voValue : TValueObject);
@@ -275,7 +276,8 @@ end;
 
 function TModule.find (name : string) : TSymbol;
 begin
-  symbolTable.find(name, result);
+  if not symbolTable.find(name, result) then
+     result := nil;
 end;
 
 
@@ -285,17 +287,24 @@ begin
   symbolTable.find(moduleName, symbol);
   result := symbol.mValue.find(symbolName);
   if result = nil then
-     raise ERuntimeException.Create ('Internal erro, unable to locate: ' + moduleName + ':' + symbolName);
+     raise ERuntimeException.Create ('Internal error, unable to locate: ' + moduleName + ':' + symbolName);
 end;
 
+
 function TModule.getSize : integer;
+var sym : TSymbol;
 begin
    result := self.InstanceSize;
    if self.moduleProgram <> nil then
-      result := result + length (self.moduleProgram.code);
+      result := result + self.moduleProgram.getSize();
 
    if self.symbolTable <> nil then
+      begin
+      for sym in self.symbolTable.Values do
+          result := result + sym.getSize;
+
       result := result + self.symbolTable.InstanceSize;
+      end;
 end;
 
 
@@ -308,6 +317,7 @@ begin
   else
      TVM (vm).push (TStringObject.Create('No help'));
 end;
+
 
 // ------------------------------------------------------------------------------------------
 constructor TUserFunctionMethods.Create;
@@ -341,6 +351,7 @@ begin
 
   TVM (vm).push(TStringObject.Create(f.methodName));
 end;
+
 
 procedure TUserFunctionMethods.getnArgs (vm : TObject);
 var f : TUserFunction;
@@ -409,7 +420,7 @@ end;
 constructor TUserFunction.Create;
 begin
   inherited Create;
-  objectType := TSymbolElementType.symUserFunc;
+  objectType := TElementType.symUserFunc;
   isbuiltInFunction := False;
   blockType := btBound;  // bound to the name of the user function
   userFunctionMethods := _userFunctionMethods;
@@ -488,7 +499,8 @@ begin
    if self.codeBlock <> nil then
       begin
       result := result + self.codeBlock.InstanceSize;
-      result := result + length (self.codeBlock.code);
+      if length (self.codeBlock.code) > 0 then
+        result := result + self.codeBlock.getSize();
       end;
    if self.localSymbolTable <> nil then
       result := result + self.localSymbolTable.InstanceSize;
@@ -501,7 +513,7 @@ constructor TSymbol.Create;
 begin
   dataObject := nil;
   //sValue := nil;
-  fValue := nil;
+  dataObject := nil;
   symbolType := symUndefined;
   locked := False;   // used for things that shouldn't be changed, eg math.pi
   //helpStr := 'No help on this symbol';
@@ -524,12 +536,7 @@ begin
     symUndefined   : begin end;
     symModule      : mValue.Free;
     //symObject      : obj.blockType := btGarbage;
-    symUserFunc    : begin
-                     if fValue.isbuiltInFunction then
-                        fValue.blockType := btGarbage
-                     else
-                        fValue.blockType := btGarbage;
-                     end
+    symUserFunc    : dataObject.blockType := btGarbage
   else
      raise Exception.Create('Unknown TSymbol symbolType in destroy: ' + inttostr (integer (symbolType)));
   end;
@@ -537,11 +544,16 @@ begin
 end;
 
 
-function TSymbol.Clone : TSymbol;
+function TSymbol.clone : TSymbol;
 begin
   raise Exception.Create('TSymbol Clone not implemented');
 end;
 
+
+function TSymbol.getSize : integer;
+begin
+  result := dataObject.getSize;
+end;
 
 
 function TSymbol.convertToString : string;
@@ -567,6 +579,8 @@ end;
 
 constructor TSymbolTable.Create;
 begin
+  // Make the symbol table own the cotnents so tha ton freeing
+  // it will free the contents as well
   inherited Create ([doOwnsValues]);
 end;
 
@@ -582,7 +596,7 @@ function TSymbolTable.addSymbol (fValue : TUserFunction; locked : boolean) : TSy
 var symbol : TSymbol;
 begin
   symbol := TSymbol.Create;
-  symbol.fValue := TUserFunction (fValue);
+  symbol.dataObject := TUserFunction (fValue);
   symbol.symbolName := fValue.methodName;
   symbol.symbolType := symUserFunc;
   symbol.locked := locked;
@@ -765,9 +779,9 @@ begin
                        raise ERuntimeException.Create('Internal Error: checkingForExistingData (value object)');
                    end;
      symUserFunc : begin
-                   if symbol.fValue <> nil then
+                   if symbol.dataObject <> nil then
                       begin
-                      symbol.fValue.blockType := btGarbage
+                      symbol.dataObject.blockType := btGarbage
                       end
                    else
                        raise ERuntimeException.Create('Internal Error: checkingForExistingData (userfunction)');
@@ -900,11 +914,11 @@ begin
   if (fValue.blockType = btConstant) or
      (fValue.blockType = btBound) or
      (fValue.blockType = btOwned) then
-        symbol.fValue := fValue.clone as TUserFunction
+        symbol.dataObject := fValue.clone as TUserFunction
   else
-     symbol.fValue := fValue;
+     symbol.dataObject := fValue;
 
-  symbol.fValue.blockType := btBound;
+  symbol.dataObject.blockType := btBound;
   symbol.symbolType := symUserFunc;
 end;
 
@@ -972,7 +986,7 @@ begin
            symVector      : self[i].dataObject.blockType := btGarbage;
            symMatrix      : self[i].dataObject.blockType := btGarbage;
            symValueObject : self[i].dataObject.blockType := btGarbage;
-           symUserFunc    : self[i].fValue.blockType := btGarbage;
+           symUserFunc    : self[i].dataObject.blockType := btGarbage;
         end;
       self[i].free;
       end;
@@ -984,7 +998,7 @@ function TLocalSymbolTable.addSymbol (fValue : TUserFunction; locked : boolean) 
 var symbol : TSymbol;
 begin
   symbol := TSymbol.Create;
-  symbol.fValue := TUserFunction (fValue);
+  symbol.dataObject := TUserFunction (fValue);
   symbol.symbolName := fValue.methodName;
   symbol.symbolType := symUserFunc;
   symbol.locked := locked;
@@ -1159,9 +1173,9 @@ begin
                        raise ERuntimeException.Create('Internal Error: checkingForExistingData (matrix)');
                    end;
        symUserFunc:begin
-                   if self[index].fValue <> nil then
+                   if self[index].dataObject <> nil then
                       begin
-                      self[index].fValue.blockType := btGarbage
+                      self[index].dataObject.blockType := btGarbage
                        //self[index].fValue.Free;
                       //self[index].symbolType := symUndefined;
                       end
@@ -1293,7 +1307,7 @@ begin
   checkForExistingData (index);
 
   self[index].symbolType := symUserFunc;
-  self[index].fValue := fValue;
+  self[index].dataObject := fValue;
 end;
 
 

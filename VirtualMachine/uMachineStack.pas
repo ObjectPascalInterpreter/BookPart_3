@@ -23,13 +23,9 @@ Uses Classes, SysUtils,
      uDataObjectMethods;
 
 type
-  //TStackType = (stNone, stInteger, stDouble, stBoolean, stString, stArray, stVector, stMatrix, stSymbol,
-  //              stLocalSymbol, stList, stModule, stFunction, stObjectMethod, stValueObject,
-  //              stSliceObject, stObject, stNullObject);
-
   TMachineStackRecord = record
-     stackType : TSymbolElementType;  // 1 byte
-     case TSymbolElementType of       // Max 8 bytes
+     stackType : TElementType;  // 1 byte
+     case TElementType of       // Max 8 bytes
        symInteger     : (iValue : integer);
        symBoolean     : (bValue : boolean);
        symDouble      : (dValue : double);
@@ -38,7 +34,7 @@ type
       symModule      : (module : TModule);
    symSliceObject    : (sliceValue : TObject); // Currently used to pass slice objects.
 
-     symObject        : (obj : TDataObject);   // Used to hold all the TDataObjects, strings, lists etc
+     symObject       : (dataObject : TDataObject);   // Used to hold all the TDataObjects, strings, lists etc
      end;
 
   PMachineStackRecord = ^TMachineStackRecord;
@@ -47,11 +43,11 @@ type
 var memCount : integer;
     noneStackType : TMachineStackRecord;
 
-    function stToStr (st : TSymbolElementType) : string;
+    function stToStr (st : TElementType) : string;
 
 implementation
 
-function stToStr (st : TSymbolElementType) : string;
+function stToStr (st : TElementType) : string;
 begin
   case st of
      symInteger  : result := 'integer';

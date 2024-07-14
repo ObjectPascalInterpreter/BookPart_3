@@ -105,7 +105,7 @@ begin
      case sym.symbolType of
        symInteger : TVM (vm).push(sym.iValue);
        symDouble : TVM (vm).push(sym.dValue);
-       symUserFunc : TVM (vm).push(sym.fValue);
+       symUserFunc : TVM (vm).push(sym.dataObject);
        symModule : TVM (vm).push(sym.mValue);
      else
         raise ERuntimeException.Create('Type not supported in findSymbol');

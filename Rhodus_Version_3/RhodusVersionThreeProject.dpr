@@ -34,7 +34,7 @@
 
 uses
   //{$IFDEF DEBUG}
-FastMM5,
+//FastMM5,
   //{$ENDIF }
   Windows,
   ShellAPI,
@@ -110,7 +110,7 @@ FastMM5,
 
 begin
   //FastMM_SetEventLogFilename('D:\log.txt');
-  FastMM_EnterDebugMode;
+  //FastMM_EnterDebugMode;
   ReportMemoryLeaksOnShutdown := True;
   setUpConsole;
   setExtendedConsoleMode; // To get more colors

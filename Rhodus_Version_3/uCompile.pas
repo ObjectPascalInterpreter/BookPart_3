@@ -580,8 +580,8 @@ begin
 
     if currentModule.symbolTable.find(functionNode.functionName, symbol) then
        begin
-       symbol.fValue.blockType := btGarbage;
-       symbol.fValue := currentUserFunction;
+       symbol.dataObject.blockType := btGarbage;
+       symbol.dataObject := currentUserFunction;
        end
     else
        currentModule.symbolTable.addSymbol(currentUserFunction, false);
@@ -864,7 +864,7 @@ begin
   paths := SysLibraryRef.find ('path').dataObject as TListObject;
   for var i := 0 to paths.list.Count - 1 do
       begin
-      if fileExists (TStringObject(paths.list[i].obj).value + '\\' + node.importName + '.rh') then
+      if fileExists (TStringObject(paths.list[i].dataObject).value + '\\' + node.importName + '.rh') then
          begin
          found := i;
          break;
@@ -873,7 +873,7 @@ begin
   if found = -1 then
      raise ECompilerException.Create('Unable to locate imported module: ' + node.importName, 0, 0)
   else
-     path := TStringObject(paths.list[found].obj).value + '\\' + node.importName + '.rh';
+     path := TStringObject(paths.list[found].dataObject).value + '\\' + node.importName + '.rh';
 
   // If a module of that name has already been loaded we just get out.
   if currentModule.symbolTable.find(node.importName, symbol) then

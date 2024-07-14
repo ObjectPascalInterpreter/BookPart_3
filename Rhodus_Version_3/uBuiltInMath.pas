@@ -119,11 +119,11 @@ begin
    case st.stackType of
        symInteger : TVM (vm).push(sin (st.iValue));
        symDouble  : TVM (vm).push (sin (st.dValue));
-       symValueObject : TVM (vm).push (sin (TValueObject.getValue(st.obj as TValueObject)));
-       symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.obj, sin));
+       symValueObject : TVM (vm).push (sin (TValueObject.getValue(st.dataObject as TValueObject)));
+       symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.dataObject, sin));
 
        symArray   : begin
-                   TVM (vm).push(TArrayObject (st.obj).applyUniFunction(sin));
+                   TVM (vm).push(TArrayObject (st.dataObject).applyUniFunction(sin));
                    end
   else
       raiseMathError ('sin');
@@ -138,10 +138,10 @@ begin
    case st.stackType of
        symInteger : TVM (vm).push(cos (st.iValue));
        symDouble : TVM (vm).push (cos (st.dValue));
-       symValueObject : TVM (vm).push (cos (TValueObject.getValue(st.obj as TValueObject)));
-       symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.obj, cos));
+       symValueObject : TVM (vm).push (cos (TValueObject.getValue(st.dataObject as TValueObject)));
+       symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.dataObject, cos));
        symArray : begin
-                 TVM (vm).push(TArrayObject (st.obj).applyUniFunction(cos));
+                 TVM (vm).push(TArrayObject (st.dataObject).applyUniFunction(cos));
                  end
   else
       raiseMathError ('cos');
@@ -156,11 +156,11 @@ begin
    case st.stackType of
        symInteger : TVM (vm).push(tan (st.iValue));
        symDouble : TVM (vm).push (tan (st.dValue));
-       symValueObject : TVM (vm).push (tan (TValueObject.getValue(st.obj as TValueObject)));
-      symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.obj, tan));
+       symValueObject : TVM (vm).push (tan (TValueObject.getValue(st.dataObject as TValueObject)));
+      symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.dataObject, tan));
 
        symArray : begin
-                 TVM (vm).push(TArrayObject (st.obj).applyUniFunction(tan));
+                 TVM (vm).push(TArrayObject (st.dataObject).applyUniFunction(tan));
                  end
   else
       raiseMathError ('tan');
@@ -175,10 +175,10 @@ begin
    case st.stackType of
        symInteger : TVM (vm).push(arcsin (st.iValue));
        symDouble : TVM (vm).push (arcsin (st.dValue));
-  symValueObject : TVM (vm).push (arcsin (TValueObject.getValue(st.obj as TValueObject)));
-      symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.obj, arcsin));
+  symValueObject : TVM (vm).push (arcsin (TValueObject.getValue(st.dataObject as TValueObject)));
+      symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.dataObject, arcsin));
        symArray : begin
-                 TVM (vm).push(TArrayObject (st.obj).applyUniFunction(arcsin));
+                 TVM (vm).push(TArrayObject (st.dataObject).applyUniFunction(arcsin));
                  end
   else
       raiseMathError ('arcsin');
@@ -193,11 +193,11 @@ begin
    case st.stackType of
        symInteger : TVM (vm).push(arccos (st.iValue));
        symDouble : TVM (vm).push (arccos (st.dValue));
-       symValueObject : TVM (vm).push (arccos (TValueObject.getValue(st.obj as TValueObject)));
-      symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.obj, arccos));
+       symValueObject : TVM (vm).push (arccos (TValueObject.getValue(st.dataObject as TValueObject)));
+      symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.dataObject, arccos));
 
        symArray : begin
-                 TVM (vm).push(TArrayObject (st.obj).applyUniFunction(arccos));
+                 TVM (vm).push(TArrayObject (st.dataObject).applyUniFunction(arccos));
                  end
   else
       raiseMathError ('arccos');
@@ -212,10 +212,10 @@ begin
    case st.stackType of
        symInteger : TVM (vm).push(arctan (st.iValue));
        symDouble : TVM (vm).push (arctan (st.dValue));
-       symValueObject : TVM (vm).push (arctan (TValueObject.getValue(st.obj as TValueObject)));
-       symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.obj, arctan));
+       symValueObject : TVM (vm).push (arctan (TValueObject.getValue(st.dataObject as TValueObject)));
+       symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.dataObject, arctan));
        symArray : begin
-                 TVM (vm).push(TArrayObject (st.obj).applyUniFunction(arctan));
+                 TVM (vm).push(TArrayObject (st.dataObject).applyUniFunction(arctan));
                  end
   else
       raiseMathError ('arctan');
@@ -230,11 +230,11 @@ begin
    case st.stackType of
        symInteger : TVM (vm).push(sqrt (st.iValue));
        symDouble : TVM (vm).push (sqrt (st.dValue));
-       symValueObject : TVM (vm).push (sqrt (TValueObject.getValue(st.obj as TValueObject)));
-      symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.obj, sqrt));
+       symValueObject : TVM (vm).push (sqrt (TValueObject.getValue(st.dataObject as TValueObject)));
+      symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.dataObject, sqrt));
 
        symArray : begin
-                 TVM (vm).push(TArrayObject (st.obj).applyUniFunction(sqrt));
+                 TVM (vm).push(TArrayObject (st.dataObject).applyUniFunction(sqrt));
                  end
   else
       raiseMathError ('sqrt');
@@ -255,11 +255,11 @@ begin
    case st.stackType of
        symInteger : TVM (vm).push(sqr (st.iValue));
        symDouble : TVM (vm).push (sqr (st.dValue));
-       symValueObject : TVM (vm).push (sqr (TValueObject.getValue(st.obj as TValueObject)));
-      symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.obj, dsqr));
+       symValueObject : TVM (vm).push (sqr (TValueObject.getValue(st.dataObject as TValueObject)));
+      symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.dataObject, dsqr));
 
        symArray : begin
-                 TVM (vm).push(TArrayObject (st.obj).applyUniFunction(dSqr));
+                 TVM (vm).push(TArrayObject (st.dataObject).applyUniFunction(dSqr));
                  end
   else
       raiseMathError ('sqr');
@@ -274,11 +274,11 @@ begin
    case st.stackType of
        symInteger : TVM (vm).push(exp (st.iValue));
        symDouble : TVM (vm).push (exp (st.dValue));
-       symValueObject : TVM (vm).push (exp (TValueObject.getValue(st.obj as TValueObject)));
-      symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.obj, exp));
+       symValueObject : TVM (vm).push (exp (TValueObject.getValue(st.dataObject as TValueObject)));
+      symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.dataObject, exp));
 
        symArray : begin
-                 TVM (vm).push(TArrayObject (st.obj).applyUniFunction(exp));
+                 TVM (vm).push(TArrayObject (st.dataObject).applyUniFunction(exp));
                  end
   else
       raiseMathError ('exp');
@@ -293,11 +293,11 @@ begin
    case st.stackType of
        symInteger : TVM (vm).push(ln (st.iValue));
        symDouble : TVM (vm).push (ln (st.dValue));
-       symValueObject : TVM (vm).push(ln ((st.obj as TValueObject).dValue));
-       symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.obj, ln));
+       symValueObject : TVM (vm).push(ln ((st.dataObject as TValueObject).dValue));
+       symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.dataObject, ln));
 
        symArray : begin
-                 TVM (vm).push(TArrayObject (st.obj).applyUniFunction(ln));
+                 TVM (vm).push(TArrayObject (st.dataObject).applyUniFunction(ln));
                  end
   else
       raiseMathError ('ln');
@@ -312,11 +312,11 @@ begin
    case st.stackType of
        symInteger : TVM (vm).push(log10 (st.iValue));
        symDouble : TVM (vm).push (log10 (st.dValue));
-       symValueObject : TVM (vm).push (log10 (TValueObject.getValue(st.obj as TValueObject)));
-      symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.obj, log10));
+       symValueObject : TVM (vm).push (log10 (TValueObject.getValue(st.dataObject as TValueObject)));
+      symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.dataObject, log10));
 
        symArray : begin
-                 TVM (vm).push(TArrayObject (st.obj).applyUniFunction(log10));
+                 TVM (vm).push(TArrayObject (st.dataObject).applyUniFunction(log10));
                  end
   else
       raiseMathError ('log10');
@@ -341,11 +341,11 @@ begin
    case st.stackType of
        symInteger : TVM (vm).push(iabs (st.iValue));
        symDouble : TVM (vm).push (dAbs (st.dValue));
-       symValueObject : TVM (vm).push (dAbs (TValueObject.getValue(st.obj as TValueObject)));
-      symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.obj, dabs));
+       symValueObject : TVM (vm).push (dAbs (TValueObject.getValue(st.dataObject as TValueObject)));
+      symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.dataObject, dabs));
 
        symArray : begin
-                 TVM (vm).push(TArrayObject (st.obj).applyUniFunction(dabs));
+                 TVM (vm).push(TArrayObject (st.dataObject).applyUniFunction(dabs));
                  end
   else
       raiseMathError ('abs');
@@ -365,11 +365,11 @@ begin
    case st.stackType of
        symInteger : TVM (vm).push(round (st.iValue));
        symDouble : TVM (vm).push (round (st.dValue));
-       symValueObject : TVM (vm).push (dround (TValueObject.getValue(st.obj as TValueObject)));
-      symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.obj, dRound));
+       symValueObject : TVM (vm).push (dround (TValueObject.getValue(st.dataObject as TValueObject)));
+      symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.dataObject, dRound));
 
        symArray : begin
-                 TVM (vm).push(TArrayObject (st.obj).applyUniFunction(dRound));
+                 TVM (vm).push(TArrayObject (st.dataObject).applyUniFunction(dRound));
                  end
   else
       raiseMathError ('round');
@@ -389,11 +389,11 @@ begin
    case st.stackType of
        symInteger : TVM (vm).push(ceil (st.iValue));
        symDouble : TVM (vm).push (ceil (st.dValue));
-       symValueObject : TVM (vm).push (ceil (TValueObject.getValue(st.obj as TValueObject)));
-      symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.obj, dCeil));
+       symValueObject : TVM (vm).push (ceil (TValueObject.getValue(st.dataObject as TValueObject)));
+      symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.dataObject, dCeil));
 
        symArray : begin
-                 TVM (vm).push(TArrayObject (st.obj).applyUniFunction(dCeil));
+                 TVM (vm).push(TArrayObject (st.dataObject).applyUniFunction(dCeil));
                  end
   else
       raiseMathError ('ceil');
@@ -414,11 +414,11 @@ begin
    case st.stackType of
        symInteger : TVM (vm).push(floor (st.iValue));
        symDouble : TVM (vm).push (floor (st.dValue));
-       symValueObject : TVM (vm).push (floor (TValueObject.getValue(st.obj as TValueObject)));
-      symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.obj, dFloor));
+       symValueObject : TVM (vm).push (floor (TValueObject.getValue(st.dataObject as TValueObject)));
+      symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.dataObject, dFloor));
 
        symArray : begin
-                 TVM (vm).push(TArrayObject (st.obj).applyUniFunction(dFloor));
+                 TVM (vm).push(TArrayObject (st.dataObject).applyUniFunction(dFloor));
                  end
   else
       raiseMathError ('floor');
@@ -439,11 +439,11 @@ begin
    case st.stackType of
        symInteger : TVM (vm).push(trunc (st.iValue));
        symDouble : TVM (vm).push (trunc (st.dValue));
-       symValueObject : TVM (vm).push (trunc (TValueObject.getValue(st.obj as TValueObject)));
-      symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.obj, dtrunc));
+       symValueObject : TVM (vm).push (trunc (TValueObject.getValue(st.dataObject as TValueObject)));
+      symMatrix: TVM(vm).push(TMatrixObject.applyUniFunction(st.dataObject, dtrunc));
 
        symArray : begin
-                 TVM (vm).push(TArrayObject (st.obj).applyUniFunction(dTrunc));
+                 TVM (vm).push(TArrayObject (st.dataObject).applyUniFunction(dTrunc));
                  end
   else
       raiseMathError ('trun');

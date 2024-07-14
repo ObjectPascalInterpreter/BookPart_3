@@ -27,6 +27,7 @@ type
       class function getValue(value : TValueObject) : double;
 
       function  isEqualTo (value : double) : boolean;
+      class function  minus (value : TValueObject) : double;
       function  ToString : string;  override;
 
       function  clone : TDataObject; override;
@@ -126,6 +127,19 @@ begin
   else
    raiseInternalError('Internal error in getValue (uValueObject), missing type: ' + inttostr (integer (value.valueType)));
   end;
+end;
+
+
+class function TValueObject.minus (value : TValueObject) : double;
+begin
+  result := 0;
+  case value.valueType of
+    vtInteger : result := -value.iValue;
+    vtDouble : result := -value.dValue;
+  else
+   raiseInternalError('Internal error in minis (uValueObject), missing type: ' + inttostr (integer (value.valueType)));
+  end;
+
 end;
 
 

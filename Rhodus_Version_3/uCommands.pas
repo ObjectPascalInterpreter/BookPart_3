@@ -94,7 +94,7 @@ begin
       else
          writeln (listOfCommands[i].name + #9#9 + listOfCommands[i].helpStr);
 
-  writeln ('symbols'#9#9'Display symbols in a module, eg symbols(lists) or symbols (getMain())');
+  writeln ('symbols'#9#9'Display symbols in a module, eg symbols(lists) or symbols (main())');
   writeln ('#p'#9#9'Start a multi-line program (q or return to finish)');
   writeln ('');
   writeln ('Type modules() to get a list of loaded modules');
@@ -184,7 +184,7 @@ begin
   mstr := memoryList.mapMemory;
   if mstr <> '' then
      writeln ('Memory Map: ' + sLineBreak + mstr);
-  writeln ('Memory allocated: ', getMemoryAllocated - baseLineMemoryAllocated);
+  writeln ('Memory allocated (in bytes): ', getMemoryAllocated - baseLineMemoryAllocated);
   writeln ('Instance size for main module: ', mainModule.getSize());
   writeln ('Constant table size : ', mainModule.moduleProgram.constantValueTable.getSize);
   result := true;

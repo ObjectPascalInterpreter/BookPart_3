@@ -268,6 +268,93 @@ Search path for Rhodus import libraries
 x = sys.path
 ##########
 ---------- module
+mat
+2D Matrix support library
+startMethod
+method
+rnd
+rnd(int,int)
+Create an array, n by m of uniformly random numbers: m = mat.rnd (4,4)
+m = mat.rnd (4 ,4)
+##########
+startMethod
+method
+ident
+ident(int)
+Create an identity matrix of given size
+ m = mat.ident (4)
+##########
+startMethod
+method
+matrix
+matrix(int, int)
+Create an matrix of zeros of given size.
+m = mat.matrix (3, 2)
+##########
+startMethod
+method
+rndi
+rndi(int(n), int(m), int(lower), int(upper))
+Create a matrix of give size n by m of uniformly random integers between lower and upper.
+m = mat.rndi (3, 2, lower, upper)
+##########
+startMethod
+method
+csv
+csv(matrix)
+Convert a matrix to a csv string.
+astr = mat.csv (m)
+##########
+startMethod
+method
+inv
+inv(matrix)
+Compute inverse of a matrix.
+m = mat.inv (m)
+##########
+startMethod
+method
+det
+det(matrix)
+Compute the deteminant of a matrix.
+d = mat.det (m)
+##########
+startMethod
+method
+tr
+tr(matrix)
+Compute the transpose of a matrix.
+q = mat.tr (m)
+##########
+startMethod
+method
+lu
+lu(matrix)
+Compute the LU decompositon of a matrix.
+[L, U, P] = mat.lu (m)
+##########
+startMethod
+method
+qr
+qr(matrix)
+Compute the QR decompositon of a matrix.
+[Q, R] = mat.qr (m)
+##########
+startMethod
+method
+rref
+rref(matrix)
+Compute the reduced row echelon of a matrix.
+q = mat.rref (m)
+##########
+startMethod
+method
+solve
+solve(A, b)
+Solve: x = mat.solve (m, b). b must be a column matrix.
+x = mat.solve ({{1,2},{3,4}}, {{5},{7}})
+##########
+---------- module
 lists
 This is the lists module
 startMethod
@@ -309,6 +396,37 @@ m.cols ()
 Get the number of cols in the matrix: var.cols()
 n = m.cols()
 println (p.cols())
+##########
+startMethod
+shape
+m.shape ()
+Get the shape of the matrix, that is rows by columns
+[nrows, ncols] = m.shape()
+println (p.shape())
+##########
+startMethod
+row
+m.row (int)
+Extract a column from the matrix
+col = m.col(1)
+##########
+startMethod
+col
+m.col (int)
+Extract a row from the matrix
+row = m.row(2)
+##########
+startMethod
+toArray
+m.toArray ()
+Convert a matrix to an array.
+a = m.toArray(m)
+##########
+startMethod
+toList
+m.toList ()
+Convert a matrix to a list.
+l = m.row()
 ##########
 end
 

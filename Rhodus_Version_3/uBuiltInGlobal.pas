@@ -927,7 +927,7 @@ begin
   if isDataObject (stackType) then
      begin
      obj := TVM (vm).pop.dataObject;
-     astr := '# **' + obj.methods.helpStr + '**' + sLineBreak + sLineBreak;
+     astr := '# **' + obj.methods.help.description + '**' + sLineBreak + sLineBreak;
      astr := astr + '---' + sLineBreak;
 
      astr := astr + '## Associated Methods:' + sLineBreak;

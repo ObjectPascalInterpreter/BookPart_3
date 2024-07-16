@@ -454,8 +454,8 @@ begin
 
         registerRuntimeWithConsole (self);
  
-        vm.registerPrintCallBack (printCallBack); //printcallBack);
-        vm.registerPrintlnCallBack (printLnCallBack); //printlnCallBack);
+        vm.registerPrintCallBack (printCallBack);
+        vm.registerPrintlnCallBack (printLnCallBack);
         vm.registerSetColorcallBack (setColorCallBack);
         vm.registerReadStringCallBack (readStringCallBack);
 

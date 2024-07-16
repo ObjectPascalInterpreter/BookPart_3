@@ -69,25 +69,24 @@ constructor TBuiltInMatrix.Create;
 begin
   inherited Create ('mat');
 
-  addMethod(ident,          1, 'ident', 'Create an identity matrix: m = mat.ident (4)');
-  addMethod(createMatrix,   2, 'matrix', 'Create an matrix of given size: m = mat.matrix (3, 2)');
-  addMethod(rndu,           2, 'rnd',  'Create an array of uniformly random numbers: m = mat.rnd (4,4)');
-  addMethod(rndi,           4, 'rndi', 'Create a matrix of uniformly random integers: m = mat.rndi (3, 2, lower, upper)');
+  addMethod(ident,           1, 'ident');
+  addMethod(createMatrix,    2, 'matrix');
+  addMethod(rndu,            2, 'rnd');
+  addMethod(rndi,            4, 'rndi');
+  addMethod(getCSV,         1, 'csv');
 
-  addMethod(getCSV,         1, 'csv', 'Convert a matrix to a csv string: astr = mat.csv (m)');
-
+  // Not sure if we need these.
   //addMethod(mult,           2, 'mult',  'Multiply two 2D matrices: m = mat.mult (m1, m2)');
   //addMethod(add,            2, 'add',   'Add two 2D matrices: m = mat.add (m1, m2)');
   //addMethod(sub,            2, 'sub',   'Subtract two 2D matrices: m = mat.sub (m1, m2)');
 
-
-  addmethod(inverse,        1, 'inv',   'Compute inverse of matrix: m = mat.inv (m)');
-  addmethod(LU,             1, 'lu',    'Compute the LU decompositon of a matrix: d = mat.lu (m)');
-  addmethod(QR,             1, 'qr',    'Compute the QR decompositon of a matrix: d = mat.qr (m)');
-  addmethod(reducedechelon, 1, 'rref',  'Compute the reduced row echelon of a matrix: d = mat.rref (m)');
-  addmethod(det,            1, 'det',   'Compute the determinant of a matrix: d = mat.det (m)');
-  addmethod(transpose,      1, 'tr',    'Get the transpose of the matrix: m = mat.tr (m)');
-  addmethod(solve,          2, 'solve',  'Solve: x = mat.solve (m, b)');
+   addmethod(inverse,        1, 'inv');
+  addmethod(LU,             1, 'lu');
+  addmethod(QR,             1, 'qr');
+  addmethod(reducedechelon, 1, 'rref');
+  addmethod(det,            1, 'det');
+  addmethod(transpose,      1, 'tr');
+  addmethod(solve,          2, 'solve');
 end;
 
 

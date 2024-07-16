@@ -209,7 +209,9 @@ Uses uVM,
      uBuiltInRandom,
      uListOfBuiltIns,
      uBuiltInOS, 
-     uBuiltInStr, 
+     uBuiltInStr,
+     uBuiltInMatrix,
+     uBuiltInArray,
      uBuiltInFile,
      uBuiltInConfig,
      uBuiltInSys,
@@ -229,6 +231,8 @@ begin
   // Import the common modules.
   addModule (module, TBuiltInList.Create);
   addModule (module, TBuiltInStr.Create);
+  addModule (module, TBuiltInMatrix.Create);
+  addModule (module, TBuiltInArray.Create);
 
   // Needed by the compiler to access the path variable
   SysLibraryRef := TBuiltInSys.Create;
@@ -236,8 +240,6 @@ begin
 
   // Uncomment if you want to enable turtle support.
   //addModule (module, TBuiltInTurtle.Create);
-
-  //addModule (module, TBuiltInPlotter.Create);
 end;
 
 // -------------------------------------------------------------------------------

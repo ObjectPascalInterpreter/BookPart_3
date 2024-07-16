@@ -113,18 +113,16 @@ constructor TMatrixMethods.Create;
 begin
   methodList := TMethodList.Create (self);
 
-  self.helpStr := 'Matrix Type';
-
   // -1 means variable arguments, use the constant VARIABLE_ARGS for this
 
   methodList.Add(TMethodDetails.Create ('rows', 'MatrixObject', 0, getNumRows));
   methodList.Add(TMethodDetails.Create ('cols', 'MatrixObject', 0, getNumCols));
-  methodList.Add(TMethodDetails.Create ('shape',   0, 'get the shape of the matrix var.shape()', getShape));
-  methodList.Add(TMethodDetails.Create ('row',     1, 'extract a column: var.ec(n)', getRow));
-  methodList.Add(TMethodDetails.Create ('col',     1, 'extract a row: var.er(n)', getColumn));
+  methodList.Add(TMethodDetails.Create ('shape','MatrixObject', 0, getShape));
+  methodList.Add(TMethodDetails.Create ('row',  'MatrixObject', 1, getRow));
+  methodList.Add(TMethodDetails.Create ('col',  'MatrixObject', 1, getColumn));
 
-  methodList.Add(TMethodDetails.Create ('toArray', 0, 'Convert a matrix to an array: a = m.toArray()', getToArray));
-  methodList.Add(TMethodDetails.Create ('toList',  0, 'Convert a matrix to a list: l = m.toList()', getToList));
+  methodList.Add(TMethodDetails.Create ('toArray', 'MatrixObject', 0, getToArray));
+  methodList.Add(TMethodDetails.Create ('toList',  'MatrixObject', 0, getToList));
 end;
 
 destructor TMatrixMethods.Destroy;

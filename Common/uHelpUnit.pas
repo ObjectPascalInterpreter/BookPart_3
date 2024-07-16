@@ -712,7 +712,6 @@ begin
   else
     raise Exception.CreateFmt('Unknown method type: %s', [Str]);
 end;
-
 function StringToRecordType(const Str: string): TRecordType;
 begin
   if Str = 'rtModule' then
@@ -722,7 +721,6 @@ begin
   else
     raise Exception.CreateFmt('Unknown record type: %s', [Str]);
 end;
-
 procedure ImportFromJSON(const FileName: string; out HelpArray: THArrayOfHelp);
 var
   JSONObject: TJSONObject;
@@ -745,19 +743,15 @@ begin
       begin
         JSONObject := TJSONObject(JSONValue);
         JSONArray := JSONObject.GetValue<TJSONArray>('listOfHelpEntries');
-
         SetLength(HelpArray, JSONArray.Count);
-
         for i := 0 to JSONArray.Count - 1 do
         begin
           HelpObject := JSONArray.Items[i] as TJSONObject;
           HelpItem.recordType := StringToRecordType(HelpObject.GetValue<string>('recordType'));
           HelpItem.name := HelpObject.GetValue<string>('moduleName');
           HelpItem.description := HelpObject.GetValue<string>('description');
-
           MethodArray := HelpObject.GetValue<TJSONArray>('methods');
           SetLength(HelpItem.methods, MethodArray.Count);
-
           for j := 0 to MethodArray.Count - 1 do
           begin
             MethodObject := MethodArray.Items[j] as TJSONObject;
@@ -765,17 +759,14 @@ begin
             MethodItem.methodName := MethodObject.GetValue<string>('methodName');
             MethodItem.signature := MethodObject.GetValue<string>('signature');
             MethodItem.description := MethodObject.GetValue<string>('description');
-
             ExampleArray := MethodObject.GetValue<TJSONArray>('examples');
             SetLength(MethodItem.examples, ExampleArray.Count);
             for var k := 0 to ExampleArray.Count - 1 do
             begin
               MethodItem.examples[k] := ExampleArray.Items[k].Value;
             end;
-
             HelpItem.methods[j] := MethodItem;
           end;
-
           HelpArray[i] := HelpItem;
         end;
       end
@@ -801,7 +792,6 @@ begin
     Result := 'Unknown';
   end;
 end;
-
 function RecordTypeToString(rt: TRecordType): string;
 begin
   case rt of
@@ -811,7 +801,6 @@ begin
     Result := 'Unknown';
   end;
 end;
-
 procedure ExportToJSON(const HelpArray: THArrayOfHelp; const FileName: string);
 var
   JSONObject: TJSONObject;
@@ -834,7 +823,6 @@ begin
       HelpObject.AddPair('recordType', RecordTypeToString(HelpItem.recordType));
       HelpObject.AddPair('moduleName', HelpItem.name);
       HelpObject.AddPair('description', HelpItem.description);
-
       MethodArray := TJSONArray.Create;
       for j := 0 to Length(HelpItem.methods) - 1 do
       begin
@@ -844,24 +832,19 @@ begin
         MethodObject.AddPair('methodName', MethodItem.methodName);
         MethodObject.AddPair('signature', MethodItem.signature);
         MethodObject.AddPair('description', MethodItem.description);
-
         ExampleArray := TJSONArray.Create;
         for var example in MethodItem.examples do
         begin
           ExampleArray.Add(example);
         end;
         MethodObject.AddPair('examples', ExampleArray);
-
         MethodArray.AddElement(MethodObject);
       end;
       HelpObject.AddPair('methods', MethodArray);
-
       JSONArray.AddElement(HelpObject);
     end;
-
     JSONObject := TJSONObject.Create;
     JSONObject.AddPair('listOfHelpEntries', JSONArray);
-
     JSONWriter := TStreamWriter.Create(FileName, False, TEncoding.UTF8);
     try
       JSONWriter.Write(JSONObject.ToString);

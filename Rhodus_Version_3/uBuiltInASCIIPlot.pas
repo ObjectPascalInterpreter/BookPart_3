@@ -81,7 +81,7 @@ type
 
 var
   MaxHeightBars : integer = MAX_HEIGHT;
-  barCHar : string = BAR_CHAR;
+  barChar : string = BAR_CHAR;
 
 constructor TBuiltInASCIIPlot.Create;
 begin

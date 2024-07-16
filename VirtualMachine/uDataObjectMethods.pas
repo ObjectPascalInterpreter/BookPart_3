@@ -48,7 +48,7 @@ type
    TMethodsBase = class (TObject)
      methodList : TMethodList;
      help : TDataObjectHelp;
-     helpStr : string;   // Use to add a description of the dataobject
+     //helpStr : string;   // Use to add a description of the dataobject
      procedure   dir (vm : TObject);
      procedure   getHelp (vm : TObject);
      constructor Create;

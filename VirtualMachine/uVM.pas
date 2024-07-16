@@ -1500,7 +1500,7 @@ symValueObject : begin
              // it called via the valueObjects help method.
              vo := TValueObject.Create(33);
              vo.blockType := btGarbage;
-             vo.help := THelp.Create;
+             vo.help := THelpModule.Create;
              case primary.stackType  of
                symInteger : vo.help.description := 'This is an integer that has a value of: ' + inttostr (primary.iValue);
                symDouble : vo.help.description := 'This is a double that has a value of: ' + floattostr (primary.dValue);

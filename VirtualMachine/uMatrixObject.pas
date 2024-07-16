@@ -86,6 +86,8 @@ type
   end;
 
 
+  procedure createAndAttachMethods;
+
 
 implementation
 
@@ -100,20 +102,29 @@ Uses Math, uVM,
      uSymbolTable;
 
 
+
+procedure createAndAttachMethods;
+begin
+  TMatrixObject.matrixMethods := TMatrixMethods.Create;
+end;
+
+
 constructor TMatrixMethods.Create;
 begin
   methodList := TMethodList.Create (self);
 
+  self.helpStr := 'Matrix Type';
+
   // -1 means variable arguments, use the constant VARIABLE_ARGS for this
 
-  methodList.Add(TMethodDetails.Create ('rows',    0, 'get the number of rows in the matrix var.cols()', getNumRows));
-  methodList.Add(TMethodDetails.Create ('cols',    0, 'get the number of columns in the matrix var.cols()', getNumCols));
+  methodList.Add(TMethodDetails.Create ('rows', 'MatrixObject', 0, getNumRows));
+  methodList.Add(TMethodDetails.Create ('cols', 'MatrixObject', 0, getNumCols));
   methodList.Add(TMethodDetails.Create ('shape',   0, 'get the shape of the matrix var.shape()', getShape));
-  methodList.Add(TMethodDetails.Create ('row',      1, 'extract a column: var.ec(n)', getRow));
-  methodList.Add(TMethodDetails.Create ('col',      1, 'extract a row: var.er(n)', getColumn));
+  methodList.Add(TMethodDetails.Create ('row',     1, 'extract a column: var.ec(n)', getRow));
+  methodList.Add(TMethodDetails.Create ('col',     1, 'extract a row: var.er(n)', getColumn));
 
-  methodList.Add(TMethodDetails.Create ('toArray', 0, 'Convert a matrix to an array: m = mat.toArray()', getToArray));
-  methodList.Add(TMethodDetails.Create ('toList',  0, 'Convert a matrix to a list: m = mat.toList()', getToList));
+  methodList.Add(TMethodDetails.Create ('toArray', 0, 'Convert a matrix to an array: a = m.toArray()', getToArray));
+  methodList.Add(TMethodDetails.Create ('toList',  0, 'Convert a matrix to a list: l = m.toList()', getToList));
 end;
 
 destructor TMatrixMethods.Destroy;
@@ -661,7 +672,7 @@ end;
 
 initialization
    // Initialize the class varialbe tha tpoints to the methods list
-   TMatrixObject.matrixMethods := TMatrixMethods.Create;
+   //TMatrixObject.matrixMethods := TMatrixMethods.Create;
 finalization
    TMatrixObject.matrixMethods.Free;
 end.

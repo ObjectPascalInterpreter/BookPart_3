@@ -23,10 +23,12 @@ var
 
 implementation
 
+Uses uTerminal;
 
 procedure setUpEnvironment (appExe : string);
 var s1 : string;
 begin
+   clearConsoleScreen;
    writeln ('Setting up environment....');
    launchEnvironment.executionPath := ExtractFilePath (appExe);
 
@@ -37,11 +39,12 @@ begin
       launchEnvironment.moduleDir := launchEnvironment.executionPath + '\\Modules'
       end
    else
-      // I'm guaess this is a dev enviornment and the directory is two levels up
+      // I'm guessing this is a dev enviornment and the directory is two levels up
       begin
       writeln ('Modules dir not found....guessing its two directories up');
       if TDirectory.Exists('..\\..\\Modules') then
          begin
+         writeln ('I was right, I found it. Looks like we''re running from a standard setup');
          s1 := TDirectory.GetParent(ExcludeTrailingPathDelimiter(launchEnvironment.executionPath));
          s1 := TDirectory.GetParent(ExcludeTrailingPathDelimiter(s1));
          launchEnvironment.moduleDir := s1 + '\\Modules';
@@ -50,7 +53,6 @@ begin
       else
          launchEnvironment.moduleDir := launchEnvironment.executionPath;
      end;
-   exit;
 end;
 
 

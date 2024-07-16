@@ -20,11 +20,24 @@ interface
 Uses System.Classes,
      System.SysUtils,
      Generics.Collections,
-     System.JSON, IOUtils, System.Types;
+     System.TypInfo,
+     System.JSON,
+     IOUtils,
+     System.Types;
 
 type
-  THMethodType = (hmtMethod, hmtValue);
-  THMethod = record
+  // Used to load help into methods that are part of dataobject
+  THelpRecord = record
+     m : string;  // method name
+     d : string;  // description
+     s : string;  // signature
+     e : TArray<string>; // examples
+  end;
+
+
+  THMethodType = (hmtMethod, hmtValue);//, hmtDataObject);
+  TRecordType = (rtModule, rtDataObject);
+  THRecord = record
     methodType : THMethodType;
     methodName: string;
     signature: string;
@@ -32,32 +45,45 @@ type
     examples: TArray<string>;
   end;
 
-  THModule = record
+  THCommonHelp = record
+    recordType : TRecordType;
     name: string;
     description: string;
-    methods: TArray<THMethod>;
+    methods: TArray<THRecord>;
   end;
 
-  THModules = TArray<THModule>;
+  // This temporarily stores help info on all the different
+  // types as we read it in from the simple text file.
+  THArrayOfHelp = TArray<THCommonHelp>;
+
+  THelpBase = class (TObject)
+      description : string;
+      methodName : string;
+      signature : string;
+      examples : TArray<string>;
+      function getHelp : string; virtual; abstract;
+  end;
 
   THelpType = (htMethod, htModule, htValue);
-  THelp = class (TObject)
+
+  TDataObjectHelp = class (THelpBase)
+      dataObjectName : string;
+      function getHelp : string;  override;
+      constructor CreateObjectMethodHelp(dataObjectName : string; methodName : string);
+  end;
+
+  THelpModule = class (THelpBase)
     private
       helpType : THelpType;
     public
       moduleName : string;
-      methodName : string;
       valueName : string;
-      signature : string;
-      description : string;
-      examples : TArray<string>;
 
       function getHelp : string;
-      function clone : THelp;
+      function clone : THelpModule;
 
       function toLatex : string;
-
-      class var count : integer;
+      function toMarkdown : string;
 
       constructor Create;  overload;
 
@@ -65,35 +91,37 @@ type
 
       constructor CreateMethod (moduleName, methodName : string);
       constructor CreateValue (moduleName, valueName : string);
-
       constructor CreateModule (moduleName : string); overload;
+
       constructor Create (moduleName, name, description : string; examples : TArray<string>); overload;
       constructor Create (moduleName, name, signature, description : string; examples : TArray<string>);  overload;
       destructor  Destroy; override;
   end;
 
+
   THelpDb = class (TObject)
     private
       alist : TArray<string>;
       position : integer;
-      numModules, numMethods : integer;
+      numModules, numMethods, numDataObjects : integer;
 
-      modules: THModules;
+      arrayOfHelp: THArrayOfHelp;
 
       function loadFromResource : string;
 
-      function WriteModulesToJson(const Modules: THModules): string;
+      procedure parseModule  (var generics : THArrayOfHelp);
+      procedure parseMethod (var generics : THArrayOfHelp);
+      procedure parseDataObject (var generics : THArrayOfHelp);
+      procedure parseDataObjectMethod (var generics : THArrayOfHelp);
 
-      procedure parseModule  (var modules : THModules);
-      procedure parseMethod (modules : THModules);
+      function findModule (name : string) : THCommonHelp;
 
-      function findModule (name : string) : THModule;
-
-      function findMethodInModule (moduleName, methodName : string; var mth : THMethod) : boolean;
-      function findValueInModule  (moduleName, ValueName : string; var mth : THMethod)  : boolean;
+      function findMethodInModule (moduleName, methodName : string; var mth : THRecord) : boolean;
+      function findValueInModule  (moduleName, ValueName : string; var mth : THRecord)  : boolean;
+      function findMethodInDataObject (dataObjectName: string; methodName : string; var mth : THRecord) : boolean;
 
     public
-      function  readTextFile : THModules;
+      function  readTextFile : THArrayOfHelp;
       procedure loadHelpDatabase;
   end;
 
@@ -112,14 +140,50 @@ begin
 end;
 
 
-constructor THelp.Create;
+// ------------------------------------------------------------------------
+
+constructor TDataObjectHelp.CreateObjectMethodHelp (dataObjectName : string; methodName : string);
+var mth : THRecord;
+begin
+  self.dataObjectName := dataObjectName;
+
+  if HelpDb.findMethodInDataObject (dataObjectName, methodName, mth) then
+     begin
+     self.methodName := mth.methodName;
+     self.description := mth.description;
+     self.signature := mth.signature;
+     self.examples := mth.examples;
+     end;
+end;
+
+
+function TDataObjectHelp.getHelp : string;
+var i : integer;
+begin
+   if methodName <> '' then
+      result := result + 'Method: ' + methodName + sLineBreak;
+   if signature <> ''  then
+      result := result + '' + signature + sLineBreak;
+   result := result + '   ' + description;
+   if length (examples) > 0 then
+      begin
+      result := result + sLineBreak + sLineBreak + 'Examples:';
+      for i := 0 to length (examples) - 1 do
+      result :=  result + sLineBreak + '  ' + examples[i];
+      end;
+end;
+
+
+// ------------------------------------------------------------------------
+
+
+constructor THelpModule.Create;
 begin
   inherited;
-  THelp.count := THelp.Count + 1;
 end;
 
 // Used by legacy help system
-constructor THelp.Create (description : string);
+constructor THelpModule.Create (description : string);
 begin
   Create;
   self.helpType := htMethod;
@@ -131,7 +195,7 @@ end;
 
 
 // Used to add help at the module level
-constructor THelp.CreateModule (moduleName : string);
+constructor THelpModule.CreateModule (moduleName : string);
 var i : integer;
 begin
   Create;
@@ -140,15 +204,15 @@ begin
   self.methodName := '';
   self.signature := '';
   self.description := 'No description available';
-  for i := 0 to length (helpDb.modules) - 1 do
-      if helpDb.modules[i].Name = moduleName then
-         self.description := helpDb.modules[i].Description;
+  for i := 0 to length (helpDb.arrayOfHelp) - 1 do
+      if helpDb.arrayOfHelp[i].Name = moduleName then
+         self.description := helpDb.arrayOfHelp[i].Description;
 end;
 
 
 // Used to add help for a value, eg math.pi
-constructor THelp.CreateValue (moduleName, valueName : string);
-var mth : THMethod;
+constructor THelpModule.CreateValue (moduleName, valueName : string);
+var mth : THRecord;
 begin
   Create;
   if HelpDb.findValueInModule (moduleName, valueName, mth) then
@@ -172,8 +236,8 @@ end;
 
 
 // Used to add help for a method, eg math.sin()
-constructor THelp.CreateMethod (moduleName, methodName : string);
-var mth : THMethod;
+constructor THelpModule.CreateMethod (moduleName, methodName : string);
+var mth : THRecord;
 begin
   Create;
   if HelpDb.findMethodInModule (moduleName, methodName, mth) then
@@ -196,7 +260,7 @@ begin
 end;
 
 // Legacy create
-constructor THelp.Create (moduleName, name, signature, description : string; examples : TArray<string>);
+constructor THelpModule.Create (moduleName, name, signature, description : string; examples : TArray<string>);
 begin
   Create;
   self.helpType := htMethod;
@@ -209,7 +273,7 @@ end;
 
 
 // Legacy, Used to add help for a value, eg math.pi
-constructor THelp.Create (moduleName, name, description : string; examples : TArray<string>);
+constructor THelpModule.Create (moduleName, name, description : string; examples : TArray<string>);
 begin
   Create;
   self.helpType := htValue;
@@ -221,15 +285,14 @@ begin
 end;
 
 
-destructor THelp.Destroy;
+destructor THelpModule.Destroy;
 begin
-  THelp.Count := THelp.Count - 1;
   self.moduleName := '';
   inherited;
 end;
 
 
-function THelp.getHelp : string;
+function THelpModule.getHelp : string;
 var i : integer;
 begin
   result := '';
@@ -268,7 +331,52 @@ begin
 end;
 
 
-function THelp.toLatex : string;
+function THelpModule.toMarkdown : string;
+var i : integer;
+begin
+  result := '';
+  case helpType of
+     htModule :
+       begin
+       result := '**Module: ' + moduleName + '**' + sLineBreak;
+       result := result + '   ' + description;
+       end;
+     htMethod:
+       begin
+       if methodName <> '' then
+          begin
+          result := result + '**Method: ' + methodName + '**';
+          result := result + sLineBreak;
+          end;
+
+       if signature <> ''  then
+          result := result + '' + '`' + signature + '`' + sLineBreak;
+
+       result := result + '   ' + description;
+       if length (examples) > 0 then
+          begin
+          result := result + sLineBreak + 'Examples:' + sLineBreak;
+          for i := 0 to length (examples) - 1 do
+              result :=  result + '* ' + '`' + examples[i] + '`' + sLineBreak;
+       end;
+       end;
+     htValue:
+       begin
+       result := result + '**Value: ' + valueName;
+       result := result + '**' + sLineBreak;
+       result := result + '   ' + description;
+       if length (examples) > 0 then
+          begin
+          result := result + sLineBreak + 'Examples:' + sLineBreak;
+          for i := 0 to length (examples) - 1 do
+              result :=  result + '* ' + '`' + examples[i] + '`' + sLineBreak;
+       end;
+       end;
+  end;
+end;
+
+
+function THelpModule.toLatex : string;
 var i : integer;
 begin
   result := '';
@@ -320,84 +428,14 @@ begin
   end;
 end;
 
-function THelp.clone : THelp;
+
+function THelpModule.clone : THelpModule;
 begin
-  result := THelp.Create(self.moduleName, self.methodName, self.signature, self.description, self.examples);
+  result := THelpModule.Create(self.moduleName, self.methodName, self.signature, self.description, self.examples);
 end;
 
 
-function ParseJson(const JsonText: string): THModules;
-var
-  JsonData: TJSONObject;
-  ModulesArray: TJSONArray;
-  ModuleObj, MethodObj: TJSONObject;
-  Module: THModule;
-  Method: THMethod;
-  ExamplesArray: TJSONArray;
-  i, j, numMethods : Integer;
-  methodTypeStr : string;
-begin
-  JsonData := TJSONObject.ParseJSONValue(JsonText) as TJSONObject;
-  try
-    ModulesArray := JsonData.GetValue<TJSONArray>('modules');
-    SetLength(Result, ModulesArray.Count);
-
-    for i := 0 to ModulesArray.Count - 1 do
-    begin
-      ModuleObj := ModulesArray.Items[i] as TJSONObject;
-      Module.Name := ModuleObj.GetValue<string>('name');
-      Module.Description := ModuleObj.GetValue<string>('description');
-
-      numMethods := ModuleObj.GetValue<TJSONArray>('methods').Count;
-
-      SetLength(Module.Methods, numMethods);
-
-      for j := 0 to ModuleObj.GetValue<TJSONArray>('methods').Count - 1 do
-        begin
-        MethodObj := ModuleObj.GetValue<TJSONArray>('methods').Items[j] as TJSONObject;
-        methodTypeStr := MethodObj.GetValue<string>('methodType');
-        if methodTypeStr = 'method' then
-           method.methodType := hmtMethod
-        else method.methodType := hmtValue;
-
-        if method.methodType = hmtMethod then
-           begin
-           Method.methodName := MethodObj.GetValue<string>('methodName');
-           Method.Signature := MethodObj.GetValue<string>('signature');
-           Method.Description := MethodObj.GetValue<string>('description');
-
-           ExamplesArray := MethodObj.GetValue<TJSONArray>('examples');
-          SetLength(Method.Examples, ExamplesArray.Count);
-           for var k := 0 to ExamplesArray.Count - 1 do
-           begin
-             Method.Examples[k] := ExamplesArray.Items[k].Value;
-           end;
-           end
-        else
-           begin
-           method.methodName := MethodObj.GetValue<string>('valueName');
-          Method.Description := MethodObj.GetValue<string>('description');
-
-          ExamplesArray := MethodObj.GetValue<TJSONArray>('examples');
-          SetLength(Method.Examples, ExamplesArray.Count);
-          for var k := 0 to ExamplesArray.Count - 1 do
-              begin
-              Method.Examples[k] := ExamplesArray.Items[k].Value;
-              end;
-             end;
-
-        Module.Methods[j] := Method;
-        end;
-
-      Result[i] := Module;
-    end;
-  finally
-    JsonData.Free;
-  end;
-end;
-
-
-procedure PrintModules(const Modules: THModules);
+procedure PrintModules(const Modules: THArrayOfHelp);
 begin
   for var i := 0 to Length(Modules) - 1 do
   begin
@@ -422,8 +460,8 @@ end;
 // --------------------------------------------------------------------------
 // THelpDb
 
-function THelpDb.findMethodInModule (moduleName, methodName : string; var mth : THMethod) : boolean;
-var m : THModule;
+function THelpDb.findMethodInModule (moduleName, methodName : string; var mth : THRecord) : boolean;
+var m : THCommonHelp;
     i : integer;
 begin
   try
@@ -446,8 +484,8 @@ begin
 end;
 
 
-function THelpDb.findValueInModule (moduleName, valueName : string; var mth : THMethod)  : boolean;
-var m : THModule;
+function THelpDb.findValueInModule (moduleName, valueName : string; var mth : THRecord)  : boolean;
+var m : THCommonHelp;
     i : integer;
 begin
   try
@@ -470,38 +508,109 @@ begin
 end;
 
 
-function THelpDb.findModule (name : string) : THModule;
+function THelpDb.findMethodInDataObject (dataObjectName: string; methodName : string; var mth : THRecord) : boolean;
+var i, j : integer;
+    m : THCommonHelp;
+begin
+  try
+   for i := 0 to length (arrayOfHelp) - 1 do
+      begin
+      if arrayOfHelp[i].Name = dataObjectName then
+         begin
+         m := arrayOfHelp[i];
+         for j := 0 to length (m.methods) - 1 do
+             begin
+             if m.methods[j].methodName = methodName then
+                begin
+                mth := m.methods[j];
+                exit (True);
+                end;
+             end;
+         end;
+      end;
+  except
+    on E: exception do
+       exit (False);
+  end;
+  exit (False);
+end;
+
+
+function THelpDb.findModule (name : string) : THCommonHelp;
 var i : integer;
 begin
-  for i := 0 to length (modules) - 1 do
+  for i := 0 to length (arrayOfHelp) - 1 do
       begin
-      if modules[i].Name = name then
-         exit (modules[i])
+      if arrayOfHelp[i].Name = name then
+         exit (arrayOfHelp[i])
       end;
   raise Exception.Create('Unable to locate module: ' + name);
 end;
 
 
- // --------------------------------------------------------------------
+// --------------------------------------------------------------------
 
 
-procedure THelpDb.parseModule (var modules : THModules);
+ procedure THelpDb.parseDataObject (var generics : THArrayOfHelp);
+ begin
+   inc (position);
+   setlength (generics, numModules);
+  generics[numModules-1].recordType := rtDataObject;
+   generics[numModules-1].Name := alist[position];
+   inc(position);
+   generics[numModules-1].Description := alist[position];
+   inc(position);
+   numMethods := 1;
+   while alist[position] = 'startMethod' do
+      parseDataObjectMethod (generics);
+ end;
+
+
+procedure THelpDb.parseDataObjectMethod (var generics : THArrayOfHelp);
+var methodName : string;
+    method : THRecord;
+    ecount : integer;
 begin
+  inc(position);
+  method.methodname := alist[position];
+  method.methodType := hmtMethod;
+  inc(position);
+  method.signature := alist[position];
+  inc(position);
+  method.description := alist[position];
+  inc(position);
+  ecount := 0;
+  while alist[position] <> '##########' do
+        begin
+        setlength (method.examples, ecount+1);
+        method.examples[ecount] := alist[position];
+        inc (ecount); inc (position);
+        end;
+  setlength (generics[numModules-1].methods, numMethods);
+  generics[numModules-1].methods[numMethods-1] := Method;
+  inc (numMethods);
   inc (position);
-  setlength (modules, numModules);
-  modules[numModules-1].Name := alist[position];
-  inc(position);
-  modules[numModules-1].Description := alist[position];
-  inc(position);
-  numMethods := 1;
-  while alist[position] = 'startMethod' do
-     parseMethod (modules);
 end;
 
 
-procedure THelpDb.parseMethod (modules : THModules);
+procedure THelpDb.parseModule (var generics : THArrayOfHelp);
+begin
+  inc (position);
+  setlength (generics, numModules);
+  generics[numModules-1].recordType := rtModule;
+  generics[numModules-1].Name := alist[position];
+  inc(position);
+  generics[numModules-1].Description := alist[position];
+  inc(position);
+  numMethods := 1;
+  while alist[position] = 'startMethod' do
+     parseMethod (generics);
+end;
+
+
+procedure THelpDb.parseMethod (var generics : THArrayOfHelp);
 var atype : string;
-    method : THMethod;
+    method : THRecord;
     ecount : integer;
 begin
   inc(position);
@@ -523,8 +632,8 @@ begin
          method.examples[ecount] := alist[position];
          inc (ecount); inc (position);
          end;
-     setlength (modules[numModules-1].methods, numMethods);
-     modules[numModules-1].methods[numMethods-1] := Method;
+     setlength (generics[numModules-1].methods, numMethods);
+     generics[numModules-1].methods[numMethods-1] := Method;
      end
   else
      begin
@@ -541,16 +650,15 @@ begin
          method.examples[ecount] := alist[position];
          inc (ecount); inc (position);
          end;
-     setlength (modules[numModules-1].methods, numMethods);
-     modules[numModules-1].methods[numMethods-1] := Method;
+     setlength (generics[numModules-1].methods, numMethods);
+     generics[numModules-1].methods[numMethods-1] := Method;
      end;
   inc (numMethods);
   inc (position);
-
 end;
 
 
-function THelpDb.readTextFile : THModules;
+function THelpDb.readTextFile : THArrayOfHelp;
 var moduleName : string;
 begin
   alist := TFile.ReadAllLines('db.txt');
@@ -563,72 +671,14 @@ begin
         parseModule (result);
         inc (numModules);
         end;
+     if alist[position] = '---------- dataobject' then
+        begin
+        parseDataObject (result);
+        inc (numModules);
+        end;
      if alist[position] = 'end' then
         break;
      end;
-end;
-
-
-function THelpDb.WriteModulesToJson(const Modules: THModules): string;
-var
-  JsonRootObject: TJSONObject;
-  JsonModulesArray: TJSONArray;
-  JsonModuleObject: TJSONObject;
-  JsonMethodsArray: TJSONArray;
-  JsonMethodObject: TJSONObject;
-  JsonExamplesArray: TJSONArray;
-  Module: THModule;
-  Method: THMethod;
-  Example: string;
-begin
-  JsonRootObject := TJSONObject.Create;
-  JsonModulesArray := TJSONArray.Create;
-  try
-    for Module in Modules do
-    begin
-      JsonModuleObject := TJSONObject.Create;
-      JsonModuleObject.AddPair('name', Module.Name);
-      JsonModuleObject.AddPair('description', Module.Description);
-
-      JsonMethodsArray := TJSONArray.Create;
-      for Method in Module.Methods do
-      begin
-        JsonMethodObject := TJSONObject.Create;
-        case Method.MethodType of
-          hmtMethod: JsonMethodObject.AddPair('methodType', 'method');
-          hmtValue: JsonMethodObject.AddPair('methodType', 'value');
-        end;
-        if Method.MethodType = hmtMethod then
-           begin
-           JsonMethodObject.AddPair('methodName', Method.methodName);
-           JsonMethodObject.AddPair('signature', Method.Signature);
-           JsonMethodObject.AddPair('description', Method.Description);
-           end
-        else
-           begin
-           JsonMethodObject.AddPair('valueName', Method.methodName);
-           JsonMethodObject.AddPair('description', Method.Description);
-           end;
-
-        JsonExamplesArray := TJSONArray.Create;
-        for Example in Method.Examples do
-        begin
-          JsonExamplesArray.Add(Example);
-        end;
-        JsonMethodObject.AddPair('examples', JsonExamplesArray);
-
-        JsonMethodsArray.AddElement(JsonMethodObject);
-      end;
-      JsonModuleObject.AddPair('methods', JsonMethodsArray);
-
-      JsonModulesArray.AddElement(JsonModuleObject);
-    end;
-
-    JsonRootObject.AddPair('modules', JsonModulesArray);
-    Result := JsonRootObject.ToString;
-  finally
-    JsonRootObject.Free;
-  end;
 end;
 
 
@@ -651,21 +701,192 @@ begin
 end;
 
 
+// ------------------------------------------------------------------------------
+
+function StringToMethodType(const Str: string): THMethodType;
+begin
+  if Str = 'hmtMethod' then
+    Result := hmtMethod
+  else if Str = 'hmtValue' then
+    Result := hmtValue
+  else
+    raise Exception.CreateFmt('Unknown method type: %s', [Str]);
+end;
+
+function StringToRecordType(const Str: string): TRecordType;
+begin
+  if Str = 'rtModule' then
+    Result := rtModule
+  else if Str = 'rtDataObject' then
+    Result := rtDataObject
+  else
+    raise Exception.CreateFmt('Unknown record type: %s', [Str]);
+end;
+
+procedure ImportFromJSON(const FileName: string; out HelpArray: THArrayOfHelp);
+var
+  JSONObject: TJSONObject;
+  JSONArray: TJSONArray;
+  MethodArray: TJSONArray;
+  MethodObject: TJSONObject;
+  HelpObject: TJSONObject;
+  HelpItem: THCommonHelp;
+  MethodItem: THRecord;
+  ExampleArray: TJSONArray;
+  JSONReader: TStreamReader;
+  JSONValue: TJSONValue;
+  i, j: Integer;
+begin
+  JSONReader := TStreamReader.Create(FileName, TEncoding.UTF8);
+  try
+    JSONValue := TJSONObject.ParseJSONValue(JSONReader.ReadToEnd);
+    try
+      if JSONValue is TJSONObject then
+      begin
+        JSONObject := TJSONObject(JSONValue);
+        JSONArray := JSONObject.GetValue<TJSONArray>('listOfHelpEntries');
+
+        SetLength(HelpArray, JSONArray.Count);
+
+        for i := 0 to JSONArray.Count - 1 do
+        begin
+          HelpObject := JSONArray.Items[i] as TJSONObject;
+          HelpItem.recordType := StringToRecordType(HelpObject.GetValue<string>('recordType'));
+          HelpItem.name := HelpObject.GetValue<string>('moduleName');
+          HelpItem.description := HelpObject.GetValue<string>('description');
+
+          MethodArray := HelpObject.GetValue<TJSONArray>('methods');
+          SetLength(HelpItem.methods, MethodArray.Count);
+
+          for j := 0 to MethodArray.Count - 1 do
+          begin
+            MethodObject := MethodArray.Items[j] as TJSONObject;
+            MethodItem.methodType := StringToMethodType(MethodObject.GetValue<string>('methodType'));
+            MethodItem.methodName := MethodObject.GetValue<string>('methodName');
+            MethodItem.signature := MethodObject.GetValue<string>('signature');
+            MethodItem.description := MethodObject.GetValue<string>('description');
+
+            ExampleArray := MethodObject.GetValue<TJSONArray>('examples');
+            SetLength(MethodItem.examples, ExampleArray.Count);
+            for var k := 0 to ExampleArray.Count - 1 do
+            begin
+              MethodItem.examples[k] := ExampleArray.Items[k].Value;
+            end;
+
+            HelpItem.methods[j] := MethodItem;
+          end;
+
+          HelpArray[i] := HelpItem;
+        end;
+      end
+      else
+        raise Exception.Create('Invalid JSON format');
+    finally
+      JSONValue.Free;
+    end;
+  finally
+    JSONReader.Free;
+  end;
+end;
+
+
+// ------------------------------------------------------------------------------
+
+function MethodTypeToString(mt: THMethodType): string;
+begin
+  case mt of
+    hmtMethod: Result := 'hmtMethod';
+    hmtValue: Result := 'hmtValue';
+  else
+    Result := 'Unknown';
+  end;
+end;
+
+function RecordTypeToString(rt: TRecordType): string;
+begin
+  case rt of
+    rtModule: Result := 'rtModule';
+    rtDataObject: Result := 'rtDataObject';
+  else
+    Result := 'Unknown';
+  end;
+end;
+
+procedure ExportToJSON(const HelpArray: THArrayOfHelp; const FileName: string);
+var
+  JSONObject: TJSONObject;
+  JSONArray: TJSONArray;
+  MethodArray: TJSONArray;
+  MethodObject: TJSONObject;
+  HelpObject: TJSONObject;
+  HelpItem: THCommonHelp;
+  MethodItem: THRecord;
+  ExampleArray: TJSONArray;
+  i, j: Integer;
+  JSONWriter: TStreamWriter;
+begin
+  JSONArray := TJSONArray.Create;
+  try
+    for i := 0 to Length(HelpArray) - 1 do
+    begin
+      HelpItem := HelpArray[i];
+      HelpObject := TJSONObject.Create;
+      HelpObject.AddPair('recordType', RecordTypeToString(HelpItem.recordType));
+      HelpObject.AddPair('moduleName', HelpItem.name);
+      HelpObject.AddPair('description', HelpItem.description);
+
+      MethodArray := TJSONArray.Create;
+      for j := 0 to Length(HelpItem.methods) - 1 do
+      begin
+        MethodItem := HelpItem.methods[j];
+        MethodObject := TJSONObject.Create;
+        MethodObject.AddPair('methodType', MethodTypeToString(MethodItem.methodType));
+        MethodObject.AddPair('methodName', MethodItem.methodName);
+        MethodObject.AddPair('signature', MethodItem.signature);
+        MethodObject.AddPair('description', MethodItem.description);
+
+        ExampleArray := TJSONArray.Create;
+        for var example in MethodItem.examples do
+        begin
+          ExampleArray.Add(example);
+        end;
+        MethodObject.AddPair('examples', ExampleArray);
+
+        MethodArray.AddElement(MethodObject);
+      end;
+      HelpObject.AddPair('methods', MethodArray);
+
+      JSONArray.AddElement(HelpObject);
+    end;
+
+    JSONObject := TJSONObject.Create;
+    JSONObject.AddPair('listOfHelpEntries', JSONArray);
+
+    JSONWriter := TStreamWriter.Create(FileName, False, TEncoding.UTF8);
+    try
+      JSONWriter.Write(JSONObject.ToString);
+    finally
+      JSONWriter.Free;
+    end;
+  finally
+    JSONArray.Free;
+  end;
+end;
+
+
+
 procedure THelpDb.loadHelpDatabase;
 var jsontext : string;
 begin
-  if TFile.Exists('xHelpDb.json') then
+  // Order of reading is the text file, followed by the json file followed by the resource.
+  if TFile.Exists('db.txt') then
      begin
-     Jsontext := TFile.ReadAllText('HelpDb.json');
-     Modules := ParseJson(JsonText);
+     arrayOfHelp := readTextFile;
+     ExportToJSON(arrayOfHelp, 'claud.json');
      end
   else
-    if TFile.Exists('db.txt') then
-       begin
-       modules := readTextFile;
-       jsontext := WriteModulesToJson(modules);
-       TFile.WriteAllText('rhodus.json', jsonText);
-     end
+  if TFile.Exists('HelpDb.json') then
+     ImportFromJSON('HelpDb.json', arrayOfHelp)
   else
      jsontext := loadFromResource;
 end;
@@ -722,5 +943,22 @@ end.
 //Return a uniformly distributed random number:
 //random()
 //##########
+//---------- dataobject
+//MatrixObject
+//This is the matrix object
+//startMethod
+//rows
+//m.rows ()
+//Get the number of rows in the matrix: var.rows()
+//n = m.rows()
+//println (p.rows())
+//##########
+//startMethod
+//cols
+//m.cols ()
+//Get the number of cols in the matrix: var.cols()
+//n = m.cols()
+//println (p.cols())
+##########
 //end
 

@@ -25,7 +25,7 @@ type
       methodCount : integer;
 
       methods : TMethodsBase;
-      help : THelp;
+      help : THelpModule;
 
       procedure  getHelp (vm : TObject);
       function   getSize : integer; virtual; abstract;

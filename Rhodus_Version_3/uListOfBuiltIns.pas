@@ -31,8 +31,7 @@ Uses uBuiltInMath,
      uBuiltInOS,
      uBuiltInStr,
      uBuiltInASCIIPlot,
-     uBuiltInGraphics,
-     uBuiltInPlotter;
+     uBuiltInGraphics;
 
 
 constructor TBuiltIn.Create (name, className : string);
@@ -75,7 +74,6 @@ initialization
   listofBuiltIns.Add (TBuiltIn.Create ('txtplot','uBuiltInASCIIPlot.' + TBuiltInASCIIPlot.ClassName));
   listofBuiltIns.Add (TBuiltIn.Create ('strings','uBuiltInStrings.' + TBuiltInStr.ClassName));
   listofBuiltIns.Add (TBuiltIn.Create ('graphics','uBuiltInGraphics.' + TBuiltInGraphics.ClassName));
-  listofBuiltIns.Add (TBuiltIn.Create ('plot','uBuiltInPlotter.' + TBuiltInPlotter.ClassName));
 finalization
   listOfBuiltIns.Free;
 end.

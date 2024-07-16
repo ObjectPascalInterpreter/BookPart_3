@@ -41,7 +41,7 @@ type
        moduleName : string;
        moduleProgram : TProgram;      // Module level code
        symbolTable : TSymbolTable;
-       help : THelp;
+       help : THelpModule;
        compiled : boolean;   // Not currently used
 
        function    getSize : integer;
@@ -110,7 +110,7 @@ type
 
        dataObject     : TDataObject;
 
-       //methodCount : integer;
+       methodCount : integer;   // Used for ordering list of methods in the documentation
 
        // A convenient place to store these
        class var   mainModuleId : string;
@@ -136,12 +136,12 @@ type
         function  addModule (mValue : TModule) : TSymbol;
         function  addSymbol (name : string) : TSymbol; overload;
         procedure addSymbol (name : string; dValue : double;  locked : boolean; helpStr : string); overload;
-        procedure addSymbol (name : string; sValue : TStringObject; locked : boolean; help : THelp); overload;
-        procedure addSymbol (name : string; lValue : TListObject; locked : boolean; help : THelp); overload;
+        procedure addSymbol (name : string; sValue : TStringObject; locked : boolean; help : THelpModule); overload;
+        procedure addSymbol (name : string; lValue : TListObject; locked : boolean; help : THelpModule); overload;
         procedure addSymbol (name : string; aValue : TArrayObject; locked : boolean; helpStr : string); overload;
         procedure addSymbol (name : string; vValue : TVectorObject; locked : boolean; helpStr : string); overload;
         procedure addSymbol (name : string; matValue : TMatrixObject; locked : boolean; helpStr : string); overload;
-        procedure addSymbol (name : string; voValue : TValueObject; locked : boolean; help : THelp); overload;
+        procedure addSymbol (name : string; voValue : TValueObject; locked : boolean; help : THelpModule); overload;
 
         function addSymbol (fValue : TUserFunction; locked : boolean) : TSymbol; overload;
 
@@ -213,8 +213,7 @@ Uses uVM,
      uBuiltInFile,
      uBuiltInConfig,
      uBuiltInSys,
-     uBuiltInTurtle,
-     uBuiltInPlotter;
+     uBuiltInTurtle;
 
 var _userFunctionMethods : TUserFunctionMethods;
      
@@ -251,9 +250,9 @@ begin
   symbolTable := TSymbolTable.Create;
   symbolTable.id := name;
   if help = nil then
-     self.help := THelp.CreateModule(name)
+     self.help := THelpModule.CreateModule(name)
   else
-     self.help := THelp.Create ('No help available on this module');
+     self.help := THelpModule.Create ('No help available on this module');
   compiled := False;
 end;
 
@@ -484,11 +483,11 @@ begin
      f.localSymbolTable := self.localSymbolTable.clone;
      f.globalVariableList := TStringList.Create;
      f.globalVariableList.Assign (self.globalVariableList);
-     f.codeBlock := self.codeBlock.Clone;
+     f.codeBlock := self.codeBlock.clone;
    end;
   result := f;
    // Don't forget to add the clone to the heap memory pool
-   //memoryList.addNode (result);
+   //memoryList.addNode (result);   ?????
 end;
 
 
@@ -633,7 +632,7 @@ begin
 end;
 
 
-procedure TSymbolTable.addSymbol (name : string; lValue : TListObject; locked : boolean; help : THelp);
+procedure TSymbolTable.addSymbol (name : string; lValue : TListObject; locked : boolean; help : THelpModule);
 var symbol : TSymbol;
 begin
   symbol := TSymbol.Create;
@@ -646,7 +645,7 @@ begin
 end;
 
 
-procedure TSymbolTable.addSymbol (name : string; sValue : TStringObject; locked : boolean; help : THelp);
+procedure TSymbolTable.addSymbol (name : string; sValue : TStringObject; locked : boolean; help : THelpModule);
 var symbol : TSymbol;
 begin
   symbol := TSymbol.Create;
@@ -699,7 +698,7 @@ begin
 end;
 
 
-procedure TSymbolTable.addSymbol (name : string; voValue : TValueObject; locked : boolean; help : THelp);
+procedure TSymbolTable.addSymbol (name : string; voValue : TValueObject; locked : boolean; help : THelpModule);
 var symbol : TSymbol;
 begin
   symbol := TSymbol.Create;

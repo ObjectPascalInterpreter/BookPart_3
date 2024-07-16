@@ -23,7 +23,9 @@
 // is to prevent flashing when we move the console window to the center of the screen
 
 // The following is therefore commented out
-//{$  APPTYPE CONSOLE}
+
+
+{$APPTYPE CONSOLE}
 
 {$R *.res}
 
@@ -33,9 +35,6 @@
 {$R *.dres}
 
 uses
-  //{$IFDEF DEBUG}
-//FastMM5,
-  //{$ENDIF }
   Windows,
   ShellAPI,
   System.SysUtils,
@@ -102,7 +101,6 @@ uses
   uVectorObject in '..\VirtualMachine\uVectorObject.pas',
   uMatrixFunctions in 'uMatrixFunctions.pas',
   uValueObject in '..\VirtualMachine\uValueObject.pas',
-  uBuiltInPlotter in 'uBuiltInPlotter.pas',
   uHelpUnit in '..\Common\uHelpUnit.pas',
   uDataObjectMethods in '..\VirtualMachine\uDataObjectMethods.pas',
   uDataObject in '..\VirtualMachine\uDataObject.pas',
@@ -112,8 +110,11 @@ begin
   //FastMM_SetEventLogFilename('D:\log.txt');
   //FastMM_EnterDebugMode;
   ReportMemoryLeaksOnShutdown := True;
+
+  checkForCommandLineArgs;
   setUpConsole;
   setExtendedConsoleMode; // To get more colors
+
   setUpEnvironment (ParamStr (0));
 
   startRepl();

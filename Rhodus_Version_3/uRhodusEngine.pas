@@ -63,7 +63,6 @@ type
       procedure setPrintLnCallBack (printLnCallBack : TVMCaptureStringCallBack);
       procedure setReadStringCallBack (readStringCallBack : TVMReadStringCallBack);
       procedure setGraphicsMethodCallBack (graphicsMethodsCallback : PGraphicsMethods);
-      procedure setPlottingMethodCallBack (plottingMethodsCallback : PPLOTTINGMethods);
       procedure setSetColorCallBack (setColorCallBack : TVMCaptureStringCallBack);
 
       function  getVM : TVM;
@@ -91,10 +90,10 @@ uses uCommands,
      uBuiltInOS,
      uBuiltInConfig,
      uBuiltInGraphics,
-     uBuiltInPlotter,
      uTerminal,
      uRhodusTypes,
      uStringObject,
+     uMatrixObject,
      uEnvironment,
      uHelpUnit,
      uVMExceptions;
@@ -108,7 +107,7 @@ var astr : string;
 begin
   initialiseSysModuleVariables; // Creates the path variable
 
-    try
+  try
     uHelpUnit.buildHelpDb;
   except
     on e:exception do
@@ -117,6 +116,8 @@ begin
        readln;
        end;
   end;
+
+  uMatrixObject.createAndAttachMethods;
 
   // The mainModule is to added to teh list of modules.
   mainModule := TModuleLib.Create (TSymbol.mainModuleId);  // mainModule is declared in uModule
@@ -358,13 +359,6 @@ begin
 end;
 
 
-procedure TRhodus.setPlottingMethodCallBack (plottingMethodsCallback : PPLOTTINGMethods);
-begin
-  plottingMethods := plottingMethodsCallback;
-  setPlottingCallBackTable (plottingMethods);
-end;
-
-
 procedure TRhodus.setSetColorCallBack (setColorCallBack : TVMCaptureStringCallBack);
 begin
   self.setColorCallBack := setColorCallBack;
@@ -423,7 +417,7 @@ begin
                 symModule  : printLnCallBack (AnsiString ('Module: ' + st.module.moduleName));
                 symUserFunc: printLnCallBack (AnsiString ('Function: ' + TUserFunction (st.dataObject).moduleRef.moduleName + '.' + TUserFunction (st.dataObject).methodName));
                 symObjectMethod : begin
-                      printLnCallBack (AnsiString ('Object Method: ' + st.oValue.helpStr));
+                      printLnCallBack (AnsiString ('Object Method: ' + st.oValue.help.description));
                       // This pop causes a stack underflow
                      // 8/20/2023 vm.pop();
                       end;   // pop the operand

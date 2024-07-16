@@ -90,7 +90,7 @@ type
    THelpPair = record
       name : string;
       methodCount : integer;
-      help : THelp;
+      help : THelpModule;
    end;
 
 
@@ -129,10 +129,11 @@ begin
   module.addMethod (TBuiltInGlobal.stackInfo,      0, 'stackInfo',     'Get the current state of the VM stack');
   module.addMethod (TBuiltInGlobal.getChar,        1, 'chr',           'Get the character equivalent of an integer value');
   module.addMethod (TBuiltInGlobal.getAsc,         1, 'asc',           'Get the ascii equivalent of a single character');
-  //module.addMethod (builtInGlobal.getHelp,        1, 'help',          'Get the help associated with the object');
+  //module.addMethod (builtInGlobal.getHelp,       1, 'help',          'Get the help associated with the object');
   module.addMethod (TBuiltInGlobal.startDebug,     1, 'debug',         'Attached method to the debugger: debug (fcn)');
   module.addMethod (TBuiltInGlobal.test,           2, 'test',          'Attached method to the debugger: debug (fcn)');
-  module.addMethod (TBuiltInGlobal.document,       1, 'document',      'Generate documentation for the module specificed in the argument');
+  module.addMethod (TBuiltInGlobal.document, VARIABLE_ARGS, 'document', 'Generate LaTeX documentation for the module specificed in the argument; e.g docs = document (math)' +
+               'The second optional argument speciifies the format, ''latex'' or ''md'' (markdown). Default is LaTeX');
 
 end;
 
@@ -681,9 +682,9 @@ begin
      symUserFunc :
            vm.push(TStringObject.Create (st.dataObject.help.getHelp()));
      symObjectMethod :
-           vm.push(TStringObject.Create (st.oValue.helpStr));
+           vm.push(TStringObject.Create (st.oValue.help.description));
   else
-     raise ERuntimeException.Create('Unkown object type in help');
+     raise ERuntimeException.Create('Unknown object type in help');
   end;
 end;
 
@@ -708,24 +709,18 @@ begin
 end;
 
 
-class procedure TBuiltInGlobal.document (vm : TObject);
-var i: integer;
-    doc : TStringObject;
-    astr : string;
-    module : TModule;
+// ------------------------------------------------------------------
+// Documentation support code
+// ------------------------------------------------------------------
+
+procedure processModuleToLaTeX (vm : TObject; module : TModule);
+var astr : string;
     Item: TPair<string, TSymbol>;
-    list : TList<THelpPair>;
     helpPair : THelpPair;
     Comparison: IComparer<THelpPair>;
-    Obj : TDataObject;
-    methodDetails : TMethodDetails;
-    setOfDataObjects : TSetOfDataObjects;
-    stackType : TElementType;
+    list : TList<THelpPair>;
+    doc : TStringObject;
 begin
-  if TVM (vm).peek.stackType = TElementType.symModule then
-     begin
-     module := TVM (vm).popModule;
-
   astr := '\documentclass[11pt]{article}' + sLineBreak;
   astr := astr + '\usepackage{enumitem}' + sLineBreak;
   astr := astr + '\setlength{\parindent}{0pt}' + sLineBreak;
@@ -746,64 +741,70 @@ begin
   // which is set during the addMetdod call.
   // I tried to do the ordering insitue but I couldnlt get the syntax right.
   // Instead I extract the elements and sort them in a separate list.
-//  list := TList<THelpPair>.Create;
-//  try
-//    for Item in module.symbolTable do
-//        case Item.Value.symbolType of
-//          TSymbolElementType.symUserFunc:
-//           begin
-//           if Item.Value.dataObject.help <> nil then
-//              begin
-//              if Item.Value.dataObject.help.methodName <> '' then
-//                 begin
-//                 helpPair.name := Item.Value.dataObject.help.methodName;
-//                 helpPair.methodCount := Item.Value.methodCount;
-//                 helpPair.help := Item.Value.dataObject.help;
-//                 list.Add(helpPair);
-//                 end;
-//              end;
-//           end;
-//          TSymbolElementType.symValueObject :
-//           begin
-//           helpPair.name := Item.Value.symbolName;
-//           helpPair.methodCount := Item.Value.methodCount;
-//           helpPair.help := Item.Value.dataObject.help;
-//           list.Add(helpPair);
-//            end;
-//        end;
-
-
-    comparison := TComparer<THelpPair>.Construct(
+  list := TList<THelpPair>.Create;
+  try
+    for Item in module.symbolTable do
+        case Item.Value.symbolType of
+          TElementType.symUserFunc:
+           begin
+           if Item.Value.dataObject.help <> nil then
+              begin
+              if Item.Value.dataObject.help.methodName <> '' then
+                 begin
+                 helpPair.name := Item.Value.dataObject.help.methodName;
+                 helpPair.methodCount := Item.Value.methodCount;
+                 helpPair.help := Item.Value.dataObject.help;
+                 list.Add(helpPair);
+                 end;
+              end;
+           end;
+          TElementType.symValueObject :
+           begin
+           helpPair.name := Item.Value.symbolName;
+           helpPair.methodCount := Item.Value.methodCount;
+           helpPair.help := Item.Value.dataObject.help;
+           list.Add(helpPair);
+            end;
+        end;
+  comparison := TComparer<THelpPair>.Construct(
     function(const Left, Right: THelpPair): Integer
         begin
         Result := CompareValue(Left.methodCount, Right.methodCount)
        end);
 
-//    // Sort the list in ascending order
-//    list.Sort(comparison);
-//
-//    for helpPair in list do
-//         begin
-//          if helpPair.help <> nil then
-//             begin
-//             if Item.Value.dataObject.help.methodName <> '' then
-//                begin
-//                astr := astr + helpPair.help.toLatex;
-//                astr := astr + sLineBreak + sLineBreak + '\vspace{5pt}' + sLineBreak;
-//                end;
-//             end;
-//         end;
-  //finally
-  //  list.free;
-  //end;
+  // Sort the list in ascending order
+  list.Sort(comparison);
+
+  for helpPair in list do
+       begin
+        if helpPair.help <> nil then
+           begin
+           if Item.Value.dataObject.help.methodName <> '' then
+              begin
+              astr := astr + helpPair.help.toLatex;
+              astr := astr + sLineBreak + sLineBreak + '\vspace{5pt}' + sLineBreak;
+              end;
+           end;
+       end;
+  finally
+    list.free;
+  end;
 
   astr := astr + sLineBreak + '\end{document}' + sLineBreak;
 
   doc := TStringObject.Create (astr);
   TVM (vm).push(doc);
-     end
-  else
-  begin
+end;
+
+
+procedure processDataObjectToLaTeX (vm : TObject);
+var stackType : TElementType;
+    Obj : TDataObject;
+    methodDetails : TMethodDetails;
+    doc : TStringObject;
+    astr : string;
+    i : integer;
+begin
   stackType := TVM (vm).peek.stackType;
   if isDataObject (stackType) then
      begin
@@ -813,14 +814,176 @@ begin
          methodDetails := Obj.methods.methodList[i];
          astr := astr + '{\bfseries\textsf{Method: ' + methodDetails.name ;
          astr := astr + '}}' + sLineBreak + sLineBreak;
+         astr := astr + Obj.methods.methodList[i].help.description + sLineBreak;
          end;
      end;
   doc := TStringObject.Create (astr);
   TVM (vm).push(doc);
+end;
+
+
+procedure laTeXFormat (vm : TObject);
+var module : TModule;
+begin
+  if TVM (vm).peek.stackType = TElementType.symModule then
+     begin
+     module := TVM (vm).popModule;
+     processModuleToLaTeX (vm, module);
+     end
+  else
+    processDataObjectToLaTeX (vm);
+end;
+
+
+procedure processModuleToMarkDown (vm : TObject; module : TModule);
+var astr : string;
+    doc : TStringObject;
+    Item: TPair<string, TSymbol>;
+    helpPair : THelpPair;
+    Comparison: IComparer<THelpPair>;
+    list : TList<THelpPair>;
+begin
+  //astr := astr + '\setlength{\parindent}{0pt}' + sLineBreak;
+
+  astr := '# Rhodus Module Reference' + sLineBreak;
+
+  //astr := astr + '\vspace{1cm}' + sLineBreak + sLineBreak;;
+
+  astr := astr + '## ' + module.moduleName + ' Module' + sLineBreak;
+
+  astr := astr + 'Module: $$~$$ ' + module.moduleName + ' $$~~~~~~~~~~~~~~~~~~~$$ ' + module.help.description + sLineBreak;
+
+  astr := astr + sLineBreak + '---' + sLineBreak + sLineBreak;
+
+  // This complicted bit of code is to get the help records in to the order
+  // that they were added to the module. This allows the methods to be
+  // ordered in a more senstible way. The order is set by the methodCount
+  // which is set during the addMetdod call.
+  // I tried to do the ordering insitue but I couldnlt get the syntax right.
+  // Instead I extract the elements and sort them in a separate list.
+  list := TList<THelpPair>.Create;
+  try
+    for Item in module.symbolTable do
+        case Item.Value.symbolType of
+          TElementType.symUserFunc:
+           begin
+           if Item.Value.dataObject.help <> nil then
+              begin
+              if Item.Value.dataObject.help.methodName <> '' then
+                 begin
+                 helpPair.name := Item.Value.dataObject.help.methodName;
+                 helpPair.methodCount := Item.Value.methodCount;
+                 helpPair.help := Item.Value.dataObject.help;
+                 list.Add(helpPair);
+                 end;
+              end;
+           end;
+          TElementType.symValueObject :
+           begin
+           helpPair.name := Item.Value.symbolName;
+           helpPair.methodCount := Item.Value.methodCount;
+           helpPair.help := Item.Value.dataObject.help;
+           list.Add(helpPair);
+            end;
+        end;
+  comparison := TComparer<THelpPair>.Construct(
+    function(const Left, Right: THelpPair): Integer
+        begin
+        Result := CompareValue(Left.methodCount, Right.methodCount)
+       end);
+
+  // Sort the list in ascending order
+  list.Sort(comparison);
+
+  for helpPair in list do
+       begin
+        if helpPair.help <> nil then
+           begin
+           if Item.Value.dataObject.help.methodName <> '' then
+              begin
+              astr := astr + helpPair.help.toMarkDown;
+              astr := astr + sLineBreak + sLineBreak;
+              end;
+           end;
+       end;
+  finally
+    list.free;
+  end;
+
+  doc := TStringObject.Create (astr);
+  TVM (vm).push(doc);
+end;
+
+
+procedure processDataObjectToMarkDown (vm : TObject);
+var stackType : TElementType;
+    Obj : TDataObject;
+    methodDetails : TMethodDetails;
+    doc : TStringObject;
+    astr : string;
+    i : integer;
+begin
+  stackType := TVM (vm).peek.stackType;
+  if isDataObject (stackType) then
+     begin
+     obj := TVM (vm).pop.dataObject;
+     astr := '# **' + obj.methods.helpStr + '**' + sLineBreak + sLineBreak;
+     astr := astr + '---' + sLineBreak;
+
+     astr := astr + '## Associated Methods:' + sLineBreak;
+
+     for i := 0 to Obj.methods.methodList.Count - 1 do
+         begin
+         methodDetails := Obj.methods.methodList[i];
+         astr := astr + '**Method: ' + methodDetails.name ;
+         astr := astr + '**' + sLineBreak;
+         astr := astr + Obj.methods.methodList[i].help.description + sLineBreak;
+         end;
+     end;
+  doc := TStringObject.Create (astr);
+  TVM (vm).push(doc);
+end;
+
+
+procedure markDownFormat (vm : TObject);
+var module : TModule;
+begin
+  if TVM (vm).peek.stackType = TElementType.symModule then
+     begin
+     module := TVM (vm).popModule;
+     processModuleToMarkDown (vm, module);
+     end
+  else
+    processDataObjectToMarkDown (vm);
+end;
+
+
+procedure laTeXOrMDFormat (vm : TObject);
+var fmt : TStringObject;
+begin
+  fmt := TVM (vm).popString;
+  if fmt.value = 'latex' then
+     laTeXFormat (vm)
+  else if fmt.value = 'md' then
+     markDownFormat (vm)
+  else
+     raise ERuntimeException.Create('Format not recognized: ' + fmt.value);
+end;
+
+
+class procedure TBuiltInGlobal.document (vm : TObject);
+var nArgs: integer;
+begin
+  nArgs := TVM (vm).popInteger;
+  case nArgs of
+     1 : laTeXFormat (vm);
+     2 : laTeXOrMDFormat (vm);
+  else
+     raise ERuntimeException.Create ('Expecting one or two arguments');
   end;
 end;
 
 
 initialization
-   finalization
+finalization
 end.

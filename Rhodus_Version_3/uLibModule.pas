@@ -59,17 +59,17 @@ begin
 
   f := TUserFunction.Create('dir', 0, callDir);
   f.moduleRef := self;
-  f.help := THelp.Create ('Get a list of the supported methods and values');
+  f.help := THelpModule.Create ('Get a list of the supported methods and values');
   self.symbolTable.addSymbol (f, True); // // locked = True
 
   f := TUserFunction.Create ('contains', 1, callContains);
   f.moduleRef := self;
-  f.help := THelp.Create ('Returns true if the module includes the given symbol, e.g math.contains ("cos")');
+  f.help := THelpModule.Create ('Returns true if the module includes the given symbol, e.g math.contains ("cos")');
   self.symbolTable.addSymbol (f, True); // // locked = True
 
   f := TUserFunction.Create ('find', 1, findSymbol);
   f.moduleRef := self;
-  f.help := THelp.Create ('Returns true if the module contains the symbol e.g math.find ("cos")');
+  f.help := THelpModule.Create ('Returns true if the module contains the symbol e.g math.find ("cos")');
   self.symbolTable.addSymbol (f, True); // // locked = True
 
   f := TUserFunction.Create ('help', 0, getHelp);
@@ -171,20 +171,20 @@ end;
 
 procedure TModuleLib.addObjectValue (name : string; value : TValueObject; locked : boolean);
 begin
-  self.symbolTable.addSymbol(name, value, locked, THelp.CreateValue (moduleName, name));
+  self.symbolTable.addSymbol(name, value, locked, THelpModule.CreateValue (moduleName, name));
 end;
 
 
 procedure TModuleLib.addListValue  (name : string; value : TListObject; locked : boolean);
 begin
-  self.symbolTable.addSymbol(name, value, locked, THelp.CreateValue (moduleName, name));
+  self.symbolTable.addSymbol(name, value, locked, THelpModule.CreateValue (moduleName, name));
 end;
 
 
 function TModuleLib.addStringValue (name, value : string; locked : boolean) : TSymbol;
 var sym : TSymbol;
 begin
-  self.symbolTable.addSymbol(name, TStringObject.Create (value), locked, THelp.CreateValue (moduleName, name));
+  self.symbolTable.addSymbol(name, TStringObject.Create (value), locked, THelpModule.CreateValue (moduleName, name));
   //result := sym;
 end;
 
@@ -198,7 +198,7 @@ procedure TModuleLib.addMethod (methodPtr : TxBuiltInFunction; nArgs : integer; 
 var f : TUserFunction;
 begin
   f := TUserFunction.Create(methodName, nArgs, methodPtr);
-  f.help := THelp.Create (helpStr);
+  f.help := THelpModule.Create (helpStr);
   f.moduleRef := self;
   self.symbolTable.addSymbol (f, True);  // locked = True
 end;
@@ -209,10 +209,10 @@ var f : TUserFunction;
     symbol : TSymbol;
 begin
   f := TUserFunction.Create(methodName, nArgs, methodPtr);
-  f.help := THelp.CreateMethod(moduleName, methodName);
+  f.help := THelpModule.CreateMethod(moduleName, methodName);
   f.moduleRef := self;
   symbol := self.symbolTable.addSymbol (f, True);  // locked = True
-  //symbol.methodCount := methodCount;
+  symbol.methodCount := methodCount;
   inc (methodCount);
 end;
 

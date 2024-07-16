@@ -91,7 +91,7 @@ begin
   addmethod (setSymbol, 1, 'setSymbol', 'Set symbol, txtplot.setSymbol ("x")');
   addMethod (drawlineplot,  2, 'line', 'Draw an ASCII line plot, txtplot.lineplot (x, y)');
 
-  addMethod (prettyPrintMatrix, 3, 'tabulate', 'Pretty print a matrix');
+  addMethod (prettyPrintMatrix, 3, 'tabulate', 'Pretty print a matrix: txtplot.tabulate(m, border, decimalPlaces)');
 
    //addValue ('pi', Pi,      'The value of pi');
 end;
@@ -337,14 +337,14 @@ end;
 
 procedure TBuiltInASCIIPlot.prettyPrintMatrix (vm : TObject);
 var m : TMatrixObject;
-    dplaces : integer;
+    decimalplaces : integer;
     drawBorder : boolean;
 begin
-  dplaces := TVM (vm).popInteger;
+  decimalplaces := TVM (vm).popInteger;
   drawBorder := TVM (vm).popBoolean;
   m := TVM (vm).popMatrix;
 
-  PrettyPrint2DArray(m, drawBorder, dPlaces);
+  PrettyPrint2DArray(m, drawBorder, decimalPlaces);
   TVM (vm).pushNone;
 end;
 

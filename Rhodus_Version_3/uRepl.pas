@@ -12,6 +12,7 @@ interface
 
 Uses SysUtils, uTerminal, uRhodusEngine;
 
+procedure checkForCommandLineArgs;
 procedure startRepl;
 
 implementation
@@ -33,7 +34,23 @@ var rhodus : TRhodus;
     sourceCode : string;
     syntaxError : TSyntaxError;
     compilerError : TCompilerError;
+    showWelcomeMessage : boolean;
 
+
+procedure checkForCommandLineArgs;
+begin
+  if FindCmdLineSwitch('w', ['-'], True) then
+     showWelcomeMessage := True
+  else showWelcomeMessage := False;
+
+  if FindCmdLineSwitch('h', ['-'], True) then
+     begin
+     writeln ('-h    Display commandline arguments');
+     writeln ('-w    Display welcome message');
+     readln;
+     end;
+
+end;
 
 // Print methods to support output from the VM
 // -------------------------------------------------------------------------------
@@ -171,7 +188,8 @@ begin
   startUpRhodus;
 
   try
-    //displayWelcome;
+    if showWelcomeMessage then
+       displayWelcome (False);
 
     try
     while True do
@@ -214,4 +232,6 @@ begin
 end;
 
 
+initialization
+  showWelcomeMessage := True;
 end.

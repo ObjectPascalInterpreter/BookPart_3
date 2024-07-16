@@ -5,7 +5,7 @@ startMethod
 method
 sin
 sin (int|float|array)
-It works out the sin
+Returns the sine of the argument measured in radians.
 x = math.sin (1.2)
 x = math.sin (math.pi)
 x = math.sin ([1,2,3])
@@ -14,7 +14,7 @@ startMethod
 method
 cos
 cos (int|float|array))
-It works out the cos
+Returns the cosine of the argument measured in radians.
 x = math.cos (1.2)
 x = math.cos (math.pi)
 x = math.cos ([1,2,3])
@@ -23,7 +23,7 @@ startMethod
 method
 tan
 tan (int|float|array))
-It works out the tan
+Returns the tangent of the argument measured in radians.
 x = math.tan (1.2)
 x = math.tan (math.pi)
 x = math.tan ([1,2,3])
@@ -70,6 +70,7 @@ toRadians(int|float))
 Use this method to convert degrees to radians.
 x = math.toRadians (90)
 x = math.toRadians (45)
+x = math.sin (math.toRadians (45))
 ##########
 startMethod
 method
@@ -291,6 +292,23 @@ Create a list of random uniformly distributed integers.
 l = lists.rndi (lower, upper, number)
 l = lists.rndi (0, 10, 5)
 l = lists.rndi (5, 10, 20)
+##########
+---------- dataobject
+MatrixObject
+This is the matrix object
+startMethod
+rows
+m.rows ()
+Get the number of rows in the matrix: var.rows()
+n = m.rows()
+println (p.rows())
+##########
+startMethod
+cols
+m.cols ()
+Get the number of cols in the matrix: var.cols()
+n = m.cols()
+println (p.cols())
 ##########
 end
 

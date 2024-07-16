@@ -23,15 +23,18 @@ type
 
    TMethodDetails = class (TObject)
         name : string;
-        helpStr : string;
+        help : TDataObjectHelp;
+        helpStr : string;  // Temp string until all help is moved to dataobjecthelp
         nArgs : integer;
         method : TObjectMethod;
         self : pointer;  // Only used during execution but during execution to the 'self' associated with this method
-        constructor Create (const name : string; nArgs: integer; const helpStr : string; fcn : TObjectMethod);
+        constructor Create (const name : string; nArgs : integer; const helpStr : string; fcn : TObjectMethod);  overload;
+        constructor Create (const methodName, dataObjectName : string; nArgs: integer; fcn : TObjectMethod); overload;
    end;
 
    TMethodsBase = class;
    TMethodList = class (TList<TMethodDetails>)
+        helpStr2 : string;
         function find (const name : string) : TMethodDetails;
         constructor Create (methodBase : TMethodsBase);
    end;
@@ -44,6 +47,8 @@ type
    // in the object, eg math.sin.dir()
    TMethodsBase = class (TObject)
      methodList : TMethodList;
+     help : TDataObjectHelp;
+     helpStr : string;   // Use to add a description of the dataobject
      procedure   dir (vm : TObject);
      procedure   getHelp (vm : TObject);
      constructor Create;
@@ -58,6 +63,7 @@ Uses uListObject,
      uDataObject,
      uVM;
 
+
 constructor TMethodsBase.Create;
 begin
   inherited Create;
@@ -69,6 +75,8 @@ begin
   for var i := 0 to methodList.Count - 1 do
       methodList[i].Free;
   methodlist.Free;
+  if help <> nil then
+     help.Free;
   inherited;
 end;
 
@@ -94,20 +102,30 @@ var m : TMethodDetails;
     methodName : TStringObject;
 begin
   nArgs := TVM (vm).popInteger();
-  m := TVM (vm).popMethodDetails();
-  obj := TDataObject (m.self);
   if nArgs > 0 then
      begin
      methodName := TVM (vm).popString();
+     m := TVM (vm).popMethodDetails();
+     obj := TDataObject (m.self);
+
      for i := 0 to obj.methods.methodList.Count - 1 do
          if obj.methods.methodList[i].name = methodName.value then
-            TVM (vm).push(TStringObject.Create(obj.methods.methodList[i].helpStr));
+            begin
+            if obj.methods.methodList[i].help <> nil then
+               TVM (vm).push(TStringObject.Create(obj.methods.methodList[i].help.getHelp()))
+            else
+               TVM (vm).push(TStringObject.Create(obj.methods.methodList[i].helpStr));
+            end;
      end
   else
+    begin
+    m := TVM (vm).popMethodDetails();
+    obj := TDataObject (m.self);
     if obj.help <> nil then
        TVM (vm).push(TStringObject.Create(obj.help.getHelp()))
     else
        TVM (vm).push (TStringObject.Create('Use the string name of the method in the help argumet, e.g "abc".help("len")'));
+    end;
 end;
 
 
@@ -118,6 +136,7 @@ begin
   self.Add(TMethodDetails.Create ('help',  VARIABLE_ARGS, 'Returns the help associated with this symbol', methodBase.getHelp));
   self.Add(TMethodDetails.Create ('dir',    0, 'dir of string object methods', methodBase.dir));
 end;
+
 
 // This could be replaced at some point with a dictionary
 function TMethodList.find (const name : string) : TMethodDetails;
@@ -140,8 +159,19 @@ begin
   inherited Create;
   self.name := name;
   self.helpStr := helpStr;
+  self.help := nil;
   self.nArgs := nArgs;
   self.method := fcn;
 end;
+
+constructor TMethodDetails.Create (const methodName, dataObjectName : string; nArgs : integer; fcn : TObjectMethod);
+begin
+  inherited Create;
+  self.name := methodName;
+  self.help := TDataObjectHelp.CreateObjectMethodHelp(dataObjectName, methodName);
+  self.nArgs := nArgs;
+  self.method := fcn;
+end;
+
 
 end.

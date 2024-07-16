@@ -14,7 +14,7 @@ interface
 Uses uRhodusEngine;
 
 procedure displayPrompt;
-procedure displayWelcome;
+procedure displayWelcome (clearScreen : boolean);
 procedure setColor (color: string);
 procedure setRed;
 procedure setGreen;
@@ -236,10 +236,11 @@ begin
 end;
 
 
-procedure displayWelcome;
+procedure displayWelcome (clearScreen : boolean);
 begin
   uTerminal.setWhite;
-  clearConsoleScreen;
+  if clearScreen then
+     clearConsoleScreen;
   write ('Welcome to Rhodus Language III Console. Version: ');
   setOrange;
   writeln (getRhodus().getVersion());

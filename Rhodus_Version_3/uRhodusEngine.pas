@@ -64,6 +64,7 @@ type
       procedure setReadStringCallBack (readStringCallBack : TVMReadStringCallBack);
       procedure setGraphicsMethodCallBack (graphicsMethodsCallback : PGraphicsMethods);
       procedure setSetColorCallBack (setColorCallBack : TVMCaptureStringCallBack);
+      procedure setPlottingMethodCallBack (plottingMethodsCallback : PPLOTTINGMethods);
 
       function  getVM : TVM;
       function  getVersion : AnsiString;
@@ -90,6 +91,7 @@ uses uCommands,
      uBuiltInOS,
      uBuiltInConfig,
      uBuiltInGraphics,
+     uBuiltInPlotter,
      uTerminal,
      uRhodusTypes,
      uStringObject,
@@ -356,6 +358,13 @@ procedure TRhodus.setGraphicsMethodCallBack (graphicsMethodsCallback : PGraphics
 begin
   graphicsMethods := graphicsMethodsCallback;
   setGraphicsCallBackTable (graphicsMethods);
+end;
+
+
+procedure TRhodus.setPlottingMethodCallBack (plottingMethodsCallback : PPLOTTINGMethods);
+begin
+  plottingMethods := plottingMethodsCallback;
+  setPlottingCallBackTable (plottingMethods);
 end;
 
 

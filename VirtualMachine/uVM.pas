@@ -415,7 +415,7 @@ var fmt : string;
 begin
   if st <> nil then
      case st.stackType of
-          symNonExistant  : result := AnsiString ('non-existant value in toStr');
+          symNonExistant  : result := ''; //(Don't return anything) result := AnsiString ('non-existant value in toStr');
           symInteger : begin
                       sym := SysLibraryRef.find ('integerFormat');
                       if sym <> nil then

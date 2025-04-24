@@ -1,0 +1,432 @@
+---------- module
+math
+This is the math module
+startMethod
+method
+sin
+sin (int|float|array)
+Returns the sine of the argument measured in radians.
+x = math.sin (1.2)
+x = math.sin (math.pi)
+x = math.sin ([1,2,3])
+##########
+startMethod
+method
+cos
+cos (int|float|array))
+Returns the cosine of the argument measured in radians.
+x = math.cos (1.2)
+x = math.cos (math.pi)
+x = math.cos ([1,2,3])
+##########
+startMethod
+method
+tan
+tan (int|float|array))
+Returns the tangent of the argument measured in radians.
+x = math.tan (1.2)
+x = math.tan (math.pi)
+x = math.tan ([1,2,3])
+##########
+startMethod
+method
+asin
+asin (int|float|array))
+It works out the asin
+x = math.asin (1.2)
+x = math.asin (math.pi)
+x = math.asin ([1,2,3])
+##########
+startMethod
+method
+acos
+acos (int|float|array))
+It works out the acos
+x = math.acos (1.2)
+x = math.acos (math.pi)
+x = math.acos ([1,2,3])
+##########
+startMethod
+method
+atan
+atan (int|float|array))
+It works out the atan
+x = math.atan (1.2)
+x = math.atan (math.pi)
+x = math.atan ([1,2,3])
+##########
+startMethod
+method
+toDegrees
+toDegrees (int|float))
+Use this method to convert radians to degrees.
+x = math.toDegrees (math.pi)
+x = math.toDegrees (6.5)
+##########
+startMethod
+method
+toRadians
+toRadians(int|float))
+Use this method to convert degrees to radians.
+x = math.toRadians (90)
+x = math.toRadians (45)
+x = math.sin (math.toRadians (45))
+##########
+startMethod
+method
+sqr
+sqr(int|float))
+Computes the square of a number.
+x = math.sqr (9)
+##########
+startMethod
+method
+sqrt
+sqrt(int|float))
+Computes the square root of a number. Negative values are not supported.
+x = math.sqrt (9)
+##########
+startMethod
+method
+exp
+exp(int|float))
+Computes e raised to the power of a value
+x = math.exp (9)
+##########
+startMethod
+method
+ln
+ln(int|float))
+Computes the natural logarithm of a value.
+x = math.ln (9)
+##########
+startMethod
+method
+log
+log(int|float))
+Computes the logarithm to base 10 of a value
+x = math.llog (1000)
+##########
+startMethod
+method
+abs
+abs(int|float))
+Returns the absolute value of a number.
+x = math.abs (9)
+##########
+startMethod
+method
+round
+round(int|float))
+Returns a value to the nearest whole number.
+x = math.abs (2.3)
+##########
+startMethod
+method
+ceil
+ceil(int|float))
+Rounds variables up toward positive infinity.
+x = math.ceil (4.3)
+##########
+startMethod
+method
+floor
+floor(int|float))
+Returns the largest integer less than or equal to a given number.
+x = math.floor (4.3)
+##########
+startMethod
+method
+trunc
+trunc(int|float))
+Returns the integer part of floating point number.
+x = math.trunc (4.3)
+##########
+startMethod
+method
+max
+max(int|float))
+Returns the maximum of two numbers
+x = math.max (2,4)
+##########
+startMethod
+method
+min
+min(int|float))
+Returns the minimum of two numbers.
+x = math.min (4, 3)
+##########
+startMethod
+value
+pi
+Returns the value of pi
+x = math.pi
+##########
+startMethod
+value
+eps
+Values below this are considered zero.
+x = math.eps
+##########
+---------- module
+random
+This is the random module
+startMethod
+method
+seed
+seed()
+Set the seed for the random number generator
+seed (23)
+##########
+startMethod
+method
+random
+randm()
+Return a uniformly distributed random number
+random()
+##########
+---------- module
+strings
+This is the string module
+startMethod
+method
+str
+str(string)
+Converts a string into a number
+value = strings.str ("1.23")
+##########
+startMethod
+method
+val
+val(int|double)
+Converts a number into a string
+astr = strings.val(23)
+##########
+startMethod
+method
+format
+format(int|double, string)
+Formats a number and returns a string
+astr = strings.format (2.3456, "%3.2f")
+##########
+startMethod
+method
+random
+random(int)
+Generate a rnadom sequenc yyo letter and digits of a given length
+astr = strings.random(15)
+##########
+startMethod
+value
+asciiLower
+Returns the lower ascii characters as a string
+x = strings.asciiLower
+##########
+startMethod
+value
+asciiUpper
+Returns the upper ascii characters as a string
+x = strings.asciiUpper
+##########
+startMethod
+value
+digits
+Returns the digit characters as a string
+x = strings.digits
+##########
+---------- module
+sys
+This is the sys module
+startMethod
+value
+version
+Returns the current verison of the interpreter
+x = sys.version
+##########
+startMethod
+value
+doubleFormat
+Default output format string for double values
+x = sys.doubleFormat
+##########
+startMethod
+value
+integerFormat
+Default output format string for integer values
+x = sys.integerFormat
+##########
+startMethod
+value
+argv
+The list of command line arguments passed
+x = sys.argv
+##########
+startMethod
+value
+path
+Search path for Rhodus import libraries
+x = sys.path
+##########
+---------- module
+mat
+2D Matrix support library
+startMethod
+method
+rnd
+rnd(int,int)
+Create an array, n by m of uniformly random numbers: m = mat.rnd (4,4)
+m = mat.rnd (4 ,4)
+##########
+startMethod
+method
+ident
+ident(int)
+Create an identity matrix of given size
+ m = mat.ident (4)
+##########
+startMethod
+method
+matrix
+matrix(int, int)
+Create an matrix of zeros of given size.
+m = mat.matrix (3, 2)
+##########
+startMethod
+method
+rndi
+rndi(int(n), int(m), int(lower), int(upper))
+Create a matrix of give size n by m of uniformly random integers between lower and upper.
+m = mat.rndi (3, 2, lower, upper)
+##########
+startMethod
+method
+csv
+csv(matrix)
+Convert a matrix to a csv string.
+astr = mat.csv (m)
+##########
+startMethod
+method
+inv
+inv(matrix)
+Compute inverse of a matrix.
+m = mat.inv (m)
+##########
+startMethod
+method
+det
+det(matrix)
+Compute the deteminant of a matrix.
+d = mat.det (m)
+##########
+startMethod
+method
+tr
+tr(matrix)
+Compute the transpose of a matrix.
+q = mat.tr (m)
+##########
+startMethod
+method
+lu
+lu(matrix)
+Compute the LU decompositon of a matrix.
+[L, U, P] = mat.lu (m)
+##########
+startMethod
+method
+qr
+qr(matrix)
+Compute the QR decompositon of a matrix.
+[Q, R] = mat.qr (m)
+##########
+startMethod
+method
+rref
+rref(matrix)
+Compute the reduced row echelon of a matrix.
+q = mat.rref (m)
+##########
+startMethod
+method
+solve
+solve(A, b)
+Solve: x = mat.solve (m, b). b must be a column matrix.
+x = mat.solve ({{1,2},{3,4}}, {{5},{7}})
+##########
+---------- module
+lists
+This is the lists module
+startMethod
+method
+range
+range(start, finish, stepsize)
+Create a list based on the range arguments
+l = lists.range (0, 10, 0.5)
+##########
+startMethod
+method
+rndu
+rndu(integer)
+Create a list of uniformly randomly distributed floats between 0 and 1. 
+l = lists.rndu (10)
+##########
+startMethod
+method
+rndi
+rndi(lower : integer, upper : integer, number of elements : integer)
+Create a list of random uniformly distributed integers.
+l = lists.rndi (lower, upper, number)
+l = lists.rndi (0, 10, 5)
+l = lists.rndi (5, 10, 20)
+##########
+---------- dataobject
+MatrixObject
+This is the matrix object
+startMethod
+rows
+m.rows ()
+Get the number of rows in the matrix: var.rows()
+n = m.rows()
+println (p.rows())
+##########
+startMethod
+cols
+m.cols ()
+Get the number of cols in the matrix: var.cols()
+n = m.cols()
+println (p.cols())
+##########
+startMethod
+shape
+m.shape ()
+Get the shape of the matrix, that is rows by columns
+[nrows, ncols] = m.shape()
+println (p.shape())
+##########
+startMethod
+row
+m.row (int)
+Extract a column from the matrix
+col = m.col(1)
+##########
+startMethod
+col
+m.col (int)
+Extract a row from the matrix
+row = m.row(2)
+##########
+startMethod
+toArray
+m.toArray ()
+Convert a matrix to an array.
+a = m.toArray(m)
+##########
+startMethod
+toList
+m.toList ()
+Convert a matrix to a list.
+l = m.row()
+##########
+end
+

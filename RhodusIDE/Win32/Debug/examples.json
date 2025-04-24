@@ -215,14 +215,14 @@ function drawTree(x1, y1, angle, depth)
         graphics.line (x1, y1, x2, y2)         
         drawTree(x2, y2, angle - fork_angle, depth - 1)
         drawTree(x2, y2, angle + fork_angle, depth - 1)
-       end;
+    end;
 end
 
 graphics.clear()
 graphics.setPenColor(210,20,0)
 graphics.setPenWidth(2)
 dims = graphics.size()
-drawTree(dims[0]/2, dims[1]/2, -90, 9)
+drawTree(dims[0]/2, dims[1]/1.5, -90, 9)
  
 "
 },
@@ -314,9 +314,9 @@ import random
 graphics.clear()
 for i = 1 to 4 do
     for j = 1 to 4 do
-        r = random.randint(255)
-        g = random.randint(255)
-        b = random.randint(255)
+        r = random.rndi(255)
+        g = random.rndi(255)
+        b = random.rndi(255)
         graphics.setPenColor (r, g, b); 
         graphics.setBrushColor (r, g, b); 
         graphics.fillEllipse (j*80,i*100,70,70)  
@@ -337,14 +337,14 @@ width = p[0]; height = p[1]
 
 graphics.clear()
 for i = 1 to 100 do
-   graphics.setPenWidth (3+random.randint(4))
+   graphics.setPenWidth (3+random.rndi(4))
    graphics.setPenColor(
-       random.randint (255),
-       random.randint (255),
-       random.randint (255)
+       random.rndi (255),
+       random.rndi (255),
+       random.rndi (255)
    )
-   graphics.moveto(random.randint (width),random.randint (height))
-   graphics.lineto(random.randint (width),random.randint (height))
+   graphics.moveto(random.rndi (width),random.rndi (height))
+   graphics.lineto(random.rndi (width),random.rndi (height))
 end
 "
 },
@@ -487,6 +487,93 @@ for i = 0 to colors.len() - 1 do
     end
 end
 "
+},{
+"name": "Life",
+"src":
+"
+// Game of Life in Rhodus
+
+import random
+import graphics
+
+
+rows = 80
+cols = 80
+board = array (rows,cols)
+newboard = array (rows, cols)
+
+// Initialize the board with random 0s and 1s
+for i = 0 to rows - 1 do
+    for j = 0 to cols - 1 do
+        board[i, j] = random.rndi(2)  // Random 0 or 1
+    end
+end
+
+
+function count_neighbors(i, j)
+    sum = 0
+    for x = -1 to 1 do 
+        for y = -1 to 1 do
+            if not (x == 0 and y == 0) then
+              ni = i + x
+              nj = j + y
+              if ni >= 0 and ni < rows and nj >= 0 and nj < cols then
+                  sum = sum + board[ni, nj]
+              end
+            end
+        end
+    end
+    return sum
+end
+
+function print_board()
+    graphics.beginUpdate()  
+    graphics.clear()
+    graphics.setPenColor (\"blue\"); 
+    graphics.setBrushColor (\"blue\"); 
+    for i = 0 to rows - 1 do
+        for j = 0 to cols - 1 do
+            if board[i, j] == 1 then
+               graphics.fillEllipse (150+5*i, 100+5*j, 2, 2)   
+            end
+        end
+    end
+    graphics.endUpdate()
+end
+
+count = 20
+while count > 0 do
+    print_board()
+
+    // Compute next generation
+    for i = 0 to rows - 1 do
+        for j = 0 to cols - 1 do
+            neighbors = count_neighbors(i, j)
+            if board[i, j] == 1 then
+                if neighbors < 2 or neighbors > 3 then
+                    newboard[i, j] = 0
+                else
+                    newboard[i, j] = 1
+                end
+            else
+                if neighbors == 3 then
+                    newboard[i, j] = 1
+                else
+                    newboard[i, j] = 0
+                end
+            end
+        end
+    end
+    
+    // Copy newboard to board
+    for i = 0 to rows - 1 do
+        for j = 0 to cols - 1 do
+            board[i, j] = newboard[i, j]
+        end
+    end
+    count = count - 1
+end
+"	
 }
   ]
 }

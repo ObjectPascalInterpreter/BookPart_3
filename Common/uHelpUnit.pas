@@ -686,6 +686,7 @@ function THelpDb.loadFromResource : string;
 var LStream : TResourceStream;
     List : TStringList;
 begin
+  try
   LStream := TResourceStream.Create(HInstance, 'HelpDb', RT_RCDATA);
   try
     List := TStringList.Create;
@@ -697,6 +698,10 @@ begin
     end;
   finally
     LStream.free;
+  end;
+  except
+    on Exception do
+       result := '';
   end;
 end;
 
@@ -712,6 +717,8 @@ begin
   else
     raise Exception.CreateFmt('Unknown method type: %s', [Str]);
 end;
+
+
 function StringToRecordType(const Str: string): TRecordType;
 begin
   if Str = 'rtModule' then
@@ -721,6 +728,8 @@ begin
   else
     raise Exception.CreateFmt('Unknown record type: %s', [Str]);
 end;
+
+
 procedure ImportFromJSON(const FileName: string; out HelpArray: THArrayOfHelp);
 var
   JSONObject: TJSONObject;
@@ -792,6 +801,8 @@ begin
     Result := 'Unknown';
   end;
 end;
+
+
 function RecordTypeToString(rt: TRecordType): string;
 begin
   case rt of
@@ -801,6 +812,8 @@ begin
     Result := 'Unknown';
   end;
 end;
+
+
 procedure ExportToJSON(const HelpArray: THArrayOfHelp; const FileName: string);
 var
   JSONObject: TJSONObject;

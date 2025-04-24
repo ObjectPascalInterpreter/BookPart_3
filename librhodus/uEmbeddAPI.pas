@@ -76,13 +76,13 @@ begin
         rhodus.runCode (mainModule, True)
      else
        begin
-       lastError.errorMsg := PAnsiChar (AnsiString('ERROR ' + '[line ' + inttostr (compilerError.lineNumber) + ', column: ' + inttostr (compilerError.columnNumber) + '] ' + compilerError.errorMsg));
+       lastError.errorMsg := PAnsiChar (AnsiString('X ERROR ' + '[line ' + inttostr (compilerError.lineNumber) + ', column: ' + inttostr (compilerError.columnNumber) + '] ' + compilerError.errorMsg));
        result := -1;
        end;
      end
   else
      begin
-     lastError.errorMsg := PAnsiChar (AnsiString ('ERROR ' + '[line ' + inttostr (syntaxError.lineNumber) + ', column: ' + inttostr (syntaxError.columnNumber) + '] ' + syntaxError.errorMsg));
+     lastError.errorMsg := PAnsiChar (AnsiString ('Y ERROR ' + '[line ' + inttostr (syntaxError.lineNumber) + ', column: ' + inttostr (syntaxError.columnNumber) + '] ' + syntaxError.errorMsg));
      result := -1;
      end;
 end;

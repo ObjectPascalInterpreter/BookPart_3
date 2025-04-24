@@ -54,7 +54,7 @@ uses
   uListOfBuiltIns in '..\Rhodus_Version_3\uListOfBuiltIns.pas',
   uMath in '..\Rhodus_Version_3\uMath.pas',
   uMemory in '..\Rhodus_Version_3\uMemory.pas',
-  uObjectSupport in '..\Rhodus_Version_3\uObjectSupport.pas',
+  //uObjectSupport in '..\Rhodus_Version_3\uObjectSupport.pas',
   uProgramCode in '..\Rhodus_Version_3\uProgramCode.pas',
   uRepl in '..\Rhodus_Version_3\uRepl.pas',
   uRhodusEngine in '..\Rhodus_Version_3\uRhodusEngine.pas',
@@ -71,8 +71,12 @@ uses
   uMatrixObject in '..\VirtualMachine\uMatrixObject.pas',
   uValueObject in '..\VirtualMachine\uValueObject.pas',
   uVectorObject in '..\VirtualMachine\uVectorObject.pas',
-  uBuiltInMatrix2 in '..\Rhodus_Version_3\uBuiltInMatrix2.pas',
+  //uBuiltInMatrix2 in '..\Rhodus_Version_3\uBuiltInMatrix2.pas',
   uMatrixFunctions in '..\Rhodus_Version_3\uMatrixFunctions.pas',
+  uDataObjectMethods in '..\VirtualMachine\uDataObjectMethods.pas',
+  uHelpUnit in '..\Common\uHelpUnit.pas',
+  uDataObject in '..\VirtualMachine\uDataObject.pas',
+  uBuiltInASCIIPlot in '..\Rhodus_Version_3\uBuiltInASCIIPlot.pas',
   uBuiltInPlotter in '..\Rhodus_Version_3\uBuiltInPlotter.pas';
 
 {$R *.res}

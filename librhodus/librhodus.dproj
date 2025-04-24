@@ -160,7 +160,6 @@
         <DCCReference Include="..\Rhodus_Version_3\uListOfBuiltIns.pas"/>
         <DCCReference Include="..\Rhodus_Version_3\uMath.pas"/>
         <DCCReference Include="..\Rhodus_Version_3\uMemory.pas"/>
-        <DCCReference Include="..\Rhodus_Version_3\uObjectSupport.pas"/>
         <DCCReference Include="..\Rhodus_Version_3\uProgramCode.pas"/>
         <DCCReference Include="..\Rhodus_Version_3\uRepl.pas"/>
         <DCCReference Include="..\Rhodus_Version_3\uRhodusEngine.pas"/>
@@ -177,8 +176,11 @@
         <DCCReference Include="..\VirtualMachine\uMatrixObject.pas"/>
         <DCCReference Include="..\VirtualMachine\uValueObject.pas"/>
         <DCCReference Include="..\VirtualMachine\uVectorObject.pas"/>
-        <DCCReference Include="..\Rhodus_Version_3\uBuiltInMatrix2.pas"/>
         <DCCReference Include="..\Rhodus_Version_3\uMatrixFunctions.pas"/>
+        <DCCReference Include="..\VirtualMachine\uDataObjectMethods.pas"/>
+        <DCCReference Include="..\Common\uHelpUnit.pas"/>
+        <DCCReference Include="..\VirtualMachine\uDataObject.pas"/>
+        <DCCReference Include="..\Rhodus_Version_3\uBuiltInASCIIPlot.pas"/>
         <DCCReference Include="..\Rhodus_Version_3\uBuiltInPlotter.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

@@ -110,6 +110,28 @@ println (b)
 "
 },
 {
+"name": "Graphics",
+"src":
+"
+
+import graphics
+
+m = graphics.dir()
+l = m.len()
+
+column = 0
+for i = 0 to l - 1 do
+    print(strings.format (m[i], \"%-16s\"))
+     column = column + 1
+     column = column mod 3
+     if column == 0 then
+        println();
+     end
+end
+println()
+"
+},
+{
 "name": "Square",
 "src":
 "
@@ -134,7 +156,7 @@ end
 "
 },
 {
-"name": "Tree",
+"name": "Tree1",
 "src":
 "
 import graphics
@@ -169,10 +191,116 @@ function tree(branchLen)
 end
 
 graphics.clear()
-graphics.pencolor(210,20,0)
+graphics.setPenColor(210,20,0)
+dims = graphics.size()
+x = dims[0]/2; y = dims[1]/1.5
 graphics.moveto (x,y)
-graphics.penwidth(2)
+graphics.setPenWidth(2)
 tree(115)
+"
+},
+{
+"name": "Tree2",
+"src":
+"
+import graphics
+import math
+
+function drawTree(x1, y1, angle, depth)
+    fork_angle = 20
+    base_len = 10.0
+    if depth > 0 then
+        x2 = x1 + int(math.cos(math.toRadians(angle)) * depth * base_len)
+        y2 = y1 + int(math.sin(math.toRadians(angle)) * depth * base_len)
+        graphics.line (x1, y1, x2, y2)         
+        drawTree(x2, y2, angle - fork_angle, depth - 1)
+        drawTree(x2, y2, angle + fork_angle, depth - 1)
+    end;
+end
+
+graphics.clear()
+graphics.setPenColor(210,20,0)
+graphics.setPenWidth(2)
+dims = graphics.size()
+drawTree(dims[0]/2, dims[1]/1.5, -90, 9)
+ 
+"
+},
+{
+"name": "Koch Curve",
+"src":	
+"
+import graphics
+import math
+
+function kochCurve(x1, y1, x2, y2, order)
+    if order == 0 then
+       graphics.moveto (x1, y1)
+       graphics.lineto (x2, y2)
+    else
+       dx = (x2 - x1) / 3.0
+       dy = (y2 - y1) / 3.0
+
+       x3 = x1 + dx
+       y3 = y1 + dy
+
+       x5 = x2 - dx
+       y5 = y2 - dy    
+       
+       x4 = (x1 + x2) / 2 + math.sqrt(3) * (y1 - y2) / 6
+       y4 = (y1 + y2) / 2 + math.sqrt(3) * (x2 - x1) / 6
+       
+       kochCurve(x1, y1, x3, y3, order - 1)
+       kochCurve(x3, y3, x4, y4, order - 1)
+       kochCurve(x4, y4, x5, y5, order - 1)
+       kochCurve(x5, y5, x2, y2, order - 1)       
+    end
+end
+
+graphics.clear()
+graphics.setPenColor (\"blue\")
+graphics.beginUpdate()
+x_start = 100;y_start = 400
+x_end  = 700; y_end = 400
+
+order = 4  // Change this to increase/decrease the complexity
+kochCurve(x_start, y_start, x_end, y_end, order)
+graphics.endUpdate()
+"
+},
+{
+"name": "Dragon Curve",
+"src":
+"
+
+import graphics
+import math
+
+x = 250; y = 200
+angle = 45
+    
+function dragon(size, split, d)
+   global x, y, angle
+   if split == 0 then
+      dx = -math.cos(angle)*size
+      dy = math.sin(angle)*size
+      x = x + dx; y = y + dy
+      graphics.lineto (x, y)
+   else
+      angle = angle + d*3.14/4
+      dragon(size/math.sqrt(2), split-1, 1)
+      angle = angle - d*3.14/2
+      dragon(size/math.sqrt(2), split-1, -1)
+      angle = angle + d*3.14/4
+   end
+end
+
+graphics.clear()
+graphics.setPenColor (\"blue\")
+graphics.beginUpdate()
+graphics.moveto (x, y)
+dragon (256, 12, 1)
+graphics.endUpdate()
 "
 },
 {
@@ -186,12 +314,12 @@ import random
 graphics.clear()
 for i = 1 to 4 do
     for j = 1 to 4 do
-        r = random.randint(255)
-        g = random.randint(255)
-        b = random.randint(255)
-        graphics.pencolor (r, g, b); 
-        graphics.brushcolor (r, g, b); 
-        graphics.fillellipse (j*80,i*100,70,70)  
+        r = random.rndi(255)
+        g = random.rndi(255)
+        b = random.rndi(255)
+        graphics.setPenColor (r, g, b); 
+        graphics.setBrushColor (r, g, b); 
+        graphics.fillEllipse (j*80,i*100,70,70)  
     end
 end
 "
@@ -209,15 +337,52 @@ width = p[0]; height = p[1]
 
 graphics.clear()
 for i = 1 to 100 do
-   graphics.penwidth (3+random.randint(4))
-   graphics.pencolor(
-       random.randint (255),
-       random.randint (255),
-       random.randint (255)
+   graphics.setPenWidth (3+random.rndi(4))
+   graphics.setPenColor(
+       random.rndi (255),
+       random.rndi (255),
+       random.rndi (255)
    )
-   graphics.moveto(random.randint (width),random.randint (height))
-   graphics.lineto(random.randint (width),random.randint (height))
+   graphics.moveto(random.rndi (width),random.rndi (height))
+   graphics.lineto(random.rndi (width),random.rndi (height))
 end
+"
+},
+{
+"name": "Bezier",
+"src":
+"
+import graphics
+import math
+
+function bezier(x1, y1, x2, y2, x3, y3, x4, y4, nseg)
+  currx = 0; curry = 0
+  graphics.setPenWidth (2)
+  graphics.line (x1, y1, x2, y2)
+  graphics.line (x4, y4, x3, y3)
+  graphics.setPenWidth (4)
+  graphics.filledCircle (x2, y2, 5)
+  graphics.filledCircle (x3, y3, 5)
+  graphics.setPenWidth (2)
+  for i = 0 to nseg do
+     t = i / nseg
+     a = (1-t)^3 
+     b = 3*t*(1-t)^2
+     c =  3*t^2*(1-t)
+     d = t^3
+     prevx = currx 
+     prevy = curry
+     currx = math.floor(a * x1 + b * x2 + c * x3 + d * x4 + 0.5)
+     curry = math.floor(a * y1 + b * y2 + c * y3 + d * y4 + 0.5)
+     if i > 0 then
+        graphics.line(prevx, prevy, currx, curry)
+     end
+  end
+end
+ 
+graphics.clear()
+bezier(60, 120, 100, 250, 
+       170, 120, 260, 250, 16)
 "
 },
 {
@@ -232,8 +397,8 @@ s = 520
 num = 600
 
 graphics.clear()
-graphics.pencolor (\"red\")
-graphics.brushcolor (\"red\")
+graphics.setPenColor (\"red\")
+graphics.setBrushColor (\"red\")
 
 for i = 0 to num do 
     t = i / num 
@@ -242,7 +407,7 @@ for i = 0 to num do
     x = s/2 + math.cos(a)*d
     y = s/2 + math.sin(a)*d
     r = t * 8
-    graphics.fillellipse (x, y, r, r)
+    graphics.fillEllipse (x, y, r, r)
 end"
 },
 {
@@ -277,18 +442,18 @@ for row = 0 to height - 1 do
 
       if k < kt then
          if k < 16 then 
-            graphics.pencolor (k * 8, k * 8, 128 + k * 4)
+            graphics.setPenColor (k * 8, k * 8, 128 + k * 4)
          end
          if (k >= 16) and (k < 64) then 
-            graphics.pencolor (128 + k - 16, 128 + k - 16, 192 + k - 16)
+            graphics.setPenColor (128 + k - 16, 128 + k - 16, 192 + k - 16)
          end
          if k >= 64 then 
-            graphics.pencolor (kt - k, 128 + (kt - k) / 2, kt - k)
+            graphics.setPenColor (kt - k, 128 + (kt - k) / 2, kt - k)
          end 
          graphics.pixel (row, col)
       else 
-         graphics.brushcolor (1,1,1)
-         graphics.pencolor (1, 1, 1) 
+         graphics.setBrushColor (1,1,1)
+         graphics.setPenColor (1, 1, 1) 
          graphics.pixel (row, col)
       end
    end
@@ -307,49 +472,14 @@ println (\"Time = \", time.getTickCount() - t1, \" ms\")
 import graphics
 import math
 
-colors = [\"Snow\", \"FloralWhite\", \"LavenderBlush\", \"OldLace\",
-\"Ivory\", \"CornSilk\", \"Beige\", \"AntiqueWhite\",
-\"Wheat\", \"AliceBlue\", \"GhostWhite\", \"Lavender\",
-\"Seashell\", \"LightYellow\", \"PapayaWhip\", \"NavajoWhite\",
-\"Moccasin\", \"Burlywood\", \"Azure\", \"Mintcream\",
-\"Honeydew\", \"Linen\", \"LemonChiffon\", \"BlanchedAlmond\",
-\"Bisque\", \"PeachPuff\", \"Tan\", \"Yellow\",
-\"DarkOrange\", \"Red\", \"DarkRed\", \"Maroon\",
-\"IndianRed\", \"Salmon\", \"Coral\", \"Gold\",
-\"Tomato\", \"Crimson\", \"Brown\", \"Chocolate\",
-\"SandyBrown\", \"LightSalmon\", \"LightCoral\", \"Orange\",
-\"OrangeRed\", \"Firebrick\", \"SaddleBrown\", \"Sienna\",
-\"Peru\", \"DarkSalmon\", \"RosyBrown\", \"PaleGoldenrod\",
-\"LightGoldenrodYellow\", \"Olive\", \"ForestGreen\", \"GreenYellow\",
-\"Chartreuse\", \"LightGreen\", \"Aquamarine\", \"SeaGreen\",
-\"GoldenRod\", \"Khaki\", \"OliveDrab\", \"Green\",
-\"YellowGreen\", \"LawnGreen\", \"PaleGreen\", \"MediumAquamarine\",
-\"MediumSeaGreen\", \"DarkGoldenRod\", \"DarkKhaki\", \"DarkOliveGreen\",
-\"Darkgreen\", \"LimeGreen\", \"Lime\", \"SpringGreen\",
-\"MediumSpringGreen\", \"DarkSeaGreen\", \"LightSeaGreen\", \"PaleTurquoise\",
-\"LightCyan\", \"LightBlue\", \"LightSkyBlue\", \"CornFlowerBlue\",
-\"DarkBlue\", \"Indigo\", \"MediumTurquoise\", \"Turquoise\",
-\"Cyan\", \"PowderBlue\", \"SkyBlue\", \"RoyalBlue\",
-\"MediumBlue\", \"MidnightBlue\", \"DarkTurquoise\", \"CadetBlue\",
-\"DarkCyan\", \"Teal\", \"DeepSkyBlue\", \"DodgerBlue\",
-\"Blue\", \"Navy\", \"DarkViolet\", \"DarkOrchid\",
-\"Magenta\", \"DarkMagenta\", \"MediumVioletRed\", \"PaleVioletRed\",
-\"BlueViolet\", \"MediumOrchid\", \"MediumPurple\", \"Purple\",
-\"DeepPink\", \"LightPink\", \"Violet\", \"Orchid\",
-\"Plum\", \"Thistle\", \"HotPink\", \"Pink\",
-\"LightSteelBlue\", \"MediumSlateBlue\", \"LightSlateGray\", \"White\",
-\"Lightgrey\", \"Gray\", \"SteelBlue\", \"SlateBlue\",
-\"SlateGray\", \"WhiteSmoke\", \"Silver\", \"DimGray\",
-\"MistyRose\", \"DarkSlateBlue\", \"DarkSlategray\", \"Gainsboro\",
-\"DarkGray\", \"Black\"]   
- 
+colors = graphics.getColorNames() 
 
 graphics.clear(\"white\")
 x = 10; y = 10;
 for i = 0 to colors.len() - 1 do
-    graphics.pencolor (colors[i])
-    graphics.brushcolor (colors[i])
-    graphics.fillrect (x, y, 40, 40)
+    graphics.setPenColor (colors[i])
+    graphics.setBrushColor (colors[i])
+    graphics.fillRect (x, y, 40, 40)
     x = x + 50
     if x > 600 then
        x = 10
@@ -357,6 +487,93 @@ for i = 0 to colors.len() - 1 do
     end
 end
 "
+},{
+"name": "Life",
+"src":
+"
+// Game of Life in Rhodus
+
+import random
+import graphics
+
+
+rows = 80
+cols = 80
+board = array (rows,cols)
+newboard = array (rows, cols)
+
+// Initialize the board with random 0s and 1s
+for i = 0 to rows - 1 do
+    for j = 0 to cols - 1 do
+        board[i, j] = random.rndi(2)  // Random 0 or 1
+    end
+end
+
+
+function count_neighbors(i, j)
+    sum = 0
+    for x = -1 to 1 do 
+        for y = -1 to 1 do
+            if not (x == 0 and y == 0) then
+              ni = i + x
+              nj = j + y
+              if ni >= 0 and ni < rows and nj >= 0 and nj < cols then
+                  sum = sum + board[ni, nj]
+              end
+            end
+        end
+    end
+    return sum
+end
+
+function print_board()
+    graphics.beginUpdate()  
+    graphics.clear()
+    graphics.setPenColor (\"blue\"); 
+    graphics.setBrushColor (\"blue\"); 
+    for i = 0 to rows - 1 do
+        for j = 0 to cols - 1 do
+            if board[i, j] == 1 then
+               graphics.fillEllipse (150+5*i, 100+5*j, 2, 2)   
+            end
+        end
+    end
+    graphics.endUpdate()
+end
+
+count = 20
+while count > 0 do
+    print_board()
+
+    // Compute next generation
+    for i = 0 to rows - 1 do
+        for j = 0 to cols - 1 do
+            neighbors = count_neighbors(i, j)
+            if board[i, j] == 1 then
+                if neighbors < 2 or neighbors > 3 then
+                    newboard[i, j] = 0
+                else
+                    newboard[i, j] = 1
+                end
+            else
+                if neighbors == 3 then
+                    newboard[i, j] = 1
+                else
+                    newboard[i, j] = 0
+                end
+            end
+        end
+    end
+    
+    // Copy newboard to board
+    for i = 0 to rows - 1 do
+        for j = 0 to cols - 1 do
+            board[i, j] = newboard[i, j]
+        end
+    end
+    count = count - 1
+end
+"	
 }
   ]
 }

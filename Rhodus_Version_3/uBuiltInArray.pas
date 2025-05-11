@@ -8,7 +8,7 @@ unit uBuiltInArray;
            Arrays can have any number of dimensions. There is a separate
            object type for 2D matrices
 
-           Array are creatde from lists using the array function:
+           Array are created from lists using the array function:
            eg
               x = array ([[1,2,3,4], [6,5,4,2]])
 
@@ -20,7 +20,7 @@ unit uBuiltInArray;
 
            a = m.toArray()
 
-           Both arrays and matricies can beconvert to lists:
+           Both arrays and matrices can be converted to lists:
 
            l = a.toList()
            l = m.toList()

@@ -4,6 +4,9 @@
   Date:    10/2021
   Purpose: This file implements the Matrix library that provide additional functions
 
+  All the basic matri functions such as add, sub, and other manipulations are
+  to be found in uMatrixObject.
+
   Ths source is distributed under Apache 2.0
   See https://www.apache.org/licenses/LICENSE-2.0.txt for further information
 
@@ -69,18 +72,13 @@ constructor TBuiltInMatrix.Create;
 begin
   inherited Create ('mat');
 
-  addMethod(ident,           1, 'ident');
-  addMethod(createMatrix,    2, 'matrix');
-  addMethod(rndu,            2, 'rnd');
-  addMethod(rndi,            4, 'rndi');
+  addMethod(ident,          1, 'ident');
+  addMethod(createMatrix,   2, 'matrix');
+  addMethod(rndu,           2, 'rnd');
+  addMethod(rndi,           4, 'rndi');
   addMethod(getCSV,         1, 'csv');
 
-  // Not sure if we need these.
-  //addMethod(mult,           2, 'mult',  'Multiply two 2D matrices: m = mat.mult (m1, m2)');
-  //addMethod(add,            2, 'add',   'Add two 2D matrices: m = mat.add (m1, m2)');
-  //addMethod(sub,            2, 'sub',   'Subtract two 2D matrices: m = mat.sub (m1, m2)');
-
-   addmethod(inverse,        1, 'inv');
+  addmethod(inverse,        1, 'inv');
   addmethod(LU,             1, 'lu');
   addmethod(QR,             1, 'qr');
   addmethod(reducedechelon, 1, 'rref');
@@ -162,6 +160,7 @@ begin
   result := TStringObject.Create(astr);
   TVM (vm).push (result);
 end;
+
 
 // Create an empty matrix of given size (m x n)
 procedure TBuiltInMatrix.createMatrix (vm : TObject);

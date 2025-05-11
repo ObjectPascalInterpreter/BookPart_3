@@ -33,7 +33,7 @@ type
        class function  sub (v1, v2 : TVectorObject) : TVectorObject;
        class function  minus (v : TVectorObject) : TVectorObject;
        function   clone : TDataObject; override;
-       function  getSize : integer; override;
+       function   getSize : integer; override;
        function   vectorToString: string;
 
        property size : Integer read getSize write setSize;

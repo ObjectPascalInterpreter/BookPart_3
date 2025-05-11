@@ -875,10 +875,20 @@ procedure THelpDb.loadHelpDatabase;
 var jsontext : string;
 begin
   // Order of reading is the text file, followed by the json file followed by the resource.
+  // db.txt is a simple text file that is easy to edit.
+  // claud.json is generated from db.txt and is a json format.
+  // These are only used by the developer to help create the help file HelpDb.json
+  // because its easier to manually edit a text file such as db.txt than the json file.
+  // Once a new copy of the help files developerCopy.json work, copy it over to helpDb.json
+
+  // HelpDb.json is the same as developerCopy.json but is never updated by the software
+  // If all else fails we load, what is likely to be, an old version of help in the resources
+
+  // When deployed you only need to copy the HelpDb.json file
   if TFile.Exists('db.txt') then
      begin
      arrayOfHelp := readTextFile;
-     ExportToJSON(arrayOfHelp, 'claud.json');
+     ExportToJSON(arrayOfHelp, 'developerCopy.json');
      end
   else
   if TFile.Exists('HelpDb.json') then

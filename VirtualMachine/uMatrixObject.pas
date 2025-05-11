@@ -254,9 +254,7 @@ begin
   Create;
   setLength (self.data, numrows);
   for i := 0 to numrows - 1 do
-      begin
       setlength (self.data[i], numcols);
-      end;
 end;
 
 

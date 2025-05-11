@@ -2,8 +2,8 @@ object frmMain: TfrmMain
   Left = 0
   Top = 0
   Caption = 'Rhodus IDE'
-  ClientHeight = 987
-  ClientWidth = 1756
+  ClientHeight = 974
+  ClientWidth = 1754
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -17,33 +17,30 @@ object frmMain: TfrmMain
   PixelsPerInch = 144
   TextHeight = 15
   object Splitter2: TSplitter
-    Left = 1036
+    Left = 1034
     Top = 86
     Width = 6
-    Height = 901
+    Height = 888
     Margins.Left = 5
     Margins.Top = 5
     Margins.Right = 5
     Margins.Bottom = 5
     Align = alRight
-    ExplicitLeft = 981
-    ExplicitHeight = 808
   end
   object Splitter4: TSplitter
     Left = 321
     Top = 86
     Width = 5
-    Height = 901
+    Height = 888
     Margins.Left = 5
     Margins.Top = 5
     Margins.Right = 5
     Margins.Bottom = 5
-    ExplicitHeight = 808
   end
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 1756
+    Width = 1754
     Height = 86
     Margins.Left = 5
     Margins.Top = 5
@@ -51,7 +48,6 @@ object frmMain: TfrmMain
     Margins.Bottom = 5
     Align = alTop
     TabOrder = 0
-    ExplicitWidth = 1701
     object Label1: TLabel
       Left = 596
       Top = 5
@@ -70,7 +66,7 @@ object frmMain: TfrmMain
       ParentFont = False
     end
     object lblVersion: TLabel
-      Left = 1669
+      Left = 1667
       Top = 1
       Width = 86
       Height = 84
@@ -87,7 +83,7 @@ object frmMain: TfrmMain
       Font.Name = 'Segoe UI'
       Font.Style = []
       ParentFont = False
-      ExplicitLeft = 1614
+      ExplicitTop = 2
       ExplicitHeight = 28
     end
     object btnRun: TButton
@@ -210,14 +206,13 @@ object frmMain: TfrmMain
     Left = 0
     Top = 86
     Width = 321
-    Height = 901
+    Height = 888
     Margins.Left = 5
     Margins.Top = 5
     Margins.Right = 5
     Margins.Bottom = 5
     Align = alLeft
     TabOrder = 1
-    ExplicitHeight = 808
     object DirectoryListBox1: TDirectoryListBox
       Left = 1
       Top = 40
@@ -237,12 +232,15 @@ object frmMain: TfrmMain
       ParentFont = False
       TabOrder = 0
       OnChange = DirectoryListBox1Change
+      ExplicitLeft = 2
+      ExplicitTop = 41
+      ExplicitWidth = 318
     end
     object FileListBox1: TFileListBox
       Left = 1
       Top = 388
       Width = 319
-      Height = 512
+      Height = 499
       Margins.Left = 5
       Margins.Top = 5
       Margins.Right = 5
@@ -257,7 +255,10 @@ object frmMain: TfrmMain
       ParentFont = False
       TabOrder = 1
       OnClick = FileListBox1Click
-      ExplicitHeight = 419
+      ExplicitLeft = 2
+      ExplicitTop = 389
+      ExplicitWidth = 318
+      ExplicitHeight = 498
     end
     object pnlSideControls: TPanel
       Left = 1
@@ -270,6 +271,9 @@ object frmMain: TfrmMain
       Margins.Bottom = 5
       Align = alTop
       TabOrder = 2
+      ExplicitLeft = 2
+      ExplicitTop = 2
+      ExplicitWidth = 318
       object btnCloseSidePanel: TSpeedButton
         Left = 14
         Top = 5
@@ -295,20 +299,18 @@ object frmMain: TfrmMain
   object pnlEditor: TPanel
     Left = 326
     Top = 86
-    Width = 710
-    Height = 901
+    Width = 708
+    Height = 888
     Margins.Left = 5
     Margins.Top = 5
     Margins.Right = 5
     Margins.Bottom = 5
     Align = alClient
     TabOrder = 2
-    ExplicitWidth = 655
-    ExplicitHeight = 808
     object pblBottomBase: TPanel
       Left = 1
-      Top = 570
-      Width = 708
+      Top = 557
+      Width = 706
       Height = 330
       Margins.Left = 5
       Margins.Top = 5
@@ -316,12 +318,12 @@ object frmMain: TfrmMain
       Margins.Bottom = 5
       Align = alBottom
       TabOrder = 0
-      ExplicitTop = 477
-      ExplicitWidth = 653
+      ExplicitLeft = 2
+      ExplicitWidth = 705
       object Splitter1: TSplitter
         Left = 1
         Top = 1
-        Width = 706
+        Width = 704
         Height = 3
         Cursor = crVSplit
         Margins.Left = 5
@@ -331,12 +333,12 @@ object frmMain: TfrmMain
         Align = alTop
         ExplicitLeft = 2
         ExplicitTop = 2
-        ExplicitWidth = 649
+        ExplicitWidth = 702
       end
       object memoOutput: TMemo
         Left = 1
         Top = 4
-        Width = 706
+        Width = 704
         Height = 260
         Margins.Left = 5
         Margins.Top = 5
@@ -351,12 +353,15 @@ object frmMain: TfrmMain
         ParentFont = False
         ScrollBars = ssBoth
         TabOrder = 0
-        ExplicitWidth = 651
+        ExplicitLeft = 2
+        ExplicitTop = 5
+        ExplicitWidth = 702
+        ExplicitHeight = 259
       end
       object pnlMemoButtons: TPanel
         Left = 1
         Top = 264
-        Width = 706
+        Width = 704
         Height = 65
         Margins.Left = 5
         Margins.Top = 5
@@ -364,7 +369,8 @@ object frmMain: TfrmMain
         Margins.Bottom = 5
         Align = alBottom
         TabOrder = 1
-        ExplicitWidth = 651
+        ExplicitLeft = 2
+        ExplicitWidth = 702
         object btnClear: TButton
           Left = 8
           Top = 5
@@ -389,8 +395,8 @@ object frmMain: TfrmMain
     object SynEditor: TSynEdit
       Left = 1
       Top = 1
-      Width = 708
-      Height = 569
+      Width = 706
+      Height = 556
       Margins.Left = 5
       Margins.Top = 5
       Margins.Right = 5
@@ -460,15 +466,17 @@ object frmMain: TfrmMain
         '    heading = heading + 150 '
         'end')
       SelectedColor.Alpha = 0.400000005960464500
-      ExplicitWidth = 653
-      ExplicitHeight = 476
+      ExplicitLeft = 2
+      ExplicitTop = 2
+      ExplicitWidth = 705
+      ExplicitHeight = 555
     end
   end
   object pnlRight: TPanel
-    Left = 1042
+    Left = 1040
     Top = 86
     Width = 714
-    Height = 901
+    Height = 888
     Margins.Left = 5
     Margins.Top = 5
     Margins.Right = 5
@@ -476,11 +484,9 @@ object frmMain: TfrmMain
     Align = alRight
     TabOrder = 3
     OnResize = pnlRightResize
-    ExplicitLeft = 987
-    ExplicitHeight = 808
     object Splitter3: TSplitter
       Left = 1
-      Top = 441
+      Top = 428
       Width = 712
       Height = 3
       Cursor = crVSplit
@@ -490,12 +496,11 @@ object frmMain: TfrmMain
       Margins.Bottom = 5
       Align = alBottom
       ExplicitLeft = 2
-      ExplicitTop = 348
       ExplicitWidth = 711
     end
     object pnlInfo: TPanel
       Left = 1
-      Top = 444
+      Top = 431
       Width = 712
       Height = 456
       Margins.Left = 5
@@ -505,13 +510,14 @@ object frmMain: TfrmMain
       Align = alBottom
       ParentBackground = False
       TabOrder = 0
-      ExplicitTop = 351
+      ExplicitLeft = 2
+      ExplicitWidth = 711
     end
     object pnlImage: TPanel
       Left = 1
       Top = 1
       Width = 712
-      Height = 440
+      Height = 427
       Margins.Left = 5
       Margins.Top = 5
       Margins.Right = 5
@@ -520,12 +526,15 @@ object frmMain: TfrmMain
       Caption = 'pnlImage'
       TabOrder = 1
       OnResize = pnlRightResize
-      ExplicitHeight = 347
+      ExplicitLeft = 2
+      ExplicitTop = 2
+      ExplicitWidth = 711
+      ExplicitHeight = 426
       object pnlDrawing: TImage
         Left = 1
         Top = 1
         Width = 710
-        Height = 438
+        Height = 425
         Margins.Left = 5
         Margins.Top = 5
         Margins.Right = 5
@@ -534,7 +543,7 @@ object frmMain: TfrmMain
         ExplicitLeft = 2
         ExplicitTop = 2
         ExplicitWidth = 708
-        ExplicitHeight = 343
+        ExplicitHeight = 423
       end
     end
   end

@@ -81,6 +81,7 @@ type
 
        function    clone : TDataObject; override;
        function    getSize : integer; override;
+       function    ToString : string; override;
        constructor Create; overload;
        constructor Create (methodName : string); overload;
        constructor Create (methodName : string; nArgs : integer; funcPtr : TxBuiltInFunction); overload;
@@ -233,6 +234,7 @@ begin
   addModule (module, TBuiltInStr.Create);
   addModule (module, TBuiltInMatrix.Create);
   addModule (module, TBuiltInArray.Create);
+  //addModule (module, TBuiltInMath.Create);
 
   // Needed by the compiler to access the path variable
   SysLibraryRef := TBuiltInSys.Create;
@@ -286,6 +288,9 @@ function TModule.find (moduleName, symbolName : string) : TSymbol;
 var symbol : TSymbol;
 begin
   symbolTable.find(moduleName, symbol);
+  if symbol = nil then
+     raise ERuntimeException.Create ('Module: ' + moduleName + ' cannot be found, import it first');
+
   result := symbol.mValue.find(symbolName);
   if result = nil then
      raise ERuntimeException.Create ('Internal error, unable to locate: ' + moduleName + ':' + symbolName);
@@ -507,13 +512,18 @@ begin
       result := result + self.localSymbolTable.InstanceSize;
 end;
 
+
+function TUserFunction.toString : string;
+begin
+  result := methodName;
+end;
+
+
 // ---------------------------------------------------------------------------------
 
 // Symbols are stored in the module level symbol table
 constructor TSymbol.Create;
 begin
-  dataObject := nil;
-  //sValue := nil;
   dataObject := nil;
   symbolType := symUndefined;
   locked := False;   // used for things that shouldn't be changed, eg math.pi
@@ -553,7 +563,10 @@ end;
 
 function TSymbol.getSize : integer;
 begin
-  result := dataObject.getSize;
+  if dataObject = nil then
+     result := 0
+  else
+     result := dataObject.getSize;
 end;
 
 
@@ -580,7 +593,7 @@ end;
 
 constructor TSymbolTable.Create;
 begin
-  // Make the symbol table own the cotnents so tha ton freeing
+  // Make the symbol table own the cotnents so that on freeing
   // it will free the contents as well
   inherited Create ([doOwnsValues]);
 end;

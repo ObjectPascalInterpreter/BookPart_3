@@ -48,8 +48,6 @@ type
   public
     list: TListContainer;          // Contains the data
 
-    listToArray : boolean;
-
     class var listMethods : TListMethods;
 
     class function addLists(list1, list2: TListObject): TListObject;
@@ -363,7 +361,6 @@ constructor TListObject.Create;
 begin
   inherited Create;    // Adds object to the memory pool
 
-  listToArray  := False;
   objectType := symList;
   list := TListContainer.Create;
   methods := TListObject.listMethods;

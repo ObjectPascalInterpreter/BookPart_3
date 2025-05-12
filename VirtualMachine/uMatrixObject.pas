@@ -31,6 +31,10 @@ type
      procedure   getToArray (vm : TObject);
      procedure   getToList (vm : TObject);
 
+     procedure   vstack (vm : TObject);
+     procedure   hstack (vm : TObject);
+     procedure   appendRow (vm : TObject);
+
      constructor Create;
      destructor  Destroy; override;
   end;
@@ -120,6 +124,10 @@ begin
   methodList.Add(TMethodDetails.Create ('shape','MatrixObject', 0, getShape));
   methodList.Add(TMethodDetails.Create ('row',  'MatrixObject', 1, getRow));
   methodList.Add(TMethodDetails.Create ('col',  'MatrixObject', 1, getColumn));
+
+  methodList.Add(TMethodDetails.Create ('appendrow', 'MatrixObject', 1, appendRow));
+  methodList.Add(TMethodDetails.Create ('vstack',    'MatrixObject', 1, vstack));
+  methodList.Add(TMethodDetails.Create ('hstack',    'MatrixObject', 1, hstack));
 
   methodList.Add(TMethodDetails.Create ('toArray', 'MatrixObject', 0, getToArray));
   methodList.Add(TMethodDetails.Create ('toList',  'MatrixObject', 0, getToList));
@@ -236,6 +244,86 @@ begin
 
   TVM (vm).push(TMatrixObject.toList(m) as TListObject);
 end;
+
+
+procedure TMatrixMethods.hstack (vm : TObject);
+var selfMatrix, m, answer : TMatrixObject;
+    md : TMethodDetails;
+    i, j : integer;
+begin
+   m := TVM (vm).popMatrix;
+   md := TVM (vm).popMethodDetails;
+   selfMatrix := TMatrixObject (md.self);
+
+   if selfMatrix.numRows <> m.numRows then
+       raise ERuntimeException.Create('Both matrices must have the same number of rows: ' + inttostr (selfMatrix.numRows));
+
+   answer := TMatrixObject.Create(selfMatrix.numRows, selfMatrix.numCols + m.numCols);
+   for i := 0 to selfMatrix.numRows - 1 do
+       for j := 0 to selfMatrix.numCols - 1 do
+            answer[i, j] := selfMatrix[i, j];
+
+   for i := 0 to selfMatrix.numRows - 1 do
+       for j := selfMatrix.numCols to selfMatrix.numCols + m.numCols - 1 do
+            answer[i, j] := m[i, j-m.numCols-1];
+
+   TVM (vm).push(answer);
+end;
+
+
+procedure TMatrixMethods.vstack (vm : TObject);
+var selfMatrix, m, answer : TMatrixObject;
+    md : TMethodDetails;
+    i : integer;
+begin
+   m := TVM (vm).popMatrix;
+   md := TVM (vm).popMethodDetails;
+   selfMatrix := TMatrixObject (md.self);
+
+   if selfMatrix.numCols <> m.numCols then
+       raise ERuntimeException.Create('Both matrices must have the same number of columns: ' + inttostr (selfMatrix.numCols));
+
+   answer := TMatrixObject.Create(selfMatrix.numRows + m.numRows, selfMatrix.numCols);
+   for i := 0 to selfMatrix.numRows - 1 do
+       answer.data[i] := copy (selfMatrix.data[i]);
+   for i := 0 to m.numRows - 1 do
+       answer.data[selfMatrix.numRows + i] := copy (m.data[i]);
+
+   TVM (vm).push(answer);
+end;
+
+
+// m.appendRow (array([6,7]))
+procedure TMatrixMethods.appendRow (vm : TObject);
+var selfMatrix : TMatrixObject;
+    arg : TArrayObject;
+    tmp : TArrayObject;
+    md : TMethodDetails;
+    vec : TVectorObject;
+    i : integer;
+begin
+   arg := TVM (vm).popArray;
+   md := TVM (vm).popMethodDetails;
+
+   selfMatrix := TMatrixObject (md.self);
+
+   if arg.ndims <> 1 then
+      raise ERuntimeException.Create('Must be 1D');
+
+   if arg.dim[0] <> selfMatrix.numCols then
+      raise ERuntimeException.Create('Array must have: ' + inttostr (selfMatrix.numCols) + ' entries');
+
+   vec := TVectorObject.Create(arg.dim[0]);
+   for i := 0 to vec.size - 1 do
+       vec[i] := arg.getValue1D(i);
+
+   selfMatrix.setNumRows (selfMatrix.numCols + 1);
+   selfMatrix.addRow(arg.dim[0], vec);
+
+  //TVM (vm).push(TMatrixObject.toList(m) as TListObject);
+  TVM (vm).push(@noneStackType);
+end;
+
 
 // -----------------------------------------------------------------------------------
 
@@ -425,7 +513,9 @@ class function TMatrixObject.isEqualTo (m1, m2 : TMatrixObject) : boolean;
 var i, j : integer;
     epsSymbol : TSymbol;
 begin
-  epsSymbol := mainModule.find('math', 'eps');
+  //epsSymbol := mainModule.find('math', 'eps');
+  //eps symbol now stored in main since math may not be have been imported.
+  mainModule.symbolTable.find('eps', epsSymbol);
 
   if (m1.numRows = m1.numRows) and (m1.numCols = m2.numCols) then
      begin
@@ -472,6 +562,7 @@ begin
       for j := 0 to m.numCols - 1 do
           result.setValue2D(i, j, m[i,j]);
 end;
+
 
 
 // -----------------------------------------------------------------------------------------------

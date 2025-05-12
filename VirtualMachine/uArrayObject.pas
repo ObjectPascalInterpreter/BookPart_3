@@ -65,7 +65,7 @@ type
 
      function        slice (var slices : TSliceObjectList) : TArrayObject;
 
-     procedure       append (mat : TArrayObject);
+     procedure       append (arrayArg : TArrayObject);
 
     class function   toList (a : TArrayObject) : TDataObject;  // Due to circular reference issue
     class function   toMatrix (a : TArrayObject) : TDataObject;
@@ -329,7 +329,7 @@ begin
         raise ERuntimeException.Create('method <appendrow> column sizes don''t match');
      end
   else
-     raise ERuntimeException.Create('The method <appendrow> only applies to 2D matrices');
+     raise ERuntimeException.Create('The method <appendrow> only applies to 2D arrays');
   //TVM (vm).push (target);
   TVM (vm).push (@noneStackType);
 end;
@@ -678,7 +678,7 @@ begin
   fmt := (SysLibraryRef.find ('doubleFormat').dataObject as TStringObject).value;
   if depth = High(dim) then
   begin
-    result := result + '{';
+    result := result + '(';
     for i := 0 to dim[depth] - 1 do
     begin
       if i > 0 then
@@ -689,11 +689,11 @@ begin
       Offset := Offset * dim[depth] + i;
       result := result + (Format (fmt, [dataf[Offset]]));
     end;
-    result := result + '}';
+    result := result + ')';
   end
   else
   begin
-    result := result + '{';
+    result := result + '(';
     for i := 0 to dim[Depth] - 1 do
     begin
       if i > 0 then
@@ -702,7 +702,7 @@ begin
       Indices[depth] := i;
       result := arrayRecursiveToString(Indices, depth + 1);
     end;
-    result := result + '}';
+    result := result + ')';
   end;
 end;
 
@@ -765,22 +765,22 @@ end;
 
 
 
-procedure TArrayObject.append (mat : TArrayObject);
+procedure TArrayObject.append (arrayArg : TArrayObject);
 var i : integer;
 begin
   if length (self.dim) <> 2 then
      raise ERuntimeException.Create('Only 2D arrays are currently supported in append');
 
   // Check that the number of columns is compatible
-  if self.dim[1] = mat.dim[1] then
+  if self.dim[1] = arrayArg.dim[1] then
      begin
      inc (self.dim[0]);
      setLength (dataf, self.dim[0] * self.dim[1]);
 
-     for i := 0 to mat.dim[1] - 1 do
-         self.setValue2D (self.dim[0]-1, i, mat.getValue2D (0, i));
+     for i := 0 to arrayArg.dim[1] - 1 do
+         self.setValue2D (self.dim[0]-1, i, arrayArg.getValue2D (0, i));
 
-     setLength (mat.dataf, 0);
+     setLength (arrayArg.dataf, 0);
      end
   else
     raise ERuntimeException.Create(' column dimensions must match for each row of the matrix');
@@ -1117,7 +1117,9 @@ class function TArrayObject.isEqualTo (a1, a2 : TArrayObject) : boolean;
 var n: integer;
     epsSymbol : TSymbol;
 begin
-  epsSymbol := mainModule.find('math', 'eps');
+  //epsSymbol :=  mainModule.find('math' 'eps');
+   // eps symbol now stored in main since math may not be imported yet
+  mainModule.symbolTable.find('eps', epsSymbol);
 
   result := True;
   n := a1.getNumDimensions() - 1;

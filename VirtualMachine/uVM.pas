@@ -939,6 +939,7 @@ begin
   stack[stackTop].stackType := symValueObject;
 end;
 
+
 procedure TVM.push (obj: TDataObject);
 begin
   inc(stackTop);
@@ -1489,10 +1490,12 @@ symValueObject : begin
    symObjectMethod :
              begin
              if symbolName = 'help' then
-                raiseError ('Help cannot be used with data objects. To get help on a method, use for example var.help ("nameOfMethod")');
-
-             methodDetails := primary.oValue;
-             push (methodDetails);
+                raiseError ('Help cannot be used with data objects. To get help on a method, use for example var.help ("nameOfMethod")')
+             else
+                begin
+                methodDetails := primary.oValue;
+                push (methodDetails);
+                end;
              end;
    symInteger, symDouble, symBoolean:
              begin

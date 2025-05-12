@@ -132,9 +132,6 @@ end;
 constructor TMethodList.Create (methodBase : TMethodsBase);
 begin
   inherited Create;
-
-  self.Add(TMethodDetails.Create ('help',  VARIABLE_ARGS, 'Returns the help associated with this symbol', methodBase.getHelp));
-  self.Add(TMethodDetails.Create ('dir',    0, 'dir of string object methods', methodBase.dir));
 end;
 
 

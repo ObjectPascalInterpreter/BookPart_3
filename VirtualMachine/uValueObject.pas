@@ -146,7 +146,9 @@ end;
 function TValueObject.isEqualTo (value : double) : boolean;
 var epsSymbol : TSymbol;
 begin
-  epsSymbol := mainModule.find('math', 'eps');
+  //epsSymbol := mainModule.find('math', 'eps');
+  //eps symbol now stored in main since math may not be have been imported.
+  mainModule.symbolTable.find('eps', epsSymbol);
 
   if sameValue (dValue, value, epsSymbol.dValue)then
      result := True

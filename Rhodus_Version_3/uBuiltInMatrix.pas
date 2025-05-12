@@ -41,6 +41,7 @@ type
        procedure   reducedechelon (vm : TObject);
        procedure   det (vm : TObject);
        procedure   transpose (vm : TObject);
+       procedure   append (vm : TObject);
        procedure   LU (vm : TObject);
        procedure   QR (vm : TObject);
        procedure   solve (vm : TObject);
@@ -74,8 +75,9 @@ begin
 
   addMethod(ident,          1, 'ident');
   addMethod(createMatrix,   2, 'matrix');
+  addmethod(append,         1, 'append');
   addMethod(rndu,           2, 'rnd');
-  addMethod(rndi,           4, 'rndi');
+  addMethod(rndi,          -1, 'rndi');
   addMethod(getCSV,         1, 'csv');
 
   addmethod(inverse,        1, 'inv');
@@ -114,12 +116,37 @@ procedure TBuiltInMatrix.rndi (vm : TObject);
 var upper, lower : integer;
     n, m : integer;
     mat : TMatrixObject;
-    i, j : integer;
+    i, j, nArgs : integer;
 begin
-  upper := TVM (vm).popInteger;
-  lower := TVM (vm).popInteger;
-  m := TVM (vm).popInteger;
-  n := TVM (vm).popInteger;
+  nArgs := TVM (vm).popInteger;
+  case nArgs of
+     0, 1 : raise ERuntimeException.Create('Insufficient arguments, need at least 2');
+
+     2:
+       begin
+       lower := 1;
+       upper := 10;
+       m := TVM (vm).popInteger;
+       n := TVM (vm).popInteger;
+       end;
+     3:
+       begin
+       upper := TVM (vm).popInteger;
+       lower := 1;
+       m := TVM (vm).popInteger;
+       n := TVM (vm).popInteger;
+       end;
+     4:
+       begin
+       upper := TVM (vm).popInteger;
+       lower := TVM (vm).popInteger;
+       m := TVM (vm).popInteger;
+       n := TVM (vm).popInteger;
+       end;
+     else
+       raise ERuntimeException.Create('Too many arguments, number of arguments should be between 2 to 4');
+  end;
+
   mat := TMatrixObject.Create (n, m);
   for i := 0 to mat.numRows - 1 do
       for j := 0 to mat.numCols - 1 do
@@ -190,6 +217,26 @@ begin
 
   TVM (vm).push (m2);
 end;
+
+
+procedure TBuiltInMatrix.append (vm : TObject);
+var m1, m2 : TMatrixObject;
+    r, c : integer;
+    i, j : integer;
+begin
+  m1 := TVM (vm).popMatrix;
+
+  r := m1.numRows;
+  c := m1.numCols;
+
+//  m2 := TMatrixObject.Create (r, c+1);
+//  for i := 0 to r - 1 do
+//      for j := 0 to c - 1 do
+//          m2.setval(j,i, m1.getval(i,j));
+
+  TVM (vm).push (m1);
+end;
+
 
 
 // Not sure how relevant the add and sub are

@@ -297,8 +297,11 @@ startMethod
 method
 rndi
 rndi(int(n), int(m), int(lower), int(upper))
-Create a matrix of give size n by m of uniformly random integers between lower and upper.
+Create a matrix of give size n by m of uniformly distributed random integers between lower and upper.
 m = mat.rndi (3, 2, lower, upper)
+This method can take a different number of arguments:
+m = mat.rndi (3, 2)  Assume a range 1 to 10
+m = mat.rndi (3, 2, 20)   Assume a range 1 to 20
 ##########
 startMethod
 method

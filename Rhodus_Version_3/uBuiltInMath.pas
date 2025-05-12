@@ -51,6 +51,8 @@ type
   end;
 
 
+var default_epsilon : double = 1e-6;
+
 implementation
 
 Uses Math,
@@ -66,8 +68,6 @@ Uses Math,
      uMachineStack,
      uVMExceptions,
      uMemoryManager;
-
-var default_epsilon : double = 1e-6;
 
 procedure raiseMathError (functionName : string);
 begin
@@ -108,7 +108,8 @@ begin
 
   addObjectValue ('pi', TValueObject.Create (Pi), True);    // True = locked
   addObjectValue ('e', TValueObject.Create (exp(1)), True);
-  addObjectValue ('eps', TValueObject.Create (default_epsilon), False);
+  //eps symbol now stored in main since we can't guarentee math has been imported.
+  //addObjectValue ('eps', TValueObject.Create (default_epsilon), False);
 end;
 
 

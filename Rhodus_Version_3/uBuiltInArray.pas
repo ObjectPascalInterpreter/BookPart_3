@@ -72,11 +72,11 @@ constructor TBuiltInArray.Create;
 begin
   inherited Create ('arrays');
 
-  addMethod(getMake,     1, 'make',  'Create an array of given length: ar = arrays.make (10, [10])');
+  addMethod(getMake,     1, 'make',  'Create an array of zeros of given length: ar = arrays.make (10)');
   addMethod(getRange,    3, 'range', 'Create an array of evenly spaced values: ar = arrays.make (0, 5, 10)');
   addMethod(getRndu,    VARIABLE_ARGS, 'rndu',  'Create an array of given dimensions of uniformly random numbers: ar = arrays.rand (4,4,2)');
-  addMethod(getRndi,     3, 'rndi', 'Create am array of uniformly random integers: ar = arrays.rndi (lower, upper, [3,3])');
-  addMethod(getRndn,     VARIABLE_ARGS, 'rndn', 'Create an array of normally distributed random numbers: ar = arrays.rndi (lower, upper, [3,3])');
+  addMethod(getRndi,     3, 'rndi', 'Create am array of uniformly random integers: ar = arrays.rndi ([3,3], lower, upper)');
+  addMethod(getRndn,     VARIABLE_ARGS, 'rndn', 'Create an array of normally distributed random numbers: ar = arrays.rndn (x,y,z,...,mean, standard deviation)');
   addMethod(isEqual,     2, 'equal', 'Return true if the two arrays are equal: arrays.equal (m1,m2)');
   addMethod(getMean,     1, 'mean', 'Return mean values of a 1D array: m = arrays.mean (a)');
   addMethod(getBin,      4, 'bin', 'm = arrays.bin (x, 0, 5, 20)');
@@ -187,9 +187,10 @@ var lower, upper : integer;
     i : integer;
     idx : TIndexArray;
 begin
-  al := TVM (vm).popList;       // dimensions
   upper := TVM (vm).popInteger;
   lower := TVM (vm).popInteger;
+  al := TVM (vm).popList;       // dimensions
+
   setLength (idx, al.list.count);
   n := 1;
   for i := 0 to al.list.Count - 1 do

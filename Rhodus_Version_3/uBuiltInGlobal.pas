@@ -50,7 +50,8 @@ Uses Math,
      uCompile,
      uHelpUnit,
      uAssembler,
-     uRhodusTypes;
+     uRhodusTypes,
+     uBuiltInMath;
 
 type
   TBuiltInGlobal = class (TModuleLib)
@@ -134,7 +135,7 @@ begin
   module.addMethod (TBuiltInGlobal.test,           2, 'test',          'Attached method to the debugger: debug (fcn)');
   module.addMethod (TBuiltInGlobal.document, VARIABLE_ARGS, 'document', 'Generate LaTeX documentation for the module specificed in the argument; e.g docs = document (math)' +
                'The second optional argument speciifies the format, ''latex'' or ''md'' (markdown). Default is LaTeX');
-
+  module.addObjectValue('eps', TValueObject.Create (default_epsilon), False);
 end;
 
 

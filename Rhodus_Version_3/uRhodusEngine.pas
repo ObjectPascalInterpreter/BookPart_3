@@ -426,7 +426,7 @@ begin
                 symModule  : printLnCallBack (AnsiString ('Module: ' + st.module.moduleName));
                 symUserFunc: printLnCallBack (AnsiString ('Function: ' + TUserFunction (st.dataObject).moduleRef.moduleName + '.' + TUserFunction (st.dataObject).methodName));
                 symObjectMethod : begin
-                      printLnCallBack (AnsiString ('Object Method: ' + st.oValue.help.description));
+                      printLnCallBack (AnsiString ('Object Method: ' + st.oValue.name));
                       // This pop causes a stack underflow
                      // 8/20/2023 vm.pop();
                       end;   // pop the operand

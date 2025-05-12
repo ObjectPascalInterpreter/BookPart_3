@@ -1,6 +1,8 @@
 
 // Use of getAttr function
 
+import math
+
 println ("Prints out all the functions in the math lib")
 x = math.dir()
 fx = []

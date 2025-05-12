@@ -77,7 +77,6 @@ type
        class procedure getMain (vm : TObject);
        class procedure dis (vm : TObject);
        class procedure stackInfo (vm : TObject);
-       class procedure getHelp (_vm : TObject);
        class procedure startDebug (vm : TObject);
        class procedure test (vm : TObject);
 
@@ -629,8 +628,11 @@ begin
        symList : TVM (vm).push (symbol.dataObject);
        symUserFunc : TVM (vm).push (symbol.dataObject);
        symModule : TVM (vm).push (symbol.mValue);
+       symValueObject : TVM (vm).push(symbol.dataObject);
        symUndefined :  TVM (vm).push (TStringObject.create ('undefined'));
-     end;
+     else
+       raise ERuntimeException.Create('Internal error: Unknown symbol type when calling getAttr');
+     end
      end
   else
      raise ERuntimeException.Create('Attribute not found in module');
@@ -662,31 +664,6 @@ var vm1 : TVM;
 begin
   vm1 := TVM (vm);
   vm1.push(vm1.getStackInfo().stacktop);
-end;
-
-
-class procedure TBuiltInGlobal.getHelp (_vm : TObject);
-var st : PMachineStackRecord;
-    vm : TVM;
-begin
-  vm := TVM (_vm);
-  st := vm.pop;
-  case st.stackType of
-     symInteger : vm.push(TStringObject.Create('integer'));
-     symDouble  : vm.push(TStringObject.Create('double'));
-     symBoolean : vm.push(TStringObject.Create('boolean'));
-     symString  : vm.push(TStringObject.Create('string'));
-     symList    : vm.push(TStringObject.Create('list'));
-     symArray   : vm.push(TStringObject.Create('array'));
-     symModule  : vm.push(TStringObject.Create (st.module.help.getHelp()));
-
-     symUserFunc :
-           vm.push(TStringObject.Create (st.dataObject.help.getHelp()));
-     symObjectMethod :
-           vm.push(TStringObject.Create (st.oValue.help.description));
-  else
-     raise ERuntimeException.Create('Unknown object type in help');
-  end;
 end;
 
 

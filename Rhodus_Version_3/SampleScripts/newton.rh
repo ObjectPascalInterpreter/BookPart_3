@@ -1,6 +1,8 @@
 
 // Find nth root of a number
 
+import math
+
 function NthRoot(a, n, precision)
 
    x_p = math.sqrt(a)

@@ -1,7 +1,7 @@
 
 import arrays
 
-a = arrays.rand (5,5)
+a = arrays.rndu (5,5)
 
 println (a[1:2,3:4])
 

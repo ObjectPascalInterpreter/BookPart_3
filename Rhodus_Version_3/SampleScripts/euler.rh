@@ -1,4 +1,5 @@
 
+// Solve set of differential equations using Euler method
 // -> x1 -> x2 ->
 
 vo = 0.5

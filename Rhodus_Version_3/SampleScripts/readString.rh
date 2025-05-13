@@ -1,6 +1,6 @@
 
 
-print ("Do you want a drink? ");
+print ("Do you want a drink? (y/n) ");
 x = readString();
 if x == "y" then
    println ("You said yes")

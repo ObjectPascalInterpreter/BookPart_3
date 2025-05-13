@@ -20,7 +20,7 @@ println (rows, ", ", columns)
 for i = 0 to rows - 1 do 
     for j = 0 to columns - 1 do
       println (i, ", ", j)
-      board[i,j] = random.randint (2)
+      board[i,j] = random.rndi (2)
     end
 end
 

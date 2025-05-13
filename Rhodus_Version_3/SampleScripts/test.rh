@@ -1,6 +1,0 @@
-
-import arrays
-
-a = arrays.rand ([4,4])
-
-x = a[:,1]

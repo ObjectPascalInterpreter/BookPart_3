@@ -2,8 +2,8 @@
 import arrays
 import mat
 
-a1 = arrays.rndi (0, 10, [4,4])
-a2 = arrays.rndi (0, 10, [4,4])
+a1 = arrays.rndi ([4,4], 0, 10)
+a2 = arrays.rndi ([4,4], 0, 10)
 
 a3 = a1 - a2
 

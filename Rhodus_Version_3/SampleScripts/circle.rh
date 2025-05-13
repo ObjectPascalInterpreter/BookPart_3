@@ -1,4 +1,6 @@
 
+import math
+
 function space (x)
    for i = 1 to x do
       print (" ")

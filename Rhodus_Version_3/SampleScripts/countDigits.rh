@@ -8,4 +8,4 @@ while (n != 0) do
     count = count + 1
 end
 
-println ("Number of digits: ", count);
+println ("Number of digits: ", count+1);

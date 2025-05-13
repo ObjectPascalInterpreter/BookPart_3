@@ -7,3 +7,4 @@ for i = 1 to num do
       print (i, " ");
    end
 end
+println()

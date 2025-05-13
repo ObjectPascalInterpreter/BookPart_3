@@ -28,6 +28,6 @@ bubbleSort (numbers)
 //end
 
 // Bigger example
-//numbers = lists.rndi (1, 100, 100)
-//bubbleSort(numbers)
-//println ("Larger example: ", numbers)
+numbers = lists.rndi (1, 100, 100)
+bubbleSort(numbers)
+println ("Larger example: ", numbers)

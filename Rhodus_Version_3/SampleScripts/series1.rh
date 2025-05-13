@@ -1,5 +1,6 @@
 
 // add the first 100 terms of a simple series
+println ("Compute (1+1/n)*n series")
 for n = 1 to 100 do
     value = (1 + 1/n)^n
     println (n, " ", value)

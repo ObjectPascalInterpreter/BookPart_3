@@ -1,5 +1,9 @@
 
-// Math functions
+// Contrived exmaple of a libary of Math functions
+
+// How to use
+// import trig
+// println (trig.sin (trig.pi))
 
 pi = 3.1415926;
 e  = 2.71828183;

@@ -5,7 +5,7 @@ println ("Convert number to binary")
 n = 176
 
 // array to store binary number 
-binaryNum = {0} * 16; 
+binaryNum = [0] * 16; 
   
 // counter for binary array 
 i = 0

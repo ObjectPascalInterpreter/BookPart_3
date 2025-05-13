@@ -1,6 +1,9 @@
-function doBinarySearch(list, length, value)
+
+//  Looks for the value in the list, and returns its location
+
+function doBinarySearch(list, value)
     low = 0;
-    high = length;
+    high = list.len() - 1;
     while 0 <= high do
         mid = (low+high) div 2;
         if list[mid] > value then
@@ -16,4 +19,25 @@ function doBinarySearch(list, length, value)
     return -1;
 end;
 
-print (doBinarySearch ([3,5,2,8], 4, 8))
+function binarySearch(list, x)
+    low = 0
+    high = list.len()
+    // Repeat until the pointers low and high meet each other
+    while low <= high do
+        mid = low + (high - low) div 2;
+        if x == list[mid] then
+            return mid
+        else
+           if x > list[mid] then
+              low = mid + 1
+           else
+              high = mid - 1
+           end;
+        end;
+    end;
+    return -1;
+end
+
+println (doBinarySearch ([2,3,5,8,10], 5))
+
+println (binarySearch ([3, 4, 5, 6, 7, 8, 9], 6))

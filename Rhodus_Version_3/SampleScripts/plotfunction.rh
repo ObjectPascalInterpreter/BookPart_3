@@ -72,36 +72,36 @@ end;
 
 function drawPoint (x, y)
   pts = funcToScreen (x, y)
-  graphics.fillellipse (pts[0]-3, pts[1]-3, 6, 6)  
+  graphics.fillEllipse (pts[0]-4, pts[1]-4, 8, 8)  
 end
 
 graphics.clear()
 
-graphics.beginupdate()
-graphics.brushcolor (255,255,255)
-graphics.penwidth (2)
+graphics.beginUpdate()
+graphics.setBrushColor (255,255,255)
+graphics.setPenWidth (2)
 drawAxes()
 drawFunction (math.sin, 0, 10)
-graphics.penwidth (2)
-graphics.pencolor (40,40,0)
+graphics.setPenWidth (3)
+graphics.setPenColor (40,40,0)
 
 npoints = 60
-x = [0]; y = [random.random()*7]
+x = [0]; y = [random.rnd()*7]
 for i = 1 to npoints do
-    x.append (i/6); y.append (random.random()*7)
+    x.append (i/6); y.append (random.rnd()*7)
 end
 
-graphics.pencolor (150,30,190)
+graphics.setPenColor (150,30,190)
 moveto (x[0], y[0])
 for i = 1 to npoints do
     lineto (x[i],y[i])
 end
 
-graphics.pencolor (0,0,230)
+graphics.setPenColor (0,0,230)
 for i = 0 to npoints do
     drawPoint (x[i],y[i])
 end
-graphics.endupdate()
+graphics.endUpdate()
 
     
 

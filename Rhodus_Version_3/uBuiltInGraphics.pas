@@ -79,20 +79,20 @@ begin
 
   addMethod(clear, VARIABLE_ARGS, 'clear', 'Clear the background canvas: clear () or clear ("red")');
   addMethod(getCanvasSize, 0, 'size', 'Returns the size of the canvas as a list: size ()');
-  addMethod(setPenColor, VARIABLE_ARGS, 'setPenColor', 'Set the pen color using rgb or color name: pencolor (255, 34, 123)');
-  addMethod(setPenWidth, 1, 'setPenWidth', 'Set the pen width: graphics.penwidth (4)');
-  addMethod(setBrushColor, VARIABLE_ARGS, 'setBrushColor', 'Set the brush color using rgb of color name: brushcolor ("red")');
+  addMethod(setPenColor, VARIABLE_ARGS, 'setPenColor', 'Set the pen color using rgb or color name: setPenColor (255, 34, 123)');
+  addMethod(setPenWidth, 1, 'setPenWidth', 'Set the pen width: graphics.setPenWidth (4)');
+  addMethod(setBrushColor, VARIABLE_ARGS, 'setBrushColor', 'Set the brush color using rgb of color name: setBrushColor ("red")');
   addMethod(setPixel, 2, 'pixel', 'Set the pixel to the pen color: pixel (100, 120)');
   addMethod(getColorList, 0, 'getColorNames', 'Returns the list of color names');
   addMethod(moveTo, 2, 'moveto', 'Move the current plotting cursor to x, y: graphics.moveto (100,200)');
   addMethod(lineTo, 2, 'lineto', 'Draw a line from the previous moveto/lineto to the new pt: lineto (x, y)');
   addMethod(line, VARIABLE_ARGS, 'line', 'Draw a line between two points: line(x1, y1, x2, y2)');
   addMethod(drawRect, 4, 'rect', 'Draw a rectangle: rect (x, y, w, h)');
-  addMethod(drawFilledRect, 4, 'fillRect', 'Draw a filled rectangle: filrect (x, y, w, h');
+  addMethod(drawFilledRect, 4, 'fillRect', 'Draw a filled rectangle: fillRect (x, y, w, h');
   addMethod(drawCircle, 3, 'circle', 'Draw a circle; circle (x, y, radius');
   addMethod(drawFilledCircle, 3, 'filledCircle', 'Draw a filled circle; circle (x, y, radius)');
   addMethod(drawEllipse, 4, 'ellipse',
-    'Draw an ellipse with top/left coordiante x, y and width and height w, h: ellipse(100, 100, w, h)');
+    'Draw an ellipse with top/left coordinate x, y and width and height w, h: ellipse(100, 100, w, h)');
   addMethod(drawFilledEllipse, 4, 'fillEllipse', 'Draw a filled ellipse');
   addMethod(pause, 1, 'pause', 'Pause for millisecs time, eg pause (100)');
   addMethod(beginUpdate, 0, 'beginUpdate', 'Suppress output to the GUI canvas');

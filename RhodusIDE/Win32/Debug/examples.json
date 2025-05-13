@@ -487,7 +487,122 @@ for i = 0 to colors.len() - 1 do
     end
 end
 "
-},{
+},
+{
+"name": "Plot Bar Graphs",
+"src":
+"
+import graphics
+import math
+import random
+import time
+
+println (graphics.getColorNames())
+
+p = graphics.size()
+width = p[0]; height = p[1];
+
+xmin = 0; xmax = 10
+ymin = 0; ymax = 10
+
+axiswidth = width - 180
+leftEdge = 100
+
+axisheight = height - 150
+bottomEdge = 80
+
+function fy (y)
+  return (height - math.round(axisheight * (y - ymin) / (ymax - ymin))) - bottomEdge;
+end
+
+
+function funcToScreen(x, y)
+  result = [0,0]
+  result[0] = leftEdge + math.round(axiswidth * (x - xmin) / (xmax - xmin));
+  result[1] = (height - math.round(axisheight * (y - ymin) / (ymax - ymin))) - bottomEdge;
+  return result
+end
+
+function moveto (x, y)
+  result = funcToScreen (x, y)
+  graphics.moveto (result[0], result[1])
+end
+
+function lineto (x, y)
+  result = funcToScreen (x, y)
+  graphics.lineto (result[0], result[1])
+end
+
+function drawAxes()
+  graphics.setPenColor (\"black\")
+  start  = funcToScreen (xmin, ymin)
+  finish = funcToScreen (xmax, ymin)
+  graphics.moveto(start[0], start[1])
+  graphics.lineto(finish[0],finish[1])
+
+  start  = funcToScreen (xmin, ymin)
+  finish = funcToScreen (xmin, ymax)
+  graphics.moveto(start[0], start[1])
+  graphics.lineto(finish[0],finish[1])
+  
+  startx = xmin
+  hstep = (xmax - xmin)/10
+  for i = 1 to 10 do
+    start  = funcToScreen (startx, ymin)
+    graphics.moveto(start[0], start[1])
+    graphics.lineto(start[0], start[1]+10)
+    startx = startx + hstep  
+  end
+
+  starty = ymin
+  hstep = (ymax - ymin)/10
+  for i = 1 to 10 do
+    start  = funcToScreen (xmin, starty)
+    graphics.moveto(start[0], start[1])
+    graphics.lineto(start[0]-10, start[1])
+    starty = starty + hstep  
+  end
+end
+
+function drawPoint (x, y)
+  pts = funcToScreen (x, y)
+  graphics.fillEllipse (pts[0]-3, pts[1]-3, 6, 6)  
+end
+
+graphics.clear()
+
+graphics.beginUpdate()
+graphics.setBrushColor (255,255,255)
+graphics.setPenWidth (2)
+drawAxes()
+
+y = []; npoints = 30
+for j = 1 to 30 do
+   y.append (random.rndi(45));
+end
+
+barWidth = 10
+barSpacing = axiswidth / npoints
+itemX = leftEdge + barSpacing / 2
+
+graphics.setPenColor (\"darkred\")
+graphics.setPenWidth (4)
+graphics.setBrushColor (\"Tomato\")
+bottomEdge = fy (0)
+for i = 0 to npoints - 1 do
+   x1 = itemX - barWidth / 2;
+   y1 = bottomEdge - y[i] / 50 * axisheight;
+   x2 = itemX + barWidth / 2;
+   y2 = bottomEdge - 1;
+   graphics.fillRect (x1, y1, x2-x1, y2-y1)
+   
+   itemX = itemX + barSpacing;
+end
+
+graphics.endUpdate()
+"	
+},
+{
 "name": "Life",
 "src":
 "
@@ -574,6 +689,116 @@ while count > 0 do
     count = count - 1
 end
 "	
+},
+{
+"name": "Function Plotter",
+"src":
+"
+import graphics
+import math
+import random
+
+p = graphics.size()
+width = p[0]; height = p[1];
+
+xmin = 0; xmax = 10
+ymin = 0; ymax = 10
+
+axiswidth = width - 180
+leftEdge = 100
+
+axisheight = height - 150
+bottomEdge = 80
+
+function funcToScreen(x, y)
+  result = [0,0]
+  result[0] = leftEdge + math.round(axiswidth * (x - xmin) / (xmax - xmin));
+  result[1] = (height - math.round(axisheight * (y - ymin) / (ymax - ymin))) - bottomEdge;
+  return result
+end
+
+function moveto (x, y)
+  result = funcToScreen (x, y)
+  graphics.moveto (result[0], result[1])
+end
+
+function lineto (x, y)
+  result = funcToScreen (x, y)
+  graphics.lineto (result[0], result[1])
+end
+
+function drawAxes()
+  start  = funcToScreen (xmin, ymin)
+  finish = funcToScreen (xmax, ymin)
+  graphics.moveto(start[0], start[1])
+  graphics.lineto(finish[0],finish[1])
+
+  start  = funcToScreen (xmin, ymin)
+  finish = funcToScreen (xmin, ymax)
+  graphics.moveto(start[0], start[1])
+  graphics.lineto(finish[0],finish[1])
+  
+  startx = xmin
+  hstep = (xmax - xmin)/10
+  for i = 1 to 10 do
+    start  = funcToScreen (startx, ymin)
+    graphics.moveto(start[0], start[1])
+    graphics.lineto(start[0], start[1]+10)
+    startx = startx + hstep  
+  end
+
+  starty = ymin
+  hstep = (ymax - ymin)/10
+  for i = 1 to 10 do
+    start  = funcToScreen (xmin, starty)
+    graphics.moveto(start[0], start[1])
+    graphics.lineto(start[0]-10, start[1])
+    starty = starty + hstep  
+  end
+end
+
+function drawFunction (fcn, lower, upper)
+  x = lower
+  moveto (x, 2 + fcn (x))
+  while x < upper do
+      x = x + 0.3
+      lineto (x, 2 + fcn (x))
+  end
+end;
+
+function drawPoint (x, y)
+  pts = funcToScreen (x, y)
+  graphics.fillEllipse (pts[0]-4, pts[1]-4, 8, 8)  
+end
+
+graphics.clear()
+
+graphics.beginUpdate()
+graphics.setBrushColor (255,255,255)
+graphics.setPenWidth (2)
+drawAxes()
+drawFunction (math.sin, 0, 10)
+graphics.setPenWidth (3)
+graphics.setPenColor (40,40,0)
+
+npoints = 60
+x = [0]; y = [random.rnd()*7]
+for i = 1 to npoints do
+    x.append (i/6); y.append (random.rnd()*7)
+end
+
+graphics.setPenColor (150,30,190)
+moveto (x[0], y[0])
+for i = 1 to npoints do
+    lineto (x[i],y[i])
+end
+
+graphics.setPenColor (0,0,230)
+for i = 0 to npoints do
+    drawPoint (x[i],y[i])
+end
+graphics.endUpdate()
+"
 }
-  ]
+]
 }

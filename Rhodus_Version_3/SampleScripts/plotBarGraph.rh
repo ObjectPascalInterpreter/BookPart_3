@@ -3,6 +3,12 @@ import math
 import random
 import time
 
+//"circle","size","dir","clear","pixel","moveto","find","lineto","setPenWidth","fillRect","help","filledCircle",
+//"contains","ellipse","pause","setPenColor","refresh","beginUpdate","setBrushColor","fillEllipse","getColorNames",
+//"line","endUpdate","rect"]
+
+println (graphics.getColorNames())
+
 p = graphics.size()
 width = p[0]; height = p[1];
 
@@ -38,6 +44,7 @@ function lineto (x, y)
 end
 
 function drawAxes()
+  graphics.setPenColor ("black")
   start  = funcToScreen (xmin, ymin)
   finish = funcToScreen (xmax, ymin)
   graphics.moveto(start[0], start[1])
@@ -69,45 +76,40 @@ end
 
 function drawPoint (x, y)
   pts = funcToScreen (x, y)
-  graphics.fillellipse (pts[0]-3, pts[1]-3, 6, 6)  
+  graphics.fillEllipse (pts[0]-3, pts[1]-3, 6, 6)  
 end
 
 graphics.clear()
 
-graphics.beginupdate()
-graphics.brushcolor (255,255,255)
-graphics.penwidth (2)
+graphics.beginUpdate()
+graphics.setBrushColor (255,255,255)
+graphics.setPenWidth (2)
 drawAxes()
 
 y = []; npoints = 30
 for j = 1 to 30 do
-  t0 = time.getTickCount()
-  for i = 1 to 10000 do
-      a = 2.3 + 3.4
-      a = 2.3 + 3.4 
-      a = 2.3 + 3.4
-      a = 2.3 + 3.4
-  end
-   y.append (time.getTickCount() - t0);
+   y.append (random.rndi(45));
 end
 
 barWidth = 10
 barSpacing = axiswidth / npoints
 itemX = leftEdge + barSpacing / 2
 
-graphics.pencolor ("thistle")
+graphics.setPenColor ("darkred")
+graphics.setPenWidth (4)
+graphics.setBrushColor ("Tomato")
 bottomEdge = fy (0)
 for i = 0 to npoints - 1 do
    x1 = itemX - barWidth / 2;
    y1 = bottomEdge - y[i] / 50 * axisheight;
    x2 = itemX + barWidth / 2;
    y2 = bottomEdge - 1;
-   graphics.fillrect (x1, y1, x2-x1, y2-y1)
+   graphics.fillRect (x1, y1, x2-x1, y2-y1)
    
    itemX = itemX + barSpacing;
 end
 
-graphics.endupdate()
+graphics.endUpdate()
 
     
 

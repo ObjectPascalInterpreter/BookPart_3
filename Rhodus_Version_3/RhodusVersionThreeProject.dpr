@@ -32,6 +32,8 @@ program RhodusVersionThreeProject;
 {$define LogErrorsToFile}
 {$define LogMemoryLeakDetailToFile}
 
+
+
 {$R *.dres}
 
 uses

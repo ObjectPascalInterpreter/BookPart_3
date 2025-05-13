@@ -83,7 +83,6 @@ object frmMain: TfrmMain
       Font.Name = 'Segoe UI'
       Font.Style = []
       ParentFont = False
-      ExplicitTop = 2
       ExplicitHeight = 28
     end
     object btnRun: TButton
@@ -232,9 +231,6 @@ object frmMain: TfrmMain
       ParentFont = False
       TabOrder = 0
       OnChange = DirectoryListBox1Change
-      ExplicitLeft = 2
-      ExplicitTop = 41
-      ExplicitWidth = 318
     end
     object FileListBox1: TFileListBox
       Left = 1
@@ -255,10 +251,6 @@ object frmMain: TfrmMain
       ParentFont = False
       TabOrder = 1
       OnClick = FileListBox1Click
-      ExplicitLeft = 2
-      ExplicitTop = 389
-      ExplicitWidth = 318
-      ExplicitHeight = 498
     end
     object pnlSideControls: TPanel
       Left = 1
@@ -271,9 +263,6 @@ object frmMain: TfrmMain
       Margins.Bottom = 5
       Align = alTop
       TabOrder = 2
-      ExplicitLeft = 2
-      ExplicitTop = 2
-      ExplicitWidth = 318
       object btnCloseSidePanel: TSpeedButton
         Left = 14
         Top = 5
@@ -318,8 +307,6 @@ object frmMain: TfrmMain
       Margins.Bottom = 5
       Align = alBottom
       TabOrder = 0
-      ExplicitLeft = 2
-      ExplicitWidth = 705
       object Splitter1: TSplitter
         Left = 1
         Top = 1
@@ -353,10 +340,6 @@ object frmMain: TfrmMain
         ParentFont = False
         ScrollBars = ssBoth
         TabOrder = 0
-        ExplicitLeft = 2
-        ExplicitTop = 5
-        ExplicitWidth = 702
-        ExplicitHeight = 259
       end
       object pnlMemoButtons: TPanel
         Left = 1
@@ -369,8 +352,6 @@ object frmMain: TfrmMain
         Margins.Bottom = 5
         Align = alBottom
         TabOrder = 1
-        ExplicitLeft = 2
-        ExplicitWidth = 702
         object btnClear: TButton
           Left = 8
           Top = 5
@@ -466,10 +447,6 @@ object frmMain: TfrmMain
         '    heading = heading + 150 '
         'end')
       SelectedColor.Alpha = 0.400000005960464500
-      ExplicitLeft = 2
-      ExplicitTop = 2
-      ExplicitWidth = 705
-      ExplicitHeight = 555
     end
   end
   object pnlRight: TPanel
@@ -510,8 +487,6 @@ object frmMain: TfrmMain
       Align = alBottom
       ParentBackground = False
       TabOrder = 0
-      ExplicitLeft = 2
-      ExplicitWidth = 711
     end
     object pnlImage: TPanel
       Left = 1
@@ -526,10 +501,6 @@ object frmMain: TfrmMain
       Caption = 'pnlImage'
       TabOrder = 1
       OnResize = pnlRightResize
-      ExplicitLeft = 2
-      ExplicitTop = 2
-      ExplicitWidth = 711
-      ExplicitHeight = 426
       object pnlDrawing: TImage
         Left = 1
         Top = 1

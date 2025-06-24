@@ -53,7 +53,7 @@ begin
   inherited Create ('strings');
 
   addStringValue('asciiLower',  'abcdefghijklmnopqrstuv', true);//, 'Returns the lower ascii characters as a string', true);
-  addStringValue('asciiLpper', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', true);// 'Returns the upper ascii characters', true);
+  addStringValue('asciiUpper', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', true);// 'Returns the upper ascii characters', true);
   addStringValue('digits', '0123456789', true);
 
   addMethod(str,         1, 'str');     // convert string to number

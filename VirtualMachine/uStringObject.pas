@@ -68,7 +68,7 @@ begin
   methodList.Add(TMethodDetails.Create ('len',     0, 'Return the length of a string: a.len()', getLength));
   methodList.Add(TMethodDetails.Create ('find',    1, 'Finds a substring in string. Returns -1 if it fails: a.find ("CD")', find));
   methodList.Add(TMethodDetails.Create ('toUpper', 0, 'Converts all letters in the string to upper case: a.toUpper ()', toUpper));
-  methodList.Add(TMethodDetails.Create ('toLower', 0, 'Converts all letters in the string to lower case: a.toUpper ()', toLower));
+  methodList.Add(TMethodDetails.Create ('toLower', 0, 'Converts all letters in the string to lower case: a.toLower ()', toLower));
   methodList.Add(TMethodDetails.Create ('left',    1, 'Returns the left n chars of a string: a.left (5)', left));
   methodList.Add(TMethodDetails.Create ('right',   1, 'Returns the right n chars of a string: a.right (5)', right));
   methodList.Add(TMethodDetails.Create ('mid',     2, 'Returns a substring of string from start to count characters: a.mid (2, 4)', mid));

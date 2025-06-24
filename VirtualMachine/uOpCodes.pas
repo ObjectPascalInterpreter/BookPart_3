@@ -46,7 +46,7 @@ const
    oNot            = byte (33);
    oXor            = byte (34);
 
-   // Push and pop to stac
+   // Push and pop to stack
    oPushi         = byte (50);   // Push integer onto stack, operand contains the integer
    oPushd         = byte (51);   // Push double onto stack, operand contains index to constant table
    oPushb         = byte (52);   // Push boolean value onto stack, operand contains index to constant table

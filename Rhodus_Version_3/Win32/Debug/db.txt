@@ -1,3 +1,10 @@
+% This is a comment line, you can only use comments at the start or between 
+% lines ########## and ---------- module
+% or lines ########## and ---------- dataobject
+%
+% Text file for help information
+% modules are things like math which have methods
+% 
 ---------- module
 math
 This is the math module
@@ -168,6 +175,7 @@ eps
 Values below this are considered zero.
 x = math.eps
 ##########
+% Example comment in between
 ---------- module
 random
 This is the random module
@@ -433,5 +441,82 @@ m.toList ()
 Convert a matrix to a list.
 l = m.row()
 ##########
+---------- dataobject
+StringObject
+This is the string object
+startMethod
+len
+astr.len ()
+Get the length og a string var.len()
+a = "abcdefg"
+n = a.len()
+##########
+startMethod
+find
+astr.find ()
+Find a substring in string. Returns -1 if it fails, else returns the position
+astr = "acbcdefgh"
+index = astr.find ("cd")
+##########
+startMethod
+toUpper
+astr.toUpper ()
+Converts all letters in the string to upper case
+astr = "acbcdefgh"
+astr.toUpper ()
+##########
+startMethod
+toLower
+astr.toLower ()
+Converts all letters in the string to upper case
+astr = "acbcdefgh"
+astr.toLower ()
+##########
+startMethod
+left
+astr.left (n)
+Returns the left n chars of a string
+a = "acbcdefgh"
+b = a.left (5)
+##########
+startMethod
+right
+astr.right (n)
+Returns the right n chars of a string
+a = "acbcdefgh"
+b = a.right (5)
+##########
+startMethod
+mid
+astr.mid (start, count)
+Returns a substring of string from start to count characters
+a = "acbcdefgh"
+b = a.mid (2, 4)
+##########
+startMethod
+trim
+astr.trim ()
+Removes any spaces from the start and end of the string (string is changed in situ)
+a = "acbcdefgh"
+a.trim()
+##########
+startMethod
+split
+astr.split (string)
+Splits at a string at a given character into a list of strings
+a = "acb,defgh"
+b = a.split(",")
+##########
+startMethod
+reverse
+astr.reverse ()
+Returns the reverse the string 
+a = "acbdefgh"
+a_reverse = a.reverse()
+##########
 end
+
+
+
+
 

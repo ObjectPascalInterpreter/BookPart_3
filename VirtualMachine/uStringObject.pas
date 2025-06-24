@@ -82,19 +82,28 @@ constructor TStringMethods.Create;
 begin
   methodList := TMethodList.Create (self);
 
-  methodList.Add(TMethodDetails.Create ('len',    'StringObject', 0, getLength));
+  methodList.Add(TMethodDetails.Create ('len',     'StringObject', 0, getLength));
   methodList.Add(TMethodDetails.Create ('find',    'StringObject', 1, find));
+  methodList.Add(TMethodDetails.Create ('toUpper', 'StringObject', 0, toUpper));
+  methodList.Add(TMethodDetails.Create ('toLower', 'StringObject', 0, toLower));
+  methodList.Add(TMethodDetails.Create ('left',    'StringObject', 1, left));
+  methodList.Add(TMethodDetails.Create ('right',   'StringObject', 1, right));
+  methodList.Add(TMethodDetails.Create ('mid',     'StringObject', 2, mid));
+  methodList.Add(TMethodDetails.Create ('trim',    'StringObject', 0, trim));
+  methodList.Add(TMethodDetails.Create ('split',   'StringObject', 1, split));
+  methodList.Add(TMethodDetails.Create ('reverse', 'StringObject', 0, reverse));
 
-  //methodList.Add(TMethodDetails.Create ('len',    0, 'test string', getLength));
-  //methodList.Add(TMethodDetails.Create ('find',    1, 'Finds a substring in string. Returns -1 if it fails: a.find ("CD")', find));
-  methodList.Add(TMethodDetails.Create ('toUpper', 0, 'Converts all letters in the string to upper case: a.toUpper ()', toUpper));
-  methodList.Add(TMethodDetails.Create ('toLower', 0, 'Converts all letters in the string to lower case: a.toLower ()', toLower));
-  methodList.Add(TMethodDetails.Create ('left',    1, 'Returns the left n chars of a string: a.left (5)', left));
-  methodList.Add(TMethodDetails.Create ('right',   1, 'Returns the right n chars of a string: a.right (5)', right));
-  methodList.Add(TMethodDetails.Create ('mid',     2, 'Returns a substring of string from start to count characters: a.mid (2, 4)', mid));
-  methodList.Add(TMethodDetails.Create ('trim',    0, 'Removes any spaces from the start and end of the string: a.trim ()', trim));
-  methodList.Add(TMethodDetails.Create ('split',   1, 'Splits at a string at a given character into a list of strings: a.split (",")', split));
-  methodList.Add(TMethodDetails.Create ('reverse', 0, 'Reverse the string: a.reverse ()', reverse));
+// Old way of handling help
+//methodList.Add(TMethodDetails.Create ('len',    0, 'test string', getLength));
+//methodList.Add(TMethodDetails.Create ('find',    1, 'Finds a substring in string. Returns -1 if it fails: a.find ("CD")', find));
+//  methodList.Add(TMethodDetails.Create ('toUpper', 0, 'Converts all letters in the string to upper case: a.toUpper ()', toUpper));
+//  methodList.Add(TMethodDetails.Create ('toLower', 0, 'Converts all letters in the string to lower case: a.toLower ()', toLower));
+//  methodList.Add(TMethodDetails.Create ('left',    1, 'Returns the left n chars of a string: a.left (5)', left));
+//  methodList.Add(TMethodDetails.Create ('right',   1, 'Returns the right n chars of a string: a.right (5)', right));
+//  methodList.Add(TMethodDetails.Create ('mid',     2, 'Returns a substring of string from start to count characters: a.mid (2, 4)', mid));
+//  methodList.Add(TMethodDetails.Create ('trim',    0, 'Removes any spaces from the start and end of the string: a.trim ()', trim));
+//  methodList.Add(TMethodDetails.Create ('split',   1, 'Splits at a string at a given character into a list of strings: a.split (",")', split));
+//  methodList.Add(TMethodDetails.Create ('reverse', 0, 'Reverse the string: a.reverse ()', reverse));
 
   methodList.Add(TMethodDetails.Create ('help',   -1, 'Returns the help string associated with the variable. m.help ()', getHelp));
   methodList.Add(TMethodDetails.Create ('dir',    0, 'dir of matrix object methods', dir));

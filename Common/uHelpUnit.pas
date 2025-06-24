@@ -36,6 +36,7 @@ type
 
 
   THMethodType = (hmtMethod, hmtValue);//, hmtDataObject);
+  // rtModule => help at the module level
   TRecordType = (rtModule, rtDataObject);
   THRecord = record
     methodType : THMethodType;
@@ -676,6 +677,11 @@ begin
         parseDataObject (result);
         inc (numModules);
         end;
+     // Check for a comment
+     if alist[position][1] = '%' then
+        begin
+        inc (position);
+        end;
      if alist[position] = 'end' then
         break;
      end;
@@ -874,15 +880,16 @@ end;
 procedure THelpDb.loadHelpDatabase;
 var jsontext : string;
 begin
-  // Order of reading is the text file, followed by the json file followed by the resource.
+  // Order of reading is the text file, followed by the json file followed by the internal resource.
   // db.txt is a simple text file that is easy to edit.
-  // claud.json is generated from db.txt and is a json format.
-  // These are only used by the developer to help create the help file HelpDb.json
+  // HelpDb.json is generated from db.txt and is a json format.
+  // db.txt is only used by the developer to help create the help file HelpDb.json
   // because its easier to manually edit a text file such as db.txt than the json file.
-  // Once a new copy of the help files developerCopy.json work, copy it over to helpDb.json
+  // When creatng the json file it will export it to a filed called 'developerCopy.json'
+  // Once a new copy of the help file developerCopy.json works, copy it over to helpDb.json
 
   // HelpDb.json is the same as developerCopy.json but is never updated by the software
-  // If all else fails we load, what is likely to be, an old version of help in the resources
+  // If all else fails we load, what is likely to be, an old version of help in the internal resources
 
   // When deployed you only need to copy the HelpDb.json file
   if TFile.Exists('db.txt') then

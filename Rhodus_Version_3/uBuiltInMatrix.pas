@@ -4,7 +4,7 @@
   Date:    10/2021
   Purpose: This file implements the Matrix library that provide additional functions
 
-  All the basic matri functions such as add, sub, and other manipulations are
+  All the basic matrix functions such as add, sub, and other manipulations are
   to be found in uMatrixObject.
 
   Ths source is distributed under Apache 2.0

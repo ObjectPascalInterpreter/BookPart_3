@@ -58,7 +58,6 @@ implementation
 Uses Math,
      uSymbolTable,
      uVM,
-     uHelpUnit,
      uRhodusTypes,
      uStringObject,
      uListObject,
@@ -69,13 +68,14 @@ Uses Math,
      uVMExceptions,
      uMemoryManager;
 
+
 procedure raiseMathError (functionName : string);
 begin
   raise ERuntimeException.Create('Argument to math function <' + functionName + '> can only be an integer, double or an array');
 end;
 
 
-
+// All help strings originate from the help resource
 constructor TBuiltInMath.Create;
 begin
   inherited Create ('math');

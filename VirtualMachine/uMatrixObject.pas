@@ -21,6 +21,8 @@ uses SysUtils, Classes,
      uRhodusTypes;
 
 type
+  // These are the methods attached to  matrix object, eg
+  // m = {{1,2},{3,4}}; println (m.len())
   TMatrixMethods = class (TMethodsBase)
      procedure   getNumRows (vm: TObject);
      procedure   getNumCols (vm: TObject);
@@ -131,6 +133,9 @@ begin
 
   methodList.Add(TMethodDetails.Create ('toArray', 'MatrixObject', 0, getToArray));
   methodList.Add(TMethodDetails.Create ('toList',  'MatrixObject', 0, getToList));
+
+  methodList.Add(TMethodDetails.Create ('help',   -1, 'Returns the help string associated with the variable. m.help ()', getHelp));
+  methodList.Add(TMethodDetails.Create ('dir',    0, 'dir of matrix object methods', dir));
 end;
 
 destructor TMatrixMethods.Destroy;
@@ -758,7 +763,7 @@ end;
 
 
 initialization
-   // Initialize the class varialbe tha tpoints to the methods list
+   // Initialize the class variable that points to the methods list
    //TMatrixObject.matrixMethods := TMatrixMethods.Create;
 finalization
    TMatrixObject.matrixMethods.Free;

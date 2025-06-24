@@ -335,7 +335,7 @@ begin
   methodList.Add(TMethodDetails.Create ('code',   0, 'Returns the byte code associated with the function: func.code ()', getCode));
   methodList.Add(TMethodDetails.Create ('help',   0, 'Returns the help string associated with the function. func.help ()', getHelp));
 
-  methodList.Add(TMethodDetails.Create ('dir',    0, 'dir of string object methods', dir));
+  methodList.Add(TMethodDetails.Create ('dir',    0, 'dir of user function methods', dir));
 end;
 
 

@@ -120,6 +120,7 @@ begin
   end;
 
   uMatrixObject.createAndAttachMethods;
+  uStringObject.createAndAttachMethods;
 
   // The mainModule is to added to teh list of modules.
   mainModule := TModuleLib.Create (TSymbol.mainModuleId);  // mainModule is declared in uModule

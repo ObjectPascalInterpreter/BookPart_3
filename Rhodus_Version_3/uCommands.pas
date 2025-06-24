@@ -98,8 +98,10 @@ begin
   writeln ('#p'#9#9'Start a multi-line program (q or return to finish)');
   writeln ('');
   writeln ('Type modules() to get a list of loaded modules');
-  writeln ('Type dir() on any module to get the list of methods, eg math.dir() or dir() for main module');
-  writeln ('Type symbol.help() to get more help on the symbol, eg math.help(), math.sin.help()');
+  writeln ('Type dir() on any module to get the list of methods, eg math.dir(), m.dir(), or dir() for main module');
+  writeln ('Type symbol.help() to get more help on the symbol, eg math.help()');
+  writeln ('Type module.method.help() to get help on a module method, eg math.sin.help()');
+   writeln ('Type variable.help ("method") to get help on variable method, eg m.help("rows")');
   writeln;
 
   writeln ('To run a script, type run followed by its filename. Note: there is no need to specify the .rh extension');

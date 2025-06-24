@@ -34,6 +34,10 @@ type
 
   TStringObject = class (TDataObject)
 
+     // For what ever reason is I uncomment this line,
+     // I get a corruption of the symbol table.
+     //class var xyz : double;
+
      value : string;
 
      function        isEqualTo (str1 : TStringObject) : boolean;
@@ -47,6 +51,8 @@ type
      destructor      Destroy; override;
   end;
 
+  procedure createAndAttachMethods;
+
 implementation
 
 Uses SysUtils,
@@ -59,14 +65,28 @@ Uses SysUtils,
      uListObject,
      uVMExceptions;
 
+// Put this variable here because if I add it to the class  (above)
+// as a class variable, the symbol table becomes corrupt.
 var stringMethods : TStringMethods;
+
+
+procedure createAndAttachMethods;
+begin
+   // I can't put this variable in the class itself, I get strange errors if I do.
+   // TStringObject.stringMethods := TStringMethods.Create;
+   stringMethods := TStringMethods.Create;
+end;
+
 
 constructor TStringMethods.Create;
 begin
   methodList := TMethodList.Create (self);
 
-  methodList.Add(TMethodDetails.Create ('len',     0, 'Return the length of a string: a.len()', getLength));
-  methodList.Add(TMethodDetails.Create ('find',    1, 'Finds a substring in string. Returns -1 if it fails: a.find ("CD")', find));
+  methodList.Add(TMethodDetails.Create ('len',    'StringObject', 0, getLength));
+  methodList.Add(TMethodDetails.Create ('find',    'StringObject', 1, find));
+
+  //methodList.Add(TMethodDetails.Create ('len',    0, 'test string', getLength));
+  //methodList.Add(TMethodDetails.Create ('find',    1, 'Finds a substring in string. Returns -1 if it fails: a.find ("CD")', find));
   methodList.Add(TMethodDetails.Create ('toUpper', 0, 'Converts all letters in the string to upper case: a.toUpper ()', toUpper));
   methodList.Add(TMethodDetails.Create ('toLower', 0, 'Converts all letters in the string to lower case: a.toLower ()', toLower));
   methodList.Add(TMethodDetails.Create ('left',    1, 'Returns the left n chars of a string: a.left (5)', left));
@@ -75,6 +95,9 @@ begin
   methodList.Add(TMethodDetails.Create ('trim',    0, 'Removes any spaces from the start and end of the string: a.trim ()', trim));
   methodList.Add(TMethodDetails.Create ('split',   1, 'Splits at a string at a given character into a list of strings: a.split (",")', split));
   methodList.Add(TMethodDetails.Create ('reverse', 0, 'Reverse the string: a.reverse ()', reverse));
+
+  methodList.Add(TMethodDetails.Create ('help',   -1, 'Returns the help string associated with the variable. m.help ()', getHelp));
+  methodList.Add(TMethodDetails.Create ('dir',    0, 'dir of matrix object methods', dir));
 end;
 
 
@@ -299,11 +322,13 @@ begin
 end;
 
 
-// -----------------------------------------------------------------------
+// -----------------------------------------------------------/------------
 
 initialization
-  stringMethods := TStringMethods.Create;
+  // Now created in uRhodusEngine
+  //stringMethods := TStringMethods.Create;
 finalization
+  //TStringObject.stringMethods.Free;
   stringMethods.Free;
 end.
 

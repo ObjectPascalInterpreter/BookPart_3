@@ -107,8 +107,6 @@ uses uCommands,
 constructor TRhodus.Create;
 var astr : string;
 begin
-  initialiseSysModuleVariables; // Creates the path variable
-
   try
     uHelpUnit.buildHelpDb;
   except
@@ -121,6 +119,9 @@ begin
 
   uMatrixObject.createAndAttachMethods;
   uStringObject.createAndAttachMethods;
+  uListObject.createAndAttachMethods;
+
+  initialiseSysModuleVariables; // Creates the path variable
 
   // The mainModule is to added to teh list of modules.
   mainModule := TModuleLib.Create (TSymbol.mainModuleId);  // mainModule is declared in uModule

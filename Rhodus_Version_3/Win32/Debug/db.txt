@@ -441,6 +441,9 @@ m.toList ()
 Convert a matrix to a list.
 l = m.row()
 ##########
+%
+% Start of string  object
+%
 ---------- dataobject
 StringObject
 This is the string object
@@ -513,6 +516,68 @@ astr.reverse ()
 Returns the reverse the string 
 a = "acbdefgh"
 a_reverse = a.reverse()
+##########
+%
+% Start of list  object help
+%
+---------- dataobject
+ListObject
+This is the list object
+startMethod
+len
+alist.len ()
+Returns the length of a list 
+a = [1,2,3]
+println (a.len())
+##########
+startMethod
+append
+alist.append (3.14)
+Append the element to the list
+a = [1,2,3]
+a.append (3.14)
+##########
+startMethod
+remove
+alist.remove (3)
+Remove an element from a list with given index (returns nothing), indexing starts at zero
+a = [1,2,3]
+a.remove (1)
+##########
+startMethod
+insert
+alist.insert (index, 5.4)
+Insert an element into a list at a given index (returns nothing)
+a = [1,2,3]
+a.insert (1, 3.5)
+##########
+startMethod
+sum
+value = alist.sum ()
+Find the sum of values in a list. Only works if the list has numerial entries
+a = [1,2,3]
+println (a.sum())
+##########
+startMethod
+pop
+value = alist.pop ()
+Remove the last element from a list and returns the value
+a = [1,2,3]
+element = a.pop()
+##########
+startMethod
+max
+value = alist.max ()
+Find the maximum value is a 1D list of values.
+a = [1,2,3]
+element = a.max()
+##########
+startMethod
+min
+value = alist.min ()
+Find the minimum value is a 1D list of values.
+a = [1,2,3]
+element = a.min()
 ##########
 end
 

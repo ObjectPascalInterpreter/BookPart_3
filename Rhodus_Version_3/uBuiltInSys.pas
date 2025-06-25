@@ -67,7 +67,6 @@ begin
   result := TListObject.Create(0);
   result.append(TStringObject.create('.'));
   result.blockType := btBound;   // To make sure the garbage collector doesn't get it.
-
 end;
 
 

@@ -117,6 +117,8 @@ type
   end;
 
 
+  procedure createAndAttachMethods;
+
 implementation
 
 Uses Math,
@@ -130,18 +132,26 @@ type
   TIntArray = array of integer;
   TDoubleArray = array of double;
 
+procedure createAndAttachMethods;
+begin
+   TListObject.listMethods := TListMethods.Create;
+end;
+
 constructor TListMethods.Create;
 begin
   methodList := TMethodList.Create (self);
 
-  methodList.Add(TMethodDetails.Create ('len',    0, 'Return the length of a list: var.len ()', getLength));
-  methodList.Add(TMethodDetails.Create ('append', 1, 'Append the element to the list: var.append (a, 3.14)', append));
-  methodList.Add(TMethodDetails.Create ('remove', 1, 'Remove an element from a list with given index (returns nothing): var.remove (4)', remove));
-  methodList.Add(TMethodDetails.Create ('insert', 2, 'Insert an element into a list at a given index (returns nothing): var.insert (index, 5.4)', insert));
-  methodList.Add(TMethodDetails.Create ('sum',    0, 'Find the sum of values in a list. var.sum ()', getSum));
-  methodList.Add(TMethodDetails.Create ('pop',    0, 'Remove the last element from a list and return it: el = var.pop ()', removeLastElement));
-  methodList.Add(TMethodDetails.Create ('max',    0, 'Find the maximum value is a 1D list of values: var.max ()', getMax));
-  methodList.Add(TMethodDetails.Create ('min',    0, 'Find the minimum value is a 1D list of values: var.min ()', getMin));
+  methodList.Add(TMethodDetails.Create ('len',    'ListObject', 0, getLength));
+  methodList.Add(TMethodDetails.Create ('append', 'ListObject', 1, append));
+  methodList.Add(TMethodDetails.Create ('remove', 'ListObject', 1, remove));
+  methodList.Add(TMethodDetails.Create ('insert', 'ListObject', 2, insert));
+  methodList.Add(TMethodDetails.Create ('sum',    'ListObject', 0, getSum));
+  methodList.Add(TMethodDetails.Create ('pop',    'ListObject', 0, removeLastElement));
+  methodList.Add(TMethodDetails.Create ('max',    'ListObject', 0, getMax));
+  methodList.Add(TMethodDetails.Create ('min',    'ListObject', 0, getMin));
+
+  methodList.Add(TMethodDetails.Create ('help',   -1, 'Returns the help string associated with the variable. m.help ()', getHelp));
+  methodList.Add(TMethodDetails.Create ('dir',    0, 'dir of matrix object methods', dir));
 end;
 
 
@@ -1010,7 +1020,8 @@ end;
 // -----------------------------------------------------------------------
 
 initialization
-   TListObject.listMethods := TListMethods.Create;
+  // Now created in uRhodusEngine
+  // TListObject.listMethods := TListMethods.Create;
 finalization
    TListObject.listMethods.Free;
 end.

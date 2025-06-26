@@ -114,6 +114,7 @@ type
      destructor  Destroy; override;
   end;
 
+procedure createAndAttachMethods;
 
 implementation
 
@@ -135,33 +136,39 @@ Uses SysUtils,
 const outOfRangeMsg = 'Index out of range while accessing array element';
       sameDimensionsMsg = 'Arrays must have the same dimensions';
 
-// var arrayMethods : TArrayMethods;
+procedure createAndAttachMethods;
+begin
+   TArrayObject.arrayMethods := TArrayMethods.Create;
+end;
+
 
 constructor TArrayMethods.Create;
 begin
   methodList := TMethodList.Create (self);
 
   // -1 means variable arguments
-  methodList.Add(TMethodDetails.Create ('len',   VARIABLE_ARGS, 'get the length of an array: var.len ()', getLength));
-  methodList.Add(TMethodDetails.Create ('shape',  0, 'get the dimensions of the array: var.shape ()', getShape));
-  methodList.Add(TMethodDetails.Create ('ndim',   0, 'get the number of dimensions of the array: var.ndim ()', getNumDim));
-  methodList.Add(TMethodDetails.Create ('rows',   0, 'get the number of rows of a matrix: var.rows()', getNumRows));
-  methodList.Add(TMethodDetails.Create ('cols',   0, 'get the number of columns of a matrix: var.cols()', getNumCols));
+  methodList.Add(TMethodDetails.Create ('len',   'ArrayObject', VARIABLE_ARGS, getLength));
+  methodList.Add(TMethodDetails.Create ('shape', 'ArrayObject', 0, getShape));
+  methodList.Add(TMethodDetails.Create ('ndim',  'ArrayObject', 0, getNumDim));
+  methodList.Add(TMethodDetails.Create ('rows',  'ArrayObject', 0, getNumRows));
+  methodList.Add(TMethodDetails.Create ('cols',  'ArrayObject', 0, getNumCols));
 
-  methodList.Add(TMethodDetails.Create ('toMatrix', 0, 'Convert a 2D array into a matrix: m = var.tomatrix()', toMatrix));
+  methodList.Add(TMethodDetails.Create ('toMatrix', 'ArrayObject', 0, toMatrix));
 
+  methodList.Add(TMethodDetails.Create('appendRow',  'ArrayObject', 1, appendRow));
+  methodList.Add(TMethodDetails.Create('appendCol',  'ArrayObject', 1, appendCol));
 
-  methodList.Add(TMethodDetails.Create('appendrow',  1, 'append rows', appendRow));
-  methodList.Add(TMethodDetails.Create('appendcol',  1, 'append columns', appendCol));
-  //methodList.Add(TMethodDetails.Create('append',  1, 'append columns', append));
+  methodList.Add(TMethodDetails.Create ('tr',     'ArrayObject', 0, getTranspose));
 
-  methodList.Add(TMethodDetails.Create ('tr',     0, 'Transpose the matrix: var.tr ()', getTranspose));
   methodList.Add(TMethodDetails.Create ('sqr',    0, 'square each element in the array: var.sqr ()', getSqr));
   methodList.Add(TMethodDetails.Create ('add',    1, 'add an array argument to the array: c = a.add (b)', add));
   methodList.Add(TMethodDetails.Create ('sub',    1, 'subtract an array argument from the array: c = a.sub (b)', sub));
   methodList.Add(TMethodDetails.Create ('trunc',  0, 'Truncate all entries to whole numbers: c = a.trunc ()', getTrunc));
   methodList.Add(TMethodDetails.Create ('max',    0, 'Find the maximum value in an array: c = a.max ()', getMax));
   methodList.Add(TMethodDetails.Create ('min',    0, 'Find the minimum value in an array: c = a.min ()', getMin));
+
+  methodList.Add(TMethodDetails.Create ('help',   -1, 'Returns the help string associated with the variable. m.help ()', getHelp));
+  methodList.Add(TMethodDetails.Create ('dir',    0, 'dir of matrix object methods', dir));
 end;
 
 
@@ -186,6 +193,33 @@ begin
          exit (False);
 end;
 
+
+function doTranspose (src : TArrayObject) : TArrayObject;
+var i, j : integer;
+    r, c : integer;
+begin
+  r := src.dim[0];
+  c := src.dim[1];
+
+  result := TArrayObject.Create ([c, r]);
+
+  for i := 0 to r - 1 do
+      for j := 0 to c - 1 do
+          result[j,i] := src[i,j];
+end;
+
+
+procedure doAppendrow (src, appendee : TArrayObject);
+var sRows : integer;
+    i, j : integer;
+begin
+  sRows := src.dim[0];
+  src.resize2D (sRows + appendee.dim[0], src.dim[1]);
+
+  for i := 0 to appendee.dim[0] - 1 do
+       for j := 0 to appendee.dim[1] - 1 do
+           src.setValue2D (sRows + i, j, appendee.getValue2D (i, j));
+end;
 
 procedure TArrayMethods.getLength (vm : TObject);
 var s : TArrayObject;
@@ -277,31 +311,11 @@ begin
 end;
 
 
-//procedure TArrayObject.append (mat : TArrayObject);
-//var i : integer;
-//begin
-//  if length (self.dim) <> 2 then
-//     raise ERuntimeException.Create('Only 2D arrays are currently supported in append');
-//
-//  // Check that the number of columns is compatible
-//  if self.dim[1] = mat.dim[1] then
-//     begin
-//     inc (self.dim[0]);
-//     setLength (dataf, self.dim[0] * self.dim[1]);
-//
-//     for i := 0 to mat.dim[1] - 1 do
-//         self.setValue2D (self.dim[0]-1, i, mat.getValue2D (0, i));
-//
-//     setLength (mat.dataf, 0);
-//     end
-//  else
-//    raise ERuntimeException.Create(' column dimensions must match for each row of the matrix');
-//end;
-
-// m1.append (appendee)
+// m1.appendRow (appendee)
+// Appends a row to m1, doesn't return anything
+// eg m1.appendRow (array (3, 4))
 procedure TArrayMethods.appendRow (vm : TObject);
 var s, appendee : TArrayObject;
-    target : TArrayObject;
     i, j : integer;
     sRows: integer;
     md : TMethodDetails;
@@ -314,74 +328,58 @@ begin
   if (s.getNumDimensions() = 2) and (appendee.getNumDimensions() = 2) then
      begin
      if s.dim[1] = appendee.dim[1] then
-        begin
-        target := s.clone as TArrayObject;
-        sRows := s.dim[0];
-        target.resize2D (sRows + appendee.dim[0], s.dim[1]);
-
-        for i := 0 to appendee.dim[0] - 1 do
-            for j := 0 to appendee.dim[1] - 1 do
-                target.setValue2D (sRows + i, j, appendee.getValue2D (i, j));
-        s.Free;
-        s := target;
-        end
+        doAppendrow (s, appendee)
      else
-        raise ERuntimeException.Create('method <appendrow> column sizes don''t match');
+        raise ERuntimeException.Create('method <appendRow> column sizes don''t match');
      end
   else
-     raise ERuntimeException.Create('The method <appendrow> only applies to 2D arrays');
-  //TVM (vm).push (target);
+     raise ERuntimeException.Create('The method <appendRow> only applies to 2D arrays');
   TVM (vm).push (@noneStackType);
 end;
 
 
 procedure TArrayMethods.appendCol (vm : TObject);
-var s,appendee :TArrayObject;
+var src, dest, appendee, appendeeTr, finalAr : TArrayObject;
     md : TMethodDetails;
     target : TArrayObject;
 begin
   appendee := TVM (vm).popArray;
 
-   md := TVM (vm).popMethodDetails;
-   s := TArrayObject (md.self);
+  md := TVM (vm).popMethodDetails;
+  src := TArrayObject (md.self);
 
-  if (s.getNumDimensions() = 2) and (appendee.getNumDimensions() = 2) then
+  if (src.getNumDimensions() = 2) and (appendee.getNumDimensions() = 2) then
      begin
-    if s.dim[0] = appendee.dim[0] then
+     if src.dim[0] = appendee.dim[0] then
         begin
+        dest := doTranspose (src);
+        appendeeTr := doTranspose(appendee);
 
-
+        doAppendrow (dest, appendeeTr);
+        finalAr := doTranspose (dest);
+        TVM (vm).push (finalAr);
         end
      else
-        raise ERuntimeException.Create('method <appendcol> rows sizes don''t match');
+        raise ERuntimeException.Create('method <appendCol> row sizes don''t match');
      end
   else
-     raise ERuntimeException.Create('The method <appendcol> only applies to 2D matrices');
-  TVM (vm).push (target);
+     raise ERuntimeException.Create('The method <appendCol> only applies to 2D arrays');
 end;
 
 
 procedure TArrayMethods.getTranspose (vm : TObject);
-var s, tmp :TArrayObject;
+var src, dest :TArrayObject;
     i, j : integer;
     r, c : integer;
     md : TMethodDetails;
 begin
   md := TVM (vm).popMethodDetails;
-  s := TArrayObject (md.self);
-  if s.ndims < 2 then
+  src := TArrayObject (md.self);
+  if src.ndims < 2 then
      raise ERuntimeException.Create('The array must be 2-dimensional to evaluate the transpose');
 
-  r := s.dim[0];
-  c := s.dim[1];
-
-  tmp := TArrayObject.Create ([c, r]);
-  tmp.blockType := btTemporary;  // protect from garbage collector
-  for i := 0 to r - 1 do
-      for j := 0 to c - 1 do
-          tmp[j,i] := s[i,j];
-  tmp.blockType := btGarbage;
-  TVM (vm).push (tmp);
+  dest := doTranspose (src);
+  TVM (vm).push (dest);
 end;
 
 
@@ -1137,11 +1135,10 @@ end;
 // -----------------------------------------------------------------------
 
 initialization
-   TArrayObject.arrayMethods := TArrayMethods.Create;
-   //arrayMethods := TArrayMethods.Create;
+   // Added to uRhodusEngine
+   //TArrayObject.arrayMethods := TArrayMethods.Create;
 finalization
    TArrayObject.arrayMethods.free;
-   //arrayMethods.Free;
 end.
 
 

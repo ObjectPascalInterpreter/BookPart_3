@@ -96,6 +96,7 @@ uses uCommands,
      uRhodusTypes,
      uStringObject,
      uMatrixObject,
+     uArrayObject,
      uEnvironment,
      uHelpUnit,
      uVMExceptions;
@@ -120,6 +121,7 @@ begin
   uMatrixObject.createAndAttachMethods;
   uStringObject.createAndAttachMethods;
   uListObject.createAndAttachMethods;
+  uArrayObject.createAndAttachMethods;
 
   initialiseSysModuleVariables; // Creates the path variable
 

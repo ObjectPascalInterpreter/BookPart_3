@@ -12,6 +12,9 @@ unit uBuiltInArray;
            eg
               x = array ([[1,2,3,4], [6,5,4,2]])
 
+           They can also be create with a dimension:
+              x = array (3,4,5) // 3 by 4 by 5 array
+
            If the array is 2D, it can be converted to a matrix type using
 
            m = x.toMatrix()

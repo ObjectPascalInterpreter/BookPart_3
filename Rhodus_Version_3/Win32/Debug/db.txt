@@ -298,7 +298,6 @@ matrix
 matrix(int, int)
 Create an matrix of zeros of given size.
 m = mat.matrix (3, 2)
-
 You can create a literal matrix using the symtax m = {{1,2,3},{5,6,7},{8,7,5}}
 ##########
 startMethod
@@ -393,6 +392,11 @@ l = lists.rndi (lower, upper, number)
 l = lists.rndi (0, 10, 5)
 l = lists.rndi (5, 10, 20)
 ##########
+%
+% ==============================================================
+% data objects help follows, eg MatrixObject, StringObject, etc.
+% ==============================================================
+%
 ---------- dataobject
 MatrixObject
 This is the matrix object
@@ -518,7 +522,7 @@ a = "acbdefgh"
 a_reverse = a.reverse()
 ##########
 %
-% Start of list  object help
+% Start of list object help
 %
 ---------- dataobject
 ListObject
@@ -578,6 +582,75 @@ value = alist.min ()
 Find the minimum value is a 1D list of values.
 a = [1,2,3]
 element = a.min()
+##########
+%
+% Start of array object help
+%
+---------- dataobject
+ArrayObject
+To is an array object
+startMethod
+len
+an_array.len ()
+Returns the length of an array 
+a = array (30)
+println (a.len())
+##########
+startMethod
+shape
+shape = an_array.shape ()
+Get the dimensions of the array
+a = array (30)
+println (a.shape()
+##########
+startMethod
+ndim
+shape = an_array.ndim ()
+Get the number of dimensions of the array.
+a = array (30, 40)
+println (a.ndim())
+##########
+startMethod
+rows
+n = an_array.rows ()
+Get the number of rows of an array (only applies to 2D arrays)
+a = array (30, 40)
+println (a.rows())
+##########
+startMethod
+cols
+n = an_array.rows ()
+Get the number of cols of an array (only applies to 2D arrays)
+a = array (30, 40)
+println (a.cols()
+##########
+startMethod
+toMatrix
+n = an_array.toMatrix ()
+Convert a 2D array into a matrix
+a = array (30, 40)
+m = var.toMatrix()
+##########
+startMethod
+appendRow
+new_array = an_array.appendRow (array)
+Append a row to a 2D array and return a new array
+a = array (5, 3)
+b = a.appendRow (array(2,3))
+##########
+startMethod
+appendCol
+new_array = an_array.appendCol (array)
+Append a row to a 2D array and return a new array
+a = array (5, 3)
+b = a.appendCol (array(5,1))
+##########
+startMethod
+tr
+an_array.tr()
+Returns the transpose a 2D array
+a = array (5, 3)
+new_a = a.tr()
 ##########
 end
 

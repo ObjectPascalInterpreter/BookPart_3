@@ -527,7 +527,7 @@ begin
      for i := 0 to m1.numrows - 1 do
        for j := 0 to m1.numcols - 1 do
            begin
-           if not sameValue (m1.data[i,j], m2.data[i,j], (epsSymbol.dataObject as TValueObject).dValue) then
+           if not sameValue (m1.data[i,j], m2.data[i,j], epsSymbol.dValue) then
               exit (False);
            end;
 

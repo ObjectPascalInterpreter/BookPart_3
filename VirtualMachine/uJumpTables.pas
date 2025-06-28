@@ -7,8 +7,11 @@
 // Author Contact Information:
 // email: hsauro@gmail.com
 
+// The 2D jump tables are for binary operators such as a + b
+
 // The jump tables are used to rapidly call the appropriate function based
-// on the  types of argument. eg we can't add an integer to a string.
+// on the types of argument. eg we can't add an integer to a string,
+// but we can add an  integer to a double value
 
 // The alternaitve to a jump table is an unwieldy series of if statements.
 

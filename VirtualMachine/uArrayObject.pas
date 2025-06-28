@@ -1126,7 +1126,7 @@ begin
 
   for var i := 0 to n do
       begin
-      if not sameValue (a1.dataf[i], a2.dataf[i], (epsSymbol.dataObject as TValueObject).dValue) then
+      if not sameValue (a1.dataf[i], a2.dataf[i], epsSymbol.dValue) then
          exit (False);
       end;
 end;

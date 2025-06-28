@@ -139,7 +139,6 @@ begin
   else
    raiseInternalError('Internal error in minis (uValueObject), missing type: ' + inttostr (integer (value.valueType)));
   end;
-
 end;
 
 

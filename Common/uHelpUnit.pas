@@ -314,7 +314,7 @@ begin
        result := result + '   ' + description;
        if length (examples) > 0 then
           begin
-          result := result + sLineBreak + sLineBreak + 'Examples:';
+          result := result + sLineBreak + sLineBreak + 'Examples and Notes:';
           for i := 0 to length (examples) - 1 do
               result :=  result + sLineBreak + '  ' + examples[i];
        end;
@@ -356,7 +356,7 @@ begin
        result := result + '   ' + description;
        if length (examples) > 0 then
           begin
-          result := result + sLineBreak + 'Examples:' + sLineBreak;
+          result := result + sLineBreak + 'Examples11:' + sLineBreak;
           for i := 0 to length (examples) - 1 do
               result :=  result + '* ' + '`' + examples[i] + '`' + sLineBreak;
        end;
@@ -368,7 +368,7 @@ begin
        result := result + '   ' + description;
        if length (examples) > 0 then
           begin
-          result := result + sLineBreak + 'Examples:' + sLineBreak;
+          result := result + sLineBreak + 'Examples22:' + sLineBreak;
           for i := 0 to length (examples) - 1 do
               result :=  result + '* ' + '`' + examples[i] + '`' + sLineBreak;
        end;

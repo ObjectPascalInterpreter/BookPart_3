@@ -1,3 +1,17 @@
+// Developed using Delphi for Windows and Mac platforms.
+
+// *** This source is distributed under Apache 2.0 ***
+
+// Copyright (C) 2019-2020 Herbert M Sauro
+
+// Author Contact Information:
+// email: hsauro@gmail.com
+
+// The jump tables are used to rapidly call the appropriate function based
+// on the  types of argument. eg we can't add an integer to a string.
+
+// The alternaitve to a jump table is an unwieldy series of if statements.
+
 unit uJumpTables;
 
 interface

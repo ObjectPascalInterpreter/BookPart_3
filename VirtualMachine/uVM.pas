@@ -57,7 +57,7 @@ type
 
   TFrameStack = array of TFrame;
 
-  // Input/Output callnbacks ,makes it easier to host the
+  // Input/Output callbacks, makes it easier to host the
   // system in another application
   TVMCaptureStringCallBack = procedure (const astr : AnsiString);
   TVMReadStringCallBack  = function (const prompt : AnsiString) : PAnsiChar;
@@ -151,7 +151,7 @@ type
 
     procedure loadLocalSymbol(index: integer);
 
-    // Sotre and load methods for different objects
+    // Store and load methods for different objects
     procedure storeIndexable (nSubscripts : integer);
     procedure storeIndexableString(variable: PMachineStackRecord;  index: integer);
     procedure storeIndexableList(variable: PMachineStackRecord; index: integer);

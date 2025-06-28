@@ -63,8 +63,8 @@ constructor TBuiltInFile.Create;
 begin
   inherited Create ('file');
 
-  addMethod (readAllText,   1, 'readAllText',   'Opens a text file, reads all the text in the file into a string, and then closes the file.');
-  addMethod (writeAllText,  2, 'writeAllText',  'file.writeAllText ("myfile.txt", variable) Creates a new file, write the contents to the file, and then closes the file. If the target file already exists, it is overwritten.');
+  addMethod (readAllText,   1, 'readAllText');
+  addMethod (writeAllText,  2, 'writeAllText');
   addMethod (fileExists,    1, 'fileExists',    'Returns true if the specified file exists, else returns false.');
 
   addMethod (openFile,      2, 'openFile',      'Returns a handle to an opened file: f = file.openFile ("myfile.txt", "r")');
@@ -73,6 +73,7 @@ begin
   addMethod (eof1,          1, 'eof',           'Returns true if at end of file, otherwise false: if file.eof (f) ...');
   addMethod (writeString,   2, 'writeString',   'Write a string to a text file: file.writeString (f, "A string").');
 
+   // Examole if you need it
    //addValue ('pi', Pi,      'The value of pi');
    fileHandlesDict := TDictionary<integer,TFileRecord>.Create;
    fileHandleCounter := 0;

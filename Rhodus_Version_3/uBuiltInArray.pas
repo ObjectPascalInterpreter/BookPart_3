@@ -75,16 +75,14 @@ constructor TBuiltInArray.Create;
 begin
   inherited Create ('arrays');
 
-  addMethod(getMake,     1, 'make',  'Create an array of zeros of given length: ar = arrays.make (10)');
-  addMethod(getRange,    3, 'range', 'Create an array of evenly spaced values: ar = arrays.make (0, 5, 10)');
-  addMethod(getRndu,    VARIABLE_ARGS, 'rndu',  'Create an array of given dimensions of uniformly random numbers: ar = arrays.rand (4,4,2)');
-  addMethod(getRndi,     3, 'rndi', 'Create am array of uniformly random integers: ar = arrays.rndi ([3,3], lower, upper)');
-  addMethod(getRndn,     VARIABLE_ARGS, 'rndn', 'Create an array of normally distributed random numbers: ar = arrays.rndn (x,y,z,...,mean, standard deviation)');
-  addMethod(isEqual,     2, 'equal', 'Return true if the two arrays are equal: arrays.equal (m1,m2)');
-  addMethod(getMean,     1, 'mean', 'Return mean values of a 1D array: m = arrays.mean (a)');
-  addMethod(getBin,      4, 'bin', 'm = arrays.bin (x, 0, 5, 20)');
-
-  //addMethod(isEqual,     2, 'appendrow', 'Return true if the two arrays are equal: arrays.equal (m1,m2)');
+  addMethod(getMake,     1, 'make');
+  addMethod(getRange,    3, 'range');
+  addMethod(getRndu,     VARIABLE_ARGS, 'rndu');
+  addMethod(getRndi,     VARIABLE_ARGS, 'rndi');
+  addMethod(getRndn,     VARIABLE_ARGS, 'rndn');
+  addMethod(isEqual,     2, 'equal');
+  addMethod(getMean,     1, 'mean');
+  addMethod(getBin,      4, 'bin');
   end;
 
 
@@ -134,7 +132,7 @@ begin
     begin
       BinIndex := Floor((Data.getValue1D(i) - dMin) / BinWidth);
       if BinIndex >= nBins then
-        BinIndex := nBins - 1; // Ensure the maximum value falls into the last bin/      Inc(Bins[BinIndex]);
+        BinIndex := nBins - 1; // Ensure the maximum value falls into the last bin
       Bins.setValue1D(BinIndex, Bins.getValue1D(BinIndex) + 1);
     end;
   end;
@@ -186,25 +184,23 @@ procedure TBuiltInArray.getRndi (vm : TObject);
 var lower, upper : integer;
     n : integer;
     ar : TArrayObject;
-    al : TListObject;
+    //al : TListObject;
     i : integer;
+    nArgs : integer;
     idx : TIndexArray;
 begin
+  nArgs := TVM (vm).popInteger;
   upper := TVM (vm).popInteger;
   lower := TVM (vm).popInteger;
-  al := TVM (vm).popList;       // dimensions
+  //al := TVM (vm).popList;       // dimensions
 
-  setLength (idx, al.list.count);
-  n := 1;
-  for i := 0 to al.list.Count - 1 do
-      begin
-      n := n * al.list[i].iValue;
-      idx[i] := al.list[i].iValue;
-      end;
+  setLength (idx, nArgs-2);
+  for i := nArgs - 3 downto 0 do
+      idx[i] := TVM (vm).popInteger;
 
-  ar := TArrayObject.Create (idx);
+  ar := TArrayObject.Create(idx);
 
-  for i := 0 to (n) - 1 do
+  for i := 0 to length (ar.dataf) - 1 do
       begin
       ar.dataf[i] := RandomRange(lower, upper);
       end;
